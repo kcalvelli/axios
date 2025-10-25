@@ -1,76 +1,452 @@
-# Guide: Adding New Hosts
+# Adding Hosts to Your Configuration
 
-This guide explains how to add new machines to your axiOS configuration.
+This guide shows how to manage multiple machines with axiOS.
 
-## How It Works
+## Using axiOS as a Library (Recommended)
 
-The system uses a **declarative host configuration** approach where each host is defined in a single file.
+When using axios as a library, adding hosts is simple - just add more configurations to your flake.
 
-### How It Works
+### Single Host Structure
 
-1. **One file per host**: `hosts/hostname.nix` contains all host-specific settings
-2. **Single registration**: Add one line to `hosts/default.nix` to register the host
-3. **Auto-configuration**: Hardware modules and features are automatically selected based on the host config
+```
+my-nixos-config/
+├── flake.nix
+├── user.nix
+└── disks.nix
+```
 
-### To Add a New Host
+### Multi-Host Structure
+
+```
+my-nixos-config/
+├── flake.nix
+├── user.nix          # Shared user module
+└── hosts/
+    ├── desktop/
+    │   ├── config.nix
+    │   └── disks.nix
+    └── laptop/
+        ├── config.nix
+        └── disks.nix
+```
+
+### Example Multi-Host Flake
+
+**flake.nix:**
+```nix
+{
+  inputs = {
+    axios.url = "github:kcalvelli/axios";
+    nixpkgs.follows = "axios/nixpkgs";
+  };
+
+  outputs = { self, axios, nixpkgs, ... }:
+    let
+      # Shared user module
+      userModule = self.outPath + "/user.nix";
+      
+      # Desktop configuration
+      desktopConfig = {
+        hostname = "desktop";
+        system = "x86_64-linux";
+        formFactor = "desktop";
+        
+        hardware = {
+          vendor = "msi";
+          cpu = "amd";
+          gpu = "amd";
+          hasSSD = true;
+          isLaptop = false;
+        };
+        
+        modules = {
+          system = true;
+          desktop = true;
+          development = true;
+          gaming = true;
+          graphics = true;
+          networking = true;
+          users = true;
+          virt = true;
+          services = true;
+        };
+        
+        services = {
+          caddy-proxy.enable = true;
+        };
+        
+        homeProfile = "workstation";
+        userModulePath = userModule;
+        diskConfigPath = ./hosts/desktop/disks.nix;
+        
+        extraConfig = {
+          time.timeZone = "America/New_York";
+        };
+      };
+      
+      # Laptop configuration
+      laptopConfig = {
+        hostname = "laptop";
+        system = "x86_64-linux";
+        formFactor = "laptop";
+        
+        hardware = {
+          vendor = "system76";
+          cpu = "amd";
+          gpu = "amd";
+          hasSSD = true;
+          isLaptop = true;
+        };
+        
+        modules = {
+          system = true;
+          desktop = true;
+          development = true;
+          gaming = false;  # No gaming on laptop
+          graphics = true;
+          networking = true;
+          users = true;
+          virt = false;
+          services = false;
+        };
+        
+        homeProfile = "laptop";
+        userModulePath = userModule;
+        diskConfigPath = ./hosts/laptop/disks.nix;
+        
+        extraConfig = {
+          time.timeZone = "America/New_York";
+          boot.lanzaboote.enableSecureBoot = true;
+        };
+      };
+    in
+    {
+      nixosConfigurations = {
+        desktop = axios.lib.mkSystem desktopConfig;
+        laptop = axios.lib.mkSystem laptopConfig;
+      };
+    };
+}
+```
+
+### Alternative: Import Host Configs
+
+For cleaner organization, import host configs from separate files:
+
+**flake.nix:**
+```nix
+{
+  inputs = {
+    axios.url = "github:kcalvelli/axios";
+    nixpkgs.follows = "axios/nixpkgs";
+  };
+
+  outputs = { self, axios, nixpkgs, ... }:
+    let
+      userModule = self.outPath + "/user.nix";
+      
+      # Import host configs
+      desktop = (import ./hosts/desktop/config.nix { 
+        lib = nixpkgs.lib;
+        userModule = userModule;
+      }).hostConfig;
+      
+      laptop = (import ./hosts/laptop/config.nix {
+        lib = nixpkgs.lib;
+        userModule = userModule;
+      }).hostConfig;
+    in
+    {
+      nixosConfigurations = {
+        desktop = axios.lib.mkSystem desktop;
+        laptop = axios.lib.mkSystem laptop;
+      };
+    };
+}
+```
+
+**hosts/desktop/config.nix:**
+```nix
+{ lib, userModule, ... }:
+{
+  hostConfig = {
+    hostname = "desktop";
+    system = "x86_64-linux";
+    formFactor = "desktop";
+    
+    hardware = {
+      vendor = "msi";
+      cpu = "amd";
+      gpu = "amd";
+      hasSSD = true;
+      isLaptop = false;
+    };
+    
+    modules = {
+      system = true;
+      desktop = true;
+      development = true;
+      gaming = true;
+      # ... etc
+    };
+    
+    homeProfile = "workstation";
+    userModulePath = userModule;
+    diskConfigPath = ./disks.nix;
+  };
+}
+```
+
+### Deploying to Hosts
 
 ```bash
-# 1. Copy the template
-cp hosts/TEMPLATE.nix hosts/newhost.nix
+# Build desktop config
+sudo nixos-rebuild switch --flake .#desktop
 
-# 2. Edit the configuration
-vim hosts/newhost.nix  # Set hostname, hardware, modules, etc.
+# Build laptop config
+sudo nixos-rebuild switch --flake .#laptop
 
-# 3. Register the host (add one line to hosts/default.nix)
-# newhost = mkSystem (import ./newhost.nix { inherit lib; }).hostConfig;
-
-# 4. Create disk configuration (if using separate file)
-mkdir -p hosts/newhost/disko
-# Copy a template based on your needs:
-cp modules/disko/templates/standard-ext4.nix hosts/newhost/disko/default.nix
-# OR use luks-ext4.nix for encrypted setup
-# OR use btrfs-subvolumes.nix for btrfs with snapshots
-# Edit disk configuration as needed
+# Deploy from remote
+nixos-rebuild switch --flake github:user/my-config#laptop --target-host laptop.local
 ```
 
-### Benefits
+## Direct Installation Approach
 
-- ✅ **Minimal steps**: Only edit 2-3 files to add a host
-- ✅ **Single source of truth**: All host config in one file
-- ✅ **Self-documenting**: Clear what each host has enabled
-- ✅ **Hardware auto-selection**: nixos-hardware modules chosen automatically
-- ✅ **Explicit control**: Easy to see all hosts at a glance
+If you've cloned axios directly, add hosts to the `hosts/` directory.
 
-## Host Configuration Structure
+### Create Host Configuration
 
-Each host uses this structure:
+Use the provided script:
 
-```
-hosts/
-├── hostname.nix              # Host configuration
-└── hostname/                 # Optional host-specific files
-    └── disko/
-        └── default.nix      # Disk layout configuration
+```bash
+cd /etc/nixos
+./scripts/shell/add-host.sh
 ```
 
-### Example Host Files
+Or manually create `hosts/newhostname.nix`:
 
-**Simple Configuration** (`hosts/EXAMPLE-simple.nix`): Minimal setup with inline disk config
-**Organized Configuration** (`hosts/EXAMPLE-organized.nix`): Full-featured with separate files
+```nix
+{ lib, ... }:
+{
+  hostConfig = {
+    hostname = "newhostname";
+    system = "x86_64-linux";
+    formFactor = "desktop";
+    
+    hardware = {
+      cpu = "amd";
+      gpu = "amd";
+      hasSSD = true;
+      isLaptop = false;
+    };
+    
+    modules = {
+      system = true;
+      desktop = true;
+      development = true;
+      # ... enable modules as needed
+    };
+    
+    homeProfile = "workstation";
+    diskConfigPath = ./newhostname/disks.nix;
+  };
+}
+```
 
-See these example files as starting points for your own host configurations.
+### Register Host in Flake
 
-## Tips and Best Practices
+Edit `hosts/default.nix`:
 
-1. **Start with the template**: Always copy `hosts/TEMPLATE.nix` for consistency
-2. **Use clear hostnames**: Choose descriptive names that identify the machine
-3. **Document special settings**: Add comments explaining unusual configurations
-4. **Test in a VM first**: Build and test new host configs before deploying
-5. **Keep disko configs separate**: Store disk layouts in `hosts/hostname/disko/`
-6. **Match hardware accurately**: Set correct CPU/GPU for optimal performance
+```nix
+let
+  # Import your host config
+  myHostCfg = (import ./newhostname.nix { inherit lib; }).hostConfig;
+in
+{
+  flake.nixosConfigurations = {
+    # ... existing hosts ...
+    
+    # Add your new host
+    newhostname = mkSystem myHostCfg;
+  };
+}
+```
 
-## See Also
+### Create Disk Configuration
 
-- `hosts/README.md` - Full host configuration reference
-- `hosts/TEMPLATE.nix` - Template for new hosts
-- `home/profiles/README.md` - Home-manager profiles
+Create `hosts/newhostname/disks.nix` using a template:
+
+```bash
+# Copy a template
+cp hosts/TEMPLATE.nix hosts/newhostname.nix
+cp modules/disko/templates/standard-ext4.nix hosts/newhostname/disks.nix
+
+# Edit for your needs
+$EDITOR hosts/newhostname/disks.nix
+```
+
+## Sharing Configuration Between Hosts
+
+### Shared User Module
+
+Create one user module and reuse it:
+
+**user.nix:**
+```nix
+{ self, config, ... }:
+let
+  username = "myuser";
+in
+{
+  users.users.${username} = {
+    isNormalUser = true;
+    description = "My User";
+    initialPassword = "changeme";
+    extraGroups = [ "networkmanager" "wheel" ];
+  };
+
+  home-manager.users.${username} = {
+    home.stateVersion = "24.05";
+    # ... shared home-manager config
+  };
+}
+```
+
+All hosts reference the same `userModulePath`.
+
+### Shared Settings via extraConfig
+
+Define common settings once:
+
+```nix
+let
+  commonConfig = {
+    time.timeZone = "America/New_York";
+    i18n.defaultLocale = "en_US.UTF-8";
+  };
+  
+  desktopConfig = {
+    # ... hardware, modules, etc ...
+    extraConfig = commonConfig;
+  };
+  
+  laptopConfig = {
+    # ... hardware, modules, etc ...
+    extraConfig = commonConfig;
+  };
+in
+{
+  nixosConfigurations = {
+    desktop = axios.lib.mkSystem desktopConfig;
+    laptop = axios.lib.mkSystem laptopConfig;
+  };
+}
+```
+
+### Different Module Sets Per Host
+
+Enable different features per machine:
+
+```nix
+# Gaming desktop
+desktopConfig.modules = {
+  system = true;
+  desktop = true;
+  gaming = true;  # ✓
+  virt = true;    # ✓
+  services = true; # ✓
+};
+
+# Development laptop
+laptopConfig.modules = {
+  system = true;
+  desktop = true;
+  gaming = false;  # ✗ No gaming
+  virt = false;    # ✗ No VMs
+  services = false; # ✗ No services
+};
+```
+
+## Remote Deployment
+
+### Deploy from Another Machine
+
+```bash
+# Deploy to remote host
+nixos-rebuild switch --flake .#remotehostname \
+  --target-host user@remote.host \
+  --use-remote-sudo
+
+# Deploy without remote sudo (if you have root access)
+nixos-rebuild switch --flake .#remotehostname \
+  --target-host root@remote.host
+```
+
+### Use SSH Config
+
+**~/.ssh/config:**
+```
+Host mydesktop
+    HostName desktop.local
+    User myuser
+    IdentityFile ~/.ssh/id_ed25519
+
+Host mylaptop
+    HostName laptop.local
+    User myuser
+    IdentityFile ~/.ssh/id_ed25519
+```
+
+Then deploy with:
+```bash
+nixos-rebuild switch --flake .#desktop --target-host mydesktop --use-remote-sudo
+```
+
+## Tips
+
+### Host-Specific Overlays
+
+```nix
+extraConfig = {
+  nixpkgs.overlays = [
+    (final: prev: {
+      # Override package for this host only
+      my-package = prev.my-package.override {
+        enableFeature = true;
+      };
+    })
+  ];
+}
+```
+
+### Conditional Configuration
+
+```nix
+extraConfig = {
+  # Example: Only enable on desktop
+  services.caddy.enable = lib.mkIf (config.networking.hostName == "desktop") true;
+}
+```
+
+### Testing New Hosts
+
+```bash
+# Build without deploying
+nix build .#nixosConfigurations.newhost.config.system.build.toplevel
+
+# Test in VM (if configured)
+nixos-rebuild build-vm --flake .#newhost
+./result/bin/run-*-vm
+```
+
+## Examples
+
+- [examples/minimal-flake](../examples/minimal-flake/) - Single host
+- [examples/multi-host](../examples/multi-host/) - Multiple hosts (coming soon)
+- [Real world example](https://github.com/kcalvelli/nixos_config) - Production multi-host setup
+
+## More Information
+
+- [Library Usage Guide](LIBRARY_USAGE.md) - Complete library API
+- [Quick Reference](QUICK_REFERENCE.md) - Common commands
+- [Installation Guide](INSTALLATION.md) - Getting started
