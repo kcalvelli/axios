@@ -5,24 +5,91 @@
 </p>
 
 <p align="center">
-  <em>A modular <a href="https://nixos.org">NixOS</a> distribution built with flakes, featuring flexible system configurations, <a href="https://github.com/nix-community/home-manager">Home Manager</a> integration, and curated development environments.</em>
+  <em>A modular <a href="https://nixos.org">NixOS</a> framework and library for building reproducible systems with <a href="https://github.com/nix-community/home-manager">Home Manager</a>, modern desktop environments, and curated development tools.</em>
 </p>
 
-## Overview
+## What is axiOS?
 
-axiOS is a complete NixOS distribution ready for deployment on your hardware. It provides a modern, declarative system configuration leveraging [NixOS](https://nixos.org) flakes to manage systems with shared modules and per-host customization.
+axiOS is a **NixOS framework and library** that you can use to build your own NixOS configurations. Instead of forking and maintaining a full system configuration, you import axiOS as a flake input and use its library functions to compose your system.
 
-**This is a distribution, not a personal configuration.** It's designed to be cloned, customized, and deployed on your own systems. All personal configurations have been removed, making it a clean starting point for building your own NixOS setup.
+**Two ways to use axiOS:**
 
-The configuration emphasizes reproducibility through Nix flakes while maintaining flexibility for customization. It includes:
+1. **As a Library** (Recommended) - Import axios into your own flake and use `axios.lib.mkSystem` to build configurations
+2. **Direct Installation** - Clone and customize the full configuration (for those who prefer complete control)
 
-- **Modular architecture** with reusable components organized by function (desktop, development, gaming, networking, services, etc.)
-- **Organized package management** with categorized package lists and comprehensive documentation
-- **[Home Manager](https://github.com/nix-community/home-manager) integration** for declarative user environment management
-- **Development shells** with pre-configured toolchains for multiple languages and frameworks
-- **Secure boot support** via Lanzaboote
-- **Modern desktop environments** with [Niri](https://github.com/YaLTeR/niri) compositor and custom shell configurations
-- **Self-documenting modules** with README files explaining purpose and organization
+## Quick Start - Using axiOS as a Library
+
+Create your own minimal configuration repository:
+
+```nix
+# flake.nix
+{
+  inputs = {
+    axios.url = "github:kcalvelli/axios";
+    nixpkgs.follows = "axios/nixpkgs";
+  };
+  
+  outputs = { self, axios, nixpkgs, ... }:
+    let
+      myHostConfig = {
+        hostname = "mycomputer";
+        system = "x86_64-linux";
+        formFactor = "desktop";  # or "laptop"
+        
+        hardware = {
+          cpu = "amd";     # or "intel"
+          gpu = "amd";     # or "nvidia"
+          hasSSD = true;
+          isLaptop = false;
+        };
+        
+        modules = {
+          system = true;
+          desktop = true;
+          development = true;
+          gaming = false;
+          # ... etc
+        };
+        
+        homeProfile = "workstation";  # or "laptop"
+        diskConfigPath = ./disks.nix;
+        
+        # User module
+        userModulePath = ./myuser.nix;
+      };
+    in
+    {
+      nixosConfigurations.mycomputer = axios.lib.mkSystem myHostConfig;
+    };
+}
+```
+
+That's it! Your entire configuration is ~30 lines. All the modules, packages, and home-manager configs come from axios.
+
+See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation on using axios as a library.
+
+## Features
+
+### Desktop Experience
+- **[Niri compositor](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor
+- **DankMaterialShell** - Material design shell with custom theming
+- **Wallpaper blur effects** - Automatic blur for overview mode
+- **Ghostty terminal** - Modern GPU-accelerated terminal
+- **LazyVim** - Pre-configured Neovim with LSP support
+- **Hardware acceleration** - Optimized for AMD/Intel/Nvidia graphics
+
+### Development
+- **Multi-language environments** - Rust, Zig, Python, Node.js
+- **DevShells** - Project-specific toolchains via `nix develop`
+- **LSP support** - Language servers pre-configured
+- **Development tools** - Organized by category
+
+### Infrastructure
+- **Declarative disks** - Disko templates for automated provisioning
+- **Secure boot** - Lanzaboote support
+- **Virtualization** - libvirt, QEMU, Podman
+- **Hardware optimization** - Automatic desktop/laptop configuration
+- **Modular architecture** - Enable only what you need
 
 ## Screenshots
 
@@ -38,211 +105,180 @@ The configuration emphasizes reproducibility through Nix flakes while maintainin
 ![Nautilus File Manager](docs/screenshots/nautilus.png)
 *Nautilus file manager with custom theme integration*
 
-## Structure
+## Documentation
+
+### Using as a Library
+- [Library Usage Guide](docs/LIBRARY_USAGE.md) - Complete guide to using axios.lib.*
+- [Adding Hosts](docs/ADDING_HOSTS.md) - Managing multiple machines
+- [Quick Reference](docs/QUICK_REFERENCE.md) - Common commands
+
+### Direct Installation
+- [Installation Guide](docs/INSTALLATION.md) - Install axios directly
+- [Building ISOs](docs/BUILDING_ISO.md) - Create custom installer images
+
+### Reference
+- [Package Organization](docs/PACKAGES.md) - How packages are structured
+- [Desktop Customization](docs/NIRI_WALLPAPER.md) - Wallpaper and theming
+
+## Library API
+
+axiOS exports library functions for building NixOS configurations:
+
+### `axios.lib.mkSystem`
+
+Main function to create a NixOS system configuration.
+
+```nix
+nixosConfigurations.myhost = axios.lib.mkSystem {
+  hostname = "myhost";
+  system = "x86_64-linux";
+  formFactor = "desktop" | "laptop";
+  
+  hardware = {
+    vendor = "msi" | "system76" | null;
+    cpu = "amd" | "intel";
+    gpu = "amd" | "nvidia";
+    hasSSD = bool;
+    isLaptop = bool;
+  };
+  
+  modules = {
+    system = bool;      # Core system config
+    desktop = bool;     # Niri desktop
+    development = bool; # Dev tools
+    services = bool;    # System services
+    graphics = bool;    # Graphics drivers
+    networking = bool;  # Network config
+    users = bool;       # User management
+    virt = bool;        # Virtualization
+    gaming = bool;      # Gaming support
+  };
+  
+  homeProfile = "workstation" | "laptop";
+  diskConfigPath = ./path/to/disks.nix;
+  userModulePath = ./path/to/user.nix;
+  
+  extraConfig = {
+    # Any additional NixOS configuration
+  };
+};
+```
+
+See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) and [lib/README.md](lib/README.md) for complete API documentation.
+
+## Examples
+
+Check out these example repositories:
+
+- [examples/minimal-flake](examples/minimal-flake/) - Minimal single-host configuration
+- [examples/multi-host](examples/multi-host/) - Multiple hosts with shared config
+
+Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_config) - Personal configs using axios as a library
+
+## Project Structure
 
 ```
 .
-├── flake.nix           # Flake entrypoint and inputs
-├── flake.lock          # Locked dependency versions
-├── docs/               # Documentation
-│   ├── INSTALLATION.md         # Complete installation guide
-│   ├── BUILDING_ISO.md         # ISO build instructions
-│   ├── QUICK_REFERENCE.md      # Command reference
-│   ├── PACKAGES.md             # Package organization
-│   ├── ADDING_HOSTS.md         # Multi-machine management
-│   └── NIRI_WALLPAPER.md       # Desktop customization
-├── scripts/            # Automation scripts
-│   ├── shell/                  # Shell scripts
-│   │   ├── install-axios.sh    # Automated installer
-│   │   ├── add-host.sh         # Create new host config
-│   │   ├── add-user.sh         # Create new user
-│   │   ├── burn-iso.sh         # Create bootable USB
-│   │   ├── wallpaper-blur.sh   # Wallpaper blur generation
-│   │   └── update-material-code-theme.sh
-│   ├── nix/                    # Nix integration modules
-│   │   ├── installer.nix       # ISO installer config
-│   │   └── wallpaper-scripts.nix
-│   └── README.md               # Scripts documentation
-├── hosts/              # Per-machine configurations
-│   ├── TEMPLATE.nix             # Host configuration template
-│   ├── EXAMPLE-simple.nix       # Simple host example
-│   ├── EXAMPLE-organized.nix    # Organized host example
-│   └── installer/               # Installer ISO config
-├── modules/            # Reusable NixOS modules (system-level)
-│   ├── desktop/       # Desktop environment configs
-│   ├── development/   # Development tools and IDEs
-│   ├── disko/         # Disk management templates
-│   ├── gaming/        # Gaming platform support
-│   ├── graphics/      # Graphics drivers
-│   ├── hardware/      # Hardware-specific configs (desktop/laptop)
-│   ├── networking/    # Network services and VPNs
-│   ├── services/      # System services
-│   ├── system/        # Core system settings
-│   ├── users/         # User account definitions
-│   └── virtualisation/ # VM and container support
-├── home/              # Home Manager user configs (user-level)
-│   ├── common/        # Shared user configurations
-│   ├── desktops/      # Desktop-specific configs (Wayland/Niri)
-│   ├── profiles/      # User profiles (workstation, laptop)
-│   └── resources/     # Shared resources (themes, fonts)
-├── devshells/         # Development environment definitions
-└── pkgs/              # Custom package definitions (auto-discovered)
+├── lib/              # Exported library functions
+│   └── README.md     # Library API documentation
+├── modules/          # NixOS modules (system-level)
+│   ├── desktop/      # Desktop environment
+│   ├── development/  # Development tools
+│   ├── gaming/       # Gaming support
+│   ├── graphics/     # Graphics drivers
+│   ├── hardware/     # Hardware configs
+│   ├── networking/   # Network services
+│   ├── services/     # System services
+│   ├── system/       # Core system
+│   ├── users/        # User management
+│   └── virtualisation/ # VMs and containers
+├── home/             # Home Manager configs
+│   ├── common/       # Shared user configs
+│   ├── desktops/     # Desktop-specific
+│   ├── profiles/     # User profiles
+│   └── resources/    # Themes and resources
+├── hosts/            # Example host configs
+├── docs/             # Documentation
+├── scripts/          # Utility scripts
+├── devshells/        # Development environments
+└── pkgs/             # Custom packages
 ```
 
-**Note:** Each major module directory contains a `README.md` explaining its purpose and organization. See [`docs/PACKAGES.md`](docs/PACKAGES.md) for the complete package organization guide.
+Each directory contains a README explaining its purpose.
 
-## Key Features
+## Direct Installation
 
-### Desktop Experience
-- **[Niri compositor](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor
-- **DankMaterialShell integration** - Material design shell for Niri
-- **Wallpaper blur effects** - Automatic blur for overview mode (see [`docs/NIRI_WALLPAPER.md`](docs/NIRI_WALLPAPER.md))
-- **Ghostty terminal** - Modern GPU-accelerated terminal emulator
-- **LazyVim** - Pre-configured Neovim with LSP support
-- **Hardware acceleration** - Optimized AMD/Intel graphics drivers
-- **Gaming support** - Steam, GameMode, and Gamescope integration
+If you prefer to clone and customize the full configuration:
 
-### Package Management
-- **Organized structure** - Categorized `packages.nix` files in each module
-- **Clear documentation** - README files explain package placement
-- **System/Home split** - Explicit guidelines for package organization
-- **Section comments** - Easy navigation throughout configs
-- **Declarative & reproducible** - Flake-based package management
+### Automated Installation
 
-### Development
-- **Multi-language environments** - Rust (Fenix), Zig, Python, Node.js, and more
-- **Development tools** - Organized by category with clear module boundaries
-- **DevShells** - Project-specific toolchains via `nix develop`
-- **LSP support** - Language servers for major languages
-
-### Infrastructure
-- **Declarative disks** - Disko templates for automated disk provisioning
-- **Secure boot** - Optional Lanzaboote implementation
-- **Containerization** - Podman support for containers
-- **Virtualization** - QEMU and VM management tools
-- **Hardware optimization** - Automatic desktop/laptop configuration
-
-## Quick Installation
-
-### Automated Installation (Recommended)
-
-1. **Download ISO** from [GitHub Releases](https://github.com/kcalvelli/axios/releases/latest)
-2. **Create bootable USB** and boot your system
-3. **Run installer**: Type `/root/install` or just `install`
-4. **Follow prompts** to configure:
-   - Hardware detection (CPU, GPU, laptop/desktop)
-   - Disk layout (standard/encrypted/btrfs)
-   - Hostname and user account
-   - Feature selection (desktop/gaming/dev tools)
-   - Password setup
-5. **Reboot** into your new system
-6. **Optional**: Configure Secure Boot (see installation docs)
-
-The installer creates an **independent copy** of the configuration in `/etc/nixos`. You have full control to manage and customize your configuration however you prefer.
-
-See [`docs/INSTALLATION.md`](docs/INSTALLATION.md) for detailed instructions and options.
+1. Download ISO from [GitHub Releases](https://github.com/kcalvelli/axios/releases/latest)
+2. Boot from USB and run `/root/install`
+3. Follow prompts for hardware detection and configuration
+4. Reboot into your new system
 
 ### Manual Installation
 
-For more control over the installation process:
+```bash
+# Boot NixOS installer
+git clone https://github.com/kcalvelli/axios
+cd axios
+sudo ./scripts/shell/install-axios.sh
+```
 
-1. Boot NixOS installer ISO (official or axiOS)
-2. Clone repository: `git clone https://github.com/kcalvelli/axios`
-3. Run installer: `sudo ./axios/scripts/shell/install-axios.sh`
-4. Or follow manual steps in [`docs/INSTALLATION.md`](docs/INSTALLATION.md)
+See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
 
 ### Building Custom ISO
-
-Build your own installer ISO with customizations:
 
 ```bash
 nix build .#iso
 # Output: result/iso/axios-installer-x86_64-linux.iso
 ```
 
-See [`docs/BUILDING_ISO.md`](docs/BUILDING_ISO.md) for customization options and CI/CD integration.
-
-## Getting Started
-
-### After Installation
-
-The automated installer creates an independent configuration in `/etc/nixos` that you fully control:
-
-- ✅ Independent git repository ready for your customizations
-- ✅ No ties to upstream - manage updates on your terms
-- ✅ Full control over your configuration
-- ✅ Optional: Push to your own GitHub/GitLab repository
-- ✅ Optional: Pull upstream changes when you want new features
-
-**First steps after installation:**
-
-1. **Verify installation**: Check system info and functionality
-2. **Add your user**: Use the included user template or script
-3. **Configure your host**: Edit your host config in `/etc/nixos/hosts/`
-4. **Customize**: Review module READMEs to understand the structure
-5. **Update**: Learn to manage flake updates and rebuilds
-
-### Essential Documentation
-
-Start with these guides to get productive quickly:
-
-- [`docs/INSTALLATION.md`](docs/INSTALLATION.md) - Complete installation guide
-- [`docs/PACKAGES.md`](docs/PACKAGES.md) - Package organization and best practices
-- [`docs/QUICK_REFERENCE.md`](docs/QUICK_REFERENCE.md) - Common commands
-- Module `README.md` files in `modules/` and `home/` - Detailed module docs
-- [`docs/NIRI_WALLPAPER.md`](docs/NIRI_WALLPAPER.md) - Desktop customization
-
-### Adding Custom Packages
-
-Custom packages are auto-discovered from `pkgs/`:
-
-1. Create directory: `pkgs/my-package/`
-2. Add `default.nix` with package definition
-3. Package available as `pkgs.my-package`
-
-For nixpkgs packages, see [`docs/PACKAGES.md`](docs/PACKAGES.md) for placement guidelines.
-
 ## Development Environments
 
-Development shells provide pre-configured toolchains. Use `nix develop` to enter an environment:
-
-**Available shells:**
-- **Spec** (default) - GitHub Spec Kit for Spec-Driven Development
-- **Rust** - Fenix toolchain with rust-analyzer and cargo-watch
-- **Zig** - Zig compiler with ZLS language server
-- **QML** - Qt6/QML for Quickshell and QML applications
+Available development shells:
 
 ```bash
-# Enter default shell
-nix develop
-
-# Enter specific shell
-nix develop .#rust
-nix develop .#zig
-nix develop .#qml
+nix develop          # Default: Spec Kit
+nix develop .#rust   # Rust with Fenix
+nix develop .#zig    # Zig compiler
+nix develop .#qml    # Qt6/QML
 ```
 
-Each shell includes an info command (e.g., `rust-info`) to display available tools and versions.
+## Why axiOS?
 
-## User Management
+### As a Library
+- ✅ **Minimal maintenance** - Your config is ~30 lines, axios handles the rest
+- ✅ **Selective updates** - `nix flake update` to get new features when you want
+- ✅ **Version pinning** - Lock to specific axios versions for stability
+- ✅ **Clear separation** - Your personal configs vs framework code
+- ✅ **Easy sharing** - Your config repo is simple and understandable
 
-This configuration uses **auto-discovery** for user accounts. Add a new user by creating a file in `modules/users/`:
+### As a Distribution
+- ✅ **Complete system** - Everything configured out of the box
+- ✅ **Full control** - Modify any part of the configuration
+- ✅ **Learning resource** - See how a complete NixOS system is structured
+- ✅ **Starting point** - Clone and customize for your needs
 
-```bash
-# Use the helper script
-./scripts/shell/add-user.sh
+## Contributing
 
-# Or manually create modules/users/username.nix
-```
+Contributions welcome! This is a public framework meant to be used by others.
 
-See [`modules/users/README.md`](modules/users/README.md) for the complete user template and documentation.
-
-**Note**: You'll need to create at least one user account. The distribution ships without any pre-configured users.
+- Report issues for bugs or missing features
+- Submit PRs for improvements
+- Share your configurations using axios
+- Improve documentation
 
 ## Acknowledgments
 
-This configuration has been assembled over time drawing inspiration from countless [NixOS](https://nixos.org) configurations, blog posts, and community examples. Special thanks to the nix-community projects ([Home Manager](https://github.com/nix-community/home-manager), devshell), the [Niri](https://github.com/YaLTeR/niri) compositor project, [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell), and the broader NixOS ecosystem for making declarative system configuration possible.
+Built with and inspired by:
+- [NixOS](https://nixos.org) and the nix-community
+- [Home Manager](https://github.com/nix-community/home-manager)
+- [Niri](https://github.com/YaLTeR/niri) compositor
+- [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell)
+- Countless community configurations and blog posts
 
 ## License
 
-MIT License. Use at your own risk. No support provided.
+MIT License. See [LICENSE](LICENSE) for details.
