@@ -1,4 +1,10 @@
-{ flakePath, ... }:
+{ config, lib, ... }:
+let
+  # Try to get flakePath from determinate module, fallback to /etc/nixos
+  flakePath = if config ? determinate && config.determinate ? flakePath 
+              then config.determinate.flakePath 
+              else "/etc/nixos";
+in
 {
   programs.fish = {
     shellAliases = {
