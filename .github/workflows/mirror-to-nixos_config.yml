@@ -19,7 +19,7 @@ jobs:
       - name: Remove .github/workflows directory
         run: |
           git rm -rf .github/workflows
-          git commit -m "Remove .github/workflows for downstream sync" || true
+          git commit -m "Remove .github/workflows for downstream sync"
 
       - name: Configure SSH
         uses: webfactory/ssh-agent@v0.9.0
