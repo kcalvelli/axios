@@ -41,7 +41,7 @@ jobs:
           git remote add target git@github.com:kcalvelli/nixos_config.git
           git fetch target
           
-          # Create merge commit that preserves downstream files
-          git checkout -b temp-sync
-          git merge --allow-unrelated-histories -X ours target/master -m "Sync from axios (preserving downstream files)"
-          git push target temp-sync:master
+          # Checkout target branch and merge our changes into it
+          git checkout -b sync-branch target/master
+          git merge --allow-unrelated-histories -X theirs HEAD -m "Sync from axios (preserving downstream files)"
+          git push target sync-branch:master
