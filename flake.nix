@@ -114,9 +114,6 @@
 
       perSystem = { pkgs, system, ... }: {
         formatter = pkgs.nixpkgs-fmt;
-        
-        # ISO image package
-        packages.iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       };
 
       imports = [

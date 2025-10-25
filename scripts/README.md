@@ -1,50 +1,20 @@
 # axiOS Scripts
 
-Utility scripts for axiOS framework and desktop customization.
+Utility scripts for axiOS framework desktop customization.
 
 ## Directory Structure
 
 ```
 scripts/
-├── shell/              # Shell scripts (*.sh)
-│   ├── burn-iso.sh
+├── shell/              # Shell scripts
 │   ├── wallpaper-blur.sh
 │   └── update-material-code-theme.sh
 ├── nix/                # Nix wrapper modules
-│   ├── installer.nix
 │   └── wallpaper-scripts.nix
 └── README.md           # This file
 ```
 
 ## Available Scripts
-
-### 🔥 burn-iso.sh
-
-Burns the axiOS ISO to a USB drive.
-
-**Usage:**
-```bash
-sudo ./shell/burn-iso.sh [device]
-```
-
-**Features:**
-- Automatically builds ISO if not present
-- Interactive device selection with safety checks
-- Progress indication during write
-- Optional data verification
-
-**Examples:**
-```bash
-sudo ./shell/burn-iso.sh              # Interactive mode
-sudo ./shell/burn-iso.sh /dev/sdb     # Direct device
-sudo ./shell/burn-iso.sh sdb          # Auto-adds /dev/
-```
-
-**Requirements:**
-- Root access (uses dd)
-- USB drive (will be completely erased)
-
----
 
 ### 🎨 wallpaper-blur.sh
 
@@ -66,7 +36,7 @@ Generates blurred wallpaper for Niri overview mode.
 - Niri compositor
 - Wallpaper set via `swaybg` or similar
 
-This script is automatically installed to `~/scripts/` by home-manager.
+This script is automatically installed to `~/scripts/` by home-manager when you enable the desktop module.
 
 ---
 
@@ -84,24 +54,13 @@ Updates Material Code theme for Niri.
 - Applies to Niri configuration
 - Refreshes desktop appearance
 
-This script is automatically installed to `~/scripts/` by home-manager.
+This script is automatically installed to `~/scripts/` by home-manager when you enable the desktop module.
 
 ---
 
-## Nix Integration Modules
+## Nix Integration Module
 
-The `nix/` directory contains Nix modules that integrate shell scripts into the system:
-
-### 📦 installer.nix
-
-Configures the axiOS installer ISO with:
-- Network tools (NetworkManager)
-- Disk management utilities (disko, parted)
-- Text editors (vim, nano)
-- Git and development tools
-- User-friendly shell environment
-
-**Imported by:** `hosts/installer/default.nix`
+The `nix/` directory contains a Nix module that integrates shell scripts into the system:
 
 ### 🎨 wallpaper-scripts.nix
 
@@ -115,61 +74,25 @@ Manages wallpaper and theme scripts with:
 
 ---
 
-## For axiOS Framework Users
+## For axiOS Library Users
 
-If you're using axiOS as a library (recommended), these scripts are automatically available:
-
-- **wallpaper-blur.sh** and **update-material-code-theme.sh** are installed via home-manager
-- Scripts work automatically with DankMaterialShell
-- No manual setup needed
-
-Just enable the desktop module in your configuration:
+If you're using axiOS as a library (recommended), these scripts are automatically available when you enable the desktop module:
 
 ```nix
-modules.desktop = true;
+# In your flake that uses axios
+axios.lib.mkSystem {
+  # ... other config ...
+  modules.desktop = true;  # Scripts automatically installed
+}
 ```
 
----
-
-## Building the ISO
-
-To build the axiOS installer ISO:
-
-```bash
-# From axios repository root
-nix build .#iso
-
-# Output location
-ls -lh result/iso/*.iso
-
-# Test in QEMU
-qemu-system-x86_64 -cdrom result/iso/*.iso -m 4096 -enable-kvm
-
-# Burn to USB
-sudo ./scripts/shell/burn-iso.sh
-```
-
-The ISO includes:
-- Standard NixOS installer tools
-- Network configuration utilities
-- Example configuration templates
-- This README and documentation
-
----
-
-## Safety Features
-
-All scripts include:
-- ✅ Input validation
-- ✅ Confirmation prompts for destructive operations
-- ✅ Error handling with clear messages
-- ✅ Color-coded output for clarity
+The scripts work automatically with DankMaterialShell and Niri. No manual setup needed.
 
 ---
 
 ## Notes
 
-- Most scripts run without root except `burn-iso.sh`
-- Scripts use color-coded output (disable with `NO_COLOR=1`)
-- Wallpaper scripts integrate with DankMaterialShell automatically
-- ISO can be built on any system with Nix/NixOS
+- Scripts are installed to `~/scripts/` in your home directory
+- Scripts integrate with DankMaterialShell hooks automatically
+- ImageMagick dependency is handled by the Nix module
+- Scripts run without root privileges
