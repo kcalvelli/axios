@@ -1,17 +1,14 @@
-{ config, lib, ... }:
-let
-  # Try to get flakePath from determinate module, fallback to /etc/nixos
-  flakePath = if config ? determinate && config.determinate ? flakePath 
-              then config.determinate.flakePath 
-              else "/etc/nixos";
-in
+{ config, lib, pkgs, ... }:
 {
   programs.fish = {
     shellAliases = {
-      rebuild-switch = "sudo nixos-rebuild switch --flake ${flakePath}#$(hostname)";
-      rebuild-boot = "sudo nixos-rebuild boot --flake ${flakePath}#$(hostname)";
-      rebuild-test = "sudo nixos-rebuild test --flake ${flakePath}#$(hostname)";
-      pull-changes = "git -C ${flakePath} fetch origin && git -C ${flakePath} merge --allow-unrelated-histories -X theirs origin/master && git -C ${flakePath} push";
+      # Smart flake path detection - checks common locations
+      # For library users: use ~/.config/nixos_config or specify FLAKE_PATH env var
+      rebuild-switch = "sudo nixos-rebuild switch --flake ''${FLAKE_PATH:-~/.config/nixos_config}#$(hostname)";
+      rebuild-boot = "sudo nixos-rebuild boot --flake ''${FLAKE_PATH:-~/.config/nixos_config}#$(hostname)";
+      rebuild-test = "sudo nixos-rebuild test --flake ''${FLAKE_PATH:-~/.config/nixos_config}#$(hostname)";
+      update-flake = "nix flake update --flake ''${FLAKE_PATH:-~/.config/nixos_config}";
+      flake-cd = "cd ''${FLAKE_PATH:-~/.config/nixos_config}";
     };
     enable = true;
     interactiveShellInit = ''
