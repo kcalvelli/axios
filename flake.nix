@@ -106,16 +106,17 @@
   outputs =
     inputs@{ flake-parts
     , systems
+    , nixpkgs
     , ...
     }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
+    flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
       systems = import systems;
 
       perSystem = { pkgs, system, ... }: {
         formatter = pkgs.nixpkgs-fmt;
         
         # ISO image package
-        packages.iso = inputs.self.nixosConfigurations.installer.config.system.build.isoImage;
+        packages.iso = self.nixosConfigurations.installer.config.system.build.isoImage;
       };
 
       imports = [
@@ -125,6 +126,13 @@
         ./home
         ./devshells.nix
       ];
-    };
+      
+      # Export library functions for downstream flakes
+      flake.lib = import ./lib {
+        inherit inputs;
+        inherit self;
+        lib = nixpkgs.lib;
+      };
+    });
 }
 # Trigger CI
