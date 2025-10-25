@@ -1,224 +1,496 @@
-# axiOS Installer - Quick Reference
+# axiOS Quick Reference
 
-## For Users
+Quick command reference for common tasks with axiOS.
 
-### Download & Install
+## Getting Started
+
+### Using axiOS as a Library (Recommended)
 
 ```bash
-# 1. Download latest ISO
-wget https://github.com/kcalvelli/nixos_config/releases/latest/download/axios-installer-x86_64-linux.iso
+# Create your config repository
+mkdir ~/my-nixos-config && cd ~/my-nixos-config
 
-# 2. Write to USB
-sudo dd if=axios-installer-x86_64-linux.iso of=/dev/sdX bs=4M status=progress conv=fsync
+# Copy minimal example
+cp -r /path/to/axios/examples/minimal-flake/* .
 
-# 3. Boot from USB
+# Or start from scratch
+cat > flake.nix << 'FLAKE'
+{
+  inputs.axios.url = "github:kcalvelli/axios";
+  inputs.nixpkgs.follows = "axios/nixpkgs";
+  
+  outputs = { self, axios, ... }: {
+    nixosConfigurations.myhost = axios.lib.mkSystem {
+      hostname = "myhost";
+      # ... configuration ...
+    };
+  };
+}
+FLAKE
 
-# 4. Configure WiFi (if needed)
-nmtui
+# Build configuration
+nix build .#nixosConfigurations.myhost.config.system.build.toplevel
 
-# 5. Run installer
-/root/install
+# Install (from installer)
+sudo nixos-install --flake .#myhost
 
-# 6. Follow prompts and wait for installation
+# Switch (on existing system)
+sudo nixos-rebuild switch --flake .#myhost
 ```
 
-See [INSTALLATION.md](INSTALLATION.md) for detailed guide.
-
-## For Developers
-
-### Build ISO Locally
+### Direct Installation
 
 ```bash
-# Build the ISO
+# Boot axiOS installer ISO
+# Run automated installer
+/root/install
+
+# Or manual
+git clone https://github.com/kcalvelli/axios /mnt/etc/nixos
+cd /mnt/etc/nixos
+sudo ./scripts/shell/install-axios.sh
+```
+
+## System Management
+
+### Rebuild System
+
+```bash
+# Test configuration (doesn't activate)
+sudo nixos-rebuild test --flake .#<hostname>
+
+# Build configuration (creates result symlink)
+sudo nixos-rebuild build --flake .#<hostname>
+
+# Switch to new configuration
+sudo nixos-rebuild switch --flake .#<hostname>
+
+# Add to boot menu but don't switch now
+sudo nixos-rebuild boot --flake .#<hostname>
+
+# Dry run (show what would be built)
+sudo nixos-rebuild dry-run --flake .#<hostname>
+```
+
+### Update System
+
+**Library approach:**
+```bash
+cd ~/my-nixos-config
+
+# Update axiOS and all inputs
+nix flake update
+
+# Update only axiOS
+nix flake lock --update-input axios
+
+# Check what changed
+nix flake metadata axios
+
+# Apply updates
+sudo nixos-rebuild switch --flake .#<hostname>
+```
+
+**Direct installation:**
+```bash
+cd /etc/nixos
+
+# Update all flake inputs
+nix flake update
+
+# Pull upstream changes (if tracking)
+git fetch upstream
+git merge upstream/master
+
+# Rebuild
+sudo nixos-rebuild switch --flake .#<hostname>
+```
+
+### Rollback
+
+```bash
+# List generations
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system
+
+# Boot into previous generation
+sudo nixos-rebuild switch --rollback
+
+# Or select at boot menu (shown during boot)
+```
+
+## Configuration
+
+### Edit Configuration
+
+**Library approach:**
+```bash
+cd ~/my-nixos-config
+$EDITOR flake.nix        # Edit host config
+$EDITOR user.nix         # Edit user
+$EDITOR hosts/myhost.nix # Edit specific host
+```
+
+**Direct installation:**
+```bash
+cd /etc/nixos
+$EDITOR hosts/<hostname>.nix
+$EDITOR modules/users/<user>.nix
+```
+
+### Add/Remove Packages
+
+**Library approach - via extraConfig:**
+```nix
+# In your flake.nix
+axios.lib.mkSystem {
+  # ... other config ...
+  extraConfig = {
+    environment.systemPackages = with pkgs; [
+      firefox
+      git
+      htop
+    ];
+  };
+}
+```
+
+**Direct installation:**
+```nix
+# In modules/system/packages.nix or similar
+environment.systemPackages = with pkgs; [
+  firefox
+  git
+  htop
+];
+```
+
+### Test Configuration
+
+```bash
+# Check for syntax errors
+nix flake check
+
+# Build without switching
+sudo nixos-rebuild build --flake .#<hostname>
+
+# Eval a specific option
+nix eval .#nixosConfigurations.<hostname>.config.networking.hostName
+
+# Show what will be built
+nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --dry-run
+```
+
+## Development Shells
+
+```bash
+# Enter default shell
+nix develop
+
+# Enter specific shell
+nix develop .#rust
+nix develop .#zig
+nix develop .#qml
+
+# Show available shells
+nix flake show | grep devShells
+
+# Run command in shell without entering
+nix develop .#rust --command cargo build
+```
+
+## Building ISOs
+
+```bash
+# Build installer ISO
 nix build .#iso
 
 # Output location
 ls -lh result/iso/*.iso
 
 # Test in QEMU
-nix run nixpkgs#qemu -- -cdrom result/iso/*.iso -m 4096 -enable-kvm
+qemu-system-x86_64 -cdrom result/iso/*.iso -m 4096 -enable-kvm
+
+# Burn to USB
+sudo dd if=result/iso/*.iso of=/dev/sdX bs=4M status=progress conv=fsync
 ```
 
-### Customize Installer
+## Package Management
 
-**Modify installer script:**
+### Search Packages
+
 ```bash
-vim scripts/shell/install-axios.sh
-# Make changes, rebuild ISO
-nix build .#iso
+# Search nixpkgs
+nix search nixpkgs <package>
+
+# Show package info
+nix search nixpkgs --json <package> | jq
+
+# Search locally available
+nix-env -qaP | grep <package>
 ```
 
-**Change ISO packages:**
-```bash
-vim hosts/installer/default.nix
-# Add to environment.systemPackages
-nix build .#iso
-```
+### User Packages (Home Manager)
 
-**Switch to graphical installer:**
+**Library approach:**
 ```nix
-# In hosts/installer/default.nix, change import to:
-"${modulesPath}/installer/cd-dvd/installation-cd-graphical-gnome.nix"
+# In user.nix
+home-manager.users.myuser = {
+  home.packages = with pkgs; [
+    firefox
+    vscode
+  ];
+};
 ```
 
-### Test Installation in VM
-
-```bash
-# Create test disk
-qemu-img create -f qcow2 test-disk.qcow2 50G
-
-# Boot from ISO with test disk (using virtio)
-nix run nixpkgs#qemu -- \
-  -cdrom result/iso/*.iso \
-  -drive file=test-disk.qcow2,format=qcow2,if=virtio \
-  -m 4096 \
-  -enable-kvm \
-  -cpu host \
-  -smp 4
-
-# After installation, boot from disk
-nix run nixpkgs#qemu -- \
-  -drive file=test-disk.qcow2,format=qcow2,if=virtio \
-  -m 4096 \
-  -enable-kvm \
-  -cpu host \
-  -smp 4
-```
-
-## File Structure
-
-```
-axiOS/
-├── scripts/
-│   └── install-axios.sh          # Automated installer script
-├── hosts/
-│   └── installer/
-│       └── default.nix            # ISO configuration
-├── docs/
-│   ├── INSTALLATION.md           # User installation guide
-│   ├── BUILDING_ISO.md           # Developer ISO build guide
-│   └── QUICK_REFERENCE.md        # This file
-└── .github/
-    └── workflows/
-        └── build-iso.yml         # CI/CD ISO build workflow
-```
-
-## Common Tasks
-
-### Update Repository URL in Installer
-
-```bash
-# Edit scripts/shell/install-axios.sh
-vim scripts/shell/install-axios.sh
-# Change: AXIOS_REPO="https://github.com/YOURUSERNAME/nixos_config"
-```
-
-### Add Packages to Installer Environment
-
+**Direct installation:**
 ```nix
-# In hosts/installer/default.nix
-environment.systemPackages = with pkgs; [
-  # Add your packages here
-  firefox
-  neofetch
-];
+# In modules/users/myuser.nix
+home-manager.users.myuser = {
+  home.packages = with pkgs; [
+    firefox
+    vscode
+  ];
+};
 ```
 
-### Create Release with ISO
+## Disk Management
+
+### View Disk Layout
 
 ```bash
-# 1. Tag release
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
+# List disks
+lsblk
 
-# 2. GitHub Actions automatically builds ISO
+# Show partitions
+sudo fdisk -l
 
-# 3. Download from Actions artifacts or wait for release
-```
-
-### Manual Host Installation
-
-If you prefer not to use the automated script:
-
-```bash
-# 1. Clone repo
-git clone https://github.com/kcalvelli/nixos_config
-cd nixos_config
-
-# 2. Create host config
-mkdir -p hosts/myhostname
-cp hosts/TEMPLATE.nix hosts/myhostname.nix
-vim hosts/myhostname.nix
-
-# 3. Create disko config
-cp modules/disko/templates/standard-ext4.nix hosts/myhostname/disko.nix
-vim hosts/myhostname/disko.nix  # Set device = "/dev/nvme0n1"
-
-# 4. Register host
-vim hosts/default.nix
-# Add: myhostname = mkSystem (import ./myhostname.nix { inherit lib; }).hostConfig;
-
-# 5. Partition disk
-sudo nix run github:nix-community/disko -- --mode disko hosts/myhostname/disko.nix
-
-# 6. Install
-mkdir -p /mnt/etc/nixos
-cp -r ./* /mnt/etc/nixos/
-sudo nixos-install --flake /mnt/etc/nixos#myhostname
-
-# 7. Reboot
-reboot
-```
-
-## Troubleshooting Quick Fixes
-
-### Network not working
-```bash
-# Start NetworkManager
-sudo systemctl start NetworkManager
-
-# Configure WiFi
-nmtui
-```
-
-### Installer script not found
-```bash
-# Manual clone
-cd /root
-git clone https://github.com/kcalvelli/nixos_config
-./nixos_config/scripts/shell/install-axios.sh
-```
-
-### Disk already partitioned
-```bash
-# Unmount and retry
-sudo umount -R /mnt
-sudo swapoff -a
-# Then retry disko
-```
-
-### Disk partitioning fails in VM
-```bash
-# Use virtio drives for better compatibility
-nix run nixpkgs#qemu -- \
-  -cdrom result/iso/*.iso \
-  -drive file=test-disk.qcow2,format=qcow2,if=virtio \
-  -m 4096 -enable-kvm -cpu host -smp 4
-```
-
-### Out of disk space during install
-```bash
-# Check space
+# Show filesystem usage
 df -h
 
-# Clean up if needed
-nix-collect-garbage -d
+# Show disk UUID
+ls -l /dev/disk/by-uuid/
 ```
 
-## Links
+### Disko Configuration
 
-- **Installation Guide**: [INSTALLATION.md](INSTALLATION.md)
-- **Build ISO Guide**: [BUILDING_ISO.md](BUILDING_ISO.md)
-- **Repository**: https://github.com/kcalvelli/nixos_config
-- **Releases**: https://github.com/kcalvelli/nixos_config/releases
-- **Issues**: https://github.com/kcalvelli/nixos_config/issues
+```nix
+# Simple ext4 layout in disks.nix
+{
+  disko.devices.disk.main = {
+    type = "disk";
+    device = "/dev/sda";
+    content = {
+      type = "gpt";
+      partitions = {
+        ESP = {
+          size = "512M";
+          type = "EF00";
+          content = {
+            type = "filesystem";
+            format = "vfat";
+            mountpoint = "/boot";
+          };
+        };
+        root = {
+          size = "100%";
+          content = {
+            type = "filesystem";
+            format = "ext4";
+            mountpoint = "/";
+          };
+        };
+      };
+    };
+  };
+}
+```
+
+## Flake Commands
+
+### Update Flake
+
+```bash
+# Update all inputs
+nix flake update
+
+# Update specific input
+nix flake lock --update-input <input>
+
+# Show flake metadata
+nix flake metadata
+
+# Show flake outputs
+nix flake show
+```
+
+### Lock File
+
+```bash
+# Show what's locked
+cat flake.lock | jq '.nodes.axios.locked'
+
+# Pin to specific commit
+nix flake lock --override-input axios github:kcalvelli/axios/<commit>
+
+# Pin to branch
+nix flake lock --override-input axios github:kcalvelli/axios/<branch>
+```
+
+## Garbage Collection
+
+```bash
+# Delete old generations
+sudo nix-collect-garbage --delete-older-than 30d
+
+# Delete specific generations
+sudo nix-env --delete-generations 1 2 3 --profile /nix/var/nix/profiles/system
+
+# Delete all old generations
+sudo nix-collect-garbage --delete-old
+
+# Optimize store
+sudo nix-store --optimize
+
+# Check store size
+du -sh /nix/store
+```
+
+## Troubleshooting
+
+### Boot Issues
+
+```bash
+# Boot into previous generation (at boot menu)
+# Select older generation with arrow keys
+
+# Or from running system
+sudo nixos-rebuild switch --rollback
+
+# Check boot entries
+bootctl list
+
+# Check systemd boot status
+bootctl status
+```
+
+### Build Errors
+
+```bash
+# Show detailed error messages
+nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel --show-trace
+
+# Check for infinite recursion
+nix-instantiate --eval --strict .#nixosConfigurations.<hostname> 2>&1 | less
+
+# Verify flake syntax
+nix flake check
+```
+
+### Network Issues
+
+```bash
+# Restart NetworkManager
+sudo systemctl restart NetworkManager
+
+# Check status
+systemctl status NetworkManager
+
+# Connect to WiFi
+nmtui
+
+# Show connections
+nmcli connection show
+
+# Show devices
+nmcli device status
+```
+
+## Git Operations
+
+### Library Approach Repository
+
+```bash
+cd ~/my-nixos-config
+
+# Initialize git
+git init
+git add .
+git commit -m "Initial commit"
+
+# Push to remote
+git remote add origin git@github.com:user/my-nixos.git
+git push -u origin master
+
+# Update from remote
+git pull
+```
+
+### Direct Installation
+
+```bash
+cd /etc/nixos
+
+# Commit changes
+git add -A
+git commit -m "Update configuration"
+
+# Pull upstream updates
+git fetch upstream
+git merge upstream/master
+
+# Push to your fork
+git push origin master
+```
+
+## Useful Queries
+
+```bash
+# Show current generation
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system | grep current
+
+# Show installed packages
+nix-env -q
+
+# Show package dependencies
+nix-store --query --references $(which firefox)
+
+# Show package reverse dependencies
+nix-store --query --referrers $(which firefox)
+
+# Find which package provides a file
+nix-locate <filename>
+```
+
+## Tips & Tricks
+
+### Fast Rebuilds
+
+```bash
+# Use nom for prettier output
+nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel |& nom
+
+# Parallel builds (in configuration.nix)
+nix.settings.max-jobs = 8;
+nix.settings.cores = 4;
+```
+
+### Aliases
+
+Add to your user config:
+
+```nix
+programs.fish.shellAliases = {
+  rebuild-switch = "sudo nixos-rebuild switch --flake /path/to/config#$(hostname)";
+  rebuild-boot = "sudo nixos-rebuild boot --flake /path/to/config#$(hostname)";
+  rebuild-test = "sudo nixos-rebuild test --flake /path/to/config#$(hostname)";
+  update-flake = "nix flake update --flake /path/to/config";
+};
+```
+
+## More Information
+
+- [Library Usage Guide](LIBRARY_USAGE.md) - Complete library documentation
+- [Installation Guide](INSTALLATION.md) - Detailed installation instructions
+- [Adding Hosts](ADDING_HOSTS.md) - Multi-machine management
+- [Package Organization](PACKAGES.md) - Understanding package structure
+- [NixOS Manual](https://nixos.org/manual/nixos/stable/) - Official documentation
