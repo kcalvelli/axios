@@ -33,12 +33,15 @@ jobs:
 
       - name: Push to nixos_config (preserving downstream files)
         run: |
-          git remote add target git@github.com:kcalvelli/nixos_config.git
-          git fetch target
+          # Save current commit before removing workflows
+          AXIOS_COMMIT=$(git rev-parse HEAD)
           
-          # Remove .github/workflows before merging
+          # Remove .github/workflows 
           git rm -rf .github/workflows
           git commit -m "Remove .github/workflows for downstream"
+          
+          git remote add target git@github.com:kcalvelli/nixos_config.git
+          git fetch target
           
           # Checkout target branch and merge our changes into it
           git checkout -b sync-branch target/master
