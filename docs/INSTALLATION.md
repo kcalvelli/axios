@@ -1,294 +1,407 @@
-# Installing axiOS
+# Getting Started with axiOS
 
-This guide covers two ways to use axiOS: as a library (recommended) or via direct installation.
+This guide shows you how to use axiOS as a library to build your NixOS configuration.
 
-## Choose Your Approach
+## What You'll Create
 
-### Option 1: Use axiOS as a Library (Recommended)
+A minimal configuration repository with just a few files:
 
-**Best for:** Most users who want minimal maintenance and easy updates.
+```
+my-nixos-config/
+├── flake.nix       # ~40 lines - your system config
+├── user.nix        # Your user definition
+├── disks.nix       # Disk layout
+└── README.md       # Optional
+```
 
-Create a minimal configuration that imports axiOS as a dependency. You maintain just a few files (~30 lines), and axiOS provides all the modules, packages, and home-manager configs.
+That's it! All modules, packages, and home-manager configs come from axios.
 
-**Advantages:**
-- ✅ Minimal maintenance (just your personal configs)
-- ✅ Easy updates (`nix flake update`)
-- ✅ Version pinning for stability
-- ✅ Your config repo is simple and understandable
+## Quick Start
 
-See [Library Usage Guide](LIBRARY_USAGE.md) for complete instructions.
+### Step 1: Create Your Repository
 
-**Quick Start:**
 ```bash
 mkdir ~/my-nixos-config
 cd ~/my-nixos-config
-
-# Copy the minimal example
-nix flake init -t github:kcalvelli/axios#minimal
-# Or manually copy from examples/minimal-flake/
-
-# Customize flake.nix, user.nix, disks.nix
-# Then install or rebuild
 ```
 
-### Option 2: Direct Installation
+### Step 2: Copy the Example
 
-**Best for:** Users who want complete control or to deeply customize the framework.
+The fastest way to get started:
 
-Clone the full axiOS repository and install it directly. You maintain the entire configuration.
+```bash
+# Copy the minimal example from axios
+git clone https://github.com/kcalvelli/axios /tmp/axios
+cp -r /tmp/axios/examples/minimal-flake/* .
+rm -rf /tmp/axios
+```
 
-**Advantages:**
-- ✅ Complete control over all configuration
-- ✅ Direct modification of any module
-- ✅ Good for learning NixOS configuration structure
-- ✅ Can contribute improvements back to axiOS
+Or create files manually (see below).
 
-Continue with this guide for direct installation instructions.
+### Step 3: Customize for Your System
 
----
+Edit `flake.nix`:
+- Change `hostname` to your computer name
+- Set `cpu` and `gpu` to match your hardware ("amd" or "intel"/"nvidia")
+- Set `formFactor` to "laptop" or "desktop"
+- Enable/disable modules as needed
 
-## Direct Installation Guide
+Edit `user.nix`:
+- Change `username`, `fullName`, and `email`
+- Add/remove groups as needed
+
+Edit `disks.nix`:
+- Change `/dev/sda` to your actual disk device
+- Adjust partition sizes if needed
+
+### Step 4: Install or Rebuild
+
+**From NixOS installer:**
+```bash
+sudo nixos-install --flake .#myhost
+```
+
+**On existing NixOS system:**
+```bash
+sudo nixos-rebuild switch --flake .#myhost
+```
+
+### Step 5: Initialize Git
+
+```bash
+git init
+git add .
+git commit -m "Initial NixOS configuration"
+```
+
+Optional: Push to your own GitHub/GitLab repository.
+
+## Manual File Creation
+
+If you prefer to create files manually:
+
+### flake.nix
+
+```nix
+{
+  description = "My NixOS Configuration";
+
+  inputs = {
+    axios.url = "github:kcalvelli/axios";
+    nixpkgs.follows = "axios/nixpkgs";
+  };
+
+  outputs = { self, axios, nixpkgs, ... }: {
+    nixosConfigurations.myhost = axios.lib.mkSystem {
+      hostname = "myhost";
+      system = "x86_64-linux";
+      formFactor = "desktop";  # or "laptop"
+      
+      hardware = {
+        cpu = "amd";      # "amd" or "intel"
+        gpu = "amd";      # "amd", "nvidia", or "intel"
+        hasSSD = true;
+        isLaptop = false;
+      };
+      
+      modules = {
+        system = true;
+        desktop = true;
+        development = true;
+        graphics = true;
+        networking = true;
+        users = true;
+        virt = false;
+        gaming = false;
+        services = false;
+      };
+      
+      homeProfile = "workstation";  # or "laptop"
+      userModulePath = self.outPath + "/user.nix";
+      diskConfigPath = ./disks.nix;
+      
+      extraConfig = {
+        # Add any additional NixOS options here
+      };
+    };
+  };
+}
+```
+
+### user.nix
+
+```nix
+{ self, config, ... }:
+let
+  username = "myuser";
+  fullName = "My Full Name";
+  email = "me@example.com";
+in
+{
+  users.users.${username} = {
+    isNormalUser = true;
+    description = fullName;
+    initialPassword = "changeme";  # Change on first login!
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "audio"
+    ];
+  };
+
+  home-manager.users.${username} = {
+    home = {
+      stateVersion = "24.05";
+      homeDirectory = "/home/${username}";
+      username = username;
+    };
+
+    nixpkgs.config.allowUnfree = true;
+
+    programs.git.settings = {
+      user = {
+        name = fullName;
+        email = email;
+      };
+    };
+  };
+
+  nix.settings.trusted-users = [ username ];
+}
+```
+
+### disks.nix
+
+```nix
+{ lib, ... }:
+{
+  disko.devices.disk.main = {
+    type = "disk";
+    device = "/dev/sda";  # Change to your disk!
+    content = {
+      type = "gpt";
+      partitions = {
+        ESP = {
+          size = "512M";
+          type = "EF00";
+          content = {
+            type = "filesystem";
+            format = "vfat";
+            mountpoint = "/boot";
+          };
+        };
+        root = {
+          size = "100%";
+          content = {
+            type = "filesystem";
+            format = "ext4";
+            mountpoint = "/";
+          };
+        };
+      };
+    };
+  };
+}
+```
+
+## Installing NixOS
 
 ### Prerequisites
 
-- axiOS installer ISO or standard NixOS installer
-- Target machine with:
-  - x86_64 CPU (AMD or Intel)
-  - 4GB+ RAM (8GB+ recommended)
-  - 20GB+ disk space (50GB+ recommended)
-  - Internet connection
+- Boot from NixOS installer ISO ([download](https://nixos.org/download))
+- Internet connection
+- Your configuration files ready
 
-### Step 1: Get the Installer
+### Installation Steps
 
-#### Option A: axiOS Custom ISO (Recommended)
+1. **Boot NixOS installer**
 
-Download the latest ISO from [GitHub Releases](https://github.com/kcalvelli/axios/releases):
+2. **Connect to network:**
+   ```bash
+   # WiFi
+   nmtui
+   
+   # Verify connection
+   ping -c 3 nixos.org
+   ```
+
+3. **Clone your configuration:**
+   ```bash
+   git clone https://github.com/yourusername/my-nixos-config /mnt/etc/nixos
+   cd /mnt/etc/nixos
+   ```
+
+4. **Or create configuration on-the-fly:**
+   ```bash
+   mkdir -p /mnt/etc/nixos
+   cd /mnt/etc/nixos
+   # Create flake.nix, user.nix, disks.nix here
+   ```
+
+5. **Install:**
+   ```bash
+   sudo nixos-install --flake .#myhost
+   ```
+
+6. **Reboot:**
+   ```bash
+   reboot
+   ```
+
+7. **Login** with your username and initial password
+
+8. **Change password:**
+   ```bash
+   passwd
+   ```
+
+## Updating Your System
+
+### Update axiOS Framework
 
 ```bash
-wget https://github.com/kcalvelli/axios/releases/latest/download/axios-installer-x86_64-linux.iso
-
-# Verify checksum (optional)
-sha256sum axios-installer-x86_64-linux.iso
+cd ~/my-nixos-config  # Or wherever your config is
+nix flake update
+sudo nixos-rebuild switch --flake .#myhost
 ```
 
-#### Option B: Standard NixOS ISO
+### Pin to Specific Version
 
-Download from [nixos.org](https://nixos.org/download):
-- Minimal ISO: ~1GB, text-mode only
-- Graphical ISO: ~3GB, includes GNOME desktop
+For stability, pin to a specific axios version:
 
-### Step 2: Create Bootable USB
-
-**Linux:**
-```bash
-# Find your USB device
-lsblk
-
-# Write ISO (replace /dev/sdX with your device)
-sudo dd if=axios-installer-x86_64-linux.iso of=/dev/sdX bs=4M status=progress conv=fsync
-```
-
-**macOS:**
-```bash
-diskutil list
-sudo dd if=axios-installer-x86_64-linux.iso of=/dev/diskX bs=4m
-```
-
-**Windows:**
-Use [Rufus](https://rufus.ie/) or [Etcher](https://www.balena.io/etcher/)
-
-### Step 3: Boot from USB
-
-1. Insert USB drive
-2. Reboot and enter BIOS/UEFI (usually F2, F12, Del, or Esc)
-3. Select USB drive as boot device
-4. Boot into the installer
-
-### Step 4: Automated Installation
-
-If using the axiOS ISO, run the automated installer:
-
-```bash
-# From the installer environment
-install
+```nix
+# In flake.nix
+inputs.axios.url = "github:kcalvelli/axios/v1.0.0";  # Pin to tag
 # or
-/root/install
+inputs.axios.url = "github:kcalvelli/axios/<commit-sha>";  # Pin to commit
 ```
 
-The installer will:
-1. Detect your hardware (CPU, GPU, form factor)
-2. Ask for disk configuration preference
-3. Prompt for hostname and username
-4. Ask which modules to enable (desktop, gaming, dev tools)
-5. Set up passwords
-6. Install the system
-7. Configure for first boot
+## Managing Multiple Machines
 
-**Installation takes 15-30 minutes** depending on internet speed.
+See [ADDING_HOSTS.md](ADDING_HOSTS.md) for managing multiple hosts in one configuration.
 
-### Step 5: Manual Installation (Alternative)
+## What You Get
 
-If using a standard NixOS ISO or want more control:
+By using axios as a library, you automatically get:
 
-```bash
-# 1. Clone axiOS
-git clone https://github.com/kcalvelli/axios /mnt/etc/nixos
-cd /mnt/etc/nixos
+✅ **Desktop Environment:**
+- Niri compositor with Material Shell
+- Ghostty terminal
+- Modern applications
 
-# 2. Run the installer script
-sudo ./scripts/shell/install-axios.sh
+✅ **Development Tools:**
+- VSCode, Neovim (LazyVim)
+- Compilers and build tools
+- Language servers
+- Git, development utilities
 
-# 3. Or follow manual steps:
-# - Create host config in hosts/
-# - Configure disks with disko
-# - Add user in modules/users/
-# - Run: nixos-install --flake .#<hostname>
+✅ **System Features:**
+- Hardware optimization for your CPU/GPU
+- Power management (laptops)
+- Secure boot support (Lanzaboote)
+- Networking with NetworkManager
+
+✅ **Home Manager:**
+- Dotfile management
+- User environment configuration
+- Application settings
+
+## Customization
+
+### Override or Add Settings
+
+Use `extraConfig` in your host configuration:
+
+```nix
+axios.lib.mkSystem {
+  # ... your config ...
+  
+  extraConfig = {
+    # Override time zone
+    time.timeZone = "America/New_York";
+    
+    # Add extra packages
+    environment.systemPackages = with pkgs; [
+      htop
+      neofetch
+    ];
+    
+    # Enable SSH
+    services.openssh.enable = true;
+  };
+}
 ```
 
-### Step 6: First Boot
+### Add Your Own Modules
 
-1. Remove USB drive
-2. Reboot
-3. Login with the username and password you set
-4. System will complete initial setup
-
-### Step 7: Post-Installation
-
-**Update the configuration:**
-```bash
-cd /etc/nixos
-git config --global user.name "Your Name"
-git config --global user.email "you@example.com"
-git add -A
-git commit -m "Initial installation on $(hostname)"
+```nix
+extraConfig = {
+  imports = [
+    ./my-custom-module.nix
+  ];
+};
 ```
 
-**Optional: Push to your own repository:**
-```bash
-# Create a new repo on GitHub/GitLab
-git remote rename origin upstream
-git remote add origin git@github.com:yourusername/my-nixos.git
-git push -u origin master
+### Disable Specific Features
+
+```nix
+modules = {
+  system = true;
+  desktop = true;
+  development = true;
+  gaming = false;      # ✗ No gaming
+  virt = false;        # ✗ No virtualization
+  services = false;    # ✗ No extra services
+};
 ```
-
-**Configure Secure Boot (if desired):**
-- See hardware manual for entering UEFI setup
-- Enable Secure Boot
-- Enroll keys generated during installation
-- Reboot and verify with `bootctl status`
-
-## Configuration Management
-
-### After Direct Installation
-
-Your configuration is in `/etc/nixos` as an independent git repository. You have several options:
-
-**Option 1: Keep Independent**
-- Maintain your own fork
-- No upstream dependencies
-- Full control
-
-**Option 2: Track Upstream**
-```bash
-cd /etc/nixos
-git remote add upstream https://github.com/kcalvelli/axios
-git fetch upstream
-git merge upstream/master  # When you want updates
-```
-
-**Option 3: Migrate to Library Approach**
-
-Convert your direct installation to use axiOS as a library (recommended for easier maintenance):
-
-1. Create new minimal config repository
-2. Copy your `hosts/*.nix` and `modules/users/*.nix`
-3. Create simple flake.nix using `axios.lib.mkSystem`
-4. Test the new configuration
-5. Switch to it with `nixos-rebuild`
-
-See [LIBRARY_USAGE.md](LIBRARY_USAGE.md) for migration instructions.
-
-## Updating the System
-
-### Direct Installation Updates
-
-```bash
-cd /etc/nixos
-
-# Update flake inputs
-nix flake update
-
-# Rebuild and switch
-sudo nixos-rebuild switch --flake .#$(hostname)
-```
-
-### Pull Upstream Changes (if tracking)
-
-```bash
-cd /etc/nixos
-git fetch upstream
-git merge upstream/master
-nix flake update
-sudo nixos-rebuild switch --flake .#$(hostname)
-```
-
-## Adding Hosts
-
-See [ADDING_HOSTS.md](ADDING_HOSTS.md) for managing multiple machines.
 
 ## Troubleshooting
 
-### Installation Fails
+### Build Errors
 
-**Check hardware compatibility:**
 ```bash
-# Verify CPU
-lscpu | grep "Model name"
+# Check for syntax errors
+nix flake check
 
-# Verify disk
-lsblk
-
-# Check network
-ip addr
+# Show detailed errors
+nix build .#nixosConfigurations.myhost.config.system.build.toplevel --show-trace
 ```
 
-**Boot issues:**
-- Verify UEFI vs BIOS mode matches installation
-- Check Secure Boot is disabled during install
-- Ensure USB drive was written correctly
+### Can't Find axios
 
-**Disk errors:**
-- Verify disk device path in configuration
-- Check disk has no existing partitions
-- Ensure disk is not mounted during partitioning
+Make sure flake inputs are updated:
+```bash
+nix flake update
+```
 
-### System Won't Boot
+### Network Issues During Install
 
-1. Boot from USB again
-2. Mount your installation:
-   ```bash
-   mount /dev/disk/by-label/nixos /mnt
-   mount /dev/disk/by-label/boot /mnt/boot
-   ```
-3. Enter the system:
-   ```bash
-   nixos-enter --root /mnt
-   ```
-4. Fix configuration and rebuild:
-   ```bash
-   cd /etc/nixos
-   nixos-rebuild switch --flake .#$(hostname)
-   ```
+```bash
+# Reconnect to WiFi
+nmtui
 
-### Need Help?
+# Test connection
+ping -c 3 1.1.1.1
+```
+
+### Disk Not Found
+
+Check your disk device:
+```bash
+lsblk
+# Update disks.nix with correct device
+```
+
+## More Information
+
+- [Library API Reference](LIBRARY_USAGE.md) - Complete documentation
+- [Quick Reference](QUICK_REFERENCE.md) - Common commands
+- [Adding Hosts](ADDING_HOSTS.md) - Multi-machine management
+- [Examples](../examples/minimal-flake/) - Working example
+
+## Getting Help
 
 - [GitHub Issues](https://github.com/kcalvelli/axios/issues)
 - [NixOS Manual](https://nixos.org/manual/nixos/stable/)
 - [NixOS Discourse](https://discourse.nixos.org/)
-
-## Next Steps
-
-- [Quick Reference](QUICK_REFERENCE.md) - Common commands
-- [Adding Hosts](ADDING_HOSTS.md) - Multi-machine management
-- [Package Reference](PACKAGES.md) - Understanding package organization
-- [Library Usage](LIBRARY_USAGE.md) - Use axios as a library (recommended)

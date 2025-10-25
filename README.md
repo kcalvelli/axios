@@ -10,12 +10,9 @@
 
 ## What is axiOS?
 
-axiOS is a **NixOS framework and library** that you can use to build your own NixOS configurations. Instead of forking and maintaining a full system configuration, you import axiOS as a flake input and use its library functions to compose your system.
+axiOS is a **NixOS framework and library** that you import into your own flake to build NixOS configurations. Think of it as a curated collection of modules, packages, and home-manager configs that work together.
 
-**Two ways to use axiOS:**
-
-1. **As a Library** (Recommended) - Import axios into your own flake and use `axios.lib.mkSystem` to build configurations
-2. **Direct Installation** - Clone and customize the full configuration (for those who prefer complete control)
+Import axios into your own minimal flake and use `axios.lib.mkSystem` to build configurations. You maintain just a few files (~30 lines), and axios provides everything else.
 
 ## Quick Start - Using axiOS as a Library
 
@@ -206,35 +203,6 @@ Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_
 
 Each directory contains a README explaining its purpose.
 
-## Direct Installation
-
-If you prefer to clone and customize the full configuration:
-
-### Automated Installation
-
-1. Download ISO from [GitHub Releases](https://github.com/kcalvelli/axios/releases/latest)
-2. Boot from USB and run `/root/install`
-3. Follow prompts for hardware detection and configuration
-4. Reboot into your new system
-
-### Manual Installation
-
-```bash
-# Boot NixOS installer
-git clone https://github.com/kcalvelli/axios
-cd axios
-sudo ./scripts/shell/install-axios.sh
-```
-
-See [docs/INSTALLATION.md](docs/INSTALLATION.md) for detailed instructions.
-
-### Building Custom ISO
-
-```bash
-nix build .#iso
-# Output: result/iso/axios-installer-x86_64-linux.iso
-```
-
 ## Development Environments
 
 Available development shells:
@@ -248,18 +216,12 @@ nix develop .#qml    # Qt6/QML
 
 ## Why axiOS?
 
-### As a Library
 - ✅ **Minimal maintenance** - Your config is ~30 lines, axios handles the rest
 - ✅ **Selective updates** - `nix flake update` to get new features when you want
 - ✅ **Version pinning** - Lock to specific axios versions for stability
 - ✅ **Clear separation** - Your personal configs vs framework code
 - ✅ **Easy sharing** - Your config repo is simple and understandable
-
-### As a Distribution
-- ✅ **Complete system** - Everything configured out of the box
-- ✅ **Full control** - Modify any part of the configuration
-- ✅ **Learning resource** - See how a complete NixOS system is structured
-- ✅ **Starting point** - Clone and customize for your needs
+- ✅ **Community framework** - Benefit from improvements and updates
 
 ## Contributing
 
