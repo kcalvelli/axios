@@ -106,8 +106,13 @@ let
           # Default: No disk configuration
           imports = [];
         };
+      
+      userModule =
+        if hostCfg ? userModulePath
+        then hostCfg.userModulePath
+        else { imports = []; };
     in
-      baseModules ++ hwModules ++ ourModules ++ [ hostModule diskModule ];
+      baseModules ++ hwModules ++ ourModules ++ [ hostModule diskModule userModule ];
 
   # Main function to create a NixOS system configuration
   # Usage: mkSystem { hostConfig attrs }
