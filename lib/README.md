@@ -2,6 +2,28 @@
 
 This directory contains library functions that can be used by downstream flakes to build NixOS configurations using axiOS as a base.
 
+**For complete documentation, see [docs/LIBRARY_USAGE.md](../docs/LIBRARY_USAGE.md)**
+
+## Quick Reference
+
+### `mkSystem`
+
+Build a NixOS configuration from a host specification:
+
+```nix
+axios.lib.mkSystem {
+  hostname = "myhost";
+  system = "x86_64-linux";
+  formFactor = "desktop" | "laptop";
+  hardware = { cpu = "amd" | "intel"; gpu = "amd" | "nvidia"; hasSSD = bool; isLaptop = bool; };
+  modules = { system = bool; desktop = bool; development = bool; /* ... */ };
+  homeProfile = "workstation" | "laptop";
+  userModulePath = path;
+  diskConfigPath = path;
+  extraConfig = { /* NixOS options */ };
+}
+```
+
 ## Exported Functions
 
 ### `mkSystem`
