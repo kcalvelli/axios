@@ -34,11 +34,9 @@ in
     };
 
     # User-specific git configuration
-    programs.git.settings = {
-      user = {
-        name = fullName;
-        email = email;
-      };
+    programs.git = {
+      userName = fullName;
+      userEmail = email;
     };
   };
 

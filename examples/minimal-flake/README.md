@@ -93,7 +93,7 @@ axios.url = "github:kcalvelli/axios/<commit-sha>";  # Pin to commit
 
 ## Adding More Hosts
 
-See [examples/multi-host](../multi-host/) for managing multiple machines.
+See [ADDING_HOSTS.md](../../docs/ADDING_HOSTS.md) for managing multiple machines.
 
 ## Need More?
 
