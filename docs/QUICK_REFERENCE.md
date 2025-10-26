@@ -38,18 +38,19 @@ sudo nixos-install --flake .#myhost
 sudo nixos-rebuild switch --flake .#myhost
 ```
 
-### Direct Installation
+## Environment Setup
+
+Set `FLAKE_PATH` to your config location for convenience:
 
 ```bash
-# Boot axiOS installer ISO
-# Run automated installer
-/root/install
+# Set permanently (fish shell)
+set -Ux FLAKE_PATH ~/my-nixos-config
 
-# Or manual
-git clone https://github.com/kcalvelli/axios /mnt/etc/nixos
-cd /mnt/etc/nixos
-sudo ./scripts/shell/install-axios.sh
+# Or in bash/zsh (~/.bashrc or ~/.zshrc)
+export FLAKE_PATH=~/my-nixos-config
 ```
+
+This enables convenient aliases like `rebuild-switch`, `flake-cd`, etc.
 
 ## System Management
 
@@ -74,9 +75,8 @@ sudo nixos-rebuild dry-run --flake .#<hostname>
 
 ### Update System
 
-**Library approach:**
 ```bash
-cd ~/my-nixos-config
+cd ~/my-nixos-config  # Or wherever your config is
 
 # Update axiOS and all inputs
 nix flake update
@@ -88,21 +88,6 @@ nix flake lock --update-input axios
 nix flake metadata axios
 
 # Apply updates
-sudo nixos-rebuild switch --flake .#<hostname>
-```
-
-**Direct installation:**
-```bash
-cd /etc/nixos
-
-# Update all flake inputs
-nix flake update
-
-# Pull upstream changes (if tracking)
-git fetch upstream
-git merge upstream/master
-
-# Rebuild
 sudo nixos-rebuild switch --flake .#<hostname>
 ```
 
@@ -122,26 +107,17 @@ sudo nixos-rebuild switch --rollback
 
 ### Edit Configuration
 
-**Library approach:**
 ```bash
-cd ~/my-nixos-config
-$EDITOR flake.nix        # Edit host config
-$EDITOR user.nix         # Edit user
-$EDITOR hosts/myhost.nix # Edit specific host
-```
-
-**Direct installation:**
-```bash
-cd /etc/nixos
-$EDITOR hosts/<hostname>.nix
-$EDITOR modules/users/<user>.nix
+cd ~/my-nixos-config  # Or wherever your config is
+$EDITOR flake.nix     # Edit host config
+$EDITOR user.nix      # Edit user
+$EDITOR disks.nix     # Edit disk layout
 ```
 
 ### Add/Remove Packages
 
-**Library approach - via extraConfig:**
+Add to your flake.nix via extraConfig:
 ```nix
-# In your flake.nix
 axios.lib.mkSystem {
   # ... other config ...
   extraConfig = {
@@ -154,14 +130,14 @@ axios.lib.mkSystem {
 }
 ```
 
-**Direct installation:**
+Or add to your user.nix:
 ```nix
-# In modules/system/packages.nix or similar
-environment.systemPackages = with pkgs; [
-  firefox
-  git
-  htop
-];
+home-manager.users.myuser = {
+  home.packages = with pkgs; [
+    firefox
+    vscode
+  ];
+};
 ```
 
 ### Test Configuration
@@ -231,20 +207,8 @@ nix-env -qaP | grep <package>
 
 ### User Packages (Home Manager)
 
-**Library approach:**
+Add to your user.nix:
 ```nix
-# In user.nix
-home-manager.users.myuser = {
-  home.packages = with pkgs; [
-    firefox
-    vscode
-  ];
-};
-```
-
-**Direct installation:**
-```nix
-# In modules/users/myuser.nix
 home-manager.users.myuser = {
   home.packages = with pkgs; [
     firefox
@@ -407,8 +371,6 @@ nmcli device status
 
 ## Git Operations
 
-### Library Approach Repository
-
 ```bash
 cd ~/my-nixos-config
 
@@ -418,28 +380,16 @@ git add .
 git commit -m "Initial commit"
 
 # Push to remote
-git remote add origin git@github.com:user/my-nixos.git
-git push -u origin master
+git remote add origin git@github.com:user/my-nixos-config.git
+git push -u origin main
 
 # Update from remote
 git pull
-```
-
-### Direct Installation
-
-```bash
-cd /etc/nixos
 
 # Commit changes
 git add -A
 git commit -m "Update configuration"
-
-# Pull upstream updates
-git fetch upstream
-git merge upstream/master
-
-# Push to your fork
-git push origin master
+git push
 ```
 
 ## Useful Queries
@@ -474,16 +424,24 @@ nix.settings.max-jobs = 8;
 nix.settings.cores = 4;
 ```
 
-### Aliases
+### Shell Aliases
 
-Add to your user config:
+The fish shell configuration in axiOS includes convenient aliases that use the `FLAKE_PATH` environment variable:
 
+- `rebuild-switch` - Switch to new configuration
+- `rebuild-boot` - Add to boot menu
+- `rebuild-test` - Test configuration
+- `update-flake` - Update flake inputs
+- `flake-cd` - Jump to your config directory
+
+These work automatically when you set `FLAKE_PATH` (see Environment Setup above).
+
+For other shells, add to your user.nix:
 ```nix
-programs.fish.shellAliases = {
-  rebuild-switch = "sudo nixos-rebuild switch --flake /path/to/config#$(hostname)";
-  rebuild-boot = "sudo nixos-rebuild boot --flake /path/to/config#$(hostname)";
-  rebuild-test = "sudo nixos-rebuild test --flake /path/to/config#$(hostname)";
-  update-flake = "nix flake update --flake /path/to/config";
+programs.bash.shellAliases = {
+  rebuild-switch = "sudo nixos-rebuild switch --flake $FLAKE_PATH#$(hostname)";
+  rebuild-boot = "sudo nixos-rebuild boot --flake $FLAKE_PATH#$(hostname)";
+  update-flake = "cd $FLAKE_PATH && nix flake update";
 };
 ```
 

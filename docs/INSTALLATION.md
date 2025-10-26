@@ -256,6 +256,17 @@ in
    passwd
    ```
 
+9. **Set up environment (optional but recommended):**
+   ```bash
+   # For fish shell (default in axiOS)
+   set -Ux FLAKE_PATH ~/my-nixos-config
+   
+   # For bash/zsh (add to ~/.bashrc or ~/.zshrc)
+   echo 'export FLAKE_PATH=~/my-nixos-config' >> ~/.bashrc
+   ```
+   
+   This enables convenient aliases like `rebuild-switch`, `flake-cd`, etc.
+
 ## Updating Your System
 
 ### Update axiOS Framework

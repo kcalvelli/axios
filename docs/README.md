@@ -24,7 +24,7 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 
 ### Existing Users
 
-- **Update system**: `cd /etc/nixos && nix flake update && sudo nixos-rebuild switch --flake .#HOSTNAME`
+- **Update system**: `cd ~/my-nixos-config && nix flake update && sudo nixos-rebuild switch --flake .#HOSTNAME`
 - **Add packages**: See [PACKAGES.md](PACKAGES.md) for organization guidelines
 - **Add new machine**: See [ADDING_HOSTS.md](ADDING_HOSTS.md)
 - **Quick reference**: See [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
@@ -111,8 +111,10 @@ Includes:
 ### Updating Your System
 
 ```bash
-# Update flake inputs (get latest packages)
-cd /etc/nixos
+# Navigate to your config repository
+cd ~/my-nixos-config
+
+# Update flake inputs (get latest packages and axios)
 nix flake update
 
 # Rebuild and switch to new configuration
@@ -125,16 +127,14 @@ sudo nix-collect-garbage -d
 ### Adding a New Package
 
 1. Determine if it's a system or user package (see [PACKAGES.md](PACKAGES.md))
-2. Add to appropriate `packages.nix` file in `modules/` or `home/`
-3. Rebuild: `sudo nixos-rebuild switch --flake /etc/nixos#HOSTNAME`
+2. Add to `extraConfig` in your flake.nix or user.nix
+3. Rebuild: `sudo nixos-rebuild switch --flake .#HOSTNAME`
 
 ### Adding a New Machine
 
-1. Copy the template: `cp hosts/TEMPLATE.nix hosts/newhost.nix`
-2. Edit configuration with hostname, hardware, and features
-3. Add to `hosts/default.nix`
-4. Create disk config in `hosts/newhost/disko/`
-5. See [ADDING_HOSTS.md](ADDING_HOSTS.md) for details
+1. Create a new host configuration in your flake.nix
+2. Create corresponding disk config
+3. See [ADDING_HOSTS.md](ADDING_HOSTS.md) for details
 
 ### Customizing Desktop
 
@@ -154,12 +154,7 @@ Visual examples of the axiOS desktop:
 
 ```
 axios/
-├── flake.nix           # Flake configuration and inputs
-├── hosts/              # Per-machine configurations
-│   ├── TEMPLATE.nix            # Template for new hosts
-│   ├── EXAMPLE-simple.nix      # Simple example host
-│   ├── EXAMPLE-organized.nix   # Organized example host
-│   └── installer/              # Installer ISO configuration
+├── lib/                # Exported library functions (mkSystem)
 ├── modules/            # NixOS system modules
 │   ├── system/        # Core system utilities
 │   ├── desktop/       # Desktop environments (Niri, Wayland)
@@ -168,17 +163,14 @@ axios/
 │   ├── hardware/      # Hardware-specific configs (desktop/laptop)
 │   ├── gaming/        # Gaming support (Steam, GameMode)
 │   ├── services/      # System services
-│   └── users/         # User account definitions
+│   └── users/         # User module template
 ├── home/               # Home Manager configurations
 │   ├── common/        # Shared user configurations
 │   ├── desktops/      # Desktop-specific configs (Niri, Wayland)
 │   ├── profiles/      # User profiles (workstation, laptop)
 │   └── resources/     # Themes and resources
-├── scripts/            # Automation scripts
-│   ├── install-axios.sh  # Automated installer
-│   ├── add-host.sh       # Create new host config
-│   ├── add-user.sh       # Create new user
-│   └── burn-iso.sh       # Create bootable USB
+├── hosts/              # Example host configurations
+├── scripts/            # Utility scripts
 ├── devshells/          # Development environments (Rust, Zig, QML, etc.)
 ├── pkgs/               # Custom package definitions
 └── docs/               # Documentation (you are here)
