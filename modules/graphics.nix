@@ -1,8 +1,4 @@
 { pkgs, ... }:
-let
-  # Import categorized package lists
-  packages = import ./packages.nix { inherit pkgs; };
-in
 {
   # === GPU / Graphics Hardware ===
   hardware = {
@@ -28,11 +24,15 @@ in
   ];
 
   # === Graphics Utilities ===
-  # Organized by category in packages.nix
-  # Additional debug tools (vulkan-tools, mesa-demos, rocm) available in packages.nix
-  environment.systemPackages =
-    packages.amd
-    ++ packages.wayland;
+  environment.systemPackages = with pkgs; [
+    # AMD GPU tools
+    radeontop
+    corectrl
+    amdgpu_top
+    clinfo
+    # Wayland utilities
+    wayland-utils
+  ];
 
   # === Environment Variables ===
   environment.variables = {
