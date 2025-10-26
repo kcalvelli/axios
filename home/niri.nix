@@ -126,7 +126,7 @@
         # 2) Specific: Google Messages PWA — float, centered, iMessage-ish size
         {
           matches = [
-            { app-id = "^google-messages$"; }
+            { app-id = "^brave-messages\\.google\\.com__web-Default$"; }
           ];
 
           # Explicitly override the global rule:

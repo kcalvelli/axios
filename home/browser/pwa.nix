@@ -3,6 +3,17 @@ let
   braveExe = lib.getExe pkgs.brave;
   pwaDefs = import ../../pkgs/pwa-apps/pwa-defs.nix;
   
+  # Helper to convert URL to Brave's app-id format
+  # Example: https://messages.google.com/web -> messages.google.com__web
+  urlToAppId = url: 
+    let
+      # Remove https:// or http://
+      withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
+      # Replace slashes with double underscores
+      withUnderscores = lib.replaceStrings ["/"] ["__"] withoutProtocol;
+    in
+      withUnderscores;
+  
   # Helper to create desktop entry for a PWA
   makePWAEntry = pwaId: pwa: {
     name = pwa.name;
@@ -12,6 +23,10 @@ let
     type = "Application";
     categories = pwa.categories or [ "Network" ];
     mimeType = pwa.mimeTypes or [];
+    settings = {
+      # Set StartupWMClass to match what Brave actually uses
+      StartupWMClass = "brave-${urlToAppId pwa.url}-Default";
+    };
     actions = lib.mapAttrs (actionId: action: {
       name = action.name;
       exec = "${braveExe} --app=${action.url}";
