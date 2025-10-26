@@ -23,13 +23,10 @@
     # Gaming support
     ++ (with pkgs; [
       protonup-ng
-    ])
-    # Logitech device management
-    ++ (with pkgs; [
-      solaar
     ]);
 
   # Solaar autostart for Logitech Unifying devices
+  # Note: Solaar is installed by the system via hardware.logitech.wireless.enableGraphical
   home.file.".config/autostart/solaar.desktop" = {
     enable = true;
     force = true;
