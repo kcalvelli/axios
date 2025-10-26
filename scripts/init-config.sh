@@ -36,13 +36,16 @@ prompt() {
   local result
   
   if [ -n "$default_value" ]; then
-    read -p "$(echo -e ${BLUE}${prompt_text}${NC} [${default_value}]: )" result
+    echo -ne "${BLUE}${prompt_text}${NC} [${default_value}]: " >&2
+    read result
     echo "${result:-$default_value}"
   else
-    read -p "$(echo -e ${BLUE}${prompt_text}${NC}: )" result
+    echo -ne "${BLUE}${prompt_text}${NC}: " >&2
+    read result
     while [ -z "$result" ]; do
-      echo -e "${RED}This field is required.${NC}"
-      read -p "$(echo -e ${BLUE}${prompt_text}${NC}: )" result
+      echo -e "${RED}This field is required.${NC}" >&2
+      echo -ne "${BLUE}${prompt_text}${NC}: " >&2
+      read result
     done
     echo "$result"
   fi
@@ -55,10 +58,12 @@ prompt_bool() {
   local result
   
   if [ "$default_value" = "y" ]; then
-    read -p "$(echo -e ${BLUE}${prompt_text}${NC} [Y/n]: )" result
+    echo -ne "${BLUE}${prompt_text}${NC} [Y/n]: " >&2
+    read result
     result="${result:-y}"
   else
-    read -p "$(echo -e ${BLUE}${prompt_text}${NC} [y/N]: )" result
+    echo -ne "${BLUE}${prompt_text}${NC} [y/N]: " >&2
+    read result
     result="${result:-n}"
   fi
   
@@ -75,23 +80,24 @@ prompt_choice() {
   shift 2
   local options=("$@")
   
-  echo -e "${BLUE}${prompt_text}${NC}"
+  echo -e "${BLUE}${prompt_text}${NC}" >&2
   for i in "${!options[@]}"; do
     if [ "${options[$i]}" = "$default_value" ]; then
-      echo -e "  ${GREEN}$((i+1))) ${options[$i]} (default)${NC}"
+      echo -e "  ${GREEN}$((i+1))) ${options[$i]} (default)${NC}" >&2
     else
-      echo "  $((i+1))) ${options[$i]}"
+      echo "  $((i+1))) ${options[$i]}" >&2
     fi
   done
   
   while true; do
-    read -p "Choice [1-${#options[@]}]: " choice
+    echo -ne "Choice [1-${#options[@]}]: " >&2
+    read choice
     choice="${choice:-1}"
     if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#options[@]}" ]; then
       echo "${options[$((choice-1))]}"
       return
     fi
-    echo -e "${RED}Invalid choice. Please enter a number between 1 and ${#options[@]}.${NC}"
+    echo -e "${RED}Invalid choice. Please enter a number between 1 and ${#options[@]}.${NC}" >&2
   done
 }
 
@@ -102,7 +108,7 @@ echo -e "${BOLD}System Information:${NC}"
 # Collect information
 HOSTNAME=$(prompt "Hostname" "$(hostname 2>/dev/null || echo nixos)")
 USERNAME=$(prompt "Username" "$(whoami 2>/dev/null || echo user)")
-FULLNAME=$(prompt "Full name" "$USERNAME")
+FULLNAME=$(prompt "Full name" "$(getent passwd $(whoami 2>/dev/null || echo $USER) 2>/dev/null | cut -d: -f5 | cut -d, -f1 || echo "$USERNAME")")
 EMAIL=$(prompt "Email address")
 
 echo ""
