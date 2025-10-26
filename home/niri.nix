@@ -126,7 +126,7 @@
         # 2) Specific: Google Messages PWA — float, centered, iMessage-ish size
         {
           matches = [
-            { app-id = "^brave-hpfldicfbfomlpcikngkocigghgafkph-Default$"; }
+            { app-id = "^google-messages$"; }
           ];
 
           # Explicitly override the global rule:
@@ -187,7 +187,7 @@
         "Mod+B".action.spawn = [ "brave" ];
         "Mod+E".action.spawn = [ "nautilus" ];
         "Mod+Return".action.spawn = "ghostty";
-        "Mod+G".action.spawn = [ "brave" "--profile-directory=Default" "--app-id=hpfldicfbfomlpcikngkocigghgafkph" ];        
+        "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ];        
 
         # --- Workspace: jump directly (1..8) ---
         "Mod+1".action."focus-workspace" = [ 1 ];
