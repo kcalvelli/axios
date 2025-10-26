@@ -1,18 +1,39 @@
 { config, lib, pkgs, ... }:
 {
   programs.fish = {
-    shellAliases = {
-      # Smart flake path detection
-      # For library users: set FLAKE_PATH env var or defaults to ~/.config/nixos_config
-      rebuild-switch = "sudo nixos-rebuild switch --flake (if set -q FLAKE_PATH; echo $FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
-      rebuild-boot = "sudo nixos-rebuild boot --flake (if set -q FLAKE_PATH; echo $FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
-      rebuild-test = "sudo nixos-rebuild test --flake (if set -q FLAKE_PATH; echo $FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
-      update-flake = "nix flake update --flake (if set -q FLAKE_PATH; echo $FLAKE_PATH; else echo ~/.config/nixos_config; end)";
-      flake-cd = "cd (if set -q FLAKE_PATH; echo $FLAKE_PATH; else echo ~/.config/nixos_config; end)";
-    };
     enable = true;
     interactiveShellInit = ''
       set fish_greeting
+
+      # Smart flake path detection
+      # For library users: set FLAKE_PATH env var or defaults to ~/.config/nixos_config
+      function _get_flake_path
+        if set -q FLAKE_PATH
+          echo $FLAKE_PATH
+        else
+          echo ~/.config/nixos_config
+        end
+      end
+
+      function rebuild-switch
+        sudo nixos-rebuild switch --flake (_get_flake_path)"#"(hostname)
+      end
+
+      function rebuild-boot
+        sudo nixos-rebuild boot --flake (_get_flake_path)"#"(hostname)
+      end
+
+      function rebuild-test
+        sudo nixos-rebuild test --flake (_get_flake_path)"#"(hostname)
+      end
+
+      function update-flake
+        nix flake update --flake (_get_flake_path)
+      end
+
+      function flake-cd
+        cd (_get_flake_path)
+      end
 
       # Colors for #080C12
       set -g fish_color_normal        e0e4e9
