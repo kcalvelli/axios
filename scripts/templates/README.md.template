@@ -1,0 +1,101 @@
+# {{HOSTNAME}} NixOS Configuration
+
+Generated with [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS framework and library.
+
+## Configuration Summary
+
+- **Hostname:** {{HOSTNAME}}
+- **User:** {{USERNAME}} ({{FULLNAME}})
+- **Form Factor:** {{FORMFACTOR}}
+- **Hardware:** {{CPU}} CPU, {{GPU}} GPU{{HAS_SSD_TEXT}}
+- **Home Profile:** {{HOME_PROFILE}}
+
+## Next Steps
+
+### 1. Review Disk Configuration
+
+⚠️  **IMPORTANT:** Edit `disks.nix` and change `/dev/sda` to your actual disk device.
+
+```bash
+# Find your disk device
+lsblk
+
+# Edit disks.nix
+vim disks.nix  # or nano, or your preferred editor
+```
+
+### 2. Initialize Git Repository
+
+```bash
+git init
+git add .
+git commit -m "Initial axiOS configuration for {{HOSTNAME}}"
+```
+
+Optional: Push to your own GitHub/GitLab repository.
+
+### 3. Install or Rebuild
+
+**If installing NixOS** (from the installer):
+```bash
+sudo nixos-install --flake .#{{HOSTNAME}}
+```
+
+**If updating an existing system:**
+```bash
+sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+```
+
+## Updating
+
+To get the latest packages and axiOS features:
+
+```bash
+nix flake update
+sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+```
+
+## Customization
+
+### Adding Packages
+
+Edit `flake.nix` and add to `extraConfig`:
+
+```nix
+extraConfig = {
+  environment.systemPackages = with pkgs; [
+    # your-package-here
+  ];
+};
+```
+
+### Changing Settings
+
+All NixOS options can be added to `extraConfig` in `flake.nix`.
+
+See [NixOS Options](https://search.nixos.org/options) for available options.
+
+### User-Specific Configuration
+
+Edit `user.nix` to customize:
+- Extra groups
+- Home-manager settings
+- User packages
+
+## Documentation
+
+- [axiOS Documentation](https://github.com/kcalvelli/axios/tree/master/docs)
+- [Application Catalog](https://github.com/kcalvelli/axios/blob/master/docs/APPLICATIONS.md) - See what's included
+- [Adding Hosts](https://github.com/kcalvelli/axios/blob/master/docs/ADDING_HOSTS.md) - Multi-machine management
+- [NixOS Manual](https://nixos.org/manual/nixos/stable/)
+
+## Help
+
+- 📖 [axiOS Docs](https://github.com/kcalvelli/axios/tree/master/docs)
+- 💬 [NixOS Discourse](https://discourse.nixos.org/)
+- 🐛 [Report Issues](https://github.com/kcalvelli/axios/issues)
+
+---
+
+**Generated:** {{DATE}}  
+**axiOS:** https://github.com/kcalvelli/axios

@@ -1,0 +1,11 @@
+# Git ignore file for NixOS configuration
+result
+result-*
+*.qcow2
+*.iso
+.direnv/
+.envrc
+*.swp
+*.swo
+*~
+.DS_Store

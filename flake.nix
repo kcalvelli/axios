@@ -114,6 +114,16 @@
 
       perSystem = { pkgs, system, ... }: {
         formatter = pkgs.nixpkgs-fmt;
+        
+        # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
+        apps = {
+          init = {
+            type = "app";
+            program = toString (pkgs.writeShellScript "axios-init" ''
+              exec ${pkgs.bash}/bin/bash ${./scripts/init-config.sh}
+            '');
+          };
+        };
       };
 
       imports = [

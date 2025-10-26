@@ -1,0 +1,46 @@
+{
+  description = "{{DESCRIPTION}}";
+
+  inputs = {
+    axios.url = "github:kcalvelli/axios";
+    nixpkgs.follows = "axios/nixpkgs";
+  };
+
+  outputs = { self, axios, nixpkgs, ... }: {
+    nixosConfigurations.{{HOSTNAME}} = axios.lib.mkSystem {
+      hostname = "{{HOSTNAME}}";
+      system = "x86_64-linux";
+      formFactor = "{{FORMFACTOR}}";
+      
+      hardware = {
+        cpu = "{{CPU}}";
+        gpu = "{{GPU}}";
+        hasSSD = {{HAS_SSD}};
+        isLaptop = {{IS_LAPTOP}};
+      };
+      
+      modules = {
+        system = true;
+        desktop = true;
+        development = true;
+        graphics = true;
+        networking = true;
+        users = true;
+        services = {{ENABLE_SERVICES}};
+        virt = {{ENABLE_VIRT}};
+        gaming = {{ENABLE_GAMING}};
+      };
+      
+      homeProfile = "{{HOME_PROFILE}}";
+      userModulePath = self.outPath + "/user.nix";
+      diskConfigPath = ./disks.nix;
+      
+      extraConfig = {
+        # Add any additional NixOS configuration here
+        # Examples:
+        # time.timeZone = "America/New_York";
+        # services.openssh.enable = true;
+      };
+    };
+  };
+}
