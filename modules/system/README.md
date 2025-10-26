@@ -8,13 +8,13 @@ Contains essential system utilities, filesystem tools, monitoring tools, and bas
 
 ## Package Organization
 
-Packages are organized in `packages.nix` by category:
-- **core**: Essential utilities (curl, wget, killall)
-- **filesystem**: Mount and filesystem tools (sshfs, fuse, ntfs3g)
-- **monitoring**: System information and monitoring (htop, lm_sensors)
-- **archives**: Archive and compression tools (p7zip, unzip, unrar)
-- **security**: Secret management and encryption (libsecret, openssl)
-- **nix**: Nix ecosystem tools (fh)
+System packages are organized inline by category:
+- **Core utilities**: Essential utilities (curl, wget, killall)
+- **Filesystem**: Mount and filesystem tools (sshfs, fuse, ntfs3g)
+- **Monitoring**: System information and monitoring (htop, lm_sensors)
+- **Archives**: Archive and compression tools (p7zip, unzip, unrar)
+- **Security**: Secret management and encryption (libsecret, openssl)
+- **Nix tools**: Nix ecosystem tools (fh)
 
 ## What Goes Here
 

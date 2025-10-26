@@ -73,16 +73,49 @@ in
   };
 
   # Wayland desktop packages
-  home.packages = let
-    packages = import ./packages.nix { inherit pkgs; };
-  in
-    packages.launchers
-    ++ packages.audio
-    ++ packages.screenshot
-    ++ packages.themes
-    ++ packages.fonts
-    ++ packages.qt
-    ++ packages.utilities;
+  home.packages = with pkgs; [
+    # Launchers and input
+    fuzzel
+    wl-clipboard
+    wtype
+
+    # Audio control
+    playerctl
+    pavucontrol
+    cava
+
+    # Screenshot and screen tools
+    grimblast
+    grim
+    slurp
+    hyprpicker
+
+    # Theming and appearance
+    matugen
+    colloid-gtk-theme
+    colloid-icon-theme
+    adwaita-icon-theme
+    papirus-icon-theme
+    adw-gtk3
+
+    # Qt configuration
+    kdePackages.qt6ct
+
+    # Fonts
+    nerd-fonts.fira-code
+    inter
+    material-symbols
+
+    # System utilities
+    baobab
+    swappy
+    qalculate-gtk
+    swaybg
+    imagemagick
+    libnotify
+    gnome-software
+    gnome-text-editor
+  ];
 
   # Wayland services
   services.kdeconnect = {

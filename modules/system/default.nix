@@ -1,8 +1,4 @@
 { pkgs, ... }:
-let
-  # Import categorized package lists
-  packages = import ./packages.nix { inherit pkgs; };
-in
 {
   # Import necessary modules
   imports = [
@@ -15,14 +11,39 @@ in
   ];
 
   # === System Packages ===
-  # Organized by category in packages.nix for easier management
-  environment.systemPackages =
-    packages.core
-    ++ packages.filesystem
-    ++ packages.monitoring
-    ++ packages.archives
-    ++ packages.security
-    ++ packages.nix;
+  environment.systemPackages = with pkgs; [
+    # Core system utilities
+    killall
+    wget
+    curl
+
+    # Filesystem and mount tools
+    sshfs
+    fuse
+    ntfs3g
+
+    # System monitoring and information
+    pciutils
+    wirelesstools
+    gtop
+    htop
+    lm_sensors
+    smartmontools
+
+    # Archive and compression tools
+    p7zip
+    unzip
+    unrar
+    xarchiver
+
+    # Security and secret management
+    libsecret
+    lssecret
+    openssl
+
+    # Nix ecosystem tools
+    fh # Flake helper CLI
+  ];
 
   # Build smaller systems
   documentation.enable = false;
