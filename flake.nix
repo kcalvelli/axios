@@ -120,6 +120,7 @@
           init = {
             type = "app";
             program = toString (pkgs.writeShellScript "axios-init" ''
+              export AXIOS_TEMPLATE_DIR="${./scripts/templates}"
               exec ${pkgs.bash}/bin/bash ${./scripts/init-config.sh}
             '');
           };

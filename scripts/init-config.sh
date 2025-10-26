@@ -12,7 +12,7 @@ BOLD='\033[1m'
 
 # Get script directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEMPLATE_DIR="${SCRIPT_DIR}/templates"
+TEMPLATE_DIR="${AXIOS_TEMPLATE_DIR:-${SCRIPT_DIR}/templates}"
 
 echo -e "${BOLD}${BLUE}"
 cat << 'EOF'
