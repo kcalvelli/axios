@@ -2,16 +2,16 @@
   # Define all the modules that are available in the system
   flake.nixosModules = {
     system = ./system;
-    desktop = ./desktop;
-    development = ./development;
+    desktop = ./desktop.nix;
+    development = ./development.nix;
     hardware = ./hardware;
-    graphics = ./graphics;
+    graphics = ./graphics.nix;
     networking = ./networking;
     services = ./services;
-    users = ./users;
-    virt = ./virtualisation;
+    users = ./users.nix;
+    virt = ./virtualisation.nix;
     desktopHardware = ./hardware/desktop.nix;
     laptopHardware = ./hardware/laptop.nix;
-    gaming = ./gaming;
+    gaming = ./gaming.nix;
   };
 }

@@ -14,8 +14,11 @@ mkShell {
     pkg-config
     just # Quickshell uses just for dev commands
     
-    # Qt6 base dependencies
-    qt6.full # Includes qtbase, qtdeclarative, qtsvg, qtwayland, etc.
+    # Qt6 packages (qt6.full was removed, use individual packages)
+    qt6.qtbase
+    qt6.qtdeclarative
+    qt6.qtsvg
+    qt6.qtwayland
     qt6.qtshadertools
     spirv-tools
     

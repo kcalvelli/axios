@@ -16,54 +16,113 @@ Import axios into your own minimal flake and use `axios.lib.mkSystem` to build c
 
 ## Quick Start - Using axiOS as a Library
 
-Create your own minimal configuration repository:
+### 1. Create Your Configuration Repository
 
+```bash
+mkdir ~/my-nixos-config && cd ~/my-nixos-config
+```
+
+### 2. Create Your Flake
+
+**flake.nix:**
 ```nix
-# flake.nix
 {
   inputs = {
     axios.url = "github:kcalvelli/axios";
     nixpkgs.follows = "axios/nixpkgs";
   };
   
-  outputs = { self, axios, nixpkgs, ... }:
-    let
-      myHostConfig = {
-        hostname = "mycomputer";
-        system = "x86_64-linux";
-        formFactor = "desktop";  # or "laptop"
-        
-        hardware = {
-          cpu = "amd";     # or "intel"
-          gpu = "amd";     # or "nvidia"
-          hasSSD = true;
-          isLaptop = false;
-        };
-        
-        modules = {
-          system = true;
-          desktop = true;
-          development = true;
-          gaming = false;
-          # ... etc
-        };
-        
-        homeProfile = "workstation";  # or "laptop"
-        diskConfigPath = ./disks.nix;
-        
-        # User module
-        userModulePath = ./myuser.nix;
+  outputs = { self, axios, nixpkgs, ... }: {
+    nixosConfigurations.myhost = axios.lib.mkSystem {
+      hostname = "myhost";
+      system = "x86_64-linux";
+      formFactor = "desktop";  # or "laptop"
+      
+      hardware = {
+        cpu = "amd";     # or "intel"
+        gpu = "amd";     # or "nvidia", "intel"
+        hasSSD = true;
+        isLaptop = false;
       };
-    in
-    {
-      nixosConfigurations.mycomputer = axios.lib.mkSystem myHostConfig;
+      
+      modules = {
+        system = true;
+        desktop = true;
+        development = true;
+        graphics = true;
+        networking = true;
+        users = true;
+        virt = false;
+        gaming = false;
+        services = false;
+      };
+      
+      homeProfile = "workstation";  # or "laptop"
+      userModulePath = ./user.nix;
+      diskConfigPath = ./disks.nix;
     };
+  };
 }
 ```
 
-That's it! Your entire configuration is ~30 lines. All the modules, packages, and home-manager configs come from axios.
+### 3. Create User Configuration
 
-See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation on using axios as a library.
+**user.nix:**
+```nix
+{ config, ... }:
+let
+  username = "myname";
+in
+{
+  users.users.${username} = {
+    isNormalUser = true;
+    description = "My Name";
+    initialPassword = "changeme";
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
+  };
+
+  home-manager.users.${username} = {
+    home.stateVersion = "24.05";
+    programs.git.userEmail = "me@example.com";
+    programs.git.userName = "My Name";
+  };
+
+  # Optional: Trust user for nix operations
+  nix.settings.trusted-users = [ username ];
+}
+```
+
+### 4. Configure Disks
+
+**disks.nix:**
+```nix
+{ ... }:
+{
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
+    fsType = "ext4";
+  };
+  
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
+    fsType = "vfat";
+  };
+}
+```
+
+### 5. Build and Deploy
+
+```bash
+# From installer
+sudo nixos-install --flake .#myhost
+
+# On existing system
+sudo nixos-rebuild switch --flake .#myhost
+```
+
+That's it! Your entire configuration is ~60 lines across 3 files. All the modules, packages, and home-manager configs come from axios.
+
+See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
 
 ## Features
 
@@ -104,18 +163,16 @@ See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation on
 
 ## Documentation
 
-### Using as a Library
-- [Library Usage Guide](docs/LIBRARY_USAGE.md) - Complete guide to using axios.lib.*
+### Using as a Library (Recommended)
+- [Library Usage Guide](docs/LIBRARY_USAGE.md) - Complete guide to using axios.lib.mkSystem
 - [Adding Hosts](docs/ADDING_HOSTS.md) - Managing multiple machines
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Common commands
-
-### Direct Installation
-- [Installation Guide](docs/INSTALLATION.md) - Install axios directly
-- [Building ISOs](docs/BUILDING_ISO.md) - Create custom installer images
 
 ### Reference
 - [Package Organization](docs/PACKAGES.md) - How packages are structured
 - [Desktop Customization](docs/NIRI_WALLPAPER.md) - Wallpaper and theming
+- [Module Documentation](modules/README.md) - Available NixOS modules
+- [Library API](lib/README.md) - Exported library functions
 
 ## Library API
 
@@ -176,10 +233,9 @@ Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_
 
 ```
 .
-├── lib/              # Exported library functions
-│   └── README.md     # Library API documentation
+├── lib/              # Exported library functions (axios.lib.*)
 ├── modules/          # NixOS modules (system-level)
-│   ├── desktop/      # Desktop environment
+│   ├── desktop/      # Desktop environment (Niri)
 │   ├── development/  # Development tools
 │   ├── gaming/       # Gaming support
 │   ├── graphics/     # Graphics drivers
@@ -192,16 +248,13 @@ Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_
 ├── home/             # Home Manager configs
 │   ├── common/       # Shared user configs
 │   ├── desktops/     # Desktop-specific
-│   ├── profiles/     # User profiles
+│   ├── profiles/     # User profiles (workstation, laptop)
 │   └── resources/    # Themes and resources
-├── hosts/            # Example host configs
 ├── docs/             # Documentation
 ├── scripts/          # Utility scripts
 ├── devshells/        # Development environments
 └── pkgs/             # Custom packages
 ```
-
-Each directory contains a README explaining its purpose.
 
 ## Development Environments
 

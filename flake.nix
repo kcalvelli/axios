@@ -118,7 +118,6 @@
 
       imports = [
         ./pkgs
-        ./hosts
         ./modules
         ./home
         ./devshells.nix

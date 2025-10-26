@@ -1,7 +1,7 @@
 { lib, homeModules, pkgs, config, ... }:
 let
   # Import categorized package lists
-  packages = import ./packages.nix { inherit pkgs; };
+  packages = import ./desktop-packages.nix { inherit pkgs; };
 in
 {
   imports = [
