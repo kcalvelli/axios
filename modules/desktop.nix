@@ -62,7 +62,7 @@
   # === Desktop Applications ===
   environment.systemPackages = with pkgs; [
     # VPN
-    mullvad-vpn
+    protonvpn-gui
     # Streaming
     obs-studio
   ];
