@@ -17,22 +17,11 @@ in
 
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
-      # Create plugdev group for hardware device access
-      users.groups.plugdev = {};
-
       hardware = {
         # Logitech Unifying receiver support (common for desktop peripherals)
         logitech.wireless.enable = true;
         logitech.wireless.enableGraphical = true;
       };
-
-      # Additional udev rules for Logitech device access via plugdev group
-      services.udev.extraRules = ''
-        # Logitech Unifying receiver - ensure plugdev group has access
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="plugdev"
-        # Lenovo nano receiver
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="17ef", ATTRS{idProduct}=="6042", MODE="0660", GROUP="plugdev"
-      '';
 
       # Kernel modules for desktop workstations
       boot = {
