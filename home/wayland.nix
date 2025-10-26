@@ -1,12 +1,8 @@
 { pkgs, inputs, config, ... }:
 let
   # Package wallpaper scripts from axios
-  wallpaperScripts = pkgs.runCommand "axios-wallpaper-scripts" {} ''
-    mkdir -p $out/bin
-    cp ${../../scripts/wallpaper-blur.sh} $out/bin/wallpaper-blur.sh
-    cp ${../../scripts/update-material-code-theme.sh} $out/bin/update-material-code-theme.sh
-    chmod +x $out/bin/*
-  '';
+  wallpaperBlurScript = pkgs.writeShellScript "wallpaper-blur" (builtins.readFile ../../scripts/wallpaper-blur.sh);
+  updateMaterialThemeScript = pkgs.writeShellScript "update-material-code-theme" (builtins.readFile ../../scripts/update-material-code-theme.sh);
 in
 {
   imports = [
@@ -46,12 +42,12 @@ in
 
   # Wallpaper management scripts for DankMaterialShell
   home.file."scripts/wallpaper-changed.sh" = {
-    source = "${wallpaperScripts}/bin/wallpaper-blur.sh";
+    source = wallpaperBlurScript;
     executable = true;
   };
 
   home.file."scripts/update-material-code-theme.sh" = {
-    source = "${wallpaperScripts}/bin/update-material-code-theme.sh";
+    source = updateMaterialThemeScript;
     executable = true;
   };
 
