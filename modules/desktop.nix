@@ -1,8 +1,4 @@
 { lib, pkgs, config, ... }:
-let
-  # Import categorized package lists
-  packages = import ./desktop-packages.nix { inherit pkgs; };
-in
 {
   imports = [
     ./wayland.nix
@@ -64,8 +60,10 @@ in
   };
 
   # === Desktop Applications ===
-  # Organized by category in packages.nix for easier management
-  environment.systemPackages =
-    packages.vpn
-    ++ packages.streaming;
+  environment.systemPackages = with pkgs; [
+    # VPN
+    mullvad-vpn
+    # Streaming
+    obs-studio
+  ];
 }
