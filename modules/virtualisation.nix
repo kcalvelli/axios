@@ -1,8 +1,6 @@
 { config, lib, pkgs, ... }:
 let
   cfg = config.virt;
-  # Import categorized package lists
-  packages = import ./packages.nix { inherit pkgs; };
 in
 {
   # Create options to enable containers and virtualisation
@@ -44,8 +42,13 @@ in
       };
 
       # === Virtualization Packages ===
-      # Organized by category in packages.nix for easier management
-      environment.systemPackages = packages.virt;
+      environment.systemPackages = with pkgs; [
+        virt-manager
+        virt-viewer
+        qemu
+        quickemu
+        quickgui
+      ];
 
       # Allow redirection of USB devices
       virtualisation.spiceUSBRedirection.enable = true;
