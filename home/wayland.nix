@@ -1,4 +1,13 @@
-{ pkgs, inputs, config, self, ... }:
+{ pkgs, inputs, config, ... }:
+let
+  # Package wallpaper scripts from axios
+  wallpaperScripts = pkgs.runCommand "axios-wallpaper-scripts" {} ''
+    mkdir -p $out/bin
+    cp ${../../scripts/wallpaper-blur.sh} $out/bin/wallpaper-blur.sh
+    cp ${../../scripts/update-material-code-theme.sh} $out/bin/update-material-code-theme.sh
+    chmod +x $out/bin/*
+  '';
+in
 {
   imports = [
     ./wayland-theming.nix
@@ -37,12 +46,12 @@
 
   # Wallpaper management scripts for DankMaterialShell
   home.file."scripts/wallpaper-changed.sh" = {
-    source = "${self.outPath}/scripts/wallpaper-blur.sh";
+    source = "${wallpaperScripts}/bin/wallpaper-blur.sh";
     executable = true;
   };
 
   home.file."scripts/update-material-code-theme.sh" = {
-    source = "${self.outPath}/scripts/update-material-code-theme.sh";
+    source = "${wallpaperScripts}/bin/update-material-code-theme.sh";
     executable = true;
   };
 
