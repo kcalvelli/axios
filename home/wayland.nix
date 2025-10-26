@@ -1,4 +1,4 @@
-{ pkgs, inputs, config, ... }:
+{ pkgs, inputs, config, self, ... }:
 {
   imports = [
     ./wayland-theming.nix
@@ -37,12 +37,12 @@
 
   # Wallpaper management scripts for DankMaterialShell
   home.file."scripts/wallpaper-changed.sh" = {
-    source = ../../scripts/wallpaper-blur.sh;
+    source = "${self.outPath}/scripts/wallpaper-blur.sh";
     executable = true;
   };
 
   home.file."scripts/update-material-code-theme.sh" = {
-    source = ../../scripts/update-material-code-theme.sh;
+    source = "${self.outPath}/scripts/update-material-code-theme.sh";
     executable = true;
   };
 
