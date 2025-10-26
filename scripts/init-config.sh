@@ -156,8 +156,8 @@ echo "  Gaming: $ENABLE_GAMING"
 echo "  Virtualization: $ENABLE_VIRT"
 echo "  Services: $ENABLE_SERVICES"
 echo ""
-
-read -p "$(echo -e ${BLUE}Generate configuration in current directory?${NC} [Y/n]: )" confirm
+echo -ne "${BLUE}Generate configuration in current directory?${NC} [Y/n]: " >&2
+read confirm
 confirm="${confirm:-y}"
 
 if [[ ! "${confirm,,}" =~ ^(y|yes)$ ]]; then
@@ -167,8 +167,9 @@ fi
 
 # Check if current directory is empty
 if [ "$(ls -A . 2>/dev/null | wc -l)" -gt 0 ]; then
-  echo -e "${YELLOW}Warning: Current directory is not empty.${NC}"
-  read -p "Continue anyway? [y/N]: " force
+  echo -e "${YELLOW}Warning: Current directory is not empty.${NC}" >&2
+  echo -ne "Continue anyway? [y/N]: " >&2
+  read force
   if [[ ! "${force,,}" =~ ^(y|yes)$ ]]; then
     echo "Cancelled. Please run from an empty directory."
     exit 1
