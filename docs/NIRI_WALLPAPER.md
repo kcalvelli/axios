@@ -39,7 +39,7 @@ Open DankMaterialShell settings → Dank Hooks plugin:
 
 When you change wallpaper in DMS, matugen generates new colors and this hook handles both blur generation and VSCode theme updates.
 
-See `home/desktops/common/DANK_HOOKS_SETUP.md` for detailed setup instructions.
+See `home/wayland.nix` for the wallpaper blur script configuration.
 
 ### Configuration
 
@@ -85,11 +85,10 @@ To activate the overview mode and see the blurred background:
 
 ## Related Files
 
-- **Setup guide**: `home/desktops/common/DANK_HOOKS_SETUP.md`
-- **Wallpaper hook**: `scripts/shell/wallpaper-blur.sh` → `~/scripts/wallpaper-changed.sh`
-- **Theme updater**: `home/desktops/common/update-material-code-theme.sh`
-- **Installation config**: `home/desktops/common/wallpaper-blur.nix`
-- **DankMaterialShell config**: `home/desktops/niri.nix`
+- **Wallpaper hook**: Scripts installed to `~/scripts/wallpaper-changed.sh`
+- **Configuration**: `home/wayland.nix` - Wallpaper blur setup
+- **Niri config**: `home/niri.nix` - Keybindings and window rules
+- **DankMaterialShell config**: `home/wayland.nix` - DMS integration
 
 ## References
 

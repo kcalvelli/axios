@@ -154,8 +154,8 @@ sudo nix-collect-garbage -d
 
 ### Customizing Desktop
 
-- Edit Niri config: `home/desktops/niri/`
-- Set wallpaper with blur: `~/scripts/set-wallpaper-blur.sh /path/to/image.jpg`
+- Edit Niri config: `home/niri.nix` in your axios fork or via extraConfig
+- Set wallpaper with blur: `~/scripts/wallpaper-changed.sh "onWallpaperChanged" /path/to/image.jpg`
 - See [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) for desktop customization
 
 ## Screenshots
