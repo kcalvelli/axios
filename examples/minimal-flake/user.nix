@@ -33,10 +33,12 @@ in
       allowUnfree = true;
     };
 
-    # User-specific git configuration
-    programs.git = {
-      userName = fullName;
-      userEmail = email;
+    # User-specific git configuration  
+    programs.git.settings = {
+      user = {
+        name = fullName;
+        email = email;
+      };
     };
   };
 
