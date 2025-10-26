@@ -9,7 +9,7 @@
       # For library users: set FLAKE_PATH env var or defaults to ~/.config/nixos_config
       function _get_flake_path
         if set -q FLAKE_PATH
-          echo $FLAKE_PATH
+          echo ''$FLAKE_PATH
         else
           echo ~/.config/nixos_config
         end
