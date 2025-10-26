@@ -187,7 +187,7 @@
         "Mod+B".action.spawn = [ "brave" ];
         "Mod+E".action.spawn = [ "nautilus" ];
         "Mod+Return".action.spawn = "ghostty";
-        "Mod+G".action.spawn = [ "gio" "launch" "google-messages.desktop" ];        
+        "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ];        
 
         # --- Workspace: jump directly (1..8) ---
         "Mod+1".action."focus-workspace" = [ 1 ];
