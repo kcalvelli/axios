@@ -98,6 +98,7 @@ prompt_choice() {
 echo -e "${BOLD}Let's configure your system:${NC}"
 echo ""
 
+echo -e "${BOLD}System Information:${NC}"
 # Collect information
 HOSTNAME=$(prompt "Hostname" "$(hostname 2>/dev/null || echo nixos)")
 USERNAME=$(prompt "Username" "$(whoami 2>/dev/null || echo user)")
@@ -105,11 +106,13 @@ FULLNAME=$(prompt "Full name" "$USERNAME")
 EMAIL=$(prompt "Email address")
 
 echo ""
+echo -e "${BOLD}Hardware Configuration:${NC}"
 FORMFACTOR=$(prompt_choice "Form factor?" "desktop" "desktop" "laptop")
 CPU=$(prompt_choice "CPU vendor?" "amd" "amd" "intel")
 GPU=$(prompt_choice "GPU vendor?" "amd" "amd" "nvidia" "intel")
 
 echo ""
+echo -e "${BOLD}Optional Features:${NC}"
 HAS_SSD=$(prompt_bool "Do you have an SSD?" "y")
 ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
 ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
