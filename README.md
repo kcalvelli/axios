@@ -169,6 +169,7 @@ See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Common commands
 
 ### Reference
+- **[Application Catalog](docs/APPLICATIONS.md)** - Complete list of all included applications and PWAs
 - [Package Organization](docs/PACKAGES.md) - How packages are structured
 - [Desktop Customization](docs/NIRI_WALLPAPER.md) - Wallpaper and theming
 - [Module Documentation](modules/README.md) - Available NixOS modules
@@ -233,27 +234,38 @@ Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_
 
 ```
 .
-├── lib/              # Exported library functions (axios.lib.*)
-├── modules/          # NixOS modules (system-level)
-│   ├── desktop/      # Desktop environment (Niri)
-│   ├── development/  # Development tools
-│   ├── gaming/       # Gaming support
-│   ├── graphics/     # Graphics drivers
-│   ├── hardware/     # Hardware configs
-│   ├── networking/   # Network services
-│   ├── services/     # System services
-│   ├── system/       # Core system
-│   ├── users/        # User management
-│   └── virtualisation/ # VMs and containers
-├── home/             # Home Manager configs
-│   ├── common/       # Shared user configs
-│   ├── desktops/     # Desktop-specific
-│   ├── profiles/     # User profiles (workstation, laptop)
-│   └── resources/    # Themes and resources
-├── docs/             # Documentation
-├── scripts/          # Utility scripts
-├── devshells/        # Development environments
-└── pkgs/             # Custom packages
+├── lib/                # Exported library functions (axios.lib.*)
+├── modules/            # NixOS modules (system-level)
+│   ├── system/         # Core system configuration
+│   ├── desktop.nix     # Desktop services
+│   ├── wayland.nix     # Niri compositor and desktop
+│   ├── development.nix # Development tools
+│   ├── gaming.nix      # Gaming support (optional)
+│   ├── graphics.nix    # Graphics drivers
+│   ├── hardware/       # Hardware-specific configs
+│   ├── networking/     # Network services
+│   ├── services/       # System services (optional)
+│   ├── users.nix       # User management
+│   └── virtualisation.nix # VMs and containers (optional)
+├── home/               # Home Manager configurations
+│   ├── browser/        # Browser and PWA configs
+│   ├── terminal/       # Shell and terminal configs
+│   ├── wayland.nix     # Wayland desktop user config
+│   ├── workstation.nix # Workstation profile
+│   ├── laptop.nix      # Laptop profile
+│   ├── niri.nix        # Niri compositor config
+│   └── resources/      # Icons, themes, assets
+│       └── pwa-icons/  # PWA application icons
+├── pkgs/               # Custom packages
+│   └── pwa-apps/       # PWA package with bundled icons
+├── docs/               # Documentation
+│   ├── APPLICATIONS.md # Complete application catalog
+│   ├── PACKAGES.md     # Package organization guide
+│   └── ...
+├── scripts/            # Utility scripts
+├── devshells/          # Development environments
+└── examples/           # Example configurations
+
 ```
 
 ## Development Environments

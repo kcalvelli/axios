@@ -7,10 +7,11 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
 | [INSTALLATION.md](INSTALLATION.md) | Install axiOS on your machine | **Start here** for new installations |
+| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | **See what's included** in axiOS |
 | [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | Quick command reference | Quick lookups and common tasks |
 | [PACKAGES.md](PACKAGES.md) | Package organization guide | Before adding new packages |
 | [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
-| [BUILDING_ISO.md](BUILDING_ISO.md) | Custom ISO creation | Building your own installer |
+| [LIBRARY_USAGE.md](LIBRARY_USAGE.md) | Using axios as a library | Using axios in your own flake |
 | [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) | Desktop customization | Customizing Niri compositor |
 
 ## Quick Start
@@ -71,6 +72,21 @@ Quick access to:
 
 ## Configuration & Maintenance
 
+### 📱 [APPLICATIONS.md](APPLICATIONS.md)
+**Complete catalog of included applications**
+
+Comprehensive list of:
+- Desktop applications and productivity tools
+- Progressive Web Apps (PWAs) with descriptions
+- Development tools and environments
+- System utilities and monitoring tools
+- Terminal applications
+- Media applications (photo, video, audio)
+- Gaming support (when enabled)
+- Virtualization tools (when enabled)
+
+**Browse this to see everything axiOS includes out of the box.**
+
 ### 📚 [PACKAGES.md](PACKAGES.md)
 **Package organization philosophy and best practices**
 
@@ -78,7 +94,7 @@ Learn about:
 - System vs Home Manager package placement
 - Module organization structure
 - Decision trees for adding packages
-- Maintaining categorized package lists
+- Inline package organization
 - Best practices for package management
 
 **Read this before adding new packages to understand where they belong.**
@@ -156,24 +172,34 @@ Visual examples of the axiOS desktop:
 axios/
 ├── lib/                # Exported library functions (mkSystem)
 ├── modules/            # NixOS system modules
-│   ├── system/        # Core system utilities
-│   ├── desktop/       # Desktop environments (Niri, Wayland)
-│   ├── development/   # Development tools and environments
-│   ├── disko/         # Disk layout templates
+│   ├── system/        # Core system utilities and configuration
+│   ├── desktop.nix    # Desktop services
+│   ├── wayland.nix    # Niri compositor and Wayland setup
+│   ├── development.nix # Development tools and environments
+│   ├── gaming.nix     # Gaming support (Steam, GameMode) - optional
+│   ├── graphics.nix   # Graphics drivers and GPU tools
 │   ├── hardware/      # Hardware-specific configs (desktop/laptop)
-│   ├── gaming/        # Gaming support (Steam, GameMode)
-│   ├── services/      # System services
-│   └── users/         # User module template
+│   ├── networking/    # Network configuration and services
+│   ├── services/      # System services - optional
+│   ├── users.nix      # User management
+│   └── virtualisation.nix # VMs and containers - optional
 ├── home/               # Home Manager configurations
-│   ├── common/        # Shared user configurations
-│   ├── desktops/      # Desktop-specific configs (Niri, Wayland)
-│   ├── profiles/      # User profiles (workstation, laptop)
-│   └── resources/     # Themes and resources
-├── hosts/              # Example host configurations
+│   ├── browser/       # Browser and PWA configurations
+│   ├── terminal/      # Shell and terminal configs
+│   ├── wayland.nix    # Wayland desktop user config
+│   ├── workstation.nix # Workstation profile
+│   ├── laptop.nix     # Laptop profile
+│   ├── niri.nix       # Niri compositor keybindings and rules
+│   └── resources/     # Icons, themes, and assets
+│       └── pwa-icons/ # PWA application icons (bundled)
+├── pkgs/               # Custom package definitions
+│   └── pwa-apps/      # PWA package with bundled icons
 ├── scripts/            # Utility scripts
 ├── devshells/          # Development environments (Rust, Zig, QML, etc.)
-├── pkgs/               # Custom package definitions
+├── examples/           # Example configurations
 └── docs/               # Documentation (you are here)
+    ├── APPLICATIONS.md # Complete application catalog
+    └── ...
 ```
 
 Each module directory contains a `README.md` explaining its purpose and organization.
