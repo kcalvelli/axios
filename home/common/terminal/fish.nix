@@ -4,11 +4,11 @@
     shellAliases = {
       # Smart flake path detection
       # For library users: set FLAKE_PATH env var or defaults to ~/.config/nixos_config
-      rebuild-switch = "sudo nixos-rebuild switch --flake (if set -q FLAKE_PATH; echo \\$FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
-      rebuild-boot = "sudo nixos-rebuild boot --flake (if set -q FLAKE_PATH; echo \\$FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
-      rebuild-test = "sudo nixos-rebuild test --flake (if set -q FLAKE_PATH; echo \\$FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
-      update-flake = "nix flake update --flake (if set -q FLAKE_PATH; echo \\$FLAKE_PATH; else echo ~/.config/nixos_config; end)";
-      flake-cd = "cd (if set -q FLAKE_PATH; echo \\$FLAKE_PATH; else echo ~/.config/nixos_config; end)";
+      rebuild-switch = "sudo nixos-rebuild switch --flake (if set -q FLAKE_PATH; echo \$FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
+      rebuild-boot = "sudo nixos-rebuild boot --flake (if set -q FLAKE_PATH; echo \$FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
+      rebuild-test = "sudo nixos-rebuild test --flake (if set -q FLAKE_PATH; echo \$FLAKE_PATH; else echo ~/.config/nixos_config; end)#(hostname)";
+      update-flake = "nix flake update --flake (if set -q FLAKE_PATH; echo \$FLAKE_PATH; else echo ~/.config/nixos_config; end)";
+      flake-cd = "cd (if set -q FLAKE_PATH; echo \$FLAKE_PATH; else echo ~/.config/nixos_config; end)";
     };
     enable = true;
     interactiveShellInit = ''
