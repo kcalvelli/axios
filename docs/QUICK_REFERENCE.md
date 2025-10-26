@@ -4,7 +4,22 @@ Quick command reference for common tasks with axiOS.
 
 ## Getting Started
 
-### Using axiOS as a Library (Recommended)
+### Create Configuration with Interactive Generator
+
+The fastest way to get started:
+
+```bash
+# Create directory and run generator
+mkdir ~/my-nixos-config && cd ~/my-nixos-config
+nix run github:kcalvelli/axios#init
+
+# Follow the prompts, then:
+# 1. Edit disks.nix to set your disk device
+# 2. Initialize git: git init && git add . && git commit -m "Initial config"
+# 3. Install or rebuild (see below)
+```
+
+### Using axiOS as a Library (Manual)
 
 ```bash
 # Create your config repository
@@ -13,20 +28,8 @@ mkdir ~/my-nixos-config && cd ~/my-nixos-config
 # Copy minimal example
 cp -r /path/to/axios/examples/minimal-flake/* .
 
-# Or start from scratch
-cat > flake.nix << 'FLAKE'
-{
-  inputs.axios.url = "github:kcalvelli/axios";
-  inputs.nixpkgs.follows = "axios/nixpkgs";
-  
-  outputs = { self, axios, ... }: {
-    nixosConfigurations.myhost = axios.lib.mkSystem {
-      hostname = "myhost";
-      # ... configuration ...
-    };
-  };
-}
-FLAKE
+# Or use the generator instead
+nix run github:kcalvelli/axios#init
 
 # Build configuration
 nix build .#nixosConfigurations.myhost.config.system.build.toplevel
@@ -37,6 +40,33 @@ sudo nixos-install --flake .#myhost
 # Switch (on existing system)
 sudo nixos-rebuild switch --flake .#myhost
 ```
+
+## Configuration Generator
+
+### Interactive Init Tool
+
+```bash
+# Generate new configuration (answers questions)
+nix run github:kcalvelli/axios#init
+
+# Pin to specific version
+nix run github:kcalvelli/axios/v1.0.0#init
+
+# Pin to specific commit
+nix run github:kcalvelli/axios/<commit-sha>#init
+```
+
+The generator asks about:
+- System: hostname, username, email
+- Hardware: form factor, CPU/GPU vendors, SSD
+- Features: gaming, virtualization, services
+
+Generated files:
+- `flake.nix` - Configured with your choices
+- `user.nix` - Your user account
+- `disks.nix` - Disk template (edit required)
+- `README.md` - Personalized instructions
+- `.gitignore` - Standard ignores
 
 ## Environment Setup
 

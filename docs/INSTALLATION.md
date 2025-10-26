@@ -11,12 +11,54 @@ my-nixos-config/
 ├── flake.nix       # ~40 lines - your system config
 ├── user.nix        # Your user definition
 ├── disks.nix       # Disk layout
-└── README.md       # Optional
+├── README.md       # Personalized instructions
+└── .gitignore      # Standard ignores
 ```
 
 That's it! All modules, packages, and home-manager configs come from axios.
 
-## Quick Start
+## Quick Start (Recommended)
+
+### Using the Interactive Generator
+
+The easiest way to get started:
+
+```bash
+# Create your config directory
+mkdir ~/my-nixos-config
+cd ~/my-nixos-config
+
+# Run the interactive generator
+nix run github:kcalvelli/axios#init
+```
+
+The generator will:
+1. **Ask you questions** about your system:
+   - Hostname, username, email
+   - Form factor (desktop/laptop)
+   - Hardware (CPU/GPU vendors)
+   - Optional modules (gaming, virtualization, services)
+
+2. **Generate files** tailored to your answers:
+   - `flake.nix` - Configured with your hardware
+   - `user.nix` - Your user account
+   - `disks.nix` - Disk template (you'll edit this)
+   - `README.md` - Personalized next-steps guide
+
+3. **Show next steps** with clear instructions
+
+Then just:
+1. Edit `disks.nix` to set your disk device
+2. Initialize git repository
+3. Install or rebuild
+
+**That's it! Skip to "Installing NixOS" below.**
+
+---
+
+## Manual Setup (Alternative)
+
+If you prefer to create files manually:
 
 ### Step 1: Create Your Repository
 
@@ -27,8 +69,6 @@ cd ~/my-nixos-config
 
 ### Step 2: Copy the Example
 
-The fastest way to get started:
-
 ```bash
 # Copy the minimal example from axios
 git clone https://github.com/kcalvelli/axios /tmp/axios
@@ -36,7 +76,7 @@ cp -r /tmp/axios/examples/minimal-flake/* .
 rm -rf /tmp/axios
 ```
 
-Or create files manually (see below).
+Or use the interactive generator instead (see above).
 
 ### Step 3: Customize for Your System
 
@@ -55,6 +95,34 @@ Edit `disks.nix`:
 - Adjust partition sizes if needed
 
 ### Step 4: Install or Rebuild
+
+---
+
+## Installing NixOS
+
+Whether you used the generator or manual setup, you're ready to install:
+
+### Preparation
+
+1. **Review disk configuration:**
+   ```bash
+   # Find your disk device
+   lsblk
+   
+   # Edit disks.nix and change /dev/sda to your disk
+   vim disks.nix
+   ```
+
+2. **Initialize git repository:**
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial axiOS configuration"
+   ```
+
+### Installation
+
+**From NixOS installer:**
 
 **From NixOS installer:**
 ```bash

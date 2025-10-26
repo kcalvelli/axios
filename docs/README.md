@@ -18,10 +18,25 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 
 ### New Users
 
-1. **Download the installer**: Get the latest ISO from [GitHub Releases](https://github.com/kcalvelli/axios/releases)
-2. **Create bootable USB**: Write the ISO to a USB drive
-3. **Install**: Boot from USB and run the automated installer
-4. **Read**: [INSTALLATION.md](INSTALLATION.md) for detailed instructions
+The fastest way to get started with axiOS:
+
+```bash
+# Create a directory and run the interactive generator
+mkdir ~/my-nixos-config && cd ~/my-nixos-config
+nix run github:kcalvelli/axios#init
+```
+
+The generator will:
+- Ask you about your system (hostname, hardware, preferences)
+- Generate a complete configuration tailored to your needs
+- Provide clear next-steps instructions
+
+Or follow the manual installation guide:
+
+1. **Read installation guide**: [INSTALLATION.md](INSTALLATION.md) for detailed instructions
+2. **Generate config**: Use `axios init` or copy the minimal example
+3. **Customize**: Edit generated files for your hardware
+4. **Install**: Boot from installer and run nixos-install
 
 ### Existing Users
 

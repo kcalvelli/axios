@@ -16,6 +16,24 @@ Import axios into your own minimal flake and use `axios.lib.mkSystem` to build c
 
 ## Quick Start - Using axiOS as a Library
 
+### Option 1: Use the Interactive Generator (Recommended) ⭐
+
+The easiest way to get started:
+
+```bash
+# Create a new directory for your config
+mkdir ~/my-nixos-config && cd ~/my-nixos-config
+
+# Run the interactive generator
+nix run github:kcalvelli/axios#init
+```
+
+The tool will ask you a few questions and generate a complete, working configuration tailored to your system.
+
+### Option 2: Manual Setup
+
+If you prefer to create files manually:
+
 ### 1. Create Your Configuration Repository
 
 ```bash
@@ -121,6 +139,8 @@ sudo nixos-rebuild switch --flake .#myhost
 ```
 
 That's it! Your entire configuration is ~60 lines across 3 files. All the modules, packages, and home-manager configs come from axios.
+
+**Tip:** Use `nix run github:kcalvelli/axios#init` to generate these files interactively instead of creating them manually.
 
 See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
 
