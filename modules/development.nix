@@ -1,17 +1,27 @@
 { pkgs, inputs, ... }:
-let
-  # Import categorized package lists
-  packages = import ./packages.nix { inherit pkgs inputs; };
-in
 {
   # === Development Packages ===
-  # Organized by category in packages.nix for easier management
-  environment.systemPackages =
-    packages.editors
-    ++ packages.nix
-    ++ packages.shell
-    ++ packages.vcs
-    ++ packages.ai;
+  environment.systemPackages = with pkgs; [
+    # Editors
+    vim
+    vscode
+    # Nix tools
+    devenv
+    nil # Nix LSP
+    # Shell utilities
+    starship
+    fish
+    bat # Better cat
+    eza # Better ls
+    jq # JSON processor
+    fzf # Fuzzy finder
+    # Version control
+    gh # GitHub CLI
+    # AI tools
+    whisper-cpp
+  ] ++ (with inputs.nix-ai-tools.packages.${pkgs.system}; [
+    copilot-cli
+  ]);
 
   # === Development Services ===
   services = {
