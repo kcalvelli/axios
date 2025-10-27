@@ -204,7 +204,7 @@
         "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ]; 
         "Mod+C".action.spawn = [ "code" ];
         "Mod+D".action.spawn = [ "discord" ]; 
-        "Mod+T".action.spawn = [ "gnome-text-editor" ];
+        "Mod+N".action.spawn = [ "gnome-text-editor" ];
         "Mod+Shift+C".action.spawn = [ "qalculate-gtk" ];
 
         # --- Workspace: jump directly (1..8) ---
