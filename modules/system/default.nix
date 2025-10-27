@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, self, ... }:
 {
   # Import necessary modules
   imports = [
@@ -9,6 +9,13 @@
     ./sound.nix
     ./bluetooth.nix
   ];
+
+  # Apply axios overlay to system pkgs
+  nixpkgs.overlays = [ self.overlays.default ];
+
+  # Configure home-manager to use system pkgs (with overlays)
+  home-manager.useGlobalPkgs = true;
+  home-manager.useUserPackages = true;
 
   # === System Packages ===
   environment.systemPackages = with pkgs; [
