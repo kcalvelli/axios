@@ -40,8 +40,8 @@ let
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         # Hardware modules based on form factor and vendor
-        ++ lib.optional (hostCfg.hardware.vendor == "msi") desktopHardware
-        ++ lib.optional (hostCfg.hardware.vendor == "system76") laptopHardware
+        ++ lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
+        ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
         # Generic hardware based on form factor (if no specific vendor)
         ++ lib.optional (
           (hostCfg.hardware.vendor or null == null) &&

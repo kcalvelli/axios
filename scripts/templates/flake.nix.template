@@ -17,6 +17,7 @@
         gpu = "{{GPU}}";
         hasSSD = {{HAS_SSD}};
         isLaptop = {{IS_LAPTOP}};
+        # vendor = "msi";  # Optional: "msi" for desktop, "system76" for laptop
       };
       
       modules = {
