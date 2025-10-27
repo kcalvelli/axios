@@ -153,7 +153,6 @@
           # Size on open (pixels)
           default-column-width = { fixed = 500; };
           default-window-height = { fixed = 700; };
-
         }        
         {
           matches = [
