@@ -123,7 +123,7 @@
           open-maximized = true;
         }
 
-        # 2) Specific: Google Messages PWA — float, centered, iMessage-ish size
+        # 2) Specific: Google Messages PWA — float, upper right, iMessage-ish size
         {
           matches = [
             { app-id = "^brave-messages\\.google\\.com__web-Default$"; }
@@ -140,6 +140,21 @@
           # Optional: pin position instead of center (comment out if not needed)
           default-floating-position = { x = 5; y = 5; relative-to = "top-left"; };
         }
+        # 2) Qalculate — float, centered, small calculator size
+        {
+          matches = [
+            { app-id = "^qalculate-gtk$"; }
+          ];
+
+          # Explicitly override the global rule:
+          open-maximized = false;
+          open-floating = true;
+
+          # Size on open (pixels)
+          default-column-width = { fixed = 500; };
+          default-window-height = { fixed = 700; };
+
+        }        
         {
           matches = [
             { app-id = "^org\\.gnome\\.Nautilus$"; }
@@ -187,7 +202,11 @@
         "Mod+B".action.spawn = [ "brave" ];
         "Mod+E".action.spawn = [ "nautilus" ];
         "Mod+Return".action.spawn = "ghostty";
-        "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ];        
+        "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ]; 
+        "Mod+C".action.spawn = [ "code" ];
+        "Mod+D".action.spawn = [ "discord" ]; 
+        "Mod+T".action.spawn = [ "gnome-text-editor" ];
+        "Mod+C".action.spawn = [ "qalculate-gtk" ];
 
         # --- Workspace: jump directly (1..8) ---
         "Mod+1".action."focus-workspace" = [ 1 ];
