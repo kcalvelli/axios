@@ -205,7 +205,7 @@
         "Mod+C".action.spawn = [ "code" ];
         "Mod+D".action.spawn = [ "discord" ]; 
         "Mod+T".action.spawn = [ "gnome-text-editor" ];
-        "Mod+Q".action.spawn = [ "qalculate-gtk" ];
+        "Mod+Shift+C".action.spawn = [ "qalculate-gtk" ];
 
         # --- Workspace: jump directly (1..8) ---
         "Mod+1".action."focus-workspace" = [ 1 ];
