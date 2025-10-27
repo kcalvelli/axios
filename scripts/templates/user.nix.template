@@ -29,9 +29,8 @@ in
       username = username;
     };
 
-    nixpkgs.config = {
-      allowUnfree = true;
-    };
+    # nixpkgs config (like allowUnfree) is set at system level
+    # when using home-manager.useGlobalPkgs = true
 
     # User-specific git configuration  
     programs.git.settings = {
