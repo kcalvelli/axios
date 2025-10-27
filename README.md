@@ -25,7 +25,7 @@ The easiest way to get started:
 mkdir ~/my-nixos-config && cd ~/my-nixos-config
 
 # Run the interactive generator
-nix run github:kcalvelli/axios#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
 
 The tool will ask you a few questions and generate a complete, working configuration tailored to your system.
@@ -140,7 +140,7 @@ sudo nixos-rebuild switch --flake .#myhost
 
 That's it! Your entire configuration is ~60 lines across 3 files. All the modules, packages, and home-manager configs come from axios.
 
-**Tip:** Use `nix run github:kcalvelli/axios#init` to generate these files interactively instead of creating them manually.
+**Tip:** Use `nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init` to generate these files interactively instead of creating them manually.
 
 See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
 
@@ -210,7 +210,7 @@ nixosConfigurations.myhost = axios.lib.mkSystem {
   formFactor = "desktop" | "laptop";
   
   hardware = {
-    vendor = "msi" | "system76" | null;
+    vendor = "msi" | "system76" | null;  # Optional: omit for most hardware
     cpu = "amd" | "intel";
     gpu = "amd" | "nvidia";
     hasSSD = bool;

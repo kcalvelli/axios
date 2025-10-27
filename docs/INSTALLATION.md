@@ -29,7 +29,7 @@ mkdir ~/my-nixos-config
 cd ~/my-nixos-config
 
 # Run the interactive generator
-nix run github:kcalvelli/axios#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
 
 The generator will:

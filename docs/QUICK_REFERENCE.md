@@ -11,7 +11,7 @@ The fastest way to get started:
 ```bash
 # Create directory and run generator
 mkdir ~/my-nixos-config && cd ~/my-nixos-config
-nix run github:kcalvelli/axios#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 
 # Follow the prompts, then:
 # 1. Edit disks.nix to set your disk device
@@ -29,7 +29,7 @@ mkdir ~/my-nixos-config && cd ~/my-nixos-config
 cp -r /path/to/axios/examples/minimal-flake/* .
 
 # Or use the generator instead
-nix run github:kcalvelli/axios#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 
 # Build configuration
 nix build .#nixosConfigurations.myhost.config.system.build.toplevel
@@ -47,13 +47,13 @@ sudo nixos-rebuild switch --flake .#myhost
 
 ```bash
 # Generate new configuration (answers questions)
-nix run github:kcalvelli/axios#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 
 # Pin to specific version
-nix run github:kcalvelli/axios/v1.0.0#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios/v1.0.0#init
 
 # Pin to specific commit
-nix run github:kcalvelli/axios/<commit-sha>#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios/<commit-sha>#init
 ```
 
 The generator asks about:

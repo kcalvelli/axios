@@ -45,7 +45,9 @@ The main function to create a NixOS system configuration.
       formFactor = "desktop"; # or "laptop"
       
       hardware = {
-        vendor = "msi"; # or "system76", or null for generic
+        # vendor is optional - only set if you have specific hardware
+        # vendor = "msi";      # For MSI motherboards (enables sensor support)
+        # vendor = "system76"; # For System76 laptops (enables firmware daemons)
         cpu = "amd"; # or "intel"
         gpu = "amd"; # or "nvidia"
         hasSSD = true;
@@ -108,7 +110,10 @@ Helper function that builds the complete module list for a host configuration. C
 ### Hardware Configuration
 - `formFactor`: "desktop" | "laptop"
 - `hardware`: Attribute set
-  - `vendor`: "msi" | "system76" | null
+  - `vendor`: "msi" | "system76" | null (optional)
+    - `"msi"`: Enables MSI motherboard optimizations (nct6775 sensors, ACPI quirks)
+    - `"system76"`: Enables System76 laptop support (firmware/power daemons, hardware quirks)
+    - `null`: Generic hardware support (default, recommended for most users)
   - `cpu`: "amd" | "intel"
   - `gpu`: "amd" | "nvidia"
   - `hasSSD`: boolean

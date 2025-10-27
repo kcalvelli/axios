@@ -17,7 +17,8 @@
         gpu = "{{GPU}}";
         hasSSD = {{HAS_SSD}};
         isLaptop = {{IS_LAPTOP}};
-        # vendor = "msi";  # Optional: "msi" for desktop, "system76" for laptop
+        # vendor = "msi";      # Optional: Only for MSI motherboards (enables sensor support)
+        # vendor = "system76"; # Optional: Only for System76 laptops (enables firmware/power daemons)
       };
       
       modules = {

@@ -178,7 +178,7 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   # Hardware configuration
   formFactor = "desktop" | "laptop" | "server";
   hardware = {
-    vendor = "msi" | "system76" | null;  # Hardware vendor
+    vendor = "msi" | "system76" | null;  # Optional: Hardware vendor for specific optimizations
     cpu = "amd" | "intel";                # CPU type
     gpu = "amd" | "nvidia" | "intel";     # GPU type
     hasSSD = bool;                        # SSD optimization
@@ -240,10 +240,27 @@ The `hardware` section configures hardware-specific optimizations:
 - `"nvidia"` - Nvidia proprietary drivers
 - `"intel"` - Intel graphics drivers
 
-**Vendor:**
-- `"msi"` - MSI motherboard optimizations and sensors
-- `"system76"` - System76 laptop support and quirks
-- `null` - Generic hardware support
+**Vendor (Optional):**
+
+Most users should **omit this field** or set it to `null`. Only use vendor-specific options if you have that specific hardware and want the optimizations.
+
+- `"msi"` - **MSI motherboard optimizations** (Desktop only):
+  - Enables `nct6775` kernel module for Super I/O chip sensors (fan speeds, temperatures)
+  - Sets `acpi_enforce_resources=lax` kernel parameter for sensor access
+  - Auto-enables desktop hardware module with MSI-specific features
+  - **When to use:** You have an MSI motherboard AND want hardware sensor monitoring
+  
+- `"system76"` - **System76 laptop support** (Laptop only):
+  - Enables System76 firmware daemon for BIOS/EC updates
+  - Enables System76 power daemon for advanced power management
+  - Loads `system76_acpi` kernel module for keyboard backlight control
+  - Includes Pangolin 12 quirks (disables psmouse, MediaTek Wi-Fi fix)
+  - Auto-enables laptop hardware module with System76-specific features
+  - **When to use:** You own a System76 laptop (Pangolin, Oryx, Lemur, etc.)
+  
+- `null` or omitted - **Generic hardware support (recommended for most users)**
+  - Uses form-factor based optimizations (desktop/laptop) without vendor-specific features
+  - Works with all hardware brands (ASUS, Gigabyte, Dell, Lenovo, HP, etc.)
 
 **Form Factor:**
 - `"desktop"` - Desktop optimizations

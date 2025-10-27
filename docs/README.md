@@ -23,7 +23,7 @@ The fastest way to get started with axiOS:
 ```bash
 # Create a directory and run the interactive generator
 mkdir ~/my-nixos-config && cd ~/my-nixos-config
-nix run github:kcalvelli/axios#init
+nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
 
 The generator will:

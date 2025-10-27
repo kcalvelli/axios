@@ -24,6 +24,8 @@
           gpu = "amd";      # "amd" or "nvidia"
           hasSSD = true;
           isLaptop = false;
+          # vendor = "msi";      # Optional: for MSI motherboards
+          # vendor = "system76"; # Optional: for System76 laptops
         };
         
         # NixOS modules to enable

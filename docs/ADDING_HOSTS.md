@@ -197,6 +197,81 @@ For cleaner organization, import host configs from separate files:
 }
 ```
 
+## Hardware Vendor Configuration
+
+### When to Use the Vendor Flag
+
+The `hardware.vendor` field is **optional** and should only be used if you have specific hardware that benefits from vendor-specific optimizations.
+
+**Most users should omit this field** - the generic hardware support works well with all brands (ASUS, Gigabyte, Dell, Lenovo, HP, etc.).
+
+### Supported Vendors
+
+#### MSI (Desktop Motherboards)
+
+Use `vendor = "msi"` if you have an MSI desktop motherboard **AND** want hardware monitoring support:
+
+```nix
+hardware = {
+  vendor = "msi";  # Enables MSI sensor support
+  cpu = "amd";
+  gpu = "amd";
+  hasSSD = true;
+  isLaptop = false;
+};
+```
+
+**What this enables:**
+- `nct6775` kernel module for Super I/O chip sensors (fan speeds, temperatures)
+- `acpi_enforce_resources=lax` kernel parameter for sensor access
+- Hardware monitoring in tools like `lm_sensors`, `htop`, etc.
+
+**When NOT to use:**
+- You have MSI hardware but don't need sensor monitoring
+- You have a non-MSI motherboard
+
+#### System76 (Laptops)
+
+Use `vendor = "system76"` if you own a System76 laptop:
+
+```nix
+hardware = {
+  vendor = "system76";  # Enables System76 laptop features
+  cpu = "amd";
+  gpu = "amd";
+  hasSSD = true;
+  isLaptop = true;
+};
+```
+
+**What this enables:**
+- System76 firmware daemon for BIOS/EC firmware updates
+- System76 power daemon for advanced power management
+- `system76_acpi` kernel module for keyboard backlight control
+- Pangolin 12 specific quirks (touchpad, Wi-Fi fixes)
+
+**When NOT to use:**
+- You have a laptop from another manufacturer (Dell, Lenovo, HP, etc.)
+
+### Generic Hardware (Recommended)
+
+For all other hardware, simply omit the `vendor` field or set it to `null`:
+
+```nix
+hardware = {
+  # No vendor field - uses generic optimizations
+  cpu = "amd";
+  gpu = "amd";
+  hasSSD = true;
+  isLaptop = false;
+};
+```
+
+This works perfectly for:
+- ASUS, Gigabyte, ASRock motherboards
+- Dell, Lenovo, HP, Acer laptops
+- Any other brand not explicitly listed above
+
 ### Deploying to Hosts
 
 ```bash
