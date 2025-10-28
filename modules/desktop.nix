@@ -6,19 +6,6 @@
 
   wayland.enable = true;
 
-  # === Wayland Environment Variables ===
-  environment = {
-    sessionVariables = {
-      NIXOS_OZONE_WL = "1";
-      OZONE_PLATFORM = "wayland";
-      ELECTRON_OZONE_PLATFORM_HINT = "auto";
-
-      # == Use Flathub as the only repo in GNOME Software ==
-      GNOME_SOFTWARE_REPOS_ENABLED = "flathub";
-      GNOME_SOFTWARE_USE_FLATPAK_ONLY = "1";      
-    };
-  };
-
   # === Desktop Services ===
   # Services needed by all WMs/DEs
   services = {
@@ -38,7 +25,6 @@
   programs = {
     corectrl.enable = true;
     kdeconnect.enable = true;
-    dconf.enable = true;
     localsend = {
       enable = true;
       openFirewall = true;
@@ -65,5 +51,10 @@
     protonvpn-gui
     # Streaming
     obs-studio
+
+    # Icon themes
+    colloid-icon-theme
+    adwaita-icon-theme
+    papirus-icon-theme
   ];
 }

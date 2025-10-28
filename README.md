@@ -257,8 +257,8 @@ Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_
 ├── lib/                # Exported library functions (axios.lib.*)
 ├── modules/            # NixOS modules (system-level)
 │   ├── system/         # Core system configuration
-│   ├── desktop.nix     # Desktop services
-│   ├── wayland.nix     # Niri compositor and desktop
+│   ├── desktop.nix     # Desktop services & themes
+│   ├── wayland.nix     # Wayland, Niri compositor & GNOME apps
 │   ├── development.nix # Development tools
 │   ├── gaming.nix      # Gaming support (optional)
 │   ├── graphics.nix    # Graphics drivers
@@ -270,10 +270,10 @@ Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_
 ├── home/               # Home Manager configurations
 │   ├── browser/        # Browser and PWA configs
 │   ├── terminal/       # Shell and terminal configs
-│   ├── wayland.nix     # Wayland desktop user config
+│   ├── wayland.nix     # Wayland desktop user config & DMS
+│   ├── niri.nix        # Niri compositor keybinds & settings
 │   ├── workstation.nix # Workstation profile
 │   ├── laptop.nix      # Laptop profile
-│   ├── niri.nix        # Niri compositor config
 │   └── resources/      # Icons, themes, assets
 │       └── pwa-icons/  # PWA application icons
 ├── pkgs/               # Custom packages
