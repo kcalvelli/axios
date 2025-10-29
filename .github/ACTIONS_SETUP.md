@@ -1,51 +1,38 @@
-# GitHub Actions Configuration Guide
+# GitHub Actions Configuration
 
-## Fixing "GitHub Actions is not permitted to create pull requests" Error
+## ✅ Configuration Complete
 
-The flake-lock-updater workflow needs permission to create pull requests. There are two approaches:
+The repository is now configured for PR-based flake.lock updates with manual review.
 
-### Option 1: Enable GitHub Actions to Create PRs (Recommended)
-
-1. Go to your repository settings: https://github.com/kcalvelli/axios/settings/actions
-2. Scroll to "Workflow permissions"
-3. Check the box: **"Allow GitHub Actions to create and approve pull requests"**
-4. Save changes
-
-This is the simplest solution and uses the built-in `GITHUB_TOKEN`.
-
-### Option 2: Use a Personal Access Token (Alternative)
-
-If you need more control or Option 1 doesn't work:
-
-1. Create a fine-grained PAT at https://github.com/settings/tokens?type=beta with:
-   - Repository access: Only select repositories → axios
-   - Permissions:
-     - Contents: Read and write
-     - Pull requests: Read and write
-     - Metadata: Read-only (automatically included)
-
-2. Add the PAT as a repository secret:
-   - Go to https://github.com/kcalvelli/axios/settings/secrets/actions
-   - Click "New repository secret"
-   - Name: `FLAKE_UPDATE_TOKEN`
-   - Value: Your PAT
-
-3. Update `.github/workflows/flake-lock-updater.yml` line 29:
-   ```yaml
-   token: ${{ secrets.FLAKE_UPDATE_TOKEN }}
-   ```
-
-## Current Repository Settings
-
-Already configured:
+### Current Setup
 - ✓ Workflow permissions: `write`
-- ✗ Allow GitHub Actions to create PRs: **Not enabled** (needs manual configuration via web UI)
+- ✓ GitHub Actions can create PRs: **Enabled**
+- ✓ Weekly PR creation: Every Monday at 6 AM UTC
+- ✓ Manual review required before merge
 
-## Testing the Workflow
+## Weekly Workflow
 
-After enabling the setting, test with:
+Every Monday, GitHub Actions will:
+1. Update flake.lock with latest inputs
+2. Create a PR with the changes
+3. Label it as `dependencies` and `automated`
+4. **Wait for your review**
+
+You can then:
+- Review the changes in the PR
+- Check for breaking changes in nixpkgs-unstable
+- Test the updates if needed
+- Merge when ready or close if problematic
+
+## Manual Trigger
+
+To trigger an update immediately:
 ```bash
 gh workflow run flake-lock-updater.yml
 ```
 
-Or wait for the scheduled Monday 6 AM UTC run.
+Or via GitHub web interface: Actions → Update flake.lock → Run workflow
+
+## Alternative: Direct Commit (Disabled)
+
+The `flake-lock-updater-direct.yml` workflow is available but disabled. It commits directly to master without PR review. Only use if you want fully automated updates without review.

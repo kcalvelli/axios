@@ -1,8 +1,9 @@
 name: Update flake.lock (Direct Commit)
 
 on:
-  schedule:
-    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
+  # Disabled in favor of PR-based updates
+  # schedule:
+  #   - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
   workflow_dispatch:
 
 permissions:

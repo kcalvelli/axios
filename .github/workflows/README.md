@@ -7,11 +7,11 @@ This directory contains automated workflows for the axios flake library.
 ### Update flake.lock
 **File:** `flake-lock-updater.yml`  
 **Schedule:** Weekly on Mondays at 6 AM UTC  
-**Purpose:** Automatically updates `flake.lock` to keep dependencies current for downstream consumers.
+**Purpose:** Creates PRs with updated flake.lock for manual review before merging.
 
 - Creates a PR with updated flake.lock
-- Automatically merges the PR if all checks pass
 - Labels PRs as `dependencies` and `automated`
+- **Requires manual review and merge** - important for catching breaking changes in nixpkgs-unstable
 - Can be manually triggered via workflow_dispatch
 
 ### Flake Check
@@ -42,11 +42,11 @@ This directory contains automated workflows for the axios flake library.
 
 ## Permissions
 
-The `update-flake-lock` workflow requires:
-- `contents: write` - To push branches
-- `pull-requests: write` - To create and auto-merge PRs
+The workflows use the built-in `GITHUB_TOKEN` with:
+- `contents: write` - To push branches and commits
+- `pull-requests: write` - To create PRs
 
-These are configured at the workflow level and use the built-in `GITHUB_TOKEN`.
+These are configured at the workflow level. PR creation is now enabled for this repository.
 
 ## Manual Triggers
 
