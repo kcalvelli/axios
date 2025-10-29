@@ -7,10 +7,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
     # Determinate Systems
-    determinate = {
-      url = "github:DeterminateSystems/determinate";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    determinate.url = "github:DeterminateSystems/determinate";
 
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
@@ -83,9 +80,8 @@
     };
 
     niri = {
-      url = "github:sodiboo/niri-flake/97876f35dcd5";  # Pinned: working version before libdisplay-info 0.3.0 issue
-      # Don't follow nixpkgs - let niri use its own pinned nixpkgs with compatible libdisplay-info
-      # inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Fun with "AI" 
@@ -146,4 +142,3 @@
       };
     });
 }
-# Trigger CI
