@@ -65,7 +65,7 @@ if [ ! -f "flake.nix" ]; then
 fi
 
 print_success "Found flake.nix in $AXIOS_DIR"
-((TESTS_PASSED++))
+TESTS_PASSED=$((TESTS_PASSED + 1))
 
 # Test 2: Check git status
 print_test "Test 2: Git Repository Status"
@@ -79,10 +79,10 @@ echo "Current branch: $CURRENT_BRANCH"
 
 if [ "$CURRENT_BRANCH" = "master" ]; then
     print_warning "On master branch - you may want to test a PR branch"
-    ((TESTS_WARNED++))
+    TESTS_WARNED=$((TESTS_WARNED + 1))
 else
     print_success "On branch: $CURRENT_BRANCH"
-    ((TESTS_PASSED++))
+    TESTS_PASSED=$((TESTS_PASSED + 1))
 fi
 
 # Show recent commits
@@ -95,7 +95,7 @@ print_test "Test 3: Flake Structure Validation"
 echo "Running: nix flake check --all-systems --no-update-lock-file"
 if timeout 300 nix flake check --all-systems --no-update-lock-file 2>&1 | tee "$LOG_DIR/flake-check.log"; then
     print_success "Flake check passed"
-    ((TESTS_PASSED++))
+    TESTS_PASSED=$((TESTS_PASSED + 1))
 else
     EXIT_CODE=$?
     if [ $EXIT_CODE -eq 124 ]; then
@@ -103,14 +103,14 @@ else
     else
         print_error "Flake check failed - see $LOG_DIR/flake-check.log"
     fi
-    ((TESTS_FAILED++))
+    TESTS_FAILED=$((TESTS_FAILED + 1))
 fi
 
 # Test 4: Show flake metadata
 print_test "Test 4: Flake Metadata"
 timeout 60 nix flake metadata 2>&1 | tee "$LOG_DIR/flake-metadata.log"
 print_success "Flake metadata retrieved"
-((TESTS_PASSED++))
+TESTS_PASSED=$((TESTS_PASSED + 1))
 
 # Test 5: Check for major version changes
 print_test "Test 5: Input Version Analysis"
@@ -123,7 +123,7 @@ if [ "$CURRENT_BRANCH" != "master" ]; then
     # Get master's flake.lock
     git show master:flake.lock > "$LOG_DIR/flake.lock.master" 2>/dev/null || {
         print_warning "Cannot compare with master (no master branch?)"
-        ((TESTS_WARNED++))
+        TESTS_WARNED=$((TESTS_WARNED + 1))
     }
     
     if [ -f "$LOG_DIR/flake.lock.master" ]; then
@@ -137,7 +137,7 @@ if [ "$CURRENT_BRANCH" != "master" ]; then
         if [ "$MASTER_NIXPKGS" != "$CURRENT_NIXPKGS" ]; then
             echo "  nixpkgs: ${MASTER_NIXPKGS:0:12} → ${CURRENT_NIXPKGS:0:12}"
             print_warning "Major input (nixpkgs) changed - test carefully"
-            ((TESTS_WARNED++))
+            TESTS_WARNED=$((TESTS_WARNED + 1))
         fi
         
         # List all changed inputs
@@ -153,10 +153,10 @@ if [ "$CURRENT_BRANCH" != "master" ]; then
     fi
     
     print_success "Version analysis complete"
-    ((TESTS_PASSED++))
+    TESTS_PASSED=$((TESTS_PASSED + 1))
 else
     print_warning "On master branch, skipping version comparison"
-    ((TESTS_WARNED++))
+    TESTS_WARNED=$((TESTS_WARNED + 1))
 fi
 
 # Test 6: Test build in client configuration
@@ -164,7 +164,7 @@ print_test "Test 6: Client Configuration Build Test"
 if [ ! -d "$TEST_CLIENT_DIR" ]; then
     print_warning "Test client directory not found: $TEST_CLIENT_DIR"
     print_warning "Skipping client build test"
-    ((TESTS_WARNED++))
+    TESTS_WARNED=$((TESTS_WARNED + 1))
 else
     echo "Testing with client config in: $TEST_CLIENT_DIR"
     
@@ -181,7 +181,7 @@ else
     echo "Updating client to use local axios: $AXIOS_DIR"
     nix flake lock --override-input axios "$AXIOS_DIR" 2>&1 | tee "$LOG_DIR/flake-lock-update.log" || {
         print_error "Failed to update flake.lock"
-        ((TESTS_FAILED++))
+        TESTS_FAILED=$((TESTS_FAILED + 1))
     }
     
     # Attempt build
@@ -193,7 +193,7 @@ else
     if timeout 600 nix build ".#nixosConfigurations.$TEST_HOSTNAME.config.system.build.toplevel" \
         --print-out-paths 2>&1 | tee "$LOG_DIR/build.log"; then
         print_success "Client configuration build SUCCEEDED"
-        ((TESTS_PASSED++))
+        TESTS_PASSED=$((TESTS_PASSED + 1))
         
         echo ""
         echo -e "${GREEN}╔════════════════════════════════════════╗${NC}"
@@ -201,7 +201,7 @@ else
         echo -e "${GREEN}╚════════════════════════════════════════╝${NC}"
     else
         print_error "Client configuration build FAILED"
-        ((TESTS_FAILED++))
+        TESTS_FAILED=$((TESTS_FAILED + 1))
         
         echo ""
         echo -e "${RED}╔════════════════════════════════════════╗${NC}"
