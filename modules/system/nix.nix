@@ -1,5 +1,10 @@
-{ lib, self, ... }:
+{ lib, self, pkgs, ... }:
 {
+  # Install cachix for cache management
+  environment.systemPackages = with pkgs; [
+    cachix
+  ];
+
   # Nix configuration
   nix = {
     # Enable daily automatic garbage collection, delete generations older than 5 days
@@ -25,15 +30,18 @@
       max-jobs = "auto"; # Parallel builds
       
       extra-substituters = [
+        "https://axios.cachix.org"  # Axios binary cache
         "https://numtide.cachix.org"
         "https://niri.cachix.org"
       ];
       extra-trusted-substituters = [
+        "https://axios.cachix.org"
         "https://niri.cachix.org"
       ];
 
       extra-trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431kS1gBOk6429S9g0f1NXtv+FIsf8Xma0="
+        "axios.cachix.org-1:REPLACE_WITH_PUBLIC_KEY"  # TODO: Update after Cachix setup
         "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
         "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
       ];
