@@ -5,9 +5,6 @@
     wayland = {
       enable = lib.mkEnableOption "Enable Wayland compisitors and related services";
     };
-    niri = {
-      enable = lib.mkEnableOption "Enable Niri";
-    };
   };
 
   # Configure wayland if enabled
@@ -37,8 +34,6 @@
       greetd.enableGnomeKeyring = true;
       login.enableGnomeKeyring = true;
     };
-
-    niri.enable = true;
 
     programs = {
       niri.enable = true;
