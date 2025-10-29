@@ -22,7 +22,8 @@ let
         inputs.niri.nixosModules.niri
         inputs.dankMaterialShell.nixosModules.greeter
         inputs.home-manager.nixosModules.home-manager
-        inputs.determinate.nixosModules.default
+        # TEMPORARILY DISABLED - FlakeHub causing build issues
+        # inputs.determinate.nixosModules.default
         inputs.lanzaboote.nixosModules.lanzaboote
         inputs.vscode-server.nixosModules.default
       ];

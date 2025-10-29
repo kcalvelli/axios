@@ -6,8 +6,11 @@
     #nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs";
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
-    # Determinate Systems
-    determinate.url = "github:DeterminateSystems/determinate";
+    # Determinate Systems - TEMPORARILY DISABLED due to FlakeHub issues
+    # determinate = {
+    #   url = "github:DeterminateSystems/determinate";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware/master";
