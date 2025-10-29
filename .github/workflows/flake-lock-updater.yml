@@ -26,7 +26,15 @@ jobs:
         id: update
         run: |
           nix flake update
-          echo "updated=true" >> $GITHUB_OUTPUT
+          
+          # Check if anything changed
+          if git diff --quiet flake.lock; then
+            echo "No changes to flake.lock"
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "flake.lock was updated"
+            echo "updated=true" >> $GITHUB_OUTPUT
+          fi
       
       - name: Validate flake after update
         if: steps.update.outputs.updated == 'true'
@@ -35,6 +43,28 @@ jobs:
           nix flake check --all-systems --no-update-lock-file
           
           echo "✅ Flake check passed"
+      
+      - name: Test build example configurations
+        if: steps.update.outputs.updated == 'true'
+        run: |
+          echo "🔨 Testing builds to catch dependency conflicts..."
+          
+          # Try to build the formatter (quick sanity check)
+          echo "Building formatter..."
+          nix build .#formatter --print-out-paths
+          
+          # Try to build a devShell (catches more issues)
+          echo "Building default devShell..."
+          nix build .#devShells.x86_64-linux.default --print-out-paths
+          
+          echo "✅ Build tests passed"
+          echo ""
+          echo "Note: These are basic build tests. Downstream users should"
+          echo "test with their full configurations before deploying."
+      
+      - name: Show flake metadata
+        if: steps.update.outputs.updated == 'true'
+        run: |
           echo "📊 Flake metadata:"
           nix flake metadata
       
@@ -48,23 +78,41 @@ jobs:
           body: |
             Automated flake.lock update
             
-            ## Validation Results
+            ## ✅ Automated Validation Results
             - ✅ Flake check passed on all systems
+            - ✅ Basic build tests passed (formatter, devShell)
             
-            ## Review Checklist
-            - [ ] Check the diff for unexpected changes
-            - [ ] Verify nixpkgs version is reasonable
-            - [ ] Test locally before merging
+            ## ⚠️ Manual Testing Required
+            **Important:** CI only validates basic builds. You MUST test with a real
+            configuration before merging to catch dependency conflicts like:
+            - Package version mismatches
+            - Missing dependencies
+            - Upstream breakage
             
-            ## Testing Locally
+            ## Testing Procedure
             ```bash
+            # 1. Checkout this PR
             gh pr checkout ${{ github.event.pull_request.number }}
-            nix flake check
-            # Test build in your client config
-            cd ~/.config/nixos_config
-            nix flake lock --override-input axios /path/to/axios
-            nix build .#nixosConfigurations.edge.config.system.build.toplevel
+            
+            # 2. Run the validation script
+            ./scripts/test-pr.sh
+            
+            # 3. Review the results
+            # If tests pass → merge
+            # If tests fail → close PR and investigate
             ```
+            
+            ## What Changed
+            Review the flake.lock diff to see which inputs were updated.
+            Pay special attention to:
+            - Major version bumps in nixpkgs
+            - Updates to critical packages (niri, home-manager, etc.)
+            - Large numbers of input changes
+            
+            ## If Build Fails
+            - Check upstream GitHub issues for affected packages
+            - Wait for fixes before merging
+            - Test again with `./scripts/test-pr.sh`
           branch: update_flake_lock_action
           delete-branch: true
           labels: |

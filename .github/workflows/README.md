@@ -9,10 +9,14 @@ This directory contains automated workflows for the axios flake library.
 **Schedule:** Weekly on Mondays at 6 AM UTC  
 **Purpose:** Creates PRs with updated flake.lock for manual review before merging.
 
-- Creates a PR with updated flake.lock
+- Runs `nix flake update` to update all inputs
+- Validates flake structure with `nix flake check`
+- **Tests basic builds** (formatter, devShell) to catch obvious breakage
+- Creates PR only if validation passes
+- **Requires manual testing** with `./scripts/test-pr.sh` before merging
 - Labels PRs as `dependencies` and `automated`
-- **Requires manual review and merge** - important for catching breaking changes in nixpkgs-unstable
-- Can be manually triggered via workflow_dispatch
+
+**Note:** CI tests are basic. Always run `./scripts/test-pr.sh` to catch dependency conflicts.
 
 ### Flake Check
 **File:** `flake-check.yml`  
