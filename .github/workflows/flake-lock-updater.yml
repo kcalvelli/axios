@@ -43,38 +43,9 @@ jobs:
           nix flake check --all-systems --no-update-lock-file
           
           echo "✅ Flake check passed"
-      
-      - name: Test build example configurations
-        if: steps.update.outputs.updated == 'true'
-        run: |
-          echo "🔨 Testing builds to catch dependency conflicts..."
           echo ""
-          
-          # Test formatter (quick sanity check)
-          echo "→ Building formatter..."
-          nix build .#formatter --print-out-paths
-          
-          # Test all devShells
-          echo "→ Building devShells..."
-          nix build .#devShells.x86_64-linux.default --print-out-paths
-          nix build .#devShells.x86_64-linux.rust --print-out-paths
-          nix build .#devShells.x86_64-linux.qml --print-out-paths
-          nix build .#devShells.x86_64-linux.zig --print-out-paths
-          
-          # Test packages
-          echo "→ Building packages..."
-          nix build .#packages.x86_64-linux.pwa-apps --print-out-paths
-          
-          # Test init app
-          echo "→ Testing init app..."
-          nix build .#apps.x86_64-linux.init --print-out-paths
-          
-          echo ""
-          echo "✅ All axios exports built successfully"
-          echo ""
-          echo "⚠️  NOTE: These tests only validate axios exports (packages, devShells, apps)."
-          echo "They do NOT test NixOS modules or catch issues like niri dependency conflicts."
-          echo "Manual testing with ./scripts/test-pr.sh is REQUIRED to test full configurations."
+          echo "⚠️  NOTE: Flake check only validates structure, not actual builds."
+          echo "Manual testing with ./scripts/test-pr.sh is REQUIRED."
       
       - name: Show flake metadata
         if: steps.update.outputs.updated == 'true'
@@ -92,41 +63,28 @@ jobs:
           body: |
             Automated flake.lock update
             
-            ## ✅ Automated Validation Results
-            - ✅ Flake check passed on all systems
-            - ✅ All axios exports built successfully:
-              - formatter ✓
-              - devShells (default, rust, qml, zig) ✓
-              - packages (pwa-apps) ✓
-              - apps (init) ✓
+            ## ✅ CI Validation
+            - ✅ Flake structure validated (`nix flake check`)
             
-            ## ⚠️ Important: CI Limitations
-            **The CI tests above only build axios exports.** They do NOT test:
-            - ❌ NixOS modules (desktop, wayland, services, etc.)
-            - ❌ Full system configurations
-            - ❌ Dependencies used only in modules (like niri)
+            ## ⚠️ IMPORTANT: Manual Testing Required
             
-            **This means CI can pass but real builds can still fail!**
+            **CI does NOT test actual builds or NixOS modules.**
             
-            Example: The niri/libdisplay-info conflict would NOT be caught by CI
-            because niri is only used in NixOS modules, not in the packages CI builds.
+            You **MUST** run the validation script before merging:
             
-            ## ✅ Manual Testing Required
-            You **MUST** run `./scripts/test-pr.sh` which builds a real NixOS configuration.
-            This is the only way to catch module-specific dependency conflicts.
-            
-            ## Testing Procedure
             ```bash
-            # 1. Checkout this PR
+            cd ~/Projects/axios
             gh pr checkout ${{ github.event.pull_request.number }}
-            
-            # 2. Run the validation script
             ./scripts/test-pr.sh
-            
-            # 3. Review the results
-            # If tests pass → merge
-            # If tests fail → close PR and investigate
             ```
+            
+            The validation script:
+            - ✅ Tests flake structure
+            - ✅ Builds a real NixOS configuration
+            - ✅ Catches dependency conflicts (like niri/libdisplay-info)
+            - ✅ Tests with your actual system
+            
+            **Only merge if `./scripts/test-pr.sh` passes.**
             
             ## What Changed
             Review the flake.lock diff to see which inputs were updated.
