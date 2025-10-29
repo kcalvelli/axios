@@ -79,11 +79,6 @@
       #inputs.quickshell.follows = "quickshell";
     };
 
-    niri = {
-      url = "github:sodiboo/niri-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # Fun with "AI" 
     nix-ai-tools.url = "github:numtide/nix-ai-tools";
   };

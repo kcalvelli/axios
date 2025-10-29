@@ -19,7 +19,6 @@ let
     let
       baseModules = [
         inputs.disko.nixosModules.disko
-        inputs.niri.nixosModules.niri
         inputs.dankMaterialShell.nixosModules.greeter
         inputs.home-manager.nixosModules.home-manager
         inputs.determinate.nixosModules.default
