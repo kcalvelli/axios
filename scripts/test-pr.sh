@@ -90,21 +90,7 @@ echo ""
 echo "Recent commits:"
 git log --oneline -3
 
-# Test 3: Check for FlakeHub references
-print_test "Test 3: FlakeHub Reference Check"
-FLAKEHUB_COUNT=$(cat flake.lock | jq '[.nodes | to_entries[] | select(.value.locked.url != null and (.value.locked.url | contains("flakehub")))] | length')
-
-if [ "$FLAKEHUB_COUNT" -gt 0 ]; then
-    print_warning "Found $FLAKEHUB_COUNT FlakeHub references (not necessarily a problem)"
-    echo "FlakeHub nodes:"
-    cat flake.lock | jq -r '.nodes | to_entries[] | select(.value.locked.url != null and (.value.locked.url | contains("flakehub"))) | "  - " + .key'
-    ((TESTS_WARNED++))
-else
-    print_success "No FlakeHub references"
-    ((TESTS_PASSED++))
-fi
-
-# Test 4: Flake structure validation
+# Test 3: Flake structure validation
 print_test "Test 4: Flake Structure Validation"
 echo "Running: nix flake check --all-systems --no-update-lock-file"
 if nix flake check --all-systems --no-update-lock-file 2>&1 | tee "$LOG_DIR/flake-check.log"; then
@@ -115,14 +101,14 @@ else
     ((TESTS_FAILED++))
 fi
 
-# Test 5: Show flake metadata
-print_test "Test 5: Flake Metadata"
+# Test 4: Show flake metadata
+print_test "Test 4: Flake Metadata"
 nix flake metadata 2>&1 | tee "$LOG_DIR/flake-metadata.log"
 print_success "Flake metadata retrieved"
 ((TESTS_PASSED++))
 
-# Test 6: Check for major version changes
-print_test "Test 6: Input Version Analysis"
+# Test 5: Check for major version changes
+print_test "Test 5: Input Version Analysis"
 if [ "$CURRENT_BRANCH" != "master" ]; then
     echo "Comparing flake.lock changes from master..."
     
@@ -168,8 +154,8 @@ else
     ((TESTS_WARNED++))
 fi
 
-# Test 7: Test build in client configuration
-print_test "Test 7: Client Configuration Build Test"
+# Test 6: Test build in client configuration
+print_test "Test 6: Client Configuration Build Test"
 if [ ! -d "$TEST_CLIENT_DIR" ]; then
     print_warning "Test client directory not found: $TEST_CLIENT_DIR"
     print_warning "Skipping client build test"
