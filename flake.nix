@@ -83,7 +83,7 @@
     };
 
     niri = {
-      url = "github:sodiboo/niri-flake";
+      url = "github:sodiboo/niri-flake/97876f35dcd5";  # Pinned: working version before libdisplay-info 0.3.0 issue
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
