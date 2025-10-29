@@ -17,7 +17,7 @@ Add the axios binary cache to your NixOS configuration:
     
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431kS1gBOk6429S9g0f1NXtv+FIsf8Xma0="
-      "axios.cachix.org-1:REPLACE_WITH_PUBLIC_KEY"  # Add axios public key
+      "axios.cachix.org-1:8c7nj72raLM0Q4Fie799J/70D2/5oDd7rxqnOuxObh4="
     ];
   };
 }

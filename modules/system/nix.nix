@@ -41,7 +41,7 @@
 
       extra-trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431kS1gBOk6429S9g0f1NXtv+FIsf8Xma0="
-        "axios.cachix.org-1:REPLACE_WITH_PUBLIC_KEY"  # TODO: Update after Cachix setup
+        "axios.cachix.org-1:8c7nj72raLM0Q4Fie799J/70D2/5oDd7rxqnOuxObh4="
         "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
         "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
       ];
