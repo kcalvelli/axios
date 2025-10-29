@@ -1,0 +1,45 @@
+name: Update flake.lock (Direct Commit)
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-flake-lock:
+    name: Update flake.lock
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: DeterminateSystems/nix-installer-action@main
+      
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      
+      - name: Update flake.lock
+        run: nix flake update
+      
+      - name: Commit changes
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          if git diff --quiet flake.lock; then
+            echo "No changes to flake.lock"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            git add flake.lock
+            git commit -m "chore: update flake.lock
+
+            Automated update by GitHub Actions"
+            git push
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Show changes
+        if: steps.commit.outputs.changed == 'true'
+        run: git show HEAD
