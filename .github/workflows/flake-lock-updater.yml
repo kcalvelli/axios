@@ -48,19 +48,33 @@ jobs:
         if: steps.update.outputs.updated == 'true'
         run: |
           echo "🔨 Testing builds to catch dependency conflicts..."
+          echo ""
           
-          # Try to build the formatter (quick sanity check)
-          echo "Building formatter..."
+          # Test formatter (quick sanity check)
+          echo "→ Building formatter..."
           nix build .#formatter --print-out-paths
           
-          # Try to build a devShell (catches more issues)
-          echo "Building default devShell..."
+          # Test all devShells
+          echo "→ Building devShells..."
           nix build .#devShells.x86_64-linux.default --print-out-paths
+          nix build .#devShells.x86_64-linux.rust --print-out-paths
+          nix build .#devShells.x86_64-linux.qml --print-out-paths
+          nix build .#devShells.x86_64-linux.zig --print-out-paths
           
-          echo "✅ Build tests passed"
+          # Test packages
+          echo "→ Building packages..."
+          nix build .#packages.x86_64-linux.pwa-apps --print-out-paths
+          
+          # Test init app
+          echo "→ Testing init app..."
+          nix build .#apps.x86_64-linux.init --print-out-paths
+          
           echo ""
-          echo "Note: These are basic build tests. Downstream users should"
-          echo "test with their full configurations before deploying."
+          echo "✅ All axios exports built successfully"
+          echo ""
+          echo "⚠️  NOTE: These tests only validate axios exports (packages, devShells, apps)."
+          echo "They do NOT test NixOS modules or catch issues like niri dependency conflicts."
+          echo "Manual testing with ./scripts/test-pr.sh is REQUIRED to test full configurations."
       
       - name: Show flake metadata
         if: steps.update.outputs.updated == 'true'
@@ -80,14 +94,26 @@ jobs:
             
             ## ✅ Automated Validation Results
             - ✅ Flake check passed on all systems
-            - ✅ Basic build tests passed (formatter, devShell)
+            - ✅ All axios exports built successfully:
+              - formatter ✓
+              - devShells (default, rust, qml, zig) ✓
+              - packages (pwa-apps) ✓
+              - apps (init) ✓
             
-            ## ⚠️ Manual Testing Required
-            **Important:** CI only validates basic builds. You MUST test with a real
-            configuration before merging to catch dependency conflicts like:
-            - Package version mismatches
-            - Missing dependencies
-            - Upstream breakage
+            ## ⚠️ Important: CI Limitations
+            **The CI tests above only build axios exports.** They do NOT test:
+            - ❌ NixOS modules (desktop, wayland, services, etc.)
+            - ❌ Full system configurations
+            - ❌ Dependencies used only in modules (like niri)
+            
+            **This means CI can pass but real builds can still fail!**
+            
+            Example: The niri/libdisplay-info conflict would NOT be caught by CI
+            because niri is only used in NixOS modules, not in the packages CI builds.
+            
+            ## ✅ Manual Testing Required
+            You **MUST** run `./scripts/test-pr.sh` which builds a real NixOS configuration.
+            This is the only way to catch module-specific dependency conflicts.
             
             ## Testing Procedure
             ```bash
