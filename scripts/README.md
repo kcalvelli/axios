@@ -1,11 +1,12 @@
 # axiOS Scripts
 
-Utility scripts for axiOS framework desktop customization.
+Utility scripts for axiOS framework desktop customization and development.
 
 ## Directory Structure
 
 ```
 scripts/
+├── test-pr.sh          # PR validation and testing script
 ├── shell/              # Shell scripts
 │   ├── wallpaper-blur.sh
 │   └── update-material-code-theme.sh
@@ -13,6 +14,36 @@ scripts/
 │   └── wallpaper-scripts.nix
 └── README.md           # This file
 ```
+
+## Development Scripts
+
+### 🧪 test-pr.sh
+
+**Comprehensive validation script for testing flake updates before merging PRs.**
+
+Tests flake structure, builds real NixOS configurations, and catches dependency conflicts that CI can't detect.
+
+**Quick Start:**
+```bash
+cd ~/Projects/axios
+gh pr checkout <PR_NUMBER>
+./scripts/test-pr.sh
+```
+
+**Features:**
+- ✓ Flake structure validation
+- ✓ Real client configuration builds
+- ✓ Dependency conflict detection
+- ✓ Version change analysis
+- ✓ Detailed logging for debugging
+
+See inline documentation in the script for full details and configuration options.
+
+**Exit codes:**
+- `0` = Safe to merge
+- `1` = Do not merge (build failed)
+
+---
 
 ## Available Scripts
 
