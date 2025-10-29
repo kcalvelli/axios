@@ -91,19 +91,24 @@ echo "Recent commits:"
 git log --oneline -3
 
 # Test 3: Flake structure validation
-print_test "Test 4: Flake Structure Validation"
+print_test "Test 3: Flake Structure Validation"
 echo "Running: nix flake check --all-systems --no-update-lock-file"
-if nix flake check --all-systems --no-update-lock-file 2>&1 | tee "$LOG_DIR/flake-check.log"; then
+if timeout 300 nix flake check --all-systems --no-update-lock-file 2>&1 | tee "$LOG_DIR/flake-check.log"; then
     print_success "Flake check passed"
     ((TESTS_PASSED++))
 else
-    print_error "Flake check failed - see $LOG_DIR/flake-check.log"
+    EXIT_CODE=$?
+    if [ $EXIT_CODE -eq 124 ]; then
+        print_error "Flake check timed out after 5 minutes"
+    else
+        print_error "Flake check failed - see $LOG_DIR/flake-check.log"
+    fi
     ((TESTS_FAILED++))
 fi
 
 # Test 4: Show flake metadata
 print_test "Test 4: Flake Metadata"
-nix flake metadata 2>&1 | tee "$LOG_DIR/flake-metadata.log"
+timeout 60 nix flake metadata 2>&1 | tee "$LOG_DIR/flake-metadata.log"
 print_success "Flake metadata retrieved"
 ((TESTS_PASSED++))
 
