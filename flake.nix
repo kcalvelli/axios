@@ -84,7 +84,8 @@
 
     niri = {
       url = "github:sodiboo/niri-flake/97876f35dcd5";  # Pinned: working version before libdisplay-info 0.3.0 issue
-      inputs.nixpkgs.follows = "nixpkgs";
+      # Don't follow nixpkgs - let niri use its own pinned nixpkgs with compatible libdisplay-info
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Fun with "AI" 
