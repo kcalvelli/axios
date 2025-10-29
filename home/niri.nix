@@ -6,6 +6,7 @@
   ];
 
   programs = {
+    niri.package = lib.mkForce pkgs.niri;
     dankMaterialShell = {
       niri = {
         enableKeybinds = true;
