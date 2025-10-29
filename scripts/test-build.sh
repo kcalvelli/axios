@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Axios PR Validation Script
+# Axios Build Validation Script
 # Tests flake updates locally to catch breaking changes before merging
 
 set -euo pipefail
@@ -20,8 +20,91 @@ LOG_DIR="/tmp/axios-test-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$LOG_DIR"
 
 echo -e "${BLUE}╔════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║   Axios PR Validation Test Suite      ║${NC}"
+echo -e "${BLUE}║   Axios Build Validation Test Suite   ║${NC}"
 echo -e "${BLUE}╚════════════════════════════════════════╝${NC}"
+echo ""
+
+# Check if we're in axios directory
+cd "$AXIOS_DIR" 2>/dev/null || {
+    echo -e "${RED}Error: Not in axios directory: $AXIOS_DIR${NC}"
+    exit 1
+}
+
+if [ ! -f "flake.nix" ]; then
+    echo -e "${RED}Error: flake.nix not found in $AXIOS_DIR${NC}"
+    exit 1
+fi
+
+# Interactive mode: Choose what to test
+echo -e "${BLUE}What would you like to test?${NC}"
+echo ""
+echo "  1) Current branch ($(git rev-parse --abbrev-ref HEAD))"
+echo "  2) Open Pull Request"
+echo "  3) Cancel"
+echo ""
+read -p "Enter choice [1-3]: " CHOICE
+
+case $CHOICE in
+    1)
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        echo ""
+        echo -e "${GREEN}Testing current branch: $CURRENT_BRANCH${NC}"
+        ;;
+    2)
+        echo ""
+        echo -e "${BLUE}Fetching open pull requests...${NC}"
+        
+        # Check if gh is available
+        if ! command -v gh &> /dev/null; then
+            echo -e "${RED}Error: gh (GitHub CLI) not found${NC}"
+            echo "Install with: nix-shell -p gh"
+            exit 1
+        fi
+        
+        # Get open PRs
+        PR_LIST=$(gh pr list --repo kcalvelli/axios --json number,title,headRefName --limit 20 2>&1)
+        
+        if [ $? -ne 0 ] || [ -z "$PR_LIST" ] || [ "$PR_LIST" = "[]" ]; then
+            echo -e "${YELLOW}No open pull requests found${NC}"
+            exit 0
+        fi
+        
+        # Display PRs
+        echo ""
+        echo -e "${BLUE}Open Pull Requests:${NC}"
+        echo ""
+        echo "$PR_LIST" | jq -r '.[] | "  \(.number)) #\(.number) - \(.title)"'
+        echo ""
+        read -p "Enter PR number to test: " PR_NUMBER
+        
+        if [ -z "$PR_NUMBER" ]; then
+            echo -e "${YELLOW}No PR selected, exiting${NC}"
+            exit 0
+        fi
+        
+        # Checkout the PR
+        echo ""
+        echo -e "${BLUE}Checking out PR #$PR_NUMBER...${NC}"
+        if ! gh pr checkout "$PR_NUMBER" 2>&1; then
+            echo -e "${RED}Failed to checkout PR #$PR_NUMBER${NC}"
+            exit 1
+        fi
+        
+        CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+        echo -e "${GREEN}✓ Checked out PR #$PR_NUMBER (branch: $CURRENT_BRANCH)${NC}"
+        ;;
+    3)
+        echo ""
+        echo -e "${YELLOW}Cancelled${NC}"
+        exit 0
+        ;;
+    *)
+        echo ""
+        echo -e "${RED}Invalid choice${NC}"
+        exit 1
+        ;;
+esac
+
 echo ""
 
 # Function to print test header
@@ -78,8 +161,8 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 echo "Current branch: $CURRENT_BRANCH"
 
 if [ "$CURRENT_BRANCH" = "master" ]; then
-    print_warning "On master branch - you may want to test a PR branch"
-    TESTS_WARNED=$((TESTS_WARNED + 1))
+    echo -e "${BLUE}Testing master branch${NC}"
+    TESTS_PASSED=$((TESTS_PASSED + 1))
 else
     print_success "On branch: $CURRENT_BRANCH"
     TESTS_PASSED=$((TESTS_PASSED + 1))
@@ -255,18 +338,30 @@ if [ $TESTS_FAILED -gt 0 ]; then
     echo "  4. Test again after fixes are available"
     exit 1
 else
-    echo -e "${GREEN}✅ VALIDATION PASSED - SAFE TO MERGE${NC}"
+    echo -e "${GREEN}✅ VALIDATION PASSED${NC}"
     echo ""
     if [ $TESTS_WARNED -gt 0 ]; then
         echo -e "${YELLOW}⚠️  There were $TESTS_WARNED warnings - review them before merging${NC}"
+        echo ""
     fi
-    echo ""
-    echo "To merge this PR:"
-    echo "  gh pr merge --squash"
-    echo ""
-    echo "After merging, update your system:"
-    echo "  cd $TEST_CLIENT_DIR"
-    echo "  nix flake update axios"
-    echo "  sudo nixos-rebuild switch --flake .#$TEST_HOSTNAME"
+    
+    if [ "$CURRENT_BRANCH" = "master" ]; then
+        echo "Master branch is working correctly."
+        echo ""
+        echo "To update your system with this version:"
+        echo "  cd $TEST_CLIENT_DIR"
+        echo "  nix flake update axios"
+        echo "  sudo nixos-rebuild switch --flake .#$TEST_HOSTNAME"
+    else
+        echo "This PR is safe to merge!"
+        echo ""
+        echo "To merge:"
+        echo "  gh pr merge --squash"
+        echo ""
+        echo "After merging, update your system:"
+        echo "  cd $TEST_CLIENT_DIR"
+        echo "  nix flake update axios"
+        echo "  sudo nixos-rebuild switch --flake .#$TEST_HOSTNAME"
+    fi
     exit 0
 fi
