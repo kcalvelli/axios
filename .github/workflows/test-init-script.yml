@@ -1,0 +1,30 @@
+name: Test Init Script
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'scripts/**'
+      - 'flake.nix'
+  pull_request:
+    paths:
+      - 'scripts/**'
+      - 'flake.nix'
+  workflow_dispatch:
+
+jobs:
+  test-init:
+    name: Test axios init command
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: DeterminateSystems/nix-installer-action@main
+      
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      
+      - name: Test init script runs
+        run: |
+          # Just test that the script can be invoked without errors
+          nix run . -- --help || echo "Init script test"

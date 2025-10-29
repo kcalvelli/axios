@@ -1,0 +1,39 @@
+name: Build DevShells
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'devshells.nix'
+      - 'devshells/**'
+      - 'flake.nix'
+      - 'flake.lock'
+  pull_request:
+    paths:
+      - 'devshells.nix'
+      - 'devshells/**'
+      - 'flake.nix'
+      - 'flake.lock'
+  workflow_dispatch:
+
+jobs:
+  build-devshells:
+    name: Build development shells
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: DeterminateSystems/nix-installer-action@main
+      
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+      
+      - name: List available devShells
+        run: nix flake show --json | jq -r '.devShells."x86_64-linux" | keys[]' | tee devshells.txt
+      
+      - name: Build all devShells
+        run: |
+          while IFS= read -r shell; do
+            echo "Building devShell: $shell"
+            nix build ".#devShells.x86_64-linux.$shell" --no-link
+          done < devshells.txt
