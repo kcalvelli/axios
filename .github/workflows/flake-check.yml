@@ -9,7 +9,7 @@ on:
 
 jobs:
   flake-check:
-    name: Check flake
+    name: Validate flake
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,8 +18,10 @@ jobs:
       
       - uses: DeterminateSystems/magic-nix-cache-action@main
       
-      - name: Check flake
-        run: nix flake check --all-systems --no-update-lock-file
+      - name: Check flake structure
+        run: |
+          echo "🔍 Checking flake structure..."
+          nix flake check --all-systems --no-update-lock-file
       
       - name: Show flake metadata
         run: nix flake metadata

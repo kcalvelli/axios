@@ -23,11 +23,50 @@ jobs:
       - uses: DeterminateSystems/magic-nix-cache-action@main
       
       - name: Update flake.lock
-        uses: DeterminateSystems/update-flake-lock@main
+        id: update
+        run: |
+          nix flake update
+          echo "updated=true" >> $GITHUB_OUTPUT
+      
+      - name: Validate flake after update
+        if: steps.update.outputs.updated == 'true'
+        run: |
+          echo "🔍 Validating flake structure..."
+          nix flake check --all-systems --no-update-lock-file
+          
+          echo "✅ Flake check passed"
+          echo "📊 Flake metadata:"
+          nix flake metadata
+      
+      - name: Create Pull Request
+        if: steps.update.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v6
         with:
-          pr-title: "chore: update flake.lock"
-          commit-msg: "chore: update flake.lock"
-          pr-labels: |
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update flake.lock"
+          title: "chore: update flake.lock"
+          body: |
+            Automated flake.lock update
+            
+            ## Validation Results
+            - ✅ Flake check passed on all systems
+            
+            ## Review Checklist
+            - [ ] Check the diff for unexpected changes
+            - [ ] Verify nixpkgs version is reasonable
+            - [ ] Test locally before merging
+            
+            ## Testing Locally
+            ```bash
+            gh pr checkout ${{ github.event.pull_request.number }}
+            nix flake check
+            # Test build in your client config
+            cd ~/.config/nixos_config
+            nix flake lock --override-input axios /path/to/axios
+            nix build .#nixosConfigurations.edge.config.system.build.toplevel
+            ```
+          branch: update_flake_lock_action
+          delete-branch: true
+          labels: |
             dependencies
             automated
-          token: ${{ secrets.GITHUB_TOKEN }}
