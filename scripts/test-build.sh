@@ -262,7 +262,7 @@ else
     # Update to use local axios
     echo ""
     echo "Updating client to use local axios: $AXIOS_DIR"
-    nix flake lock --override-input axios "$AXIOS_DIR" 2>&1 | tee "$LOG_DIR/flake-lock-update.log" || {
+    nix flake lock --update-input axios --override-input axios "$AXIOS_DIR" 2>&1 | tee "$LOG_DIR/flake-lock-update.log" || {
         print_error "Failed to update flake.lock"
         TESTS_FAILED=$((TESTS_FAILED + 1))
     }
@@ -270,10 +270,11 @@ else
     # Attempt build
     echo ""
     echo "Building client configuration..."
-    echo "Command: nix build .#nixosConfigurations.$TEST_HOSTNAME.config.system.build.toplevel --print-out-paths"
+    echo "Command: nix build .#nixosConfigurations.$TEST_HOSTNAME.config.system.build.toplevel --override-input axios $AXIOS_DIR --print-out-paths"
     echo ""
     
     if timeout 600 nix build ".#nixosConfigurations.$TEST_HOSTNAME.config.system.build.toplevel" \
+        --override-input axios "$AXIOS_DIR" \
         --print-out-paths 2>&1 | tee "$LOG_DIR/build.log"; then
         print_success "Client configuration build SUCCEEDED"
         TESTS_PASSED=$((TESTS_PASSED + 1))
