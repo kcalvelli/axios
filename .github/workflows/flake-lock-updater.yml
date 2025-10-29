@@ -50,7 +50,7 @@ jobs:
           echo "✅ Flake check passed"
           echo ""
           echo "⚠️  NOTE: Flake check only validates structure, not actual builds."
-          echo "Manual testing with ./scripts/test-pr.sh is REQUIRED."
+          echo "Manual testing with ./scripts/test-build.sh is REQUIRED."
       
       - name: Show flake metadata
         if: steps.update.outputs.updated == 'true'
@@ -80,7 +80,7 @@ jobs:
             ```bash
             cd ~/Projects/axios
             gh pr checkout ${{ github.event.pull_request.number }}
-            ./scripts/test-pr.sh
+            ./scripts/test-build.sh
             ```
             
             The validation script:
@@ -89,7 +89,7 @@ jobs:
             - ✅ Catches dependency conflicts (like niri/libdisplay-info)
             - ✅ Tests with your actual system
             
-            **Only merge if `./scripts/test-pr.sh` passes.**
+            **Only merge if `./scripts/test-build.sh` passes.**
             
             ## What Changed
             Review the flake.lock diff to see which inputs were updated.
@@ -101,7 +101,7 @@ jobs:
             ## If Build Fails
             - Check upstream GitHub issues for affected packages
             - Wait for fixes before merging
-            - Test again with `./scripts/test-pr.sh`
+            - Test again with `./scripts/test-build.sh`
           branch: update_flake_lock_action
           delete-branch: true
           labels: |

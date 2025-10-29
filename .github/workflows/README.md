@@ -13,10 +13,10 @@ This directory contains automated workflows for the axios flake library.
 - Validates flake structure with `nix flake check`
 - **Tests basic builds** (formatter, devShell) to catch obvious breakage
 - Creates PR only if validation passes
-- **Requires manual testing** with `./scripts/test-pr.sh` before merging
+- **Requires manual testing** with `./scripts/test-build.sh` before merging
 - Labels PRs as `dependencies` and `automated`
 
-**Note:** CI tests are basic. Always run `./scripts/test-pr.sh` to catch dependency conflicts.
+**Note:** CI tests are basic. Always run `./scripts/test-build.sh` to catch dependency conflicts.
 
 ### Flake Check
 **File:** `flake-check.yml`  

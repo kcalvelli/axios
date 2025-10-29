@@ -6,7 +6,7 @@ Utility scripts for axiOS framework desktop customization and development.
 
 ```
 scripts/
-├── test-pr.sh          # PR validation and testing script
+├── test-build.sh       # Build validation and testing script
 ├── shell/              # Shell scripts
 │   ├── wallpaper-blur.sh
 │   └── update-material-code-theme.sh
@@ -17,7 +17,7 @@ scripts/
 
 ## Development Scripts
 
-### 🧪 test-pr.sh
+### 🧪 test-build.sh
 
 **Comprehensive validation script for testing flake updates before merging PRs.**
 
@@ -27,7 +27,7 @@ Tests flake structure, builds real NixOS configurations, and catches dependency 
 ```bash
 cd ~/Projects/axios
 gh pr checkout <PR_NUMBER>
-./scripts/test-pr.sh
+./scripts/test-build.sh
 ```
 
 **Features:**
