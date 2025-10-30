@@ -59,20 +59,21 @@ home/resources/pwa-icons/
 The package installs:
 
 - **Icons**: `$out/share/icons/hicolor/128x128/apps/*.png`
-- **Launchers**: `$out/bin/pwa-*` (optional CLI launchers)
+- **Launchers**: `$out/bin/pwa-*` (CLI launchers)
+- **Desktop Entries**: `$out/share/applications/*.desktop` (with correct StartupWMClass)
 
 ## Usage
 
 The PWA package is automatically included in axios home modules (workstation, laptop) via `home/browser/pwa.nix`.
 
-Desktop entries are generated automatically from `pwa-defs.nix`, with proper StartupWMClass hints to match Brave's app-id format.
+Desktop entries are generated automatically using nixpkgs' `makeDesktopItem` with proper StartupWMClass hints to match Brave's app-id format.
 
 ### How it Works
 
 1. **Icons**: Installed to `$out/share/icons/hicolor/128x128/apps/`
-2. **Desktop Entries**: Created by home-manager with proper metadata
+2. **Desktop Entries**: Created using `makeDesktopItem` with proper metadata and StartupWMClass
 3. **StartupWMClass**: Set to match Brave's app-id pattern (`brave-{url-transformed}-Default`)
-4. **Launch**: Apps launch via `brave --app=URL` with consistent app-ids
+4. **Launch**: Apps launch via `pwa-{app-id}` launchers which call `brave --app=URL`
 
 ### Brave App-ID Format
 
@@ -173,10 +174,12 @@ brave --app=https://messages.google.com/web
 
 ## Integration
 
-The package is consumed by `home/browser/pwa.nix` which:
-1. Installs the package (`home.packages = [ pkgs.pwa-apps ]`)
-2. Generates desktop entries from `pwa-defs.nix`
-3. Sets icon paths to reference the Nix store
+The package is consumed by `home/browser/pwa.nix` which simply installs it:
+```nix
+home.packages = [ pkgs.pwa-apps ];
+```
+
+All desktop entries, icons, and launchers are provided by the package itself, ensuring consistency and a single source of truth for PWA definitions.
 
 ## License
 
