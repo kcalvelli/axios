@@ -21,7 +21,6 @@ let
         inputs.disko.nixosModules.disko
         inputs.dankMaterialShell.nixosModules.greeter
         inputs.home-manager.nixosModules.home-manager
-        inputs.determinate.nixosModules.default
         inputs.lanzaboote.nixosModules.lanzaboote
         inputs.vscode-server.nixosModules.default
       ];
