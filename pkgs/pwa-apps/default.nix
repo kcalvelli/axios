@@ -5,9 +5,11 @@ let
   iconPath = ../../home/resources/pwa-icons;
   
   # Helper to convert URL to Brave's app-id format for WM_CLASS matching
+  # Brave's format: brave-{domain}{path}-Default where path uses __ for /
   urlToAppId = url: 
     let
       withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
+      # Replace slashes with double underscores (including trailing slash)
       withUnderscores = lib.replaceStrings ["/"] ["__"] withoutProtocol;
     in
       "brave-${withUnderscores}-Default";

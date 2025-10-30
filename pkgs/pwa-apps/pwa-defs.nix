@@ -3,14 +3,14 @@
 {
   google-drive = {
     name = "Google Drive";
-    url = "https://drive.google.com";
+    url = "https://drive.google.com/";
     icon = "google-drive";
     categories = [ "Office" "FileManager" ];
   };
 
   youtube = {
     name = "YouTube";
-    url = "https://www.youtube.com";
+    url = "https://www.youtube.com/";
     icon = "youtube";
     categories = [ "AudioVideo" "Video" ];
     actions = {
@@ -27,7 +27,7 @@
 
   element = {
     name = "Element";
-    url = "https://app.element.io";
+    url = "https://app.element.io/";
     icon = "element";
     categories = [ "Network" "InstantMessaging" ];
   };
@@ -41,14 +41,14 @@
 
   google-meet = {
     name = "Google Meet";
-    url = "https://meet.google.com";
+    url = "https://meet.google.com/";
     icon = "google-meet";
     categories = [ "Network" "VideoConference" ];
   };
 
   google-chat = {
     name = "Google Chat";
-    url = "https://chat.google.com";
+    url = "https://chat.google.com/";
     icon = "google-chat";
     categories = [ "Network" "InstantMessaging" ];
   };
@@ -62,14 +62,14 @@
 
   google-photos = {
     name = "Google Photos";
-    url = "https://photos.google.com";
+    url = "https://photos.google.com/";
     icon = "google-photos";
     categories = [ "Graphics" "Photography" ];
   };
 
   telegram = {
     name = "Telegram Web";
-    url = "https://web.telegram.org";
+    url = "https://web.telegram.org/";
     icon = "telegram";
     categories = [ "Network" "InstantMessaging" ];
   };
@@ -98,7 +98,7 @@
 
   teams = {
     name = "Microsoft Teams";
-    url = "https://teams.microsoft.com";
+    url = "https://teams.microsoft.com/";
     icon = "teams";
     categories = [ "Network" "VideoConference" ];
   };
@@ -112,14 +112,14 @@
 
   proton-pass = {
     name = "Proton Pass Web App";
-    url = "https://pass.proton.me";
+    url = "https://pass.proton.me/";
     icon = "proton-pass";
     categories = [ "Utility" "Security" ];
   };
 
   proton-mail = {
     name = "Proton Mail";
-    url = "https://mail.proton.me";
+    url = "https://mail.proton.me/";
     icon = "proton-mail";
     categories = [ "Network" "Email" ];
     mimeTypes = [ "x-scheme-handler/mailto" ];
@@ -127,14 +127,14 @@
 
   proton-drive = {
     name = "Proton Drive";
-    url = "https://drive.proton.me";
+    url = "https://drive.proton.me/";
     icon = "proton-drive";
     categories = [ "Office" "FileManager" ];
   };
 
   proton-calendar = {
     name = "Proton Calendar";
-    url = "https://calendar.proton.me";
+    url = "https://calendar.proton.me/";
     icon = "proton-calendar";
     categories = [ "Office" "Calendar" ];
     mimeTypes = [
@@ -149,14 +149,14 @@
 
   proton-wallet = {
     name = "Proton Wallet";
-    url = "https://wallet.proton.me";
+    url = "https://wallet.proton.me/";
     icon = "proton-wallet";
     categories = [ "Office" "Finance" ];
   };
 
   windows-app = {
     name = "Windows App";
-    url = "https://windows.cloud.microsoft";
+    url = "https://windows.cloud.microsoft/";
     icon = "windows-app";
     categories = [ "Network" "RemoteAccess" ];
   };
