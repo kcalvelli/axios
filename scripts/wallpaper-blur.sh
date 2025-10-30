@@ -33,7 +33,8 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Wallpaper blur updated"
 # 2. Update VSCode Material Code theme (matugen colors have changed)
 if [ -d "$HOME/.config/material-code-theme" ]; then
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Updating VSCode Material Code theme..."
-  "$HOME/scripts/update-material-code-theme.sh" || {
+  cd "$HOME/.config/material-code-theme"
+  bun run update-theme.ts >> "$HOME/.config/material-code-theme/theme-update.log" 2>&1 || {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] WARNING: Material Code theme update failed"
   }
 else
