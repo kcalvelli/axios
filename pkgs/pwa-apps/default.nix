@@ -1,4 +1,4 @@
-{ lib, stdenv, brave }:
+{ lib, stdenv, brave, gtk3 }:
 
 let
   pwaDefs = import ./pwa-defs.nix;
@@ -15,6 +15,27 @@ let
     chmod +x $out/bin/pwa-${pwaId}
   '';
 
+  # Helper to generate a desktop entry
+  makeDesktopEntry = pwaId: pwa: 
+    let
+      categories = if builtins.hasAttr "categories" pwa 
+                   then lib.concatStringsSep ";" (pwa.categories ++ [""])
+                   else "Network;WebBrowser;";
+    in ''
+    cat > $out/share/applications/${pwaId}.desktop << 'DESKTOP'
+    [Desktop Entry]
+    Type=Application
+    Name=${pwa.name}
+    Comment=Launch ${pwa.name} as a PWA
+    Exec=pwa-${pwaId}
+    Icon=${pwaId}
+    Terminal=false
+    Categories=${categories}
+    StartupNotify=true
+    StartupWMClass=${pwa.name}
+    DESKTOP
+  '';
+
 in
 stdenv.mkDerivation {
   pname = "pwa-apps";
@@ -24,6 +45,8 @@ stdenv.mkDerivation {
 
   dontUnpack = true;
   dontBuild = true;
+
+  nativeBuildInputs = [ gtk3 ];
 
   installPhase = ''
     runHook preInstall
@@ -43,7 +66,29 @@ stdenv.mkDerivation {
     # Generate launcher scripts
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList makePWALauncher pwaDefs)}
 
+    # Generate desktop entries
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList makeDesktopEntry pwaDefs)}
+
     runHook postInstall
+  '';
+
+  postInstall = ''
+    # Create minimal index.theme file for hicolor icon theme
+    cat > $out/share/icons/hicolor/index.theme << 'EOF'
+[Icon Theme]
+Name=Hicolor
+Comment=Fallback icon theme
+Hidden=true
+Directories=128x128/apps
+
+[128x128/apps]
+Size=128
+Context=Applications
+Type=Threshold
+EOF
+
+    # Generate icon theme cache for faster icon lookup (optional, systems will regenerate if needed)
+    gtk-update-icon-cache --force --quiet $out/share/icons/hicolor 2>/dev/null || true
   '';
 
   meta = with lib; {
