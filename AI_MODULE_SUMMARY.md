@@ -50,6 +50,7 @@ services.ai.enable = true;
 ### What Gets Enabled
 When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration (port 11434)
+- ✅ **Auto-pulls default models**: `qwen2.5-coder:7b` and `llama3.1:8b`
 - ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
 - ✅ copilot, claude, mcphost, whisper-cli installed system-wide
 - ✅ All users added to `systemd-journal` group
@@ -62,14 +63,13 @@ When `services.ai.enable = true`:
 After enabling AI and rebuilding, use `mcphost` to chat with AI models that have MCP server access:
 
 ```bash
+# With local Ollama (no API key needed! Models auto-downloaded)
+mcphost --model ollama:qwen2.5-coder:7b  # Best for coding
+mcphost --model ollama:llama3.1:8b       # General purpose
+
 # With Anthropic Claude
-mcphost --model anthropic:claude-sonnet-4
-# or
 export ANTHROPIC_API_KEY="your-key"
 mcphost --model anthropic:claude-sonnet-4
-
-# With local Ollama (no API key needed!)
-mcphost --model ollama:mistral
 
 # With OpenAI
 export OPENAI_API_KEY="your-key"
@@ -79,6 +79,12 @@ mcphost --model openai:gpt-4
 export GOOGLE_API_KEY="your-key"
 mcphost --model google:gemini-2.0-flash-exp
 ```
+
+**Default Ollama Models:**
+- `qwen2.5-coder:7b` - Specialized for code generation, debugging, and NixOS
+- `llama3.1:8b` - General purpose, good at coding and conversation
+
+These are automatically pulled on first boot. No manual setup required!
 
 All 5 MCP servers are automatically available:
 - **journal** - System log access
