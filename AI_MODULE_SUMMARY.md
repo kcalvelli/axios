@@ -21,16 +21,17 @@ Successfully implemented a comprehensive AI module for axiOS that consolidates a
   - whisper-cpp
 
 ### Home-Manager Module (`home/ai/`)
-- **`default.nix`** - Conditionally imports claude-code when `services.ai.enable` is true
-- **`claude-code.nix`** - Full claude-code configuration
-  - Default account: "pro" (Claude Pro)
-  - AI guidance rules (code editing, git commit style)
+- **`default.nix`** - Conditionally imports AI tools when `services.ai.enable` is true
+- **`claude-code.nix`** - Configuration for both Claude Code and GitHub Copilot CLI
+  - Shared MCP server configuration for both tools
   - MCP servers configured:
     - **mcp-journal** - Journal log access via custom server
     - **nixos** - NixOS package/option search
     - **sequential-thinking** - Enhanced reasoning (TypeScript version via npx)
     - **context7** - Advanced context management
     - **filesystem** - Restricted to `/tmp` and `~/Projects`
+  - Creates `~/.claude/.claude.json` for Claude Code
+  - Creates `~/.copilot/mcp-config.json` for GitHub Copilot CLI
 
 ## Usage
 
