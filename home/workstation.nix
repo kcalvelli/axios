@@ -2,6 +2,7 @@
 {
   # Workstation profile: full desktop with gaming and device support
   imports = [
+    ./ai
     ./security.nix
     ./browser
     ./terminal

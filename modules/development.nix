@@ -17,11 +17,7 @@
     fzf # Fuzzy finder
     # Version control
     gh # GitHub CLI
-    # AI tools
-    whisper-cpp
-  ] ++ (with inputs.nix-ai-tools.packages.${pkgs.system}; [
-    copilot-cli
-  ]);
+  ];
 
   # === Development Services ===
   services = {

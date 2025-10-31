@@ -2,6 +2,7 @@
 {
   # Laptop profile: mobile-optimized base configuration
   imports = [
+    ./ai
     ./security.nix
     ./browser
     ./terminal

@@ -13,5 +13,6 @@
     desktopHardware = ./hardware/desktop.nix;
     laptopHardware = ./hardware/laptop.nix;
     gaming = ./gaming.nix;
+    ai = ./ai;
   };
 }

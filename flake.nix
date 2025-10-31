@@ -83,6 +83,7 @@
 
     # Fun with "AI" 
     nix-ai-tools.url = "github:numtide/nix-ai-tools";
+    mcp-journal.url = "github:kcalvelli/mcp-journal";
   };
 
   nixConfig = {

@@ -6,6 +6,7 @@
       wayland = ./wayland.nix;
       workstation = ./workstation.nix;
       laptop = ./laptop.nix;
+      ai = ./ai;
     };
   };
 }

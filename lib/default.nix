@@ -37,6 +37,7 @@ let
         ++ lib.optional (hostCfg.modules.users or true) users
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
+        ++ lib.optional (hostCfg.modules.ai or false) ai
         # Hardware modules based on form factor and vendor
         ++ lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
         ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
