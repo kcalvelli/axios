@@ -51,10 +51,35 @@ services.ai.enable = true;
 When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration (port 11434)
 - ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
-- ✅ copilot-cli, claude-code, whisper-cpp installed system-wide
+- ✅ copilot, claude, whisper-cli installed system-wide
 - ✅ All users added to `systemd-journal` group
-- ✅ Claude-code configured with MCP servers for all users
+- ✅ `setup-claude-mcp` script exported to `~/scripts/`
 - ✅ Caddy reverse proxy enabled for OpenWebUI
+
+### Setting Up MCP Servers
+
+After enabling AI and rebuilding, run the setup script **once**:
+
+```bash
+cd ~/.config/nixos_config
+nix flake update axios
+rebuild-switch
+
+# Configure Claude MCP servers (one-time)
+setup-claude-mcp
+```
+
+This registers 5 MCP servers:
+- **journal** - System log access
+- **mcp-nixos** - NixOS package/option search  
+- **sequential-thinking** - Enhanced reasoning
+- **context7** - Context management
+- **filesystem** - File operations
+
+Verify:
+```bash
+claude mcp list
+```
 
 ## Breaking Changes
 
