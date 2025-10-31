@@ -11,25 +11,25 @@ let
     
     # Add MCP servers to Claude Code
     echo "Adding journal MCP server..."
-    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio journal -- ${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal
+    claude mcp add --transport stdio journal -- ${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal
     
     echo "Adding mcp-nixos..."
-    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio mcp-nixos -- ${pkgs.nix}/bin/nix run github:utensils/mcp-nixos --
+    claude mcp add --transport stdio mcp-nixos -- nix run github:utensils/mcp-nixos --
     
     echo "Adding sequential-thinking..."
-    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio sequential-thinking -- ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-sequential-thinking
+    claude mcp add --transport stdio sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
     
     echo "Adding context7..."
-    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio context7 -- ${pkgs.nodejs}/bin/npx -y @upstash/context7-mcp
+    claude mcp add --transport stdio context7 -- npx -y @upstash/context7-mcp
     
     echo "Adding filesystem..."
-    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio filesystem -- ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
+    claude mcp add --transport stdio filesystem -- npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
     
     echo ""
     echo "✓ MCP servers configured!"
     echo ""
     echo "Verifying connection..."
-    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp list
+    claude mcp list
   '';
 in
 {
