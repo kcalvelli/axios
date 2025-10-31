@@ -25,7 +25,8 @@ Comprehensive AI module for axiOS providing local and cloud AI capabilities with
 ### Home-Manager Module (`home/ai/`)
 - **`default.nix`** - Conditionally imports AI tools when `services.ai.enable` is true
 - **`claude-code.nix`** - Claude CLI MCP configuration
-  - Creates `~/.mcp.json.template` configuration file
+  - **Automatically configures user-scoped MCP servers** during Home Manager activation
+  - Creates `~/.mcp.json.template` configuration file for projects
   - MCP servers configured:
     - **journal** - Journal log access via custom mcp-journal server
     - **mcp-nixos** - NixOS package/option search
@@ -79,27 +80,31 @@ These are automatically pulled on first boot. No manual setup required!
 
 ### Using Claude CLI with MCP Servers
 
-Claude CLI has native MCP server support with all 5 MCP servers configured:
+Claude CLI has native MCP server support with all 5 MCP servers **automatically configured at user scope**:
 - **journal** - System log access via mcp-journal
 - **mcp-nixos** - NixOS package search
 - **sequential-thinking** - Enhanced reasoning
 - **context7** - Context management
 - **filesystem** - File operations in `/tmp` and `~/Projects`
 
-Initialize MCP config for your projects:
+**After rebuilding Home Manager, MCP servers work everywhere:**
 
 ```bash
-# Initialize Claude MCP config for current project
-~/scripts/init-claude-mcp
+# MCP servers available in any directory!
+cd ~
+claude mcp list -s user  # Shows all 5 servers
 
-# Or for a specific project
-~/scripts/init-claude-mcp ~/Projects/myproject
-
-# Verify MCP servers are loaded
-claude mcp list
+# Start Claude from anywhere
+cd ~/Projects/myproject
+claude  # MCP servers automatically available
 ```
 
-This creates a `.mcp.json` file with all 5 MCP servers configured. The servers are automatically loaded when you start Claude CLI in that project directory.
+**No manual setup required!** The servers are configured during Home Manager activation.
+
+**Optional:** For project-specific MCP configuration:
+```bash
+~/scripts/init-claude-mcp  # Creates .mcp.json in current directory
+```
 
 ### GitHub Copilot CLI
 

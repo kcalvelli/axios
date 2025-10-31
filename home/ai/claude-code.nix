@@ -71,5 +71,54 @@ in
       source = ../../scripts/init-claude-mcp.sh;
       executable = true;
     };
+
+    # Automatically configure user-scoped MCP servers for Claude CLI
+    # This makes MCP servers available in all Claude CLI sessions, not just projects
+    home.activation.claudeMcpSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      $DRY_RUN_CMD ${pkgs.writeShellScript "setup-claude-mcp" ''
+        # Only run if claude CLI is available
+        if ! command -v claude &> /dev/null; then
+          echo "Claude CLI not found, skipping MCP setup"
+          exit 0
+        fi
+
+        echo "Setting up user-scoped MCP servers for Claude CLI..."
+
+        # Function to add MCP server if it doesn't exist
+        add_mcp_server() {
+          local name="$1"
+          shift
+
+          # Check if server already exists at user scope
+          if claude mcp get "$name" -s user &> /dev/null; then
+            echo "  ✓ $name already configured"
+          else
+            echo "  + Adding $name..."
+            claude mcp add --transport stdio "$name" --scope user -- "$@" || true
+          fi
+        }
+
+        # Add all MCP servers at user scope
+        add_mcp_server journal \
+          "${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal"
+
+        # Note: mcp-nixos environment variable needs to be set differently
+        # We'll add it without the env var and document it for now
+        add_mcp_server mcp-nixos \
+          nix run github:utensils/mcp-nixos --
+
+        add_mcp_server sequential-thinking \
+          npx -y @modelcontextprotocol/server-sequential-thinking
+
+        add_mcp_server context7 \
+          npx -y @upstash/context7-mcp
+
+        add_mcp_server filesystem \
+          npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
+
+        echo "✓ Claude CLI MCP setup complete!"
+        echo "  Run 'claude mcp list -s user' to verify"
+      ''}
+    '';
   };
 }
