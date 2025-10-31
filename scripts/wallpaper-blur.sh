@@ -41,4 +41,7 @@ else
   echo "[$(date '+%Y-%m-%d %H:%M:%S')] Material Code theme directory not found, skipping"
 fi
 
+# 3. Reload Ghostty config with keys
+wtype -M ctrl -M shift , -m shift -m ctrl
+
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Wallpaper change handling complete"
