@@ -1,12 +1,10 @@
 { config, lib, ... }:
 let
   cfg = config.services.hass;
-  domain = config.networking.hostName or "localhost";
-  tailnet = "taile0fb4.ts.net";
 in
 {
   options.services.hass = {
-    enable = lib.mkEnableOption "Home Assistant (with voice and reverse proxy)";
+    enable = lib.mkEnableOption "Home Assistant with voice support (port 8123)";
   };
 
   config = lib.mkIf cfg.enable (
@@ -40,16 +38,12 @@ in
     {
       services.home-assistant = {
         enable = true;
-        # Keep HA behind Caddy; don't open 8123 to the LAN
-        openFirewall = false;
+        # Open port 8123 for direct access
+        openFirewall = true;
         extraComponents = haComponents;
-        # The 'config' attr will be written into configuration.yaml
         config = {
           homeassistant = { };
-          http = {
-            use_x_forwarded_for = true;
-            trusted_proxies = [ "127.0.0.1" "::1" ];
-          };
+          http = { };  # Removed proxy config since we're using direct access
           default_config = { };
           frontend = { };
           conversation = { };
@@ -66,26 +60,12 @@ in
 
       # Enable related services
       services.matter-server.enable = true;
-      #services.mqtt.enable = true;
 
-      #############################
-      # Caddy reverse proxy for HA
-      #############################
-      services.caddy.enable = true;
-      services.caddy.virtualHosts = {
-        "${domain}.${tailnet}" = {
-          extraConfig = ''
-            encode gzip
-            reverse_proxy http://127.0.0.1:8123
-          '';
-        };
-      };
-
-      # let HA hear mDNS and SSDP broadcasts
+      # Let HA hear mDNS and SSDP broadcasts
       networking.firewall.allowedUDPPorts = [ 5353 1900 ];
 
       #############################
-      # Wyoming Voice (always on)
+      # Wyoming Voice (disabled by default)
       #############################
       #virtualisation.oci-containers.containers = {
       #  wyoming-whisper = {
@@ -98,7 +78,7 @@ in
       #    ];
       #    cmd = [ "--model" "small-int8" "--language" "en" ];
       #  };
-
+      #
       #  wyoming-piper = {
       #    image = "rhasspy/wyoming-piper:latest";
       #    autoStart = true;
@@ -106,7 +86,7 @@ in
       #    volumes = [ "/var/lib/wyoming/piper:/data" ];
       #    cmd = [ "--voice" "en_US-lessac-medium" ];
       #  };
-
+      #
       #  wyoming-openwakeword = {
       #    image = "rhasspy/wyoming-openwakeword:latest";
       #    autoStart = true;
