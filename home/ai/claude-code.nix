@@ -50,27 +50,10 @@ in
       nodejs
     ];
     
-    # Create claude-code config directory and files
-    xdg.configFile."claude-code/config.json" = {
+    # Create MCP config file in ~/.claude directory
+    home.file.".claude/.claude.json" = {
       text = builtins.toJSON {
-        version = "1.0";
         mcpServers = claudeConfig.mcpServers;
-        aiGuidance = ''
-          * After receiving tool results, carefully reflect on their quality and determine optimal next steps
-          * For maximum efficiency, invoke multiple independent tools simultaneously rather than sequentially
-          * Before finishing, verify your solution addresses all requirements
-          * Do what has been asked; nothing more, nothing less
-          * NEVER create files unless absolutely necessary
-          * ALWAYS prefer editing existing files to creating new ones
-          * NEVER proactively create documentation unless explicitly requested
-          
-          ## Git Commit Rules
-          
-          * NEVER include Claude's identity or involvement in commit messages
-          * Do NOT add "Generated with Claude Code" or "Co-Authored-By: Claude" footers
-          * Write commit messages as if authored by the human user
-          * Keep commit messages concise and focused on the technical changes
-        '';
       };
     };
   };
