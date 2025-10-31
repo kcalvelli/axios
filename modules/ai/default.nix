@@ -25,11 +25,10 @@ in
     };
 
     # Caddy reverse proxy for OpenWebUI
+    # Serve OpenWebUI from root since it doesn't support base paths
     services.caddy.virtualHosts."${domain}.${tailnet}" = {
       extraConfig = ''
-        handle_path /ai/* {
-          reverse_proxy http://127.0.0.1:8080
-        }
+        reverse_proxy http://127.0.0.1:8080
       '';
     };
     
