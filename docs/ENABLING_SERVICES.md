@@ -4,7 +4,7 @@ Services are enabled in your host configuration file (`~/.config/nixos_config/ho
 
 ## Quick Reference
 
-### AI Services (OpenWebUI + Ollama + Claude)
+### AI Services (OpenWebUI + Ollama + MCPHost)
 
 **In your host config:**
 ```nix
@@ -14,10 +14,29 @@ modules = {
 };
 ```
 
-**Access:**
-- OpenWebUI: `http://edge.taile0fb4.ts.net/`
-- Ollama: `http://edge.taile0fb4.ts.net:11434/`
-- Claude: `claude` command in terminal
+**What you get:**
+- OpenWebUI: `http://edge.taile0fb4.ts.net/` (web interface)
+- Ollama API: `http://edge.taile0fb4.ts.net:11434/`
+- Local models auto-downloaded: `qwen2.5-coder:7b`, `llama3.1:8b`
+- AI CLI tools: `mcphost`, `claude`, `copilot`, `whisper-cli`
+- 5 MCP servers configured automatically
+
+**Using mcphost (recommended):**
+```bash
+# With local Ollama (no API key needed!)
+mcphost --model ollama:qwen2.5-coder:7b
+
+# With Claude (API key required)
+export ANTHROPIC_API_KEY="your-key"
+mcphost --model anthropic:claude-sonnet-4
+```
+
+**MCP Servers Available:**
+- journal - System log access
+- mcp-nixos - NixOS package search
+- sequential-thinking - Enhanced reasoning
+- context7 - Context management
+- filesystem - File operations
 
 ---
 

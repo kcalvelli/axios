@@ -212,8 +212,9 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   
   # Optional: Service configurations (if modules.services = true)
   services = {
-    caddy-proxy.enable = bool;
-    openwebui.enable = bool;
+    hass.enable = bool;         # Home Assistant
+    ntop.enable = bool;         # Network monitoring
+    mqtt.enable = bool;         # MQTT broker
     # ... other services
   };
   

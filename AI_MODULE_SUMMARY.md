@@ -1,24 +1,27 @@
 # AI Module Implementation Summary
 
 ## Overview
-Successfully implemented a comprehensive AI module for axiOS that consolidates all AI-related tools and services with a "convention over configuration" approach.
+Comprehensive AI module for axiOS providing local and cloud AI capabilities with MCP (Model Context Protocol) server integration. Uses mcphost as a universal MCP client supporting multiple AI providers.
 
 ## What Was Created
 
 ### NixOS Module (`modules/ai/`)
 - **`default.nix`** - Main module with `services.ai.enable` option
   - Auto-adds all users to `systemd-journal` group for mcp-journal access
-  - Configures Caddy reverse proxy for OpenWebUI at `${hostname}.${tailnet}/ai/*`
+  - Configures Caddy reverse proxy for OpenWebUI
   
 - **`ollama.nix`** - GPU-accelerated AI inference
   - AMD ROCm + OpenCL support
   - Ollama service with ROCm acceleration (rocmOverrideGfx: 10.3.0)
   - OpenWebUI on port 8080
+  - **Auto-pulls default models**: `qwen2.5-coder:7b` and `llama3.1:8b`
+  - Systemd service for model management
   
 - **`packages.nix`** - AI development tools
-  - copilot-cli (from nix-ai-tools)
-  - claude-code (from nix-ai-tools)
-  - whisper-cpp
+  - copilot (GitHub Copilot CLI from nix-ai-tools)
+  - claude (Claude Code CLI from nix-ai-tools)
+  - mcphost (Universal MCP client from nixpkgs)
+  - whisper-cli (Voice transcription)
 
 ### Home-Manager Module (`home/ai/`)
 - **`default.nix`** - Conditionally imports AI tools when `services.ai.enable` is true
@@ -42,19 +45,16 @@ modules = {
   ai = true;  # Enable AI services
   # ... other modules
 };
-
-# Or in extraConfig
-services.ai.enable = true;
 ```
 
 ### What Gets Enabled
 When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration (port 11434)
-- ✅ **Auto-pulls default models**: `qwen2.5-coder:7b` and `llama3.1:8b`
+- ✅ **Auto-pulls default models**: `qwen2.5-coder:7b` (7B, ~4.7GB) and `llama3.1:8b` (8B, ~4.7GB)
 - ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
 - ✅ copilot, claude, mcphost, whisper-cli installed system-wide
 - ✅ All users added to `systemd-journal` group
-- ✅ `~/.mcphost.yml` configuration file created
+- ✅ `~/.mcphost.yml` configuration file created automatically
 - ✅ `update-material-code-theme` script in `~/scripts/`
 - ✅ Caddy reverse proxy enabled for OpenWebUI
 
@@ -86,24 +86,23 @@ mcphost --model google:gemini-2.0-flash-exp
 
 These are automatically pulled on first boot. No manual setup required!
 
-All 5 MCP servers are automatically available:
-- **journal** - System log access
+**All 5 MCP servers are automatically available:**
+- **journal** - System log access via mcp-journal
 - **mcp-nixos** - NixOS package search
 - **sequential-thinking** - Enhanced reasoning
 - **context7** - Context management  
 - **filesystem** - File operations in `/tmp` and `~/Projects`
 
-No manual setup required!
+### Alternative: Claude/Copilot CLI
+```bash
+# GitHub Copilot CLI (requires GitHub account)
+copilot
 
-## Breaking Changes
+# Claude Code CLI (requires Anthropic account)  
+claude
+```
 
-### Removed Services
-- ❌ `services.openwebui.enable` - Use `services.ai.enable` instead
-- ❌ `services.caddy-proxy.enable` - Caddy now always enabled when services module is loaded
-
-### Moved Packages
-- `copilot-cli` moved from development.nix to AI module
-- `whisper-cpp` moved from development.nix to AI module
+Note: Claude and Copilot have their own MCP configuration methods and don't use mcphost.
 
 ## Architecture
 
@@ -114,36 +113,103 @@ Host Config (services.ai.enable = true)
 NixOS AI Module
   ├─ Adds users to systemd-journal group
   ├─ Enables ollama + ROCm + OpenWebUI
-  ├─ Installs AI packages
-  └─ Configures Caddy reverse proxy
+  ├─ Auto-pulls qwen2.5-coder:7b and llama3.1:8b
+  ├─ Installs AI packages (copilot, claude, mcphost, whisper)
+  └─ Configures Caddy reverse proxy for OpenWebUI
   
 Home-Manager Profiles (workstation/laptop)
   ├─ Import home/ai module
-  └─ Conditionally enable claude-code if services.ai.enable
+  ├─ Create ~/.mcphost.yml config
+  └─ Export utility scripts to ~/scripts/
 ```
 
 ### MCP Server Architecture
 ```
-claude-code (CLI)
+mcphost (Universal MCP Client)
+  ↓
+Supports: Claude, OpenAI, Gemini, Ollama
   ↓
 MCP Protocol (stdio)
-  ├─ mcp-journal → journalctl queries
-  ├─ nixos → nix package search
-  ├─ sequential-thinking → reasoning
+  ├─ journal → journalctl queries via mcp-journal
+  ├─ mcp-nixos → nix package/option search
+  ├─ sequential-thinking → enhanced reasoning
   ├─ context7 → context management
-  └─ filesystem → file operations
+  └─ filesystem → file operations (restricted paths)
 ```
 
-## Files Changed
+### GPU Acceleration
 ```
-16 files changed, 310 insertions(+), 106 deletions(-)
+AMD GPU (RX 6700 XT)
+  ↓
+ROCm + OpenCL
+  ↓
+Ollama (rocmOverrideGfx: 10.3.0)
+  ↓
+Local Model Inference
+  ├─ qwen2.5-coder:7b
+  └─ llama3.1:8b
+```
 
+## Breaking Changes
+
+### Removed Services
+- ❌ `services.openwebui.enable` - Use `services.ai.enable` instead
+- ❌ Manual `claude mcp add` commands - Now uses mcphost with declarative config
+
+### Moved Packages
+- `copilot-cli` moved from development.nix to AI module
+- `whisper-cpp` moved from development.nix to AI module
+
+### New Dependencies
+- Added `mcphost` from nixpkgs (universal MCP client)
+- Added `mcp-journal` flake input (custom MCP server)
+
+## Implementation Details
+
+### Auto-Pull Ollama Models
+A systemd oneshot service (`ollama-pull-models`) runs on first boot:
+- Waits for Ollama service to be ready (30s timeout)
+- Checks if models already exist
+- Pulls missing models automatically
+- Runs as root with `HOME=/root` and `OLLAMA_HOST=http://localhost:11434`
+- `RemainAfterExit=true` prevents re-runs on subsequent boots
+
+### MCPHost Configuration
+Declaratively created at `~/.mcphost.yml`:
+```yaml
+mcpServers:
+  journal:
+    type: local
+    command: ["/nix/store/.../mcp-journal"]
+  
+  mcp-nixos:
+    type: local
+    command: ["nix", "run", "github:utensils/mcp-nixos", "--"]
+    environment:
+      MCP_NIXOS_CLEANUP_ORPHANS: "true"
+  
+  sequential-thinking:
+    type: local
+    command: ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
+  
+  context7:
+    type: local
+    command: ["npx", "-y", "@upstash/context7-mcp"]
+  
+  filesystem:
+    type: local
+    command: ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp", "/home/user/Projects"]
+```
+
+## Files Changed/Created
+```
 New files:
-+ home/ai/claude-code.nix
++ home/ai/claude-code.nix (mcphost configuration)
 + home/ai/default.nix
 + modules/ai/default.nix
-+ modules/ai/ollama.nix
++ modules/ai/ollama.nix (with auto-pull service)
 + modules/ai/packages.nix
++ AI_MODULE_SUMMARY.md (this file)
 
 Modified files:
 ~ flake.nix (added mcp-journal input)
@@ -154,8 +220,9 @@ Modified files:
 ~ lib/default.nix (added ai module support)
 ~ modules/default.nix (exported ai module)
 ~ modules/development.nix (removed AI packages)
-~ modules/services/caddy.nix (always enabled)
+~ modules/services/caddy.nix (simplified)
 ~ modules/services/default.nix (removed openwebui)
+~ docs/ENABLING_SERVICES.md (updated AI services section)
 
 Deleted files:
 - modules/services/openwebui.nix (moved to ai module)
@@ -171,16 +238,49 @@ nix flake check --no-build
 
 # Rebuild and test
 sudo nixos-rebuild switch --flake .#yourhost
+
+# Check model download status
+systemctl status ollama-pull-models
+journalctl -u ollama-pull-models -f
+
+# Test mcphost
+mcphost --model ollama:qwen2.5-coder:7b
+
+# Verify MCP servers
+cat ~/.mcphost.yml
 ```
 
+## Hardware Requirements
+
+### Minimum
+- **GPU**: AMD GPU with ROCm support (GFX 10.x+)
+- **VRAM**: 8GB for 7B models
+- **RAM**: 16GB system RAM
+- **Disk**: 20GB for models and dependencies
+
+### Recommended (Current Setup)
+- **GPU**: AMD RX 6700 XT (12GB VRAM)
+- **RAM**: 32GB system RAM
+- **Disk**: NVMe SSD with 50GB+ free space
+- **CPU**: Modern multi-core CPU (Ryzen 5000+)
+
+## Completed Improvements (from "Future Enhancements")
+- ✅ Integration with local models (Ollama + auto-pull)
+- ✅ Configurable ollama models (qwen2.5-coder:7b, llama3.1:8b)
+- ✅ Universal MCP client (mcphost replaces per-tool setup)
+
 ## Future Enhancements
-- [ ] Add more MCP servers (GitHub, GitLab, Brave Search)
-- [ ] Support for multiple claude-code account tiers (max, pro)
-- [ ] Configurable ollama models
+- [ ] Add more MCP servers (GitHub, GitLab, Brave Search, database access)
+- [ ] Optional larger models (qwen2.5-coder:14b, llama3.1:70b)
 - [ ] Rate limiting and security policies for MCP servers
-- [ ] Integration with more AI services (OpenAI, local models)
+- [ ] Custom model configuration options
+- [ ] Integration with DeepSeek Coder models
+- [ ] Voice interaction with Whisper + TTS
+- [ ] Multi-GPU support
 
 ## References
 - [MCP Journal](https://github.com/kcalvelli/mcp-journal) - Custom MCP server for journalctl
-- [nix-ai-tools](https://github.com/numtide/nix-ai-tools) - AI development tools
-- [Claude Code Reference](https://github.com/timblaktu/nixcfg/tree/main/home/modules/claude-code) - Configuration reference
+- [MCPHost](https://github.com/mark3labs/mcphost) - Universal MCP client
+- [nix-ai-tools](https://github.com/numtide/nix-ai-tools) - AI development tools (copilot, claude)
+- [Ollama](https://ollama.ai) - Local LLM inference
+- [OpenWebUI](https://github.com/open-webui/open-webui) - Web interface for Ollama
