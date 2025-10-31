@@ -1,48 +1,59 @@
 { config, lib, pkgs, inputs, osConfig ? {}, ... }:
 
 let
-  # Script to set up Claude MCP servers
-  setupClaudeMcpScript = pkgs.writeShellScript "setup-claude-mcp" ''
-    #!/usr/bin/env bash
-    set -e
-    
-    echo "Setting up Claude Code MCP servers..."
-    echo ""
-    
-    # Add MCP servers to Claude Code
-    echo "Adding journal MCP server..."
-    claude mcp add --transport stdio journal -- ${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal
-    
-    echo "Adding mcp-nixos..."
-    claude mcp add --transport stdio mcp-nixos -- nix run github:utensils/mcp-nixos --
-    
-    echo "Adding sequential-thinking..."
-    claude mcp add --transport stdio sequential-thinking -- npx -y @modelcontextprotocol/server-sequential-thinking
-    
-    echo "Adding context7..."
-    claude mcp add --transport stdio context7 -- npx -y @upstash/context7-mcp
-    
-    echo "Adding filesystem..."
-    claude mcp add --transport stdio filesystem -- npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
-    
-    echo ""
-    echo "✓ MCP servers configured!"
-    echo ""
-    echo "Verifying connection..."
-    claude mcp list
-  '';
+  # MCPHost configuration file
+  mcpHostConfig = {
+    mcpServers = {
+      # Journal log access via custom mcp-journal server
+      journal = {
+        type = "local";
+        command = [ "${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal" ];
+      };
+      
+      # NixOS package and option search
+      mcp-nixos = {
+        type = "local";
+        command = [ "nix" "run" "github:utensils/mcp-nixos" "--" ];
+        environment = {
+          MCP_NIXOS_CLEANUP_ORPHANS = "true";
+        };
+      };
+      
+      # Sequential thinking for enhanced reasoning
+      sequential-thinking = {
+        type = "local";
+        command = [ "npx" "-y" "@modelcontextprotocol/server-sequential-thinking" ];
+      };
+      
+      # Context7 for context management
+      context7 = {
+        type = "local";
+        command = [ "npx" "-y" "@upstash/context7-mcp" ];
+      };
+      
+      # Filesystem access (restricted to /tmp and ~/Projects)
+      filesystem = {
+        type = "local";
+        command = [ "npx" "-y" "@modelcontextprotocol/server-filesystem" "/tmp" "${config.home.homeDirectory}/Projects" ];
+      };
+    };
+  };
 in
 {
   # Create AI tool configurations when AI is enabled
   config = lib.mkIf (osConfig.services.ai.enable or false) {
-    # Install npx for MCP servers
+    # Install required packages
     home.packages = with pkgs; [
-      nodejs
+      nodejs  # For npx MCP servers
+      mcphost # Universal MCP client
     ];
     
-    # Export setup script to ~/scripts/
-    home.file."scripts/setup-claude-mcp" = {
-      source = setupClaudeMcpScript;
+    # MCPHost configuration file
+    home.file.".mcphost.yml".text = lib.generators.toYAML {} mcpHostConfig;
+    
+    # Export Material Code theme updater script
+    home.file."scripts/update-material-code-theme" = {
+      source = ../../scripts/update-material-code-theme.sh;
       executable = true;
     };
   };
