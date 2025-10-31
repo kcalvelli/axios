@@ -69,6 +69,10 @@ let
             (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? services)) {
               services = hostCfg.services;
             })
+            # Enable AI module if specified
+            (lib.optionalAttrs (hostCfg.modules.ai or false) {
+              services.ai.enable = true;
+            })
             # Enable desktop hardware module if vendor is msi
             (lib.optionalAttrs (hwVendor == "msi") {
               hardware.desktop = {
