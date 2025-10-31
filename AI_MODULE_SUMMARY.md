@@ -22,16 +22,16 @@ Successfully implemented a comprehensive AI module for axiOS that consolidates a
 
 ### Home-Manager Module (`home/ai/`)
 - **`default.nix`** - Conditionally imports AI tools when `services.ai.enable` is true
-- **`claude-code.nix`** - Configuration for both Claude Code and GitHub Copilot CLI
-  - Shared MCP server configuration for both tools
+- **`claude-code.nix`** - MCP configuration using mcphost
+  - Creates `~/.mcphost.yml` configuration file
+  - Works with Claude, OpenAI, Gemini, and Ollama
   - MCP servers configured:
-    - **mcp-journal** - Journal log access via custom server
-    - **nixos** - NixOS package/option search
-    - **sequential-thinking** - Enhanced reasoning (TypeScript version via npx)
+    - **journal** - Journal log access via custom mcp-journal server
+    - **mcp-nixos** - NixOS package/option search
+    - **sequential-thinking** - Enhanced reasoning
     - **context7** - Advanced context management
     - **filesystem** - Restricted to `/tmp` and `~/Projects`
-  - Creates `~/.claude/.claude.json` for Claude Code
-  - Creates `~/.copilot/mcp-config.json` for GitHub Copilot CLI
+  - Exports `update-material-code-theme` script to `~/scripts/`
 
 ## Usage
 
@@ -51,35 +51,43 @@ services.ai.enable = true;
 When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration (port 11434)
 - ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
-- ✅ copilot, claude, whisper-cli installed system-wide
+- ✅ copilot, claude, mcphost, whisper-cli installed system-wide
 - ✅ All users added to `systemd-journal` group
-- ✅ `setup-claude-mcp` script exported to `~/scripts/`
+- ✅ `~/.mcphost.yml` configuration file created
+- ✅ `update-material-code-theme` script in `~/scripts/`
 - ✅ Caddy reverse proxy enabled for OpenWebUI
 
-### Setting Up MCP Servers
+### Using MCP Servers with AI Models
 
-After enabling AI and rebuilding, run the setup script **once**:
+After enabling AI and rebuilding, use `mcphost` to chat with AI models that have MCP server access:
 
 ```bash
-cd ~/.config/nixos_config
-nix flake update axios
-rebuild-switch
+# With Anthropic Claude
+mcphost --model anthropic:claude-sonnet-4
+# or
+export ANTHROPIC_API_KEY="your-key"
+mcphost --model anthropic:claude-sonnet-4
 
-# Configure Claude MCP servers (one-time)
-setup-claude-mcp
+# With local Ollama (no API key needed!)
+mcphost --model ollama:mistral
+
+# With OpenAI
+export OPENAI_API_KEY="your-key"
+mcphost --model openai:gpt-4
+
+# With Google Gemini
+export GOOGLE_API_KEY="your-key"
+mcphost --model google:gemini-2.0-flash-exp
 ```
 
-This registers 5 MCP servers:
+All 5 MCP servers are automatically available:
 - **journal** - System log access
-- **mcp-nixos** - NixOS package/option search  
+- **mcp-nixos** - NixOS package search
 - **sequential-thinking** - Enhanced reasoning
-- **context7** - Context management
-- **filesystem** - File operations
+- **context7** - Context management  
+- **filesystem** - File operations in `/tmp` and `~/Projects`
 
-Verify:
-```bash
-claude mcp list
-```
+No manual setup required!
 
 ## Breaking Changes
 
