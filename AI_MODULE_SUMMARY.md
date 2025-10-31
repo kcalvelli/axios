@@ -48,12 +48,12 @@ services.ai.enable = true;
 
 ### What Gets Enabled
 When `services.ai.enable = true`:
-- ✅ Ollama with ROCm acceleration
-- ✅ OpenWebUI accessible at `http://openwebui.taile0fb4.ts.net/`
+- ✅ Ollama with ROCm acceleration (port 11434)
+- ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
 - ✅ copilot-cli, claude-code, whisper-cpp installed system-wide
 - ✅ All users added to `systemd-journal` group
 - ✅ Claude-code configured with MCP servers for all users
-- ✅ Caddy reverse proxy enabled
+- ✅ Caddy reverse proxy enabled for OpenWebUI
 
 ## Breaking Changes
 
