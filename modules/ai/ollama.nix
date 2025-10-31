@@ -35,6 +35,7 @@ in
         DATA_DIR = "${config.services.open-webui.stateDir}/data";
         HF_HOME = "${config.services.open-webui.stateDir}/hf_home";
         SENTENCE_TRANSFORMERS_HOME = "${config.services.open-webui.stateDir}/transformers_home";
+        WEBUI_URL = "http://${domain}.${tailnet}/ai";
       };
     };
   };
