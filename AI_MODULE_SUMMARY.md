@@ -92,7 +92,10 @@ Claude CLI has native MCP server support with all 5 MCP servers **automatically 
 ```bash
 # MCP servers available in any directory!
 cd ~
-claude mcp list -s user  # Shows all 5 servers
+claude mcp list  # Shows all 5 servers
+
+# Check a specific server's scope
+claude mcp get journal  # Should show "Scope: User config"
 
 # Start Claude from anywhere
 cd ~/Projects/myproject

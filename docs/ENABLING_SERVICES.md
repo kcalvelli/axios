@@ -37,7 +37,7 @@ ollama run llama3.1:8b
 claude
 
 # Verify servers are available
-claude mcp list -s user
+claude mcp list
 ```
 
 **MCP Servers Automatically Available:**
