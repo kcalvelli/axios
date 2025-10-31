@@ -66,9 +66,16 @@ in
       executable = true;
     };
 
-    # Export Claude MCP initialization script
+    # Export Claude MCP initialization script (project-scoped)
     home.file."scripts/init-claude-mcp" = {
       source = ../../scripts/init-claude-mcp.sh;
+      executable = true;
+    };
+
+    # Export user-scoped MCP setup script
+    # Note: Run this manually after nixos-rebuild if activation doesn't trigger
+    home.file."scripts/setup-claude-mcp-user" = {
+      source = ../../scripts/setup-claude-mcp-user.sh;
       executable = true;
     };
 

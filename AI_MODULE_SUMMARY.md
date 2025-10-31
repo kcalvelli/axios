@@ -87,10 +87,13 @@ Claude CLI has native MCP server support with all 5 MCP servers **automatically 
 - **context7** - Context management
 - **filesystem** - File operations in `/tmp` and `~/Projects`
 
-**After rebuilding Home Manager, MCP servers work everywhere:**
+**After rebuilding, set up user-scoped MCP servers:**
 
 ```bash
-# MCP servers available in any directory!
+# Run the setup script once after rebuild
+~/scripts/setup-claude-mcp-user
+
+# MCP servers now available in any directory!
 cd ~
 claude mcp list  # Shows all 5 servers
 
@@ -102,7 +105,7 @@ cd ~/Projects/myproject
 claude  # MCP servers automatically available
 ```
 
-**No manual setup required!** The servers are configured during Home Manager activation.
+**Note:** When using home-manager as a NixOS module, activation scripts may not run automatically during `nixos-rebuild`. Run `~/scripts/setup-claude-mcp-user` once after rebuilding to configure user-scoped MCP servers.
 
 **Optional:** For project-specific MCP configuration:
 ```bash

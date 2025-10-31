@@ -32,22 +32,24 @@ ollama run llama3.1:8b
 
 **Using Claude CLI with MCP servers:**
 ```bash
-# MCP servers automatically configured system-wide!
-# No setup needed - just run claude from any directory
+# After first rebuild, run setup script once:
+~/scripts/setup-claude-mcp-user
+
+# Then use Claude from any directory!
 claude
 
 # Verify servers are available
 claude mcp list
 ```
 
-**MCP Servers Automatically Available:**
+**MCP Servers Available:**
 - journal - System log access
 - mcp-nixos - NixOS package search
 - sequential-thinking - Enhanced reasoning
 - context7 - Context management
 - filesystem - File operations
 
-**Note:** MCP servers are configured automatically during Home Manager rebuild. You can use Claude from any directory!
+**Note:** Run `~/scripts/setup-claude-mcp-user` once after enabling the AI module. The script is idempotent and safe to re-run.
 
 ---
 
