@@ -25,14 +25,15 @@ in
     };
 
     # Caddy reverse proxy for OpenWebUI
-    # Use subdomain to avoid conflicts with other services
-    services.caddy.virtualHosts."openwebui.${tailnet}" = {
+    # Tailscale MagicDNS doesn't support custom subdomains, so we use the main domain
+    # Future services will need to use path-based routing or separate Tailscale machines
+    services.caddy.virtualHosts."${domain}.${tailnet}" = {
       extraConfig = ''
         reverse_proxy http://127.0.0.1:8080
       '';
     };
     
-    # Update WEBUI_URL for subdomain
-    services.open-webui.environment.WEBUI_URL = "http://openwebui.${tailnet}";
+    # Update WEBUI_URL for main domain
+    services.open-webui.environment.WEBUI_URL = "http://${domain}.${tailnet}";
   };
 }
