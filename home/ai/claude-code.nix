@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, ... }:
+{ config, lib, pkgs, inputs, osConfig ? {}, ... }:
 
 let
   mkMcpServer = {
@@ -15,9 +15,11 @@ let
 in
 {
   # Claude Code configuration with MCP servers
-  programs.claude-code = {
-    enable = true;
-    debug = false;
+  # Only enabled when services.ai.enable is true at the system level
+  config = lib.mkIf (osConfig.services.ai.enable or false) {
+    programs.claude-code = {
+      enable = true;
+      debug = false;
     
     defaultModel = "sonnet";
     
@@ -99,5 +101,6 @@ in
         };
       };
     };
+  };
   };
 }
