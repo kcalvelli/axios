@@ -117,7 +117,7 @@ in
           npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
 
         echo "✓ Claude CLI MCP setup complete!"
-        echo "  Run 'claude mcp list -s user' to verify"
+        echo "  Run 'claude mcp list' to verify (check 'claude mcp get <name>' for scope)"
       ''}
     '';
   };
