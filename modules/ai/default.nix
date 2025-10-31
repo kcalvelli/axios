@@ -32,5 +32,8 @@ in
         }
       '';
     };
+    
+    # Pass domain and tailnet to ollama module
+    services.open-webui.environment.WEBUI_URL = "http://${domain}.${tailnet}/ai";
   };
 }
