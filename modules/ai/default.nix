@@ -25,14 +25,14 @@ in
     };
 
     # Caddy reverse proxy for OpenWebUI
-    # Serve OpenWebUI from root since it doesn't support base paths
-    services.caddy.virtualHosts."${domain}.${tailnet}" = {
+    # Use subdomain to avoid conflicts with other services
+    services.caddy.virtualHosts."openwebui.${tailnet}" = {
       extraConfig = ''
         reverse_proxy http://127.0.0.1:8080
       '';
     };
     
-    # Pass domain and tailnet to ollama module
-    services.open-webui.environment.WEBUI_URL = "http://${domain}.${tailnet}/ai";
+    # Update WEBUI_URL for subdomain
+    services.open-webui.environment.WEBUI_URL = "http://openwebui.${tailnet}";
   };
 }

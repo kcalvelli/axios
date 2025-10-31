@@ -49,7 +49,7 @@ services.ai.enable = true;
 ### What Gets Enabled
 When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration
-- ✅ OpenWebUI accessible at `http://hostname.tailnet/ai/`
+- ✅ OpenWebUI accessible at `http://openwebui.taile0fb4.ts.net/`
 - ✅ copilot-cli, claude-code, whisper-cpp installed system-wide
 - ✅ All users added to `systemd-journal` group
 - ✅ Claude-code configured with MCP servers for all users
