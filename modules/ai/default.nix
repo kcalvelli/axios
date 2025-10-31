@@ -18,11 +18,11 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Add all users with home-manager config to systemd-journal group
-    # This allows mcp-journal to read system logs
-    users.users = lib.mapAttrs (name: user: {
-      extraGroups = (user.extraGroups or []) ++ [ "systemd-journal" ];
-    }) (lib.filterAttrs (name: user: user.isNormalUser or false) config.users.users);
+    # Add users to systemd-journal group using userGroups
+    # This avoids infinite recursion by not modifying users.users directly
+    users.groups.systemd-journal = {
+      members = lib.attrNames (lib.filterAttrs (name: user: user.isNormalUser or false) config.users.users);
+    };
 
     # Caddy reverse proxy for OpenWebUI
     services.caddy.virtualHosts."${domain}.${tailnet}" = {
