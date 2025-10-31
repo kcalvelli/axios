@@ -1,7 +1,7 @@
 # AI Module Implementation Summary
 
 ## Overview
-Comprehensive AI module for axiOS providing local and cloud AI capabilities with MCP (Model Context Protocol) server integration. Uses mcphost as a universal MCP client supporting multiple AI providers.
+Comprehensive AI module for axiOS providing local and cloud AI capabilities with MCP (Model Context Protocol) server integration for Claude CLI.
 
 ## What Was Created
 
@@ -20,21 +20,21 @@ Comprehensive AI module for axiOS providing local and cloud AI capabilities with
 - **`packages.nix`** - AI development tools
   - copilot (GitHub Copilot CLI from nix-ai-tools)
   - claude (Claude Code CLI from nix-ai-tools)
-  - mcphost (Universal MCP client from nixpkgs)
   - whisper-cli (Voice transcription)
 
 ### Home-Manager Module (`home/ai/`)
 - **`default.nix`** - Conditionally imports AI tools when `services.ai.enable` is true
-- **`claude-code.nix`** - MCP configuration using mcphost
-  - Creates `~/.mcphost.yml` configuration file
-  - Works with Claude, OpenAI, Gemini, and Ollama
+- **`claude-code.nix`** - Claude CLI MCP configuration
+  - Creates `~/.mcp.json.template` configuration file
   - MCP servers configured:
     - **journal** - Journal log access via custom mcp-journal server
     - **mcp-nixos** - NixOS package/option search
     - **sequential-thinking** - Enhanced reasoning
     - **context7** - Advanced context management
     - **filesystem** - Restricted to `/tmp` and `~/Projects`
-  - Exports `update-material-code-theme` script to `~/scripts/`
+  - Exports scripts to `~/scripts/`:
+    - `update-material-code-theme` - Theme updater
+    - `init-claude-mcp` - Initialize Claude CLI MCP config for projects
 
 ## Usage
 
@@ -52,32 +52,23 @@ When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration (port 11434)
 - ✅ **Auto-pulls default models**: `qwen2.5-coder:7b` (7B, ~4.7GB) and `llama3.1:8b` (8B, ~4.7GB)
 - ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
-- ✅ copilot, claude, mcphost, whisper-cli installed system-wide
+- ✅ copilot, claude, whisper-cli installed system-wide
 - ✅ All users added to `systemd-journal` group
-- ✅ `~/.mcphost.yml` configuration file created automatically
+- ✅ `~/.mcp.json.template` configuration file for Claude CLI
 - ✅ `update-material-code-theme` script in `~/scripts/`
+- ✅ `init-claude-mcp` script in `~/scripts/`
 - ✅ Caddy reverse proxy enabled for OpenWebUI
 
-### Using MCP Servers with AI Models
+### Using Ollama Models
 
-After enabling AI and rebuilding, use `mcphost` to chat with AI models that have MCP server access:
+After enabling AI and rebuilding, use Ollama directly or through OpenWebUI:
 
 ```bash
-# With local Ollama (no API key needed! Models auto-downloaded)
-mcphost --model ollama:qwen2.5-coder:7b  # Best for coding
-mcphost --model ollama:llama3.1:8b       # General purpose
+# With local Ollama CLI
+ollama run qwen2.5-coder:7b  # Best for coding
+ollama run llama3.1:8b       # General purpose
 
-# With Anthropic Claude
-export ANTHROPIC_API_KEY="your-key"
-mcphost --model anthropic:claude-sonnet-4
-
-# With OpenAI
-export OPENAI_API_KEY="your-key"
-mcphost --model openai:gpt-4
-
-# With Google Gemini
-export GOOGLE_API_KEY="your-key"
-mcphost --model google:gemini-2.0-flash-exp
+# Or use OpenWebUI at http://edge.taile0fb4.ts.net/
 ```
 
 **Default Ollama Models:**
@@ -86,23 +77,38 @@ mcphost --model google:gemini-2.0-flash-exp
 
 These are automatically pulled on first boot. No manual setup required!
 
-**All 5 MCP servers are automatically available:**
+### Using Claude CLI with MCP Servers
+
+Claude CLI has native MCP server support with all 5 MCP servers configured:
 - **journal** - System log access via mcp-journal
 - **mcp-nixos** - NixOS package search
 - **sequential-thinking** - Enhanced reasoning
-- **context7** - Context management  
+- **context7** - Context management
 - **filesystem** - File operations in `/tmp` and `~/Projects`
 
-### Alternative: Claude/Copilot CLI
+Initialize MCP config for your projects:
+
+```bash
+# Initialize Claude MCP config for current project
+~/scripts/init-claude-mcp
+
+# Or for a specific project
+~/scripts/init-claude-mcp ~/Projects/myproject
+
+# Verify MCP servers are loaded
+claude mcp list
+```
+
+This creates a `.mcp.json` file with all 5 MCP servers configured. The servers are automatically loaded when you start Claude CLI in that project directory.
+
+### GitHub Copilot CLI
+
 ```bash
 # GitHub Copilot CLI (requires GitHub account)
 copilot
-
-# Claude Code CLI (requires Anthropic account)  
-claude
 ```
 
-Note: Claude and Copilot have their own MCP configuration methods and don't use mcphost.
+**Note**: GitHub Copilot CLI does **not** support MCP servers. MCP support is only available in the Copilot coding agent (VS Code, JetBrains, etc.).
 
 ## Architecture
 
@@ -114,20 +120,18 @@ NixOS AI Module
   ├─ Adds users to systemd-journal group
   ├─ Enables ollama + ROCm + OpenWebUI
   ├─ Auto-pulls qwen2.5-coder:7b and llama3.1:8b
-  ├─ Installs AI packages (copilot, claude, mcphost, whisper)
+  ├─ Installs AI packages (copilot, claude, whisper)
   └─ Configures Caddy reverse proxy for OpenWebUI
-  
+
 Home-Manager Profiles (workstation/laptop)
   ├─ Import home/ai module
-  ├─ Create ~/.mcphost.yml config
+  ├─ Create ~/.mcp.json.template for Claude CLI
   └─ Export utility scripts to ~/scripts/
 ```
 
 ### MCP Server Architecture
 ```
-mcphost (Universal MCP Client)
-  ↓
-Supports: Claude, OpenAI, Gemini, Ollama
+Claude CLI
   ↓
 MCP Protocol (stdio)
   ├─ journal → journalctl queries via mcp-journal
@@ -154,14 +158,13 @@ Local Model Inference
 
 ### Removed Services
 - ❌ `services.openwebui.enable` - Use `services.ai.enable` instead
-- ❌ Manual `claude mcp add` commands - Now uses mcphost with declarative config
+- ❌ Manual `claude mcp add` commands - Now uses declarative `.mcp.json` config
 
 ### Moved Packages
 - `copilot-cli` moved from development.nix to AI module
 - `whisper-cpp` moved from development.nix to AI module
 
 ### New Dependencies
-- Added `mcphost` from nixpkgs (universal MCP client)
 - Added `mcp-journal` flake input (custom MCP server)
 
 ## Implementation Details
@@ -174,41 +177,43 @@ A systemd oneshot service (`ollama-pull-models`) runs on first boot:
 - Runs as root with `HOME=/root` and `OLLAMA_HOST=http://localhost:11434`
 - `RemainAfterExit=true` prevents re-runs on subsequent boots
 
-### MCPHost Configuration
-Declaratively created at `~/.mcphost.yml`:
-```yaml
-mcpServers:
-  journal:
-    type: local
-    command: ["/nix/store/.../mcp-journal"]
-  
-  mcp-nixos:
-    type: local
-    command: ["nix", "run", "github:utensils/mcp-nixos", "--"]
-    environment:
-      MCP_NIXOS_CLEANUP_ORPHANS: "true"
-  
-  sequential-thinking:
-    type: local
-    command: ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"]
-  
-  context7:
-    type: local
-    command: ["npx", "-y", "@upstash/context7-mcp"]
-  
-  filesystem:
-    type: local
-    command: ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/tmp", "/home/user/Projects"]
+### MCP Configuration Files
+
+#### Claude CLI Template Configuration (`~/.mcp.json.template`)
+Declaratively created in Claude CLI's format:
+```json
+{
+  "mcpServers": {
+    "journal": {
+      "type": "stdio",
+      "command": "/nix/store/.../mcp-journal",
+      "args": [],
+      "env": {}
+    },
+    "mcp-nixos": {
+      "type": "stdio",
+      "command": "nix",
+      "args": ["run", "github:utensils/mcp-nixos", "--"],
+      "env": {
+        "MCP_NIXOS_CLEANUP_ORPHANS": "true"
+      }
+    }
+    // ... other servers
+  }
+}
 ```
+
+The `init-claude-mcp` script copies this template to your project as `.mcp.json`.
 
 ## Files Changed/Created
 ```
 New files:
-+ home/ai/claude-code.nix (mcphost configuration)
++ home/ai/claude-code.nix (Claude CLI MCP configuration)
 + home/ai/default.nix
 + modules/ai/default.nix
 + modules/ai/ollama.nix (with auto-pull service)
 + modules/ai/packages.nix
++ scripts/init-claude-mcp.sh (Claude CLI MCP initializer)
 + AI_MODULE_SUMMARY.md (this file)
 
 Modified files:
@@ -243,11 +248,10 @@ sudo nixos-rebuild switch --flake .#yourhost
 systemctl status ollama-pull-models
 journalctl -u ollama-pull-models -f
 
-# Test mcphost
-mcphost --model ollama:qwen2.5-coder:7b
-
-# Verify MCP servers
-cat ~/.mcphost.yml
+# Test Claude CLI with MCP servers
+cd ~/Projects/your-project
+~/scripts/init-claude-mcp
+claude mcp list
 ```
 
 ## Hardware Requirements
@@ -267,7 +271,7 @@ cat ~/.mcphost.yml
 ## Completed Improvements (from "Future Enhancements")
 - ✅ Integration with local models (Ollama + auto-pull)
 - ✅ Configurable ollama models (qwen2.5-coder:7b, llama3.1:8b)
-- ✅ Universal MCP client (mcphost replaces per-tool setup)
+- ✅ Declarative MCP configuration for Claude CLI
 
 ## Future Enhancements
 - [ ] Add more MCP servers (GitHub, GitLab, Brave Search, database access)
@@ -280,7 +284,7 @@ cat ~/.mcphost.yml
 
 ## References
 - [MCP Journal](https://github.com/kcalvelli/mcp-journal) - Custom MCP server for journalctl
-- [MCPHost](https://github.com/mark3labs/mcphost) - Universal MCP client
 - [nix-ai-tools](https://github.com/numtide/nix-ai-tools) - AI development tools (copilot, claude)
 - [Ollama](https://ollama.ai) - Local LLM inference
 - [OpenWebUI](https://github.com/open-webui/open-webui) - Web interface for Ollama
+- [Model Context Protocol](https://modelcontextprotocol.io) - MCP specification
