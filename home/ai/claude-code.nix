@@ -1,18 +1,35 @@
 { config, lib, pkgs, inputs, osConfig ? {}, ... }:
 
 let
-  # MCP server configurations for manual addition
-  # Use: claude mcp add <name> <command> [args...]
-  # Use: copilot --additional-mcp-config <config>
-  
-  # Script to configure Claude MCP servers
-  setupClaudeMcp = pkgs.writeShellScript "setup-claude-mcp" ''
+  # Script to set up Claude MCP servers
+  setupClaudeMcpScript = pkgs.writeShellScript "setup-claude-mcp" ''
+    #!/usr/bin/env bash
+    set -e
+    
+    echo "Setting up Claude Code MCP servers..."
+    echo ""
+    
     # Add MCP servers to Claude Code
-    claude mcp add --transport stdio journal -- ${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal || true
-    claude mcp add --transport stdio mcp-nixos -- ${pkgs.nix}/bin/nix run github:utensils/mcp-nixos -- || true
-    claude mcp add --transport stdio sequential-thinking -- ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-sequential-thinking || true
-    claude mcp add --transport stdio context7 -- ${pkgs.nodejs}/bin/npx -y @upstash/context7-mcp || true
-    claude mcp add --transport stdio filesystem -- ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects || true
+    echo "Adding journal MCP server..."
+    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio journal -- ${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal
+    
+    echo "Adding mcp-nixos..."
+    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio mcp-nixos -- ${pkgs.nix}/bin/nix run github:utensils/mcp-nixos --
+    
+    echo "Adding sequential-thinking..."
+    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio sequential-thinking -- ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-sequential-thinking
+    
+    echo "Adding context7..."
+    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio context7 -- ${pkgs.nodejs}/bin/npx -y @upstash/context7-mcp
+    
+    echo "Adding filesystem..."
+    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp add --transport stdio filesystem -- ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
+    
+    echo ""
+    echo "✓ MCP servers configured!"
+    echo ""
+    echo "Verifying connection..."
+    ${pkgs.nix-ai-tools.packages.${pkgs.system}.claude-code}/bin/claude mcp list
   '';
 in
 {
@@ -23,9 +40,10 @@ in
       nodejs
     ];
     
-    # Run MCP setup on activation
-    home.activation.setupClaudeMcp = lib.hm.dag.entryAfter ["writeBoundary"] ''
-      $DRY_RUN_CMD ${setupClaudeMcp}
-    '';
+    # Export setup script to ~/scripts/
+    home.file."scripts/setup-claude-mcp" = {
+      source = setupClaudeMcpScript;
+      executable = true;
+    };
   };
 }
