@@ -55,8 +55,13 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
-        User = "ollama";
-        Group = "ollama";
+        # Run as root to avoid HOME issues, but connect to ollama service
+        User = "root";
+      };
+      
+      environment = {
+        HOME = "/root";
+        OLLAMA_HOST = "http://localhost:11434";
       };
       
       script = ''
