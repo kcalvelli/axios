@@ -36,7 +36,10 @@
 
     lanzaboote = {
       url = "github:nix-community/lanzaboote";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        rust-overlay.follows = "rust-overlay";
+      };
     };
 
     disko = {
@@ -84,6 +87,12 @@
     # Fun with "AI" 
     nix-ai-tools.url = "github:numtide/nix-ai-tools";
     mcp-journal.url = "github:kcalvelli/mcp-journal";
+
+    # Rust overlay
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
