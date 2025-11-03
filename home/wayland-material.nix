@@ -99,12 +99,4 @@ in
     await writeFile(themeJsonPath, JSON.stringify(vscodeTheme, null, 2))
     console.log('Updated theme JSON:', themeJsonPath, '→', primary, darkMode ? '(dark)' : '(light)')
   '';
-
-  # Run once at login (still useful for initial setup)
-  home.activation.materialCodeTheme = config.lib.dag.entryAfter ["writeBoundary"] ''
-    if [ -d "$HOME/.config/material-code-theme" ] && command -v bun >/dev/null 2>&1; then
-      $VERBOSE_ECHO "Running initial Material Code theme update..."
-      $DRY_RUN_CMD "$HOME/scripts/update-material-code-theme.sh" || true
-    fi
-  '';
 }

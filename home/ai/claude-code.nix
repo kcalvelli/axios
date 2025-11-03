@@ -60,12 +60,6 @@ in
     # Claude CLI .mcp.json template (for copying to new projects)
     home.file.".mcp.json.template".text = lib.generators.toJSON {} claudeMcpConfig;
 
-    # Export Material Code theme updater script
-    home.file."scripts/update-material-code-theme" = {
-      source = ../../scripts/update-material-code-theme.sh;
-      executable = true;
-    };
-
     # Export Claude MCP initialization script (project-scoped)
     home.file."scripts/init-claude-mcp" = {
       source = ../../scripts/init-claude-mcp.sh;
