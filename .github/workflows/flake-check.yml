@@ -12,13 +12,13 @@ jobs:
     name: Validate flake
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/nix-installer-action@main
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - uses: cachix/cachix-action@v14
+      - uses: cachix/cachix-action@v16
         with:
           name: axios
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -41,13 +41,13 @@ jobs:
           - minimal-flake
           - multi-host
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/nix-installer-action@main
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - uses: cachix/cachix-action@v14
+      - uses: cachix/cachix-action@v16
         with:
           name: axios
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
@@ -70,7 +70,7 @@ jobs:
     name: Test configuration validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/nix-installer-action@main
 
