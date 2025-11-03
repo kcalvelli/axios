@@ -1,0 +1,35 @@
+name: Code Formatting
+
+on:
+  pull_request:
+    paths:
+      - '**.nix'
+  push:
+    branches:
+      - master
+    paths:
+      - '**.nix'
+  workflow_dispatch:
+
+jobs:
+  check-formatting:
+    name: Check Nix formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Check formatting
+        run: |
+          echo "🎨 Checking Nix code formatting..."
+          if nix fmt -- --check .; then
+            echo "✅ All files properly formatted"
+          else
+            echo "❌ Formatting issues found"
+            echo ""
+            echo "To fix locally, run:"
+            echo "  nix fmt"
+            echo ""
+            exit 1
+          fi

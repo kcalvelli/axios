@@ -13,20 +13,129 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - uses: DeterminateSystems/nix-installer-action@main
-      
+
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      
+
       - uses: cachix/cachix-action@v14
         with:
           name: axios
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-      
+
       - name: Check flake structure
         run: |
           echo "🔍 Checking flake structure..."
           nix flake check --all-systems --no-update-lock-file
-      
+
       - name: Show flake metadata
         run: nix flake metadata
+
+  build-examples:
+    name: Build example configurations
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - minimal-flake
+          - multi-host
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - uses: cachix/cachix-action@v14
+        with:
+          name: axios
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Check example flake
+        run: |
+          echo "🔍 Checking example: ${{ matrix.example }}"
+          cd examples/${{ matrix.example }}
+          nix flake check --no-build
+
+      - name: Validate example builds (dry-run)
+        run: |
+          echo "🏗️ Validating build for: ${{ matrix.example }}"
+          cd examples/${{ matrix.example }}
+          CONFIG=$(nix eval .#nixosConfigurations --apply builtins.attrNames --json | jq -r '.[0]')
+          echo "Building configuration: $CONFIG"
+          nix build .#nixosConfigurations.$CONFIG.config.system.build.toplevel --dry-run
+
+  test-validation:
+    name: Test configuration validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Test validation catches invalid CPU type
+        run: |
+          echo "🧪 Testing validation logic..."
+
+          # Create test config with invalid CPU type
+          mkdir -p /tmp/test-config
+          cat > /tmp/test-config/user.nix << 'EOF'
+          { ... }: { users.users.test.isNormalUser = true; }
+          EOF
+
+          cat > /tmp/test-config/flake.nix << 'EOF'
+          {
+            inputs.axios.url = "path:$PWD";
+            inputs.nixpkgs.follows = "axios/nixpkgs";
+            outputs = { axios, ... }: {
+              nixosConfigurations.test = axios.lib.mkSystem {
+                hostname = "test";
+                hardware.cpu = "AMD";  # Invalid - should be lowercase
+                modules.system = true;
+                userModulePath = ./user.nix;
+              };
+            };
+          }
+          EOF
+
+          echo "Testing that validation catches uppercase CPU type..."
+          if nix flake check --no-build /tmp/test-config 2>&1 | grep -q "Invalid hardware.cpu"; then
+            echo "✅ Validation correctly caught invalid CPU type"
+          else
+            echo "❌ Validation failed to catch invalid CPU type"
+            exit 1
+          fi
+
+      - name: Test validation catches vendor/formFactor mismatch
+        run: |
+          mkdir -p /tmp/test-vendor
+          cat > /tmp/test-vendor/user.nix << 'EOF'
+          { ... }: { users.users.test.isNormalUser = true; }
+          EOF
+
+          cat > /tmp/test-vendor/flake.nix << 'EOF'
+          {
+            inputs.axios.url = "path:$PWD";
+            inputs.nixpkgs.follows = "axios/nixpkgs";
+            outputs = { axios, ... }: {
+              nixosConfigurations.test = axios.lib.mkSystem {
+                hostname = "test";
+                formFactor = "desktop";
+                hardware.vendor = "system76";  # Invalid - system76 requires laptop
+                modules.system = true;
+                userModulePath = ./user.nix;
+              };
+            };
+          }
+          EOF
+
+          echo "Testing that validation catches system76 on desktop..."
+          if nix flake check --no-build /tmp/test-vendor 2>&1 | grep -q "System76 vendor requires laptop"; then
+            echo "✅ Validation correctly caught vendor/formFactor mismatch"
+          else
+            echo "❌ Validation failed to catch vendor/formFactor mismatch"
+            exit 1
+          fi

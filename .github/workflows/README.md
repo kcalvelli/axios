@@ -19,13 +19,20 @@ This directory contains automated workflows for the axios flake library.
 **Note:** CI tests are basic. Always run `./scripts/test-build.sh` to catch dependency conflicts.
 
 ### Flake Check
-**File:** `flake-check.yml`  
-**Triggers:** Push to master, pull requests  
-**Purpose:** Validates flake structure and outputs across all systems.
+**File:** `flake-check.yml`
+**Triggers:** Push to master, pull requests
+**Purpose:** Validates flake structure, builds examples, and tests validation logic.
 
 - Runs `nix flake check` to verify flake validity
+- **Builds example configurations** (minimal-flake, multi-host) to ensure library API works
+- **Tests validation logic** to verify configuration errors are caught correctly
 - Displays flake metadata for debugging
 - Ensures no breaking changes to the flake interface
+
+**Jobs:**
+- `flake-check` - Validates flake structure (2-3 min)
+- `build-examples` - Tests example configs in matrix (3-5 min per example)
+- `test-validation` - Verifies validation catches invalid configs (1-2 min)
 
 ### Build DevShells
 **File:** `build-devshells.yml`  
@@ -37,12 +44,21 @@ This directory contains automated workflows for the axios flake library.
 - Uses magic-nix-cache for faster builds
 
 ### Test Init Script
-**File:** `test-init-script.yml`  
-**Triggers:** Changes to scripts, push to master, pull requests  
+**File:** `test-init-script.yml`
+**Triggers:** Changes to scripts, push to master, pull requests
 **Purpose:** Ensures the `nix run github:kcalvelli/axios#init` command works.
 
 - Tests that the init app can be invoked
 - Validates script functionality for downstream users
+
+### Code Formatting
+**File:** `formatting.yml`
+**Triggers:** Changes to .nix files, push to master, pull requests
+**Purpose:** Ensures consistent code style across the project.
+
+- Checks all .nix files are formatted with `nixpkgs-fmt`
+- Only runs when .nix files are modified (path-based trigger)
+- Run `nix fmt` locally to fix formatting issues before pushing
 
 ## Permissions
 
