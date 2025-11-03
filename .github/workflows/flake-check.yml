@@ -12,7 +12,7 @@ jobs:
     name: Validate flake
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/nix-installer-action@main
 
@@ -41,7 +41,7 @@ jobs:
           - minimal-flake
           - multi-host
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/nix-installer-action@main
 
@@ -70,7 +70,7 @@ jobs:
     name: Test configuration validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: DeterminateSystems/nix-installer-action@main
 
