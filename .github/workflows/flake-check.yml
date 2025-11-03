@@ -80,15 +80,17 @@ jobs:
         run: |
           echo "🧪 Testing validation logic..."
 
+          AXIOS_PATH="${GITHUB_WORKSPACE}"
+
           # Create test config with invalid CPU type
           mkdir -p /tmp/test-config
           cat > /tmp/test-config/user.nix << 'EOF'
           { ... }: { users.users.test.isNormalUser = true; }
           EOF
 
-          cat > /tmp/test-config/flake.nix << 'EOF'
+          cat > /tmp/test-config/flake.nix << EOF
           {
-            inputs.axios.url = "path:$PWD";
+            inputs.axios.url = "path:${AXIOS_PATH}";
             inputs.nixpkgs.follows = "axios/nixpkgs";
             outputs = { axios, ... }: {
               nixosConfigurations.test = axios.lib.mkSystem {
@@ -106,19 +108,22 @@ jobs:
             echo "✅ Validation correctly caught invalid CPU type"
           else
             echo "❌ Validation failed to catch invalid CPU type"
+            nix flake check --no-build /tmp/test-config 2>&1 || true
             exit 1
           fi
 
       - name: Test validation catches vendor/formFactor mismatch
         run: |
+          AXIOS_PATH="${GITHUB_WORKSPACE}"
+
           mkdir -p /tmp/test-vendor
           cat > /tmp/test-vendor/user.nix << 'EOF'
           { ... }: { users.users.test.isNormalUser = true; }
           EOF
 
-          cat > /tmp/test-vendor/flake.nix << 'EOF'
+          cat > /tmp/test-vendor/flake.nix << EOF
           {
-            inputs.axios.url = "path:$PWD";
+            inputs.axios.url = "path:${AXIOS_PATH}";
             inputs.nixpkgs.follows = "axios/nixpkgs";
             outputs = { axios, ... }: {
               nixosConfigurations.test = axios.lib.mkSystem {
@@ -137,5 +142,6 @@ jobs:
             echo "✅ Validation correctly caught vendor/formFactor mismatch"
           else
             echo "❌ Validation failed to catch vendor/formFactor mismatch"
+            nix flake check --no-build /tmp/test-vendor 2>&1 || true
             exit 1
           fi

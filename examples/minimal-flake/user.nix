@@ -29,11 +29,10 @@ in
       username = username;
     };
 
-    nixpkgs.config = {
-      allowUnfree = true;
-    };
+    # Note: nixpkgs.config is managed at the system level by axios
+    # when using home-manager.useGlobalPkgs
 
-    # User-specific git configuration  
+    # User-specific git configuration
     programs.git.settings = {
       user = {
         name = fullName;
