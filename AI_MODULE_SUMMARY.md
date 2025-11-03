@@ -8,7 +8,7 @@ Comprehensive AI module for axiOS providing local and cloud AI capabilities with
 ### NixOS Module (`modules/ai/`)
 - **`default.nix`** - Main module with `services.ai.enable` option
   - Auto-adds all users to `systemd-journal` group for mcp-journal access
-  - Configures Caddy reverse proxy for OpenWebUI
+  - Conditionally configures Caddy reverse proxy for OpenWebUI (only if `networking.tailscale.domain` is set)
   
 - **`ollama.nix`** - GPU-accelerated AI inference
   - AMD ROCm + OpenCL support
@@ -46,19 +46,27 @@ modules = {
   ai = true;  # Enable AI services
   # ... other modules
 };
+
+# Optional: Configure Tailscale domain for web access
+extraConfig = {
+  networking.tailscale.domain = "tail1234ab.ts.net";  # Your Tailscale domain
+};
 ```
+
+**Note:** Find your Tailscale domain in the Tailscale admin console under DNS settings.
 
 ### What Gets Enabled
 When `services.ai.enable = true`:
 - ✅ Ollama with ROCm acceleration (port 11434)
 - ✅ **Auto-pulls default models**: `qwen2.5-coder:7b` (7B, ~4.7GB) and `llama3.1:8b` (8B, ~4.7GB)
-- ✅ OpenWebUI accessible at `http://edge.taile0fb4.ts.net/` (main domain via Caddy)
+- ✅ OpenWebUI accessible locally at `http://localhost:8080/`
+- ✅ OpenWebUI accessible via Tailscale at `http://yourhost.tail1234ab.ts.net/` (if domain configured)
 - ✅ copilot, claude, whisper-cli installed system-wide
 - ✅ All users added to `systemd-journal` group
 - ✅ `~/.mcp.json.template` configuration file for Claude CLI
 - ✅ `update-material-code-theme` script in `~/scripts/`
 - ✅ `init-claude-mcp` script in `~/scripts/`
-- ✅ Caddy reverse proxy enabled for OpenWebUI
+- ✅ Caddy reverse proxy enabled for OpenWebUI (if Tailscale domain configured)
 
 ### Using Ollama Models
 
@@ -69,7 +77,9 @@ After enabling AI and rebuilding, use Ollama directly or through OpenWebUI:
 ollama run qwen2.5-coder:7b  # Best for coding
 ollama run llama3.1:8b       # General purpose
 
-# Or use OpenWebUI at http://edge.taile0fb4.ts.net/
+# Or use OpenWebUI at:
+# - http://localhost:8080/ (local access)
+# - http://yourhost.tail1234ab.ts.net/ (Tailscale, if domain configured)
 ```
 
 **Default Ollama Models:**

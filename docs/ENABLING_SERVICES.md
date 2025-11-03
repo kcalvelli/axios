@@ -12,14 +12,21 @@ modules = {
   ai = true;  # Enable AI module
   # ... other modules
 };
+
+# Configure your Tailscale domain for web access
+extraConfig = {
+  networking.tailscale.domain = "tail1234ab.ts.net";  # Your Tailscale domain
+};
 ```
 
 **What you get:**
-- OpenWebUI: `http://edge.taile0fb4.ts.net/` (web interface)
-- Ollama API: `http://edge.taile0fb4.ts.net:11434/`
+- OpenWebUI: `http://yourhost.tail1234ab.ts.net/` (web interface via Tailscale)
+- Ollama API: `http://localhost:11434/` (local access)
 - Local models auto-downloaded: `qwen2.5-coder:7b`, `llama3.1:8b`
 - AI CLI tools: `claude`, `copilot`, `whisper-cli`
 - 5 MCP servers configured for Claude CLI
+
+**Note:** Find your Tailscale domain in the Tailscale admin console under DNS settings (e.g., `tail1234ab.ts.net`).
 
 **Using Ollama:**
 ```bash
@@ -27,7 +34,7 @@ modules = {
 ollama run qwen2.5-coder:7b
 ollama run llama3.1:8b
 
-# Or use OpenWebUI at http://edge.taile0fb4.ts.net/
+# Or use OpenWebUI at http://yourhost.tail1234ab.ts.net/ (if Tailscale domain configured)
 ```
 
 **Using Claude CLI with MCP servers:**
@@ -63,7 +70,8 @@ extraConfig = {
 ```
 
 **Access:**
-- `http://edge.taile0fb4.ts.net:8123/`
+- `http://localhost:8123/` (local)
+- `http://yourhost.tail1234ab.ts.net:8123/` (via Tailscale, if configured)
 
 **Features:**
 - Voice support ready (Wyoming containers disabled by default)
@@ -83,7 +91,8 @@ extraConfig = {
 ```
 
 **Access:**
-- `http://edge.taile0fb4.ts.net:3000/`
+- `http://localhost:3000/` (local)
+- `http://yourhost.tail1234ab.ts.net:3000/` (via Tailscale, if configured)
 
 **What it does:**
 - Network traffic monitoring
