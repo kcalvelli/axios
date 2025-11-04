@@ -105,7 +105,11 @@ def chat(model: str, ollama_url: str, mcpo_url: str):
     tools = fetch_tools(mcpo_url)
     print(f" {len(tools)} tools loaded.\n")
 
-    messages = []
+    # Add system message to encourage tool use
+    messages = [{
+        "role": "system",
+        "content": "You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you should use them instead of providing manual instructions. Always prefer using tools over describing how to use command-line utilities."
+    }]
 
     while True:
         # Get user input
@@ -262,8 +266,14 @@ def main():
         # Load tools silently
         tools = fetch_tools(args.mcpo_url)
 
-        # Execute single query
-        messages = [{"role": "user", "content": args.query}]
+        # Execute single query with system message
+        messages = [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you should use them instead of providing manual instructions. Always prefer using tools over describing how to use command-line utilities."
+            },
+            {"role": "user", "content": args.query}
+        ]
 
         try:
             response = requests.post(
