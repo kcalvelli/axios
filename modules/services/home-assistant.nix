@@ -43,7 +43,7 @@ in
         extraComponents = haComponents;
         config = {
           homeassistant = { };
-          http = { };  # Removed proxy config since we're using direct access
+          http = { }; # Removed proxy config since we're using direct access
           default_config = { };
           frontend = { };
           conversation = { };

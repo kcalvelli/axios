@@ -10,10 +10,10 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = fullName;
-    initialPassword = "changeme";  # Change on first login!
+    initialPassword = "changeme"; # Change on first login!
     extraGroups = [
       "networkmanager"
-      "wheel"        # sudo access
+      "wheel" # sudo access
       "video"
       "audio"
       "input"

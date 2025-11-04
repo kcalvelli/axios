@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, osConfig ? {}, ... }:
+{ config, lib, pkgs, inputs, osConfig ? { }, ... }:
 
 let
   # Claude CLI MCP configuration
@@ -9,8 +9,8 @@ let
       journal = {
         type = "stdio";
         command = "${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal";
-        args = [];
-        env = {};
+        args = [ ];
+        env = { };
       };
 
       # NixOS package and option search
@@ -28,7 +28,7 @@ let
         type = "stdio";
         command = "npx";
         args = [ "-y" "@modelcontextprotocol/server-sequential-thinking" ];
-        env = {};
+        env = { };
       };
 
       # Context7 for context management
@@ -36,7 +36,7 @@ let
         type = "stdio";
         command = "npx";
         args = [ "-y" "@upstash/context7-mcp" ];
-        env = {};
+        env = { };
       };
 
       # Filesystem access (restricted to /tmp and ~/Projects)
@@ -44,7 +44,7 @@ let
         type = "stdio";
         command = "npx";
         args = [ "-y" "@modelcontextprotocol/server-filesystem" "/tmp" "${config.home.homeDirectory}/Projects" ];
-        env = {};
+        env = { };
       };
     };
   };
@@ -54,11 +54,11 @@ in
   config = lib.mkIf (osConfig.services.ai.enable or false) {
     # Install required packages
     home.packages = with pkgs; [
-      nodejs  # For npx MCP servers
+      nodejs # For npx MCP servers
     ];
 
     # Claude CLI .mcp.json template (for copying to new projects)
-    home.file.".mcp.json.template".text = lib.generators.toJSON {} claudeMcpConfig;
+    home.file.".mcp.json.template".text = lib.generators.toJSON { } claudeMcpConfig;
 
     # Export Claude MCP initialization script (project-scoped)
     home.file."scripts/init-claude-mcp" = {
@@ -75,7 +75,7 @@ in
 
     # Automatically configure user-scoped MCP servers for Claude CLI
     # This makes MCP servers available in all Claude CLI sessions, not just projects
-    home.activation.claudeMcpSetup = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    home.activation.claudeMcpSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       $DRY_RUN_CMD ${pkgs.writeShellScript "setup-claude-mcp" ''
         # Only run if claude CLI is available
         if ! command -v claude &> /dev/null; then

@@ -15,22 +15,22 @@ mkShell {
     pkgs.git
     pkgs.gh
     pkgs.nodejs_20
-    
+
     # AI Coding Agents
-    pkgs.aider-chat  # AI pair programming
-    
+    pkgs.aider-chat # AI pair programming
+
     # Development utilities
-    pkgs.jq          # JSON processing
-    pkgs.yq-go       # YAML processing
-    pkgs.ripgrep     # Fast grep alternative
-    pkgs.fd          # Fast find alternative
-    pkgs.fzf         # Fuzzy finder
-    pkgs.bat         # Better cat with syntax highlighting
-    pkgs.tree        # Directory visualization
-    
+    pkgs.jq # JSON processing
+    pkgs.yq-go # YAML processing
+    pkgs.ripgrep # Fast grep alternative
+    pkgs.fd # Fast find alternative
+    pkgs.fzf # Fuzzy finder
+    pkgs.bat # Better cat with syntax highlighting
+    pkgs.tree # Directory visualization
+
     # Testing & validation
-    pkgs.shellcheck  # Shell script linting
-    pkgs.pre-commit  # Git pre-commit hooks
+    pkgs.shellcheck # Shell script linting
+    pkgs.pre-commit # Git pre-commit hooks
   ];
 
   commands = [
@@ -91,7 +91,7 @@ mkShell {
     { name = "UV_NO_SYNC"; value = "1"; }
     { name = "SPEC_KIT_SHELL"; value = "1"; }
   ];
-  
+
   devshell.startup.spec_welcome = {
     text = ''
       echo "🔨 Welcome to spec-kit"

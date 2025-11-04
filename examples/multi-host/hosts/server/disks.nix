@@ -5,7 +5,7 @@
     disk = {
       main = {
         type = "disk";
-        device = "/dev/sda";  # Change to your disk!
+        device = "/dev/sda"; # Change to your disk!
         content = {
           type = "gpt";
           partitions = {

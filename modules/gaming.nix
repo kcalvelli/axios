@@ -3,8 +3,8 @@
   # === Gaming System Packages ===
   environment.systemPackages = with pkgs; [
     gamescope
-    gamemode      # Performance optimization for games
-    mangohud      # Performance overlay
+    gamemode # Performance optimization for games
+    mangohud # Performance overlay
     superTuxKart # Fun racing game
   ];
 
@@ -28,7 +28,7 @@
       #     # Example: keyutils libkrb5  # For games requiring Kerberos auth
       #   ];
       # };
-      
+
       extraCompatPackages = [ pkgs.proton-ge-bin ];
       gamescopeSession.enable = true;
     };

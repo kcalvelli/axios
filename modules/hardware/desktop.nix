@@ -7,7 +7,7 @@ in
 
   options.hardware.desktop = {
     enable = lib.mkEnableOption "Desktop workstation hardware configuration";
-    
+
     enableMsiSensors = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -18,7 +18,7 @@ in
   config = lib.mkMerge [
     (lib.mkIf cfg.enable {
       # Create plugdev group for hardware device access
-      users.groups.plugdev = {};
+      users.groups.plugdev = { };
 
       hardware = {
         # Logitech Unifying receiver support (common for desktop peripherals)
@@ -65,7 +65,7 @@ in
         power-profiles-daemon.enable = lib.mkForce false; # Not useful on desktops
       };
     })
-    
+
     # MSI-specific sensor module
     (lib.mkIf (cfg.enable && cfg.enableMsiSensors) {
       boot.kernelModules = [

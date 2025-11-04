@@ -18,7 +18,7 @@
       ExecStart = "${pkgs.vdirsyncer}/bin/vdirsyncer sync";
       # be nice to logs: only show real errors
       StandardOutput = "journal";
-      StandardError  = "journal";
+      StandardError = "journal";
     };
   };
 

@@ -53,7 +53,7 @@ in
       # Allow redirection of USB devices
       virtualisation.spiceUSBRedirection.enable = true;
       services.spice-vdagentd.enable = true;
-      
+
       # Add users to libvirtd group (managed via users module)
       # users.groups.libvirtd.members will be set by individual user configs
     })

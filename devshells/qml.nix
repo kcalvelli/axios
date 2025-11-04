@@ -13,7 +13,7 @@ mkShell {
     ninja
     pkg-config
     just # Quickshell uses just for dev commands
-    
+
     # Qt6 packages (qt6.full was removed, use individual packages)
     qt6.qtbase
     qt6.qtdeclarative
@@ -21,24 +21,24 @@ mkShell {
     qt6.qtwayland
     qt6.qtshadertools
     spirv-tools
-    
+
     # Quickshell dependencies
     cli11
     breakpad
     jemalloc
-    
+
     # Wayland support
     wayland
     wayland-protocols
     wayland-scanner
-    
+
     # Additional features
     libxcb # X11 support
     pipewire # Pipewire support
     pam # PAM authentication
     libdrm # Screencopy
     libgbm # Screencopy
-    
+
     # Development tools
     clang-tools # clang-format for code formatting
     clang # C/C++ compiler
@@ -47,30 +47,30 @@ mkShell {
   ];
 
   commands = [
-    { 
-      name = "configure"; 
-      command = "cmake -GNinja -B build -DCMAKE_BUILD_TYPE=\${1:-RelWithDebInfo} \${@:2}"; 
-      help = "Configure build (usage: configure [debug|release] [extra cmake args])"; 
+    {
+      name = "configure";
+      command = "cmake -GNinja -B build -DCMAKE_BUILD_TYPE=\${1:-RelWithDebInfo} \${@:2}";
+      help = "Configure build (usage: configure [debug|release] [extra cmake args])";
     }
-    { 
-      name = "build"; 
-      command = "cmake --build build"; 
-      help = "Build the project"; 
+    {
+      name = "build";
+      command = "cmake --build build";
+      help = "Build the project";
     }
-    { 
-      name = "clean"; 
-      command = "rm -rf build"; 
-      help = "Clean build directory"; 
+    {
+      name = "clean";
+      command = "rm -rf build";
+      help = "Clean build directory";
     }
-    { 
-      name = "install"; 
-      command = "cmake --install build"; 
-      help = "Install the built project"; 
+    {
+      name = "install";
+      command = "cmake --install build";
+      help = "Install the built project";
     }
-    { 
-      name = "fmt"; 
-      command = "just fmt"; 
-      help = "Format code with clang-format"; 
+    {
+      name = "fmt";
+      command = "just fmt";
+      help = "Format code with clang-format";
     }
     {
       name = "qml-info";

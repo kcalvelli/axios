@@ -10,12 +10,12 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = fullName;
-    initialPassword = "changeme";  # Change on first login!
+    initialPassword = "changeme"; # Change on first login!
     extraGroups = [
       "networkmanager"
-      "wheel"        # sudo access
-      "libvirtd"     # virtualization access
-      "docker"       # docker access if enabled
+      "wheel" # sudo access
+      "libvirtd" # virtualization access
+      "docker" # docker access if enabled
     ];
   };
 

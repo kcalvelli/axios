@@ -155,7 +155,7 @@
           # Size on open (pixels)
           default-column-width = { fixed = 500; };
           default-window-height = { fixed = 700; };
-        }        
+        }
         {
           matches = [
             { app-id = "^org\\.gnome\\.Nautilus$"; }
@@ -203,9 +203,9 @@
         "Mod+B".action.spawn = [ "brave" ];
         "Mod+E".action.spawn = [ "nautilus" ];
         "Mod+Return".action.spawn = "ghostty";
-        "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ]; 
+        "Mod+G".action.spawn = [ "brave" "--app=https://messages.google.com/web" ];
         "Mod+C".action.spawn = [ "code" ];
-        "Mod+D".action.spawn = [ "discord" ]; 
+        "Mod+D".action.spawn = [ "discord" ];
         "Mod+Shift+T".action.spawn = [ "gnome-text-editor" ];
         "Mod+Shift+C".action.spawn = [ "qalculate-gtk" ];
 

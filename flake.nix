@@ -121,7 +121,7 @@
 
       perSystem = { pkgs, system, ... }: {
         formatter = pkgs.nixpkgs-fmt;
-        
+
         # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
         apps = {
           init = {
@@ -140,7 +140,7 @@
         ./home
         ./devshells.nix
       ];
-      
+
       # Export library functions for downstream flakes
       flake.lib = import ./lib {
         inherit inputs;
