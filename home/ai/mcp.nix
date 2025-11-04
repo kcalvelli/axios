@@ -127,6 +127,8 @@ in
 
     # ---------- NEW: mcpo so Open WebUI can use the same servers ----------
     # Write mcpo config using the same server list
+    # NOTE: Environment variables in claudeMcpConfig (e.g., MCP_NIXOS_CLEANUP_ORPHANS)
+    # are passed through to child processes by mcpo, so they should work correctly.
     xdg.configFile."mcpo/config.json".text =
       lib.generators.toJSON { } claudeMcpConfig;
 
@@ -137,14 +139,17 @@ in
         After = [ "network-online.target" ];
       };
       Service = {
+        # Ensure all required binaries are in PATH
+        Environment = "PATH=${lib.makeBinPath [ pkgs.nodejs pkgs.nix pkgs.uv ]}";
         ExecStart = ''
           ${pkgs.uv}/bin/uvx mcpo \
             --config ${config.xdg.configHome}/mcpo/config.json \
             --host 127.0.0.1 \
-            --port 8000 \
-            --hot-reload
+            --port 8000
         '';
-        Restart = "on-failure";
+        # Restart with delay to prevent rapid restart loops
+        Restart = "always";
+        RestartSec = "10s";
       };
       Install = { WantedBy = [ "default.target" ]; };
     };
