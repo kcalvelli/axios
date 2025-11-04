@@ -72,28 +72,28 @@ LM Studio has native MCP support. To configure your servers:
 **Example MCP config for LM Studio:**
 ```json
 {
-  "mcpServers": {
-    "journal": {
-      "command": "/run/current-system/sw/bin/mcp-journal",
-      "args": []
-    },
-    "mcp-nixos": {
-      "command": "nix",
-      "args": ["run", "github:utensils/mcp-nixos", "--"]
-    },
-    "sequential-thinking": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "filesystem": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp", "/home/keith/Projects"]
-    }
-  }
+"mcpServers": {
+"journal": {
+"command": "/run/current-system/sw/bin/mcp-journal",
+"args": []
+},
+"mcp-nixos": {
+"command": "nix",
+"args": ["run", "github:utensils/mcp-nixos", "--"]
+},
+"sequential-thinking": {
+"command": "npx",
+"args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+},
+"context7": {
+"command": "npx",
+"args": ["-y", "@upstash/context7-mcp"]
+},
+"filesystem": {
+"command": "npx",
+"args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp", "/home/keith/Projects"]
+}
+}
 }
 ```
 
@@ -164,29 +164,29 @@ systemctl --user restart mcpo
 
 ### Packages (`/home/keith/Projects/axios/pkgs/`)
 - `mcp-chat/` - **New:** Properly packaged Python CLI application
-  - `default.nix` - Nix package definition
-  - `mcp-chat.py` - Python implementation
+- `default.nix` - Nix package definition
+- `mcp-chat.py` - Python implementation
 
 ---
 
 ## Next Steps
 
 1. **Rebuild your system:**
-   ```bash
-   sudo nixos-rebuild switch
-   home-manager switch
-   ```
+```bash
+sudo nixos-rebuild switch
+home-manager switch
+```
 
 2. **Try mcp-chat first** (quickest to test):
-   ```bash
-   mcp-chat
-   ```
+```bash
+mcp-chat
+```
 
 3. **Launch LM Studio** for the best desktop experience:
-   ```bash
-   lmstudio
-   ```
-   Then configure MCP servers in Settings → Developer → MCP Servers
+```bash
+lmstudio
+```
+Then configure MCP servers in Settings → Developer → MCP Servers
 
 ---
 
@@ -205,17 +205,17 @@ systemctl --user restart mcpo
 ### mcp-chat Architecture
 ```
 User Input → mcp-chat (Python) → Ollama (tool decisions)
-                ↓
-              mcpo (REST API)
-                ↓
-        MCP Servers (stdio)
+↓
+mcpo (REST API)
+↓
+MCP Servers (stdio)
 ```
 
 ### LM Studio Architecture
 ```
 User Input → LM Studio → Ollama (tool decisions)
-                ↓
-        MCP Servers (stdio, direct)
+↓
+MCP Servers (stdio, direct)
 ```
 
 **Key Difference:** LM Studio talks directly to MCP servers via stdio protocol, while mcp-chat goes through mcpo's REST API layer. This makes LM Studio more efficient and reliable for MCP tool calling.
