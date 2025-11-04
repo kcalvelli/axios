@@ -52,10 +52,28 @@ in
   # Create AI tool configurations when AI is enabled
   config = lib.mkIf (osConfig.services.ai.enable or false) {
     # Install required packages
-    home.packages = with pkgs; [
+    home.packages = (with pkgs; [
       nodejs # For npx MCP servers
-      uv # For running mcpo via `uvx`
-      python3 # For running mcpo via `uvx`
+      python3 # For mcpo venv
+    ]) ++ [
+      # Wrapper script for running mcpo with Nix Python in a venv
+      (pkgs.writeShellScriptBin "mcpo-runner" ''
+        export PATH="${lib.makeBinPath [ pkgs.nodejs pkgs.nix pkgs.python3 ]}"
+        VENV_DIR="$HOME/.local/share/mcpo-venv"
+
+        # Create venv if it doesn't exist
+        if [ ! -d "$VENV_DIR" ]; then
+          ${pkgs.python3}/bin/python -m venv "$VENV_DIR"
+        fi
+
+        # Install/upgrade mcpo in the venv
+        "$VENV_DIR/bin/pip" install --quiet --upgrade mcpo 2>/dev/null || {
+          echo "Warning: Failed to install mcpo"
+        }
+
+        # Run mcpo
+        exec "$VENV_DIR/bin/mcpo" "$@"
+      '')
     ];
 
     # ---------- YOUR ORIGINAL CLAUDE SETUP (unchanged) ----------
@@ -139,10 +157,8 @@ in
         After = [ "network-online.target" ];
       };
       Service = {
-        # Ensure all required binaries are in PATH
-        Environment = "PATH=${lib.makeBinPath [ pkgs.nodejs pkgs.nix pkgs.uv ]}";
         ExecStart = ''
-          ${pkgs.uv}/bin/uvx mcpo \
+          ${config.home.profileDirectory}/bin/mcpo-runner \
             --config ${config.xdg.configHome}/mcpo/config.json \
             --host 127.0.0.1 \
             --port 8000
