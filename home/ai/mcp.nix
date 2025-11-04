@@ -58,7 +58,17 @@ in
     ]) ++ [
       # Wrapper script for running mcpo with Nix Python in a venv
       (pkgs.writeShellScriptBin "mcpo-runner" ''
-        export PATH="${lib.makeBinPath [ pkgs.nodejs pkgs.nix pkgs.python3 ]}"
+        # Include all necessary binaries for mcpo and MCP servers it spawns
+        export PATH="${lib.makeBinPath [
+          pkgs.nodejs
+          pkgs.nix
+          pkgs.python3
+          pkgs.bash
+          pkgs.coreutils
+          pkgs.gnugrep
+          pkgs.gnused
+          pkgs.findutils
+        ]}"
         VENV_DIR="$HOME/.local/share/mcpo-venv"
 
         # Create venv if it doesn't exist
