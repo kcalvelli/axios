@@ -55,6 +55,7 @@ in
     home.packages = with pkgs; [
       nodejs # For npx MCP servers
       uv # For running mcpo via `uvx`
+      python3 # For running mcpo via `uvx`
     ];
 
     # ---------- YOUR ORIGINAL CLAUDE SETUP (unchanged) ----------
