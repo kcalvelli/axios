@@ -55,6 +55,7 @@ in
     home.packages = (with pkgs; [
       nodejs # For npx MCP servers
       python3 # For mcpo venv
+      mcp-chat # Custom CLI for using MCP tools with local Ollama models
     ]) ++ [
       # Wrapper script for running mcpo with Nix Python in a venv
       (pkgs.writeShellScriptBin "mcpo-runner" ''
