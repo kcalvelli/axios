@@ -28,7 +28,8 @@
         enable = true; # Enable Tailscale service
         openFirewall = true;
         useRoutingFeatures = "both"; # Enable both inbound and outbound routing features
-        permitCertUid = config.services.caddy.user; # Permit certificate UID for the Caddy user
+        # Note: Caddy integration (permitCertUid) is configured in services/caddy.nix
+        # This allows Tailscale to work independently without requiring Caddy
       };
     };
   };

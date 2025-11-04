@@ -1,5 +1,6 @@
 {
   # Define all the modules that are available in the system
+  # This explicit list serves as API documentation for library consumers
   flake.nixosModules = {
     system = ./system;
     desktop = ./desktop.nix;
@@ -14,5 +15,6 @@
     laptopHardware = ./hardware/laptop.nix;
     gaming = ./gaming.nix;
     ai = ./ai;
+    wayland = ./wayland.nix;
   };
 }

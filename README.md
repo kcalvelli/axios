@@ -183,15 +183,24 @@ See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
 
 ## Documentation
 
-### Using as a Library (Recommended)
+### Getting Started
+- [Installation Guide](docs/INSTALLATION.md) - Fresh installation instructions
 - [Library Usage Guide](docs/LIBRARY_USAGE.md) - Complete guide to using axios.lib.mkSystem
-- [Adding Hosts](docs/ADDING_HOSTS.md) - Managing multiple machines
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Common commands
+
+### Maintenance
+- [Upgrade Guide](docs/UPGRADE.md) - How to update axios
+- [Migration Guide](docs/MIGRATION_GUIDE.md) - Breaking changes between versions
+- [Release Notes](docs/RELEASES.md) - What's new in each release
+- [Changelog](CHANGELOG.md) - Technical changelog
+
+### Configuration
+- [Adding Hosts](docs/ADDING_HOSTS.md) - Managing multiple machines
+- [Package Organization](docs/PACKAGES.md) - How packages are structured
+- [Desktop Customization](docs/NIRI_WALLPAPER.md) - Wallpaper and theming
 
 ### Reference
 - **[Application Catalog](docs/APPLICATIONS.md)** - Complete list of all included applications and PWAs
-- [Package Organization](docs/PACKAGES.md) - How packages are structured
-- [Desktop Customization](docs/NIRI_WALLPAPER.md) - Wallpaper and theming
 - [Module Documentation](modules/README.md) - Available NixOS modules
 - [Library API](lib/README.md) - Exported library functions
 

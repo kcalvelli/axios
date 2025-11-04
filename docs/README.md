@@ -7,6 +7,8 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
 | [INSTALLATION.md](INSTALLATION.md) | Install axiOS on your machine | **Start here** for new installations |
+| [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
+| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | Breaking changes between versions | Before major version updates |
 | [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | **See what's included** in axiOS |
 | [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | Quick command reference | Quick lookups and common tasks |
 | [PACKAGES.md](PACKAGES.md) | Package organization guide | Before adding new packages |
@@ -145,7 +147,10 @@ Includes:
 # Navigate to your config repository
 cd ~/my-nixos-config
 
-# Update flake inputs (get latest packages and axios)
+# Update axios specifically (recommended)
+nix flake lock --update-input axios
+
+# Or update all inputs
 nix flake update
 
 # Rebuild and switch to new configuration
@@ -154,6 +159,8 @@ sudo nixos-rebuild switch --flake .#HOSTNAME
 # Optionally, clean up old generations
 sudo nix-collect-garbage -d
 ```
+
+**See [UPGRADE.md](UPGRADE.md) for detailed upgrade instructions and troubleshooting.**
 
 ### Adding a New Package
 
