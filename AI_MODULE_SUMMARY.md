@@ -7,35 +7,35 @@ Comprehensive AI module for axiOS providing local and cloud AI capabilities with
 
 ### NixOS Module (`modules/ai/`)
 - **`default.nix`** - Main module with `services.ai.enable` option
-  - Auto-adds all users to `systemd-journal` group for mcp-journal access
-  - Conditionally configures Caddy reverse proxy for OpenWebUI (only if `networking.tailscale.domain` is set)
-  
+- Auto-adds all users to `systemd-journal` group for mcp-journal access
+- Conditionally configures Caddy reverse proxy for OpenWebUI (only if `networking.tailscale.domain` is set)
+
 - **`ollama.nix`** - GPU-accelerated AI inference
-  - AMD ROCm + OpenCL support
-  - Ollama service with ROCm acceleration (rocmOverrideGfx: 10.3.0)
-  - OpenWebUI on port 8080
-  - **Auto-pulls default models**: `qwen2.5-coder:7b` and `llama3.1:8b`
-  - Systemd service for model management
-  
+- AMD ROCm + OpenCL support
+- Ollama service with ROCm acceleration (rocmOverrideGfx: 10.3.0)
+- OpenWebUI on port 8080
+- **Auto-pulls default models**: `qwen2.5-coder:7b` and `llama3.1:8b`
+- Systemd service for model management
+
 - **`packages.nix`** - AI development tools
-  - copilot (GitHub Copilot CLI from nix-ai-tools)
-  - claude (Claude Code CLI from nix-ai-tools)
-  - whisper-cli (Voice transcription)
+- copilot (GitHub Copilot CLI from nix-ai-tools)
+- claude (Claude Code CLI from nix-ai-tools)
+- whisper-cli (Voice transcription)
 
 ### Home-Manager Module (`home/ai/`)
 - **`default.nix`** - Conditionally imports AI tools when `services.ai.enable` is true
 - **`claude-code.nix`** - Claude CLI MCP configuration
-  - **Automatically configures user-scoped MCP servers** during Home Manager activation
-  - Creates `~/.mcp.json.template` configuration file for projects
-  - MCP servers configured:
-    - **journal** - Journal log access via custom mcp-journal server
-    - **mcp-nixos** - NixOS package/option search
-    - **sequential-thinking** - Enhanced reasoning
-    - **context7** - Advanced context management
-    - **filesystem** - Restricted to `/tmp` and `~/Projects`
-  - Exports scripts to `~/scripts/`:
-    - `update-material-code-theme` - Theme updater
-    - `init-claude-mcp` - Initialize Claude CLI MCP config for projects
+- **Automatically configures user-scoped MCP servers** during Home Manager activation
+- Creates `~/.mcp.json.template` configuration file for projects
+- MCP servers configured:
+- **journal** - Journal log access via custom mcp-journal server
+- **mcp-nixos** - NixOS package/option search
+- **sequential-thinking** - Enhanced reasoning
+- **context7** - Advanced context management
+- **filesystem** - Restricted to `/tmp` and `~/Projects`
+- Exports scripts to `~/scripts/`:
+- `update-material-code-theme` - Theme updater
+- `init-claude-mcp` - Initialize Claude CLI MCP config for projects
 
 ## Usage
 
@@ -43,13 +43,13 @@ Comprehensive AI module for axiOS providing local and cloud AI capabilities with
 ```nix
 # In hosts/yourhost.nix
 modules = {
-  ai = true;  # Enable AI services
-  # ... other modules
+ai = true;  # Enable AI services
+# ... other modules
 };
 
 # Optional: Configure Tailscale domain for web access
 extraConfig = {
-  networking.tailscale.domain = "tail1234ab.ts.net";  # Your Tailscale domain
+networking.tailscale.domain = "tail1234ab.ts.net";  # Your Tailscale domain
 };
 ```
 
@@ -136,43 +136,43 @@ copilot
 ### Module Flow
 ```
 Host Config (services.ai.enable = true)
-  ↓
+↓
 NixOS AI Module
-  ├─ Adds users to systemd-journal group
-  ├─ Enables ollama + ROCm + OpenWebUI
-  ├─ Auto-pulls qwen2.5-coder:7b and llama3.1:8b
-  ├─ Installs AI packages (copilot, claude, whisper)
-  └─ Configures Caddy reverse proxy for OpenWebUI
+├─ Adds users to systemd-journal group
+├─ Enables ollama + ROCm + OpenWebUI
+├─ Auto-pulls qwen2.5-coder:7b and llama3.1:8b
+├─ Installs AI packages (copilot, claude, whisper)
+└─ Configures Caddy reverse proxy for OpenWebUI
 
 Home-Manager Profiles (workstation/laptop)
-  ├─ Import home/ai module
-  ├─ Create ~/.mcp.json.template for Claude CLI
-  └─ Export utility scripts to ~/scripts/
+├─ Import home/ai module
+├─ Create ~/.mcp.json.template for Claude CLI
+└─ Export utility scripts to ~/scripts/
 ```
 
 ### MCP Server Architecture
 ```
 Claude CLI
-  ↓
+↓
 MCP Protocol (stdio)
-  ├─ journal → journalctl queries via mcp-journal
-  ├─ mcp-nixos → nix package/option search
-  ├─ sequential-thinking → enhanced reasoning
-  ├─ context7 → context management
-  └─ filesystem → file operations (restricted paths)
+├─ journal → journalctl queries via mcp-journal
+├─ mcp-nixos → nix package/option search
+├─ sequential-thinking → enhanced reasoning
+├─ context7 → context management
+└─ filesystem → file operations (restricted paths)
 ```
 
 ### GPU Acceleration
 ```
 AMD GPU (RX 6700 XT)
-  ↓
+↓
 ROCm + OpenCL
-  ↓
+↓
 Ollama (rocmOverrideGfx: 10.3.0)
-  ↓
+↓
 Local Model Inference
-  ├─ qwen2.5-coder:7b
-  └─ llama3.1:8b
+├─ qwen2.5-coder:7b
+└─ llama3.1:8b
 ```
 
 ## Breaking Changes
@@ -204,23 +204,23 @@ A systemd oneshot service (`ollama-pull-models`) runs on first boot:
 Declaratively created in Claude CLI's format:
 ```json
 {
-  "mcpServers": {
-    "journal": {
-      "type": "stdio",
-      "command": "/nix/store/.../mcp-journal",
-      "args": [],
-      "env": {}
-    },
-    "mcp-nixos": {
-      "type": "stdio",
-      "command": "nix",
-      "args": ["run", "github:utensils/mcp-nixos", "--"],
-      "env": {
-        "MCP_NIXOS_CLEANUP_ORPHANS": "true"
-      }
-    }
-    // ... other servers
-  }
+"mcpServers": {
+"journal": {
+"type": "stdio",
+"command": "/nix/store/.../mcp-journal",
+"args": [],
+"env": {}
+},
+"mcp-nixos": {
+"type": "stdio",
+"command": "nix",
+"args": ["run", "github:utensils/mcp-nixos", "--"],
+"env": {
+"MCP_NIXOS_CLEANUP_ORPHANS": "true"
+}
+}
+// ... other servers
+}
 }
 ```
 

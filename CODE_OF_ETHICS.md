@@ -1,6 +1,6 @@
 # Code of Ethics
 
-This project is guided by principles of Christian virtue and mutual respect. We seek to create a community where contributors treat one another with dignity, patience, and understanding.
+This project is guided by principles of Christian virtue and mutual respect.We seek to create a community where contributors treat one another with dignity, patience, and understanding.
 
 ## Our Foundation
 

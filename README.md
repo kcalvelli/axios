@@ -1,11 +1,11 @@
 # axiOS
 
 <p align="center">
-  <img src="docs/logo.png" alt="axiOS Logo" width="400">
+<img src="docs/logo.png" alt="axiOS Logo" width="400">
 </p>
 
 <p align="center">
-  <em>A modular <a href="https://nixos.org">NixOS</a> framework and library for building reproducible systems with <a href="https://github.com/nix-community/home-manager">Home Manager</a>, modern desktop environments, and curated development tools.</em>
+<em>A modular <a href="https://nixos.org">NixOS</a> framework and library for building reproducible systems with <a href="https://github.com/nix-community/home-manager">Home Manager</a>, modern desktop environments, and curated development tools.</em>
 </p>
 
 ## What is axiOS?
@@ -45,41 +45,41 @@ mkdir ~/my-nixos-config && cd ~/my-nixos-config
 **flake.nix:**
 ```nix
 {
-  inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
-  };
-  
-  outputs = { self, axios, nixpkgs, ... }: {
-    nixosConfigurations.myhost = axios.lib.mkSystem {
-      hostname = "myhost";
-      system = "x86_64-linux";
-      formFactor = "desktop";  # or "laptop"
-      
-      hardware = {
-        cpu = "amd";     # or "intel"
-        gpu = "amd";     # or "nvidia", "intel"
-        hasSSD = true;
-        isLaptop = false;
-      };
-      
-      modules = {
-        system = true;
-        desktop = true;
-        development = true;
-        graphics = true;
-        networking = true;
-        users = true;
-        virt = false;
-        gaming = false;
-        services = false;
-      };
-      
-      homeProfile = "workstation";  # or "laptop"
-      userModulePath = ./user.nix;
-      diskConfigPath = ./disks.nix;
-    };
-  };
+inputs = {
+axios.url = "github:kcalvelli/axios";
+nixpkgs.follows = "axios/nixpkgs";
+};
+
+outputs = { self, axios, nixpkgs, ... }: {
+nixosConfigurations.myhost = axios.lib.mkSystem {
+hostname = "myhost";
+system = "x86_64-linux";
+formFactor = "desktop";  # or "laptop"
+
+hardware = {
+cpu = "amd";     # or "intel"
+gpu = "amd";     # or "nvidia", "intel"
+hasSSD = true;
+isLaptop = false;
+};
+
+modules = {
+system = true;
+desktop = true;
+development = true;
+graphics = true;
+networking = true;
+users = true;
+virt = false;
+gaming = false;
+services = false;
+};
+
+homeProfile = "workstation";  # or "laptop"
+userModulePath = ./user.nix;
+diskConfigPath = ./disks.nix;
+};
+};
 }
 ```
 
@@ -89,24 +89,24 @@ mkdir ~/my-nixos-config && cd ~/my-nixos-config
 ```nix
 { config, ... }:
 let
-  username = "myname";
+username = "myname";
 in
 {
-  users.users.${username} = {
-    isNormalUser = true;
-    description = "My Name";
-    initialPassword = "changeme";
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
-  };
+users.users.${username} = {
+isNormalUser = true;
+description = "My Name";
+initialPassword = "changeme";
+extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
+};
 
-  home-manager.users.${username} = {
-    home.stateVersion = "24.05";
-    programs.git.userEmail = "me@example.com";
-    programs.git.userName = "My Name";
-  };
+home-manager.users.${username} = {
+home.stateVersion = "24.05";
+programs.git.userEmail = "me@example.com";
+programs.git.userName = "My Name";
+};
 
-  # Optional: Trust user for nix operations
-  nix.settings.trusted-users = [ username ];
+# Optional: Trust user for nix operations
+nix.settings.trusted-users = [ username ];
 }
 ```
 
@@ -116,15 +116,15 @@ in
 ```nix
 { ... }:
 {
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
-    fsType = "ext4";
-  };
-  
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
-    fsType = "vfat";
-  };
+fileSystems."/" = {
+device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
+fsType = "ext4";
+};
+
+fileSystems."/boot" = {
+device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
+fsType = "vfat";
+};
 }
 ```
 
@@ -214,37 +214,37 @@ Main function to create a NixOS system configuration.
 
 ```nix
 nixosConfigurations.myhost = axios.lib.mkSystem {
-  hostname = "myhost";
-  system = "x86_64-linux";
-  formFactor = "desktop" | "laptop";
-  
-  hardware = {
-    vendor = "msi" | "system76" | null;  # Optional: omit for most hardware
-    cpu = "amd" | "intel";
-    gpu = "amd" | "nvidia";
-    hasSSD = bool;
-    isLaptop = bool;
-  };
-  
-  modules = {
-    system = bool;      # Core system config
-    desktop = bool;     # Niri desktop
-    development = bool; # Dev tools
-    services = bool;    # System services
-    graphics = bool;    # Graphics drivers
-    networking = bool;  # Network config
-    users = bool;       # User management
-    virt = bool;        # Virtualization
-    gaming = bool;      # Gaming support
-  };
-  
-  homeProfile = "workstation" | "laptop";
-  diskConfigPath = ./path/to/disks.nix;
-  userModulePath = ./path/to/user.nix;
-  
-  extraConfig = {
-    # Any additional NixOS configuration
-  };
+hostname = "myhost";
+system = "x86_64-linux";
+formFactor = "desktop" | "laptop";
+
+hardware = {
+vendor = "msi" | "system76" | null;  # Optional: omit for most hardware
+cpu = "amd" | "intel";
+gpu = "amd" | "nvidia";
+hasSSD = bool;
+isLaptop = bool;
+};
+
+modules = {
+system = bool;      # Core system config
+desktop = bool;     # Niri desktop
+development = bool; # Dev tools
+services = bool;    # System services
+graphics = bool;    # Graphics drivers
+networking = bool;  # Network config
+users = bool;       # User management
+virt = bool;        # Virtualization
+gaming = bool;      # Gaming support
+};
+
+homeProfile = "workstation" | "laptop";
+diskConfigPath = ./path/to/disks.nix;
+userModulePath = ./path/to/user.nix;
+
+extraConfig = {
+# Any additional NixOS configuration
+};
 };
 ```
 
