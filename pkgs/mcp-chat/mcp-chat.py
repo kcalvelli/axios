@@ -74,6 +74,50 @@ def call_tool(server: str, endpoint: str, params: Dict[str, Any], mcpo_url: str)
         return f"Error calling tool: {str(e)}"
 
 
+def get_available_models(ollama_url: str) -> List[str]:
+    """Fetch list of available models from Ollama."""
+    try:
+        response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+        response.raise_for_status()
+        data = response.json()
+        models = [m["name"] for m in data.get("models", [])]
+        return sorted(models)
+    except Exception as e:
+        print(f"{Colors.ERROR}Warning: Could not fetch models from Ollama: {e}{Colors.RESET}")
+        return []
+
+
+def select_model(ollama_url: str, default_model: str) -> str:
+    """Interactively select a model from available models."""
+    models = get_available_models(ollama_url)
+
+    if not models:
+        print(f"Using default model: {default_model}\n")
+        return default_model
+
+    print(f"{Colors.BOLD}Available models:{Colors.RESET}")
+    for idx, model in enumerate(models, 1):
+        marker = " (default)" if model == default_model else ""
+        print(f"  {idx}. {model}{marker}")
+
+    print(f"\nSelect model [1-{len(models)}] or press Enter for default ({default_model}): ", end="", flush=True)
+
+    try:
+        choice = input().strip()
+        if not choice:
+            return default_model
+
+        idx = int(choice) - 1
+        if 0 <= idx < len(models):
+            return models[idx]
+        else:
+            print(f"{Colors.ERROR}Invalid selection, using default{Colors.RESET}")
+            return default_model
+    except (ValueError, KeyboardInterrupt):
+        print(f"\nUsing default model: {default_model}")
+        return default_model
+
+
 def chat(model: str, ollama_url: str, mcpo_url: str):
     """Main chat loop."""
     print(f"{Colors.BOLD}MCP Chat{Colors.RESET} - Using model: {model}")
@@ -120,10 +164,34 @@ def chat(model: str, ollama_url: str, mcpo_url: str):
             result = response.json()
 
             assistant_message = result.get("message", {})
-            messages.append(assistant_message)
 
             # Check if model wants to call tools
             tool_calls = assistant_message.get("tool_calls", [])
+
+            # Some models return tool calls as JSON in content instead of tool_calls field
+            # Try to parse content as JSON tool call if no tool_calls found
+            if not tool_calls:
+                content = assistant_message.get("content", "").strip()
+                if content.startswith("{") and ("name" in content or "function" in content):
+                    try:
+                        parsed = json.loads(content)
+                        # Convert to tool_calls format
+                        if "name" in parsed and "arguments" in parsed:
+                            tool_calls = [{
+                                "function": {
+                                    "name": parsed["name"],
+                                    "arguments": parsed.get("arguments", {})
+                                }
+                            }]
+                            # Don't append this message yet, wait for tool execution
+                        else:
+                            messages.append(assistant_message)
+                    except json.JSONDecodeError:
+                        messages.append(assistant_message)
+                else:
+                    messages.append(assistant_message)
+            else:
+                messages.append(assistant_message)
 
             if tool_calls:
                 # Execute each tool call
@@ -133,24 +201,30 @@ def chat(model: str, ollama_url: str, mcpo_url: str):
                     arguments = function.get("arguments", {})
 
                     print(f"{Colors.TOOL}[Tool Call: {tool_name}]{Colors.RESET}")
+                    print(f"{Colors.TOOL}[Arguments: {json.dumps(arguments, indent=2)}]{Colors.RESET}")
 
                     # Parse tool name to extract server and endpoint
                     # Format: servername_endpoint_parts
                     parts = tool_name.split("_", 1)
-                    if len(parts) == 2:
-                        server, endpoint = parts
-                        endpoint = endpoint.replace("_", ".")
+                    if len(parts) >= 2:
+                        server = parts[0]
+                        endpoint = "_".join(parts[1:]).replace("_", ".")
 
-                        result = call_tool(server, endpoint, arguments, mcpo_url)
-                        print(f"{Colors.TOOL}[Tool Result]{Colors.RESET}\n{result}\n")
+                        tool_result = call_tool(server, endpoint, arguments, mcpo_url)
+                        print(f"{Colors.TOOL}[Tool Result]{Colors.RESET}\n{tool_result}\n")
 
                         # Add tool result to messages
                         messages.append({
                             "role": "tool",
-                            "content": result
+                            "content": tool_result
                         })
                     else:
-                        print(f"{Colors.ERROR}Error: Invalid tool name format: {tool_name}{Colors.RESET}")
+                        error_msg = f"Invalid tool name format: {tool_name}. Expected format: servername_endpoint"
+                        print(f"{Colors.ERROR}Error: {error_msg}{Colors.RESET}")
+                        messages.append({
+                            "role": "tool",
+                            "content": f"Error: {error_msg}"
+                        })
 
                 # Get final response after tool execution
                 response = requests.post(
@@ -182,14 +256,127 @@ def chat(model: str, ollama_url: str, mcpo_url: str):
 
 def main():
     parser = argparse.ArgumentParser(description="Chat with Ollama using MCP tools")
-    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Ollama model to use (default: {DEFAULT_MODEL})")
+    parser.add_argument("--model", default=None, help=f"Ollama model to use (default: interactive selection)")
     parser.add_argument("--ollama-url", default=DEFAULT_OLLAMA_URL, help=f"Ollama API URL (default: {DEFAULT_OLLAMA_URL})")
     parser.add_argument("--mcpo-url", default=DEFAULT_MCPO_URL, help=f"MCPO URL (default: {DEFAULT_MCPO_URL})")
+    parser.add_argument("--list-tools", action="store_true", help="List available tools and exit")
+    parser.add_argument("--no-interactive", action="store_true", help="Skip interactive model selection, use default")
+    parser.add_argument("-q", "--query", type=str, help="Execute a single query and exit (non-interactive mode)")
 
     args = parser.parse_args()
 
+    # List tools mode
+    if args.list_tools:
+        print("Fetching available tools...")
+        tools = fetch_tools(args.mcpo_url)
+        print(f"\nFound {len(tools)} tools:\n")
+        for tool in sorted(tools, key=lambda t: t["function"]["name"]):
+            func = tool["function"]
+            print(f"{Colors.BOLD}{func['name']}{Colors.RESET}")
+            print(f"  {func['description']}")
+            if func['parameters'].get('properties'):
+                print(f"  Parameters: {', '.join(func['parameters']['properties'].keys())}")
+            print()
+        return
+
+    # Determine model to use
+    if args.model:
+        # Model explicitly specified via --model
+        model = args.model
+    elif args.no_interactive or args.query:
+        # Non-interactive mode or one-off query, use default
+        model = DEFAULT_MODEL
+    else:
+        # Interactive model selection
+        model = select_model(args.ollama_url, DEFAULT_MODEL)
+
+    # One-off query mode
+    if args.query:
+        # Load tools silently
+        tools = fetch_tools(args.mcpo_url)
+
+        # Execute single query
+        messages = [{"role": "user", "content": args.query}]
+
+        try:
+            response = requests.post(
+                f"{args.ollama_url}/api/chat",
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "tools": tools,
+                    "stream": False
+                },
+                timeout=120
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            assistant_message = result.get("message", {})
+            tool_calls = assistant_message.get("tool_calls", [])
+
+            # Handle JSON tool calls in content
+            if not tool_calls:
+                content = assistant_message.get("content", "").strip()
+                if content.startswith("{") and ("name" in content or "function" in content):
+                    try:
+                        parsed = json.loads(content)
+                        if "name" in parsed and "arguments" in parsed:
+                            tool_calls = [{
+                                "function": {
+                                    "name": parsed["name"],
+                                    "arguments": parsed.get("arguments", {})
+                                }
+                            }]
+                    except json.JSONDecodeError:
+                        pass
+
+            # Execute tool calls if any
+            if tool_calls:
+                for tool_call in tool_calls:
+                    function = tool_call.get("function", {})
+                    tool_name = function.get("name", "")
+                    arguments = function.get("arguments", {})
+
+                    parts = tool_name.split("_", 1)
+                    if len(parts) >= 2:
+                        server = parts[0]
+                        endpoint = "_".join(parts[1:]).replace("_", ".")
+                        tool_result = call_tool(server, endpoint, arguments, args.mcpo_url)
+                        messages.append({"role": "tool", "content": tool_result})
+
+                # Get final response
+                response = requests.post(
+                    f"{args.ollama_url}/api/chat",
+                    json={
+                        "model": model,
+                        "messages": messages,
+                        "stream": False
+                    },
+                    timeout=120
+                )
+                response.raise_for_status()
+                result = response.json()
+                assistant_message = result.get("message", {})
+
+            # Print only the final response
+            content = assistant_message.get("content", "")
+            if content:
+                print(content)
+            else:
+                print("No response received")
+
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {str(e)}", file=sys.stderr)
+            sys.exit(1)
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}", file=sys.stderr)
+            sys.exit(1)
+
+        return
+
     try:
-        chat(args.model, args.ollama_url, args.mcpo_url)
+        chat(model, args.ollama_url, args.mcpo_url)
     except KeyboardInterrupt:
         print("\nInterrupted by user")
         sys.exit(0)
