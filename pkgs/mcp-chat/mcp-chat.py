@@ -35,21 +35,41 @@ def fetch_tools(mcpo_url: str) -> List[Dict[str, Any]]:
             resp = requests.get(f"{mcpo_url}/{server}/openapi.json", timeout=5)
             if resp.status_code == 200:
                 openapi_spec = resp.json()
+                server_info = openapi_spec.get("info", {})
+                server_title = server_info.get("title", server)
+
                 # Convert OpenAPI paths to Ollama tool format
                 for path, methods in openapi_spec.get("paths", {}).items():
                     for method, details in methods.items():
                         if method.lower() == "post":
                             # Extract tool name from path (remove leading /)
-                            tool_name = f"{server}_{path.strip('/').replace('/', '_').replace('.', '_')}"
+                            endpoint = path.strip('/').replace('.', '_')
+                            tool_name = f"{server}_{endpoint}"
 
                             # Build parameters from request body schema
                             schema_ref = details.get("requestBody", {}).get("content", {}).get("application/json", {}).get("schema", {})
+
+                            # Get reference to actual schema if using $ref
+                            if "$ref" in schema_ref:
+                                ref_path = schema_ref["$ref"].split("/")
+                                schema_obj = openapi_spec
+                                for part in ref_path:
+                                    if part == "#":
+                                        continue
+                                    schema_obj = schema_obj.get(part, {})
+                                schema_ref = schema_obj
+
+                            # Create enhanced description
+                            base_desc = details.get("description", "").strip()
+                            enhanced_desc = f"[{server_title}] {base_desc}"
+                            if details.get("summary"):
+                                enhanced_desc = f"[{server_title}] {details['summary']}: {base_desc}"
 
                             tools.append({
                                 "type": "function",
                                 "function": {
                                     "name": tool_name,
-                                    "description": details.get("description", f"Call {path} on {server}"),
+                                    "description": enhanced_desc,
                                     "parameters": {
                                         "type": "object",
                                         "properties": schema_ref.get("properties", {}),
@@ -72,50 +92,6 @@ def call_tool(server: str, endpoint: str, params: Dict[str, Any], mcpo_url: str)
         return json.dumps(resp.json(), indent=2)
     except Exception as e:
         return f"Error calling tool: {str(e)}"
-
-
-def get_available_models(ollama_url: str) -> List[str]:
-    """Fetch list of available models from Ollama."""
-    try:
-        response = requests.get(f"{ollama_url}/api/tags", timeout=5)
-        response.raise_for_status()
-        data = response.json()
-        models = [m["name"] for m in data.get("models", [])]
-        return sorted(models)
-    except Exception as e:
-        print(f"{Colors.ERROR}Warning: Could not fetch models from Ollama: {e}{Colors.RESET}")
-        return []
-
-
-def select_model(ollama_url: str, default_model: str) -> str:
-    """Interactively select a model from available models."""
-    models = get_available_models(ollama_url)
-
-    if not models:
-        print(f"Using default model: {default_model}\n")
-        return default_model
-
-    print(f"{Colors.BOLD}Available models:{Colors.RESET}")
-    for idx, model in enumerate(models, 1):
-        marker = " (default)" if model == default_model else ""
-        print(f"  {idx}. {model}{marker}")
-
-    print(f"\nSelect model [1-{len(models)}] or press Enter for default ({default_model}): ", end="", flush=True)
-
-    try:
-        choice = input().strip()
-        if not choice:
-            return default_model
-
-        idx = int(choice) - 1
-        if 0 <= idx < len(models):
-            return models[idx]
-        else:
-            print(f"{Colors.ERROR}Invalid selection, using default{Colors.RESET}")
-            return default_model
-    except (ValueError, KeyboardInterrupt):
-        print(f"\nUsing default model: {default_model}")
-        return default_model
 
 
 def chat(model: str, ollama_url: str, mcpo_url: str):
@@ -256,11 +232,10 @@ def chat(model: str, ollama_url: str, mcpo_url: str):
 
 def main():
     parser = argparse.ArgumentParser(description="Chat with Ollama using MCP tools")
-    parser.add_argument("--model", default=None, help=f"Ollama model to use (default: interactive selection)")
+    parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Ollama model to use (default: {DEFAULT_MODEL})")
     parser.add_argument("--ollama-url", default=DEFAULT_OLLAMA_URL, help=f"Ollama API URL (default: {DEFAULT_OLLAMA_URL})")
     parser.add_argument("--mcpo-url", default=DEFAULT_MCPO_URL, help=f"MCPO URL (default: {DEFAULT_MCPO_URL})")
     parser.add_argument("--list-tools", action="store_true", help="List available tools and exit")
-    parser.add_argument("--no-interactive", action="store_true", help="Skip interactive model selection, use default")
     parser.add_argument("-q", "--query", type=str, help="Execute a single query and exit (non-interactive mode)")
 
     args = parser.parse_args()
@@ -279,16 +254,8 @@ def main():
             print()
         return
 
-    # Determine model to use
-    if args.model:
-        # Model explicitly specified via --model
-        model = args.model
-    elif args.no_interactive or args.query:
-        # Non-interactive mode or one-off query, use default
-        model = DEFAULT_MODEL
-    else:
-        # Interactive model selection
-        model = select_model(args.ollama_url, DEFAULT_MODEL)
+    # Use model from args (either default or explicitly specified)
+    model = args.model
 
     # One-off query mode
     if args.query:
