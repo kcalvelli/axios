@@ -59,11 +59,28 @@ def fetch_tools(mcpo_url: str) -> List[Dict[str, Any]]:
                                     schema_obj = schema_obj.get(part, {})
                                 schema_ref = schema_obj
 
-                            # Create enhanced description
+                            # Create enhanced description with specific keywords
                             base_desc = details.get("description", "").strip()
-                            enhanced_desc = f"[{server_title}] {base_desc}"
-                            if details.get("summary"):
-                                enhanced_desc = f"[{server_title}] {details['summary']}: {base_desc}"
+                            summary = details.get("summary", "")
+
+                            # Add specific context for journal tools
+                            if server == "journal":
+                                if "tail" in endpoint or "tail" in path:
+                                    enhanced_desc = "Query recent systemd journal logs (last N entries). Use this for 'show recent logs', 'latest logs', etc. " + base_desc
+                                elif "query" in endpoint or "query" in path:
+                                    enhanced_desc = "Query systemd journal with filters (unit, priority, time range, grep). Use for specific log searches. " + base_desc
+                                elif "status" in endpoint or "status" in path:
+                                    enhanced_desc = "Get systemd unit status. Use for checking if a service is running. " + base_desc
+                                else:
+                                    enhanced_desc = f"[Systemd Journal] {base_desc}"
+                            # Add context for filesystem tools
+                            elif server == "filesystem":
+                                enhanced_desc = f"[File Operations] {base_desc}. Use for reading/writing files, NOT for systemd logs."
+                            # Default format for other servers
+                            else:
+                                enhanced_desc = f"[{server_title}] {base_desc}"
+                                if summary:
+                                    enhanced_desc = f"[{server_title}] {summary}: {base_desc}"
 
                             tools.append({
                                 "type": "function",
@@ -108,7 +125,14 @@ def chat(model: str, ollama_url: str, mcpo_url: str):
     # Add system message to encourage tool use
     messages = [{
         "role": "system",
-        "content": "You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you should use them instead of providing manual instructions. Always prefer using tools over describing how to use command-line utilities."
+        "content": """You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you MUST use them instead of providing manual instructions.
+
+Guidelines:
+- For systemd logs or journal queries: Use journal_logs_tail or journal_logs_query tools
+- For file operations: Use filesystem tools
+- For NixOS packages: Use mcp-nixos tools
+- NEVER tell users to run journalctl, cat, or other commands manually when you have tools available
+- Always use the appropriate tool for the task"""
     }]
 
     while True:
@@ -270,7 +294,14 @@ def main():
         messages = [
             {
                 "role": "system",
-                "content": "You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you should use them instead of providing manual instructions. Always prefer using tools over describing how to use command-line utilities."
+                "content": """You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you MUST use them instead of providing manual instructions.
+
+Guidelines:
+- For systemd logs or journal queries: Use journal_logs_tail or journal_logs_query tools
+- For file operations: Use filesystem tools
+- For NixOS packages: Use mcp-nixos tools
+- NEVER tell users to run journalctl, cat, or other commands manually when you have tools available
+- Always use the appropriate tool for the task"""
             },
             {"role": "user", "content": args.query}
         ]
