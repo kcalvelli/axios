@@ -87,12 +87,12 @@ axiOS exports `axios.lib.mkSystem` for building NixOS configurations with minima
 
 ```nix
 nixosConfigurations.myhost = axios.lib.mkSystem {
-  hostname = "myhost";
-  formFactor = "desktop";  # or "laptop"
-  hardware = { cpu = "amd"; gpu = "amd"; };
-  modules = { desktop = true; development = true; };
-  userModulePath = ./user.nix;
-  diskConfigPath = ./disks.nix;
+hostname = "myhost";
+formFactor = "desktop";  # or "laptop"
+hardware = { cpu = "amd"; gpu = "amd"; };
+modules = { desktop = true; development = true; };
+userModulePath = ./user.nix;
+diskConfigPath = ./disks.nix;
 };
 ```
 

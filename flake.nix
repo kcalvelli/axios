@@ -60,28 +60,28 @@
 
     ghostty = {
       url = "github:ghostty-org/ghostty";
-     # inputs = {
-     #   #flake-compat.follows = "flake-compat";
-     #   flake-utils.follows = "flake-utils";
-     #   nixpkgs.follows = "nixpkgs";
-     # };
+      inputs = {
+        #flake-compat.follows = "flake-compat";
+        flake-utils.follows = "flake-utils";
+        nixpkgs.follows = "nixpkgs";
+      };
     };
 
     # Niri with DMS Shell
     quickshell = {
       url = "github:quickshell-mirror/quickshell";
-      #inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     dankMaterialShell = {
       url = "github:AvengeMedia/DankMaterialShell";
-      #inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
       #inputs.quickshell.follows = "quickshell";
     };
 
     niri = {
       url = "github:sodiboo/niri-flake";
-      #inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Fun with "AI" 
