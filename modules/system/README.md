@@ -31,6 +31,7 @@ System packages are organized inline by category:
 - `local.nix`: Locale and timezone configuration
 - `nix.nix`: Nix and Flakes configuration
 - `boot.nix`: Boot loader and kernel configuration
+- `memory.nix`: Memory management and OOM protection
 - `printing.nix`: Printing services
 - `sound.nix`: Audio configuration
 - `bluetooth.nix`: Bluetooth configuration
