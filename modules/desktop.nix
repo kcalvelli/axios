@@ -1,6 +1,7 @@
 { lib, pkgs, config, ... }:
 {
   imports = [
+    ./applications.nix
     ./wayland.nix
   ];
 
@@ -46,15 +47,12 @@
   };
 
   # === Desktop Applications ===
+  # Note: Most desktop applications are in applications.nix
+  # This section is for desktop-specific tools
   environment.systemPackages = with pkgs; [
     # VPN
     protonvpn-gui
     # Streaming
     obs-studio
-
-    # Icon themes
-    colloid-icon-theme
-    adwaita-icon-theme
-    papirus-icon-theme
   ];
 }

@@ -24,50 +24,9 @@ in
     components = [ "pkcs11" "secrets" "ssh" ];
   };
 
-  # Wayland desktop packages
-  home.packages = with pkgs; [
-    # Launchers and input
-    fuzzel
-    wl-clipboard
-    wtype
-
-    # Audio control
-    playerctl
-    pavucontrol
-    cava
-
-    # Screenshot and screen tools
-    grimblast
-    grim
-    slurp
-    hyprpicker
-
-    # Theming and appearance
-    matugen
-    colloid-gtk-theme
-    colloid-icon-theme
-    adwaita-icon-theme
-    papirus-icon-theme
-    adw-gtk3
-
-    # Qt configuration
-    kdePackages.qt6ct
-
-    # Fonts
-    nerd-fonts.fira-code
-    inter
-    material-symbols
-
-    # System utilities
-    baobab
-    swappy
-    qalculate-gtk
-    swaybg
-    imagemagick
-    libnotify
-    gnome-software
-    gnome-text-editor
-  ];
+  # NOTE: Wayland desktop packages (fuzzel, wl-clipboard, theming, etc.) have been
+  # moved to modules/applications.nix for system-level installation.
+  # This module now focuses purely on Wayland configuration and services.
 
   # Wayland services
   services.kdeconnect = {

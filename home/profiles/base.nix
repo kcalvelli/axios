@@ -2,6 +2,18 @@
 {
   # Base profile: shared configuration for all desktop profiles
   # This module contains packages and settings common to both workstation and laptop
+  #
+  # NOTE: Desktop applications, fonts, and utilities have been moved to
+  # modules/applications.nix for system-level installation. This provides:
+  # - Cleaner separation: system installs, home-manager configures
+  # - Better caching and PATH management
+  # - Avoids nixpkgs.config conflicts with useGlobalPkgs
+  #
+  # User-specific packages remain in individual home-manager modules:
+  # - ai/mcp.nix: Development tools, AI clients
+  # - calendar.nix: Calendar sync tools
+  # - browser/pwa.nix: Progressive Web Apps
+  # - wayland-material.nix: Theme building tools
 
   imports = [
     ../ai
@@ -11,45 +23,7 @@
     ../calendar.nix
   ];
 
-  # Common application packages
-  home.packages = with pkgs; [
-    # Note-taking and knowledge management
-    obsidian
-
-    # Communication and social
-    discord
-
-    # Document editors and viewers
-    typora
-    libreoffice-fresh
-
-    # Media creation and editing
-    pitivi
-    pinta
-    inkscape
-
-    # Media viewing and playback
-    shotwell
-    loupe
-    celluloid
-    amberol
-
-    # Cloud and sync
-    nextcloud-client
-
-    # Fonts
-    nerd-fonts.fira-code
-    inter
-    material-symbols
-
-    # System utilities
-    baobab
-    swappy
-    qalculate-gtk
-    swaybg
-    imagemagick
-    libnotify
-    gnome-software
-    gnome-text-editor
-  ];
+  # Base profile packages are now managed at system level
+  # See modules/applications.nix for desktop applications
+  home.packages = [ ];
 }
