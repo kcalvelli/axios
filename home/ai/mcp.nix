@@ -7,7 +7,7 @@ let
       # Journal log access via custom mcp-journal server
       journal = {
         type = "stdio";
-        command = "${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal";
+        command = "${inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/mcp-journal";
         args = [ ];
         env = { };
       };
@@ -59,7 +59,7 @@ in
     ]) ++ [
       # MCP servers - add new servers here to make them available in PATH
       # This allows any MCP client (Claude CLI, LM Studio, etc.) to use them
-      inputs.mcp-journal.packages.${pkgs.system}.default
+      inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
     ] ++ [
       # Wrapper script for running mcpo with Nix Python in a venv
       (pkgs.writeShellScriptBin "mcpo-runner" ''
@@ -136,7 +136,7 @@ in
 
         # Add all MCP servers at user scope
         add_mcp_server journal \
-          "${inputs.mcp-journal.packages.${pkgs.system}.default}/bin/mcp-journal"
+          "${inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/mcp-journal"
 
         # Note: mcp-nixos environment variable needs to be set differently
         # We'll add it without the env var and document it for now

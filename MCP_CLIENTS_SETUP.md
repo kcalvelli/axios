@@ -229,7 +229,7 @@ home-manager.users.${username} = { pkgs, ... }: {
 # Add custom MCP servers to home.packages
 home.packages = [
 # Access flake input through self.inputs
-self.inputs.my-mcp-server.packages.${pkgs.system}.default
+self.inputs.my-mcp-server.packages.${pkgs.stdenv.hostPlatform.system}.default
 
 # Or use packages from nixpkgs
 # pkgs.some-other-mcp-server

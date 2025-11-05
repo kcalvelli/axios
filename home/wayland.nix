@@ -16,7 +16,7 @@ in
 
   programs.dankMaterialShell = {
     enable = true;
-    quickshell.package = inputs.quickshell.packages.${pkgs.system}.default;
+    quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 
   services.gnome-keyring = {

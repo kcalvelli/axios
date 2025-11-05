@@ -9,7 +9,7 @@ in
     environment.systemPackages = with pkgs; [
       # AI assistant tools
       whisper-cpp
-    ] ++ (with inputs.nix-ai-tools.packages.${pkgs.system}; [
+    ] ++ (with inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}; [
       copilot-cli
       claude-code
     ]);
