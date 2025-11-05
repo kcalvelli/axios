@@ -1,19 +1,47 @@
-# MCP Client Options Setup
+# MCP Client Setup Guide
 
-Two ways to use your MCP servers with local Ollama models have been configured in your NixOS setup.
+This guide shows how to use the MCP (Model Context Protocol) servers provided by axios with local AI models.
+
+## What axios provides
+
+When you enable the axios AI module in your host configuration:
+
+```nix
+# In your host config (e.g., hosts/mycomputer.nix)
+{
+hostConfig = {
+hostname = "mycomputer";
+# ... other config ...
+
+modules = {
+# ... other modules ...
+ai = true;  # Enable AI tools and services
+};
+};
+}
+```
+
+You automatically get:
+- **mcp-journal** - MCP server for systemd journal access (installed in user PATH)
+- **mcp-chat** - CLI tool for testing MCP servers with Ollama
+- **LM Studio** - Desktop app with native MCP support
+- **Claude CLI** - Pre-configured with mcp-journal and other MCP servers
+- **mcpo** - User service that exposes MCP servers as REST APIs
+- **Ollama** - Local LLM inference server
+- **OpenWebUI** - Web interface for Ollama
 
 ## Quick Start
 
-After running `nixos-rebuild switch` and `home-manager switch`, you'll have access to:
+After enabling axios AI module and running `home-manager switch`:
 
-1. **mcp-chat** - Simple CLI (ready to use)
-2. **LM Studio** - Desktop app (ready to use)
+1. **mcp-chat** - Test MCP tools from CLI
+2. **LM Studio** - Professional desktop experience
 
 ---
 
 ## 1. mcp-chat (Custom CLI) ✅ Ready
 
-**Location:** Packaged in `/home/keith/Projects/axios/pkgs/mcp-chat/`
+**Location:** Packaged in `pkgs/mcp-chat/`
 
 ### Usage
 
@@ -51,7 +79,7 @@ mcp-chat
 
 ## 2. LM Studio (Desktop App) ✅ Ready
 
-**Location:** Installed via `/home/keith/Projects/axios/home/ai/default.nix`
+**Location:** Installed via `home/ai/default.nix`
 
 ### Launch
 
@@ -74,7 +102,7 @@ LM Studio has native MCP support. To configure your servers:
 {
 "mcpServers": {
 "journal": {
-"command": "/run/current-system/sw/bin/mcp-journal",
+"command": "mcp-journal",
 "args": []
 },
 "mcp-nixos": {
@@ -91,7 +119,7 @@ LM Studio has native MCP support. To configure your servers:
 },
 "filesystem": {
 "command": "npx",
-"args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp", "/home/keith/Projects"]
+"args": ["-y", "@modelcontextprotocol/server-filesystem", "/tmp", "/home/myuser/Projects"]
 }
 }
 }
@@ -144,49 +172,158 @@ systemctl --user restart mcpo
 **Problem:** MCP servers not detected
 - Verify MCP config in Settings → Developer → MCP Servers
 - Check LM Studio logs (Help → Show Logs)
-- Ensure npx and nix commands are in PATH
+- Ensure `mcp-journal`, `npx`, and `nix` commands are in PATH
+- After `home-manager switch`, these should be available in your user PATH
+- Test with: `which mcp-journal npx nix`
 - Restart LM Studio after config changes
 
-**Problem:** npx commands fail
-- LM Studio may need explicit PATH
-- Try absolute paths instead: `/run/current-system/sw/bin/npx`
+**Problem:** Command not found errors
+- Make sure you've run `home-manager switch` after adding MCP servers
+- Verify the binaries are in your PATH: `echo $PATH | grep -o '/home/[^:]*\.nix-profile/bin'`
+- LM Studio inherits your shell's PATH, so commands should work if they work in your terminal
 
 ---
 
-## Files Modified
+## Adding Custom MCP Servers
 
-### System Level
-- No changes to system modules
+axios provides `mcp-journal` out of the box. To add your own MCP servers, configure them in your user file:
 
-### Home Manager (`/home/keith/Projects/axios/home/ai/`)
-- `default.nix` - Added lmstudio package
-- `mcp.nix` - Updated to use packaged mcp-chat
+**Step 1: Add flake input (if needed)**
 
-### Packages (`/home/keith/Projects/axios/pkgs/`)
-- `mcp-chat/` - **New:** Properly packaged Python CLI application
-- `default.nix` - Nix package definition
-- `mcp-chat.py` - Python implementation
+If your MCP server is a flake, add it to your `flake.nix`:
+```nix
+{
+inputs = {
+axios.url = "github:kcalvelli/axios";
+nixpkgs.follows = "axios/nixpkgs";
+
+# Add your MCP server input
+my-mcp-server.url = "github:someone/my-mcp-server";
+};
+
+outputs = { self, axios, my-mcp-server, ... }: {
+# Pass inputs to your user module
+nixosConfigurations.myhost = axios.lib.mkSystem {
+# ... your config ...
+};
+};
+}
+```
+
+**Step 2: Install in your user file**
+
+In your user module (e.g., `user.nix`):
+
+```nix
+{ self, config, ... }:
+let
+username = "myuser";
+in
+{
+# ... user account config ...
+
+# Home Manager configuration
+home-manager.users.${username} = { pkgs, ... }: {
+# ... other home config ...
+
+# Add custom MCP servers to home.packages
+home.packages = [
+# Access flake input through self.inputs
+self.inputs.my-mcp-server.packages.${pkgs.system}.default
+
+# Or use packages from nixpkgs
+# pkgs.some-other-mcp-server
+];
+};
+}
+```
+
+**Step 3: Use in MCP clients**
+
+Once installed (after `home-manager switch`), the binary will be in your PATH. Configure it in:
+
+**LM Studio:**
+```json
+{
+"mcpServers": {
+"my-server": {
+"command": "my-mcp-server-binary",
+"args": []
+}
+}
+}
+```
+
+**Claude CLI:** Create `.mcp.json` in your project directory or configure user-scoped with `claude mcp add`
+
+**Example:** See a complete user configuration example in the [axios examples directory](https://github.com/kcalvelli/axios/tree/master/examples/minimal-flake).
+
+**Pattern**: Install MCP servers as user packages (via `home.packages` in your user module) so they're available in PATH for all MCP clients.
+
+---
+
+## What's included in axios
+
+### NixOS Module (`nixosModules.ai`)
+- Ollama service configuration
+- OpenWebUI with Tailscale integration
+- System-level AI packages (whisper-cpp, claude-code, copilot-cli)
+- Systemd journal access for mcp-journal
+
+### Home-Manager Module (`homeModules.ai`)
+- **mcp-journal** - Systemd journal MCP server (in your PATH)
+- **mcp-chat** - Custom CLI for testing MCP+Ollama integration
+- **LM Studio** - Desktop app with MCP support
+- **Claude CLI** - Pre-configured MCP servers
+- **mcpo** - User service exposing MCP servers as REST APIs
+
+All MCP servers provided by axios are automatically available in your PATH after importing the module.
 
 ---
 
 ## Next Steps
 
-1. **Rebuild your system:**
-```bash
-sudo nixos-rebuild switch
-home-manager switch
+1. **Enable axios AI module in your host configuration:**
+
+In your host config file (e.g., `hosts/mycomputer.nix`):
+```nix
+{
+hostConfig = {
+hostname = "mycomputer";
+system = "x86_64-linux";
+formFactor = "desktop"; # or "laptop"
+
+modules = {
+system = true;
+desktop = true;
+# ... other modules ...
+ai = true;  # Enable AI module
+};
+
+homeProfile = "workstation";  # or "laptop"
+userModulePath = self.outPath + "/user.nix";
+diskConfigPath = ./disks.nix;
+};
+}
 ```
 
-2. **Try mcp-chat first** (quickest to test):
+2. **Rebuild your system:**
+```bash
+sudo nixos-rebuild switch --flake /path/to/your/config
+```
+
+3. **Try mcp-chat** (quickest to test):
 ```bash
 mcp-chat
+# Ask: "Search NixOS packages for python"
+# Ask: "Show me recent systemd logs"
 ```
 
-3. **Launch LM Studio** for the best desktop experience:
+4. **Launch LM Studio** for the best desktop experience:
 ```bash
 lmstudio
 ```
-Then configure MCP servers in Settings → Developer → MCP Servers
+Then configure MCP servers in Settings → Developer → MCP Servers (use example config above)
 
 ---
 

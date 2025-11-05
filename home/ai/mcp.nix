@@ -57,6 +57,10 @@ in
       python3 # For mcpo venv
       mcp-chat # Custom CLI for using MCP tools with local Ollama models
     ]) ++ [
+      # MCP servers - add new servers here to make them available in PATH
+      # This allows any MCP client (Claude CLI, LM Studio, etc.) to use them
+      inputs.mcp-journal.packages.${pkgs.system}.default
+    ] ++ [
       # Wrapper script for running mcpo with Nix Python in a venv
       (pkgs.writeShellScriptBin "mcpo-runner" ''
         # Include all necessary binaries for mcpo and MCP servers it spawns
