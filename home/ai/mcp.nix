@@ -53,9 +53,7 @@ in
   config = lib.mkIf (osConfig.services.ai.enable or false) {
     # Install required packages
     home.packages = (with pkgs; [
-      nodejs # For npx MCP servers
-      python3 # For mcpo venv
-      mcp-chat # Custom CLI for using MCP tools with local Ollama models
+
     ]) ++ [
       # MCP servers - add new servers here to make them available in PATH
       # This allows any MCP client (Claude CLI, LM Studio, etc.) to use them

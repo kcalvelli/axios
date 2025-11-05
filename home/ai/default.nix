@@ -7,10 +7,5 @@
     ./mcp.nix
   ];
 
-  config = lib.mkIf (osConfig.services.ai.enable or false) {
-    # Install LM Studio (desktop app with native MCP support)
-    home.packages = with pkgs; [
-      lmstudio
-    ];
-  };
+  # Additional AI configuration can go here
 }

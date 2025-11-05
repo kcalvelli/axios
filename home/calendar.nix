@@ -1,11 +1,5 @@
 { config, pkgs, ... }:
 {
-
-  home.packages = with pkgs; [
-    vdirsyncer
-    khal
-  ];
-
   systemd.user.services.vdirsyncer-sync = {
     Unit = {
       Description = "vdirsyncer: sync calendars/contacts";

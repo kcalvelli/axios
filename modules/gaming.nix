@@ -6,6 +6,7 @@
     gamemode # Performance optimization for games
     mangohud # Performance overlay
     superTuxKart # Fun racing game
+    protonup-ng
   ];
 
   # === Gaming Programs ===

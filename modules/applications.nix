@@ -54,6 +54,7 @@
     adwaita-icon-theme # GNOME icon theme
     papirus-icon-theme # Papirus icon theme
     adw-gtk3 # Adwaita GTK3 theme
+    bun # To enable material theme in vscode
 
     # === Qt Configuration ===
     kdePackages.qt6ct # Qt6 configuration tool
@@ -63,5 +64,12 @@
     nerd-fonts.fira-code # Nerd Fonts variant of Fira Code
     inter # Inter font family
     material-symbols # Material Design symbols
+
+    # === DankMaterialShell Calendar ===
+    vdirsyncer
+    khal
+
+    # === PWA apps for all users ===
+    pwa-apps
   ];
 }
