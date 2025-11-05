@@ -12,7 +12,6 @@
   # User-specific packages remain in individual home-manager modules:
   # - ai/mcp.nix: Development tools, AI clients
   # - calendar.nix: Calendar sync tools
-  # - browser/pwa.nix: Progressive Web Apps
   # - wayland-material.nix: Theme building tools
 
   imports = [

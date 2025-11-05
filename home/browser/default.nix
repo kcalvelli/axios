@@ -1,8 +1,4 @@
 {
-  imports = [
-    ./pwa.nix # Progressive Web Apps
-  ];
-
   programs.brave = {
     enable = true;
     extensions = [

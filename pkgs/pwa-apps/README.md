@@ -64,8 +64,6 @@ The package installs:
 
 ## Usage
 
-The PWA package is automatically included in axios home modules (workstation, laptop) via `home/browser/pwa.nix`.
-
 Desktop entries are generated automatically using nixpkgs' `makeDesktopItem` with proper StartupWMClass hints to match Brave's app-id format.
 
 ### How it Works
