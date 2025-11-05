@@ -15,6 +15,9 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
 | [LIBRARY_USAGE.md](LIBRARY_USAGE.md) | Using axios as a library | Using axios in your own flake |
 | [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) | Desktop customization | Customizing Niri compositor |
+| [ENABLING_SERVICES.md](ENABLING_SERVICES.md) | Enable optional services | Includes service port reference |
+| [AI_MODULE_IMPLEMENTATION.md](AI_MODULE_IMPLEMENTATION.md) | AI module internals | For developers/contributors |
+| [MCP_CLIENTS_SETUP.md](MCP_CLIENTS_SETUP.md) | MCP server setup | Advanced Claude CLI configuration |
 
 ## Quick Start
 
@@ -138,6 +141,40 @@ Includes:
 - Troubleshooting desktop issues
 
 **For desktop users wanting to customize their Niri experience.**
+
+### 🔧 [ENABLING_SERVICES.md](ENABLING_SERVICES.md)
+**Enable and configure optional services**
+
+Covers:
+- AI services (OpenWebUI, Ollama, Claude CLI)
+- Home Assistant integration
+- Network monitoring (ntopng)
+- MQTT broker
+- Service port reference table
+
+**For users wanting to enable optional services beyond the base system.**
+
+### 🤖 [AI_MODULE_IMPLEMENTATION.md](AI_MODULE_IMPLEMENTATION.md)
+**Technical implementation details of the AI module**
+
+Developer reference for:
+- AI module structure and components
+- MCP server integration details
+- Ollama and OpenWebUI configuration
+- Claude CLI setup internals
+
+**For developers/contributors understanding the AI module architecture.**
+
+### 🔌 [MCP_CLIENTS_SETUP.md](MCP_CLIENTS_SETUP.md)
+**Model Context Protocol setup guide**
+
+Detailed guide for:
+- MCP server configuration
+- Claude CLI integration
+- Custom MCP server development
+- Troubleshooting MCP connections
+
+**For advanced users working with MCP servers and Claude CLI.**
 
 ## Common Tasks
 

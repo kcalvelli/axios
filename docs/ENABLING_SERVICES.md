@@ -211,9 +211,36 @@ journalctl -u open-webui -f
 journalctl -u home-assistant -f
 ```
 
-## Port Reference
+## Service Port Reference
 
-See [SERVICE_PORTS.md](./SERVICE_PORTS.md) for complete port listing.
+All services use port-based access for simplicity and compatibility with Tailscale.
+
+### Current Service Ports
+
+| Service | Port | URL | Notes |
+|---------|------|-----|-------|
+| **OpenWebUI** | 8080 | `http://yourhost.tail1234ab.ts.net/` | Main domain via Caddy |
+| **Ollama** | 11434 | `http://yourhost.tail1234ab.ts.net:11434/` | Direct API access |
+| **Home Assistant** | 8123 | `http://yourhost.tail1234ab.ts.net:8123/` | When enabled |
+| **ntopng** | 3000 | `http://yourhost.tail1234ab.ts.net:3000/` | When enabled |
+| **MQTT** | 1883 | N/A | Localhost only |
+
+### Why Port-Based Access?
+
+✅ **Simple** - No path rewriting or subdomain DNS issues
+✅ **Compatible** - Works with all applications regardless of base path support
+✅ **Tailscale-friendly** - No MagicDNS limitations
+✅ **Secure** - Tailscale handles authentication and encryption
+✅ **Flexible** - Each service is independent
+
+### Adding New Services
+
+1. Configure service to listen on localhost or 0.0.0.0
+2. Open firewall port if needed
+3. Document port in this section
+4. Access via `http://yourhost.tail1234ab.ts.net:PORT/`
+
+**Exception:** Services that don't support base paths and need clean URLs can use Caddy on the main domain (like OpenWebUI currently does).
 
 ## Module Requirements
 

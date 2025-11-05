@@ -235,7 +235,7 @@ New files:
 + modules/ai/ollama.nix (with auto-pull service)
 + modules/ai/packages.nix
 + scripts/init-claude-mcp.sh (Claude CLI MCP initializer)
-+ AI_MODULE_SUMMARY.md (this file)
++ docs/AI_MODULE_IMPLEMENTATION.md (this file)
 
 Modified files:
 ~ flake.nix (added mcp-journal input)

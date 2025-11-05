@@ -12,137 +12,27 @@
 
 axiOS is a **NixOS framework and library** that you import into your own flake to build NixOS configurations. Think of it as a curated collection of modules, packages, and home-manager configs that work together.
 
-Import axios into your own minimal flake and use `axios.lib.mkSystem` to build configurations. You maintain just a few files (~30 lines), and axios provides everything else.
+You maintain just a few simple files (~30 lines), and axios provides everything else: desktop environment, development tools, system configuration, and more.
 
-## Quick Start - Using axiOS as a Library
+## Quick Start
 
-### Option 1: Use the Interactive Generator (Recommended) ⭐
-
-The easiest way to get started:
+### Use the Interactive Generator (Recommended) ⭐
 
 ```bash
-# Create a new directory for your config
 mkdir ~/my-nixos-config && cd ~/my-nixos-config
-
-# Run the interactive generator
 nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
 
-The tool will ask you a few questions and generate a complete, working configuration tailored to your system.
+The generator creates a complete configuration tailored to your system in minutes.
 
-### Option 2: Manual Setup
+### Manual Configuration
 
-If you prefer to create files manually:
+For manual setup, you'll create just 3 files:
+- `flake.nix` - Import axios and configure your system (~30 lines)
+- `user.nix` - Your user account settings (~15 lines)
+- `disks.nix` - Filesystem configuration (~10 lines)
 
-### 1. Create Your Configuration Repository
-
-```bash
-mkdir ~/my-nixos-config && cd ~/my-nixos-config
-```
-
-### 2. Create Your Flake
-
-**flake.nix:**
-```nix
-{
-inputs = {
-axios.url = "github:kcalvelli/axios";
-nixpkgs.follows = "axios/nixpkgs";
-};
-
-outputs = { self, axios, nixpkgs, ... }: {
-nixosConfigurations.myhost = axios.lib.mkSystem {
-hostname = "myhost";
-system = "x86_64-linux";
-formFactor = "desktop";  # or "laptop"
-
-hardware = {
-cpu = "amd";     # or "intel"
-gpu = "amd";     # or "nvidia", "intel"
-hasSSD = true;
-isLaptop = false;
-};
-
-modules = {
-system = true;
-desktop = true;
-development = true;
-graphics = true;
-networking = true;
-users = true;
-virt = false;
-gaming = false;
-services = false;
-};
-
-homeProfile = "workstation";  # or "laptop"
-userModulePath = ./user.nix;
-diskConfigPath = ./disks.nix;
-};
-};
-}
-```
-
-### 3. Create User Configuration
-
-**user.nix:**
-```nix
-{ config, ... }:
-let
-username = "myname";
-in
-{
-users.users.${username} = {
-isNormalUser = true;
-description = "My Name";
-initialPassword = "changeme";
-extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
-};
-
-home-manager.users.${username} = {
-home.stateVersion = "24.05";
-programs.git.userEmail = "me@example.com";
-programs.git.userName = "My Name";
-};
-
-# Optional: Trust user for nix operations
-nix.settings.trusted-users = [ username ];
-}
-```
-
-### 4. Configure Disks
-
-**disks.nix:**
-```nix
-{ ... }:
-{
-fileSystems."/" = {
-device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
-fsType = "ext4";
-};
-
-fileSystems."/boot" = {
-device = "/dev/disk/by-uuid/YOUR-UUID-HERE";
-fsType = "vfat";
-};
-}
-```
-
-### 5. Build and Deploy
-
-```bash
-# From installer
-sudo nixos-install --flake .#myhost
-
-# On existing system
-sudo nixos-rebuild switch --flake .#myhost
-```
-
-That's it! Your entire configuration is ~60 lines across 3 files. All the modules, packages, and home-manager configs come from axios.
-
-**Tip:** Use `nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init` to generate these files interactively instead of creating them manually.
-
-See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
+**See [docs/INSTALLATION.md](docs/INSTALLATION.md) for complete step-by-step instructions.**
 
 ## Features
 
@@ -183,72 +73,30 @@ See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete documentation.
 
 ## Documentation
 
-### Getting Started
-- [Installation Guide](docs/INSTALLATION.md) - Fresh installation instructions
-- [Library Usage Guide](docs/LIBRARY_USAGE.md) - Complete guide to using axios.lib.mkSystem
+**📖 [Complete Documentation Hub](docs/README.md)** - Start here for comprehensive guides
+
+**Quick Links:**
+- [Installation Guide](docs/INSTALLATION.md) - Step-by-step setup
+- [Application Catalog](docs/APPLICATIONS.md) - See what's included
+- [Library API Reference](docs/LIBRARY_USAGE.md) - Using `axios.lib.mkSystem`
 - [Quick Reference](docs/QUICK_REFERENCE.md) - Common commands
-
-### Maintenance
-- [Upgrade Guide](docs/UPGRADE.md) - How to update axios
-- [Migration Guide](docs/MIGRATION_GUIDE.md) - Breaking changes between versions
-- [Release Notes](docs/RELEASES.md) - What's new in each release
-- [Changelog](CHANGELOG.md) - Technical changelog
-
-### Configuration
-- [Adding Hosts](docs/ADDING_HOSTS.md) - Managing multiple machines
-- [Package Organization](docs/PACKAGES.md) - How packages are structured
-- [Desktop Customization](docs/NIRI_WALLPAPER.md) - Wallpaper and theming
-
-### Reference
-- **[Application Catalog](docs/APPLICATIONS.md)** - Complete list of all included applications and PWAs
-- [Module Documentation](modules/README.md) - Available NixOS modules
-- [Library API](lib/README.md) - Exported library functions
 
 ## Library API
 
-axiOS exports library functions for building NixOS configurations:
-
-### `axios.lib.mkSystem`
-
-Main function to create a NixOS system configuration.
+axiOS exports `axios.lib.mkSystem` for building NixOS configurations with minimal code:
 
 ```nix
 nixosConfigurations.myhost = axios.lib.mkSystem {
-hostname = "myhost";
-system = "x86_64-linux";
-formFactor = "desktop" | "laptop";
-
-hardware = {
-vendor = "msi" | "system76" | null;  # Optional: omit for most hardware
-cpu = "amd" | "intel";
-gpu = "amd" | "nvidia";
-hasSSD = bool;
-isLaptop = bool;
-};
-
-modules = {
-system = bool;      # Core system config
-desktop = bool;     # Niri desktop
-development = bool; # Dev tools
-services = bool;    # System services
-graphics = bool;    # Graphics drivers
-networking = bool;  # Network config
-users = bool;       # User management
-virt = bool;        # Virtualization
-gaming = bool;      # Gaming support
-};
-
-homeProfile = "workstation" | "laptop";
-diskConfigPath = ./path/to/disks.nix;
-userModulePath = ./path/to/user.nix;
-
-extraConfig = {
-# Any additional NixOS configuration
-};
+  hostname = "myhost";
+  formFactor = "desktop";  # or "laptop"
+  hardware = { cpu = "amd"; gpu = "amd"; };
+  modules = { desktop = true; development = true; };
+  userModulePath = ./user.nix;
+  diskConfigPath = ./disks.nix;
 };
 ```
 
-See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) and [lib/README.md](lib/README.md) for complete API documentation.
+**See [docs/LIBRARY_USAGE.md](docs/LIBRARY_USAGE.md) for complete API documentation and all available options.**
 
 ## Examples
 
@@ -259,54 +107,17 @@ Check out these example repositories:
 
 Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_config) - Personal configs using axios as a library
 
-## Project Structure
+## What's Included
 
-```
-.
-├── lib/                # Exported library functions (axios.lib.*)
-├── modules/            # NixOS modules (system-level)
-│   ├── system/         # Core system configuration
-│   ├── desktop.nix     # Desktop services & themes
-│   ├── wayland.nix     # Wayland, Niri compositor & GNOME apps
-│   ├── development.nix # Development tools
-│   ├── gaming.nix      # Gaming support (optional)
-│   ├── graphics.nix    # Graphics drivers
-│   ├── hardware/       # Hardware-specific configs
-│   ├── networking/     # Network services
-│   ├── services/       # System services (optional)
-│   ├── users.nix       # User management
-│   └── virtualisation.nix # VMs and containers (optional)
-├── home/               # Home Manager configurations
-│   ├── browser/        # Browser and PWA configs
-│   ├── terminal/       # Shell and terminal configs
-│   ├── wayland.nix     # Wayland desktop user config & DMS
-│   ├── niri.nix        # Niri compositor keybinds & settings
-│   ├── workstation.nix # Workstation profile
-│   ├── laptop.nix      # Laptop profile
-│   └── resources/      # Icons, themes, assets
-│       └── pwa-icons/  # PWA application icons
-├── pkgs/               # Custom packages
-│   └── pwa-apps/       # PWA package with bundled icons
-├── docs/               # Documentation
-│   ├── APPLICATIONS.md # Complete application catalog
-│   ├── PACKAGES.md     # Package organization guide
-│   └── ...
-├── scripts/            # Utility scripts
-├── devshells/          # Development environments
-└── examples/           # Example configurations
+- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell, Ghostty terminal
+- **Development**: Rust, Zig, Python, Node.js toolchains with LSP support
+- **Applications**: Full productivity suite - see [Application Catalog](docs/APPLICATIONS.md)
+- **PWAs**: Progressive Web Apps integrated as native applications
+- **Virtualization**: libvirt, QEMU, Podman support (optional)
+- **Gaming**: Steam, GameMode, Proton (optional)
+- **AI Services**: Ollama, OpenWebUI, Claude CLI with MCP servers (optional)
 
-```
-
-## Development Environments
-
-Available development shells:
-
-```bash
-nix develop          # Default: Spec Kit
-nix develop .#rust   # Rust with Fenix
-nix develop .#zig    # Zig compiler
-nix develop .#qml    # Qt6/QML
-```
+**See project structure and module details in [docs/README.md](docs/README.md)**
 
 ## Why axiOS?
 
