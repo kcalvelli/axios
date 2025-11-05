@@ -174,11 +174,6 @@ brave --app=https://messages.google.com/web
 
 ## Integration
 
-The package is consumed by `home/browser/pwa.nix` which simply installs it:
-```nix
-home.packages = [ pkgs.pwa-apps ];
-```
-
 All desktop entries, icons, and launchers are provided by the package itself, ensuring consistency and a single source of truth for PWA definitions.
 
 ## License

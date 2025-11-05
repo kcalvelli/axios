@@ -5,12 +5,6 @@
     ./profiles/base.nix
   ];
 
-  # Workstation-specific packages
-  home.packages = with pkgs; [
-    # Gaming support
-    protonup-ng
-  ];
-
   # Solaar autostart for Logitech Unifying devices
   # Note: Solaar is installed by the system via hardware.logitech.wireless.enableGraphical
   home.file.".config/autostart/solaar.desktop" = {

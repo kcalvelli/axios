@@ -22,8 +22,4 @@
     ../terminal
     ../calendar.nix
   ];
-
-  # Base profile packages are now managed at system level
-  # See modules/applications.nix for desktop applications
-  home.packages = [ ];
 }

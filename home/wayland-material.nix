@@ -10,8 +10,6 @@ let
   qt5ct = "${config.home.homeDirectory}/.config/qt5ct/colors/matugen.conf";
 in
 {
-  home.packages = with pkgs; [ bun ];
-
   home.file."${themeProjectDir}/update-theme.ts".text = ''
     import { createTheme, createVsCodeTheme, themeOptions } from 'material-code/theme'
     import { readdir, mkdir, writeFile, readFile, access } from 'node:fs/promises'
