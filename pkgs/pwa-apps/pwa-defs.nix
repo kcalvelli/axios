@@ -153,11 +153,4 @@
     icon = "proton-wallet";
     categories = [ "Office" "Finance" ];
   };
-
-  windows-app = {
-    name = "Windows App";
-    url = "https://windows.cloud.microsoft/";
-    icon = "windows-app";
-    categories = [ "Network" "RemoteAccess" ];
-  };
 }
