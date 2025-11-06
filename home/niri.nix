@@ -344,43 +344,8 @@
         ];
 
         # --- Brightness control (DMS IPC) ---
-        # Screen brightness
-        "XF86MonBrightnessUp".action.spawn = [
-          "dms"
-          "ipc"
-          "call"
-          "brightness"
-          "increment"
-          "5"
-        ];
-        "XF86MonBrightnessDown".action.spawn = [
-          "dms"
-          "ipc"
-          "call"
-          "brightness"
-          "decrement"
-          "5"
-        ];
-
-        # Keyboard backlight (System76)
-        "XF86KbdBrightnessUp".action.spawn = [
-          "dms"
-          "ipc"
-          "call"
-          "brightness"
-          "increment"
-          "5"
-          "system76_acpi::kbd_backlight"
-        ];
-        "XF86KbdBrightnessDown".action.spawn = [
-          "dms"
-          "ipc"
-          "call"
-          "brightness"
-          "decrement"
-          "5"
-          "system76_acpi::kbd_backlight"
-        ];
+        # Note: Brightness keybinds are provided by DankMaterialShell
+        # via enableKeybinds = true (handles both screen and keyboard backlight)
 
         # --- Quit compositor (clean exit) ---
         "Mod+Shift+E".action."quit" = [ ];
