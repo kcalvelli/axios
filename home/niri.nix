@@ -318,10 +318,11 @@
 
 
 
-        # --- Volume control with thumb wheel ---
+        # --- Volume control with thumb wheel (DMS IPC) ---
         "Mod+Shift+WheelScrollLeft".action.spawn = [
           "dms"
           "ipc"
+          "call"
           "audio"
           "increment"
           "3"
@@ -329,6 +330,7 @@
         "Mod+Shift+WheelScrollRight".action.spawn = [
           "dms"
           "ipc"
+          "call"
           "audio"
           "decrement"
           "3"
@@ -336,31 +338,85 @@
         "Mod+Shift+M".action.spawn = [
           "dms"
           "ipc"
+          "call"
           "audio"
           "mute"
         ];
 
-        # --- Keyboard backlight control (System76) ---
+        # --- Brightness control (DMS IPC) ---
+        # Screen brightness
+        "XF86MonBrightnessUp".action.spawn = [
+          "dms"
+          "ipc"
+          "call"
+          "brightness"
+          "increment"
+          "5"
+        ];
+        "XF86MonBrightnessDown".action.spawn = [
+          "dms"
+          "ipc"
+          "call"
+          "brightness"
+          "decrement"
+          "5"
+        ];
+
+        # Keyboard backlight (System76)
         "XF86KbdBrightnessUp".action.spawn = [
-          "brightnessctl"
-          "--device=system76_acpi::kbd_backlight"
-          "set"
-          "5%+"
+          "dms"
+          "ipc"
+          "call"
+          "brightness"
+          "increment"
+          "5"
+          "system76_acpi::kbd_backlight"
         ];
         "XF86KbdBrightnessDown".action.spawn = [
-          "brightnessctl"
-          "--device=system76_acpi::kbd_backlight"
-          "set"
-          "5%-"
+          "dms"
+          "ipc"
+          "call"
+          "brightness"
+          "decrement"
+          "5"
+          "system76_acpi::kbd_backlight"
         ];
 
         # --- Quit compositor (clean exit) ---
         "Mod+Shift+E".action."quit" = [ ];
 
-        # Screenshot
+        # --- Screenshots (Niri native) ---
         "Mod+Ctrl+S".action.screenshot-screen = { write-to-disk = true; };
         "Mod+Alt+S".action.screenshot-screen = { };
         "Mod+Shift+S".action.screenshot = { };
+
+        # --- Screen Recording (wf-recorder) ---
+        # Toggle recording (start/stop)
+        "Mod+Shift+R".action.spawn = [
+          "${pkgs.bash}/bin/bash"
+          "-c"
+          ''
+            if pgrep -x wf-recorder > /dev/null; then
+              pkill -INT wf-recorder
+              notify-send "Screen Recording" "Recording stopped" -i video-x-generic
+            else
+              mkdir -p ~/Videos
+              wf-recorder -f ~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4 &
+              notify-send "Screen Recording" "Recording started" -i media-record
+            fi
+          ''
+        ];
+
+        # Record with area selection
+        "Mod+Ctrl+R".action.spawn = [
+          "${pkgs.bash}/bin/bash"
+          "-c"
+          ''
+            mkdir -p ~/Videos
+            wf-recorder -g "$(slurp)" -f ~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4 &
+            notify-send "Screen Recording" "Area recording started" -i media-record
+          ''
+        ];
 
         # Quake style drop down terminal using ghostty
         # Toggle by closing window if focused, or spawning/focusing if not

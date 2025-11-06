@@ -61,11 +61,9 @@
       mate.mate-polkit
       wayvnc
       xwayland-satellite
-      brightnessctl
 
-      # File manager and extensions
+      # File manager
       nautilus
-      code-nautilus
     ];
 
     # Enable some homeManager stuff

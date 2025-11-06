@@ -276,6 +276,18 @@ let
             (lib.optionalAttrs (hostCfg.modules.ai or false) {
               services.ai.enable = true;
             })
+            # Enable desktop module if specified
+            (lib.optionalAttrs (hostCfg.modules.desktop or false) {
+              desktop.enable = true;
+            })
+            # Enable development module if specified
+            (lib.optionalAttrs (hostCfg.modules.development or false) {
+              development.enable = true;
+            })
+            # Enable gaming module if specified
+            (lib.optionalAttrs (hostCfg.modules.gaming or false) {
+              gaming.enable = true;
+            })
             # Enable desktop hardware module if vendor is msi
             (lib.optionalAttrs (hwVendor == "msi") {
               hardware.desktop = {
