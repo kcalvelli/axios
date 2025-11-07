@@ -13,8 +13,22 @@ modules = {
 };
 
 extraConfig = {
-  secrets.secretsDir = ./secrets;  # Point to your secrets folder
+  # Path is relative to the host config file
+  # If your secrets/ is at repo root: ../secrets
+  # If your secrets/ is in hosts/: ./secrets
+  secrets.secretsDir = ../secrets;
 };
+```
+
+**Directory structure example:**
+```
+my-nixos-config/
+├── flake.nix
+├── secrets/              # Secrets at repo root
+│   ├── test-secret.age
+│   └── secrets.nix
+└── hosts/
+    └── yourhost.nix      # Use ../secrets from here
 ```
 
 ### 2. Get Your Host's Public Key
@@ -25,10 +39,10 @@ sudo cat /etc/ssh/ssh_host_ed25519_key.pub
 
 ### 3. Create Your First Secret
 ```bash
-# Create secrets directory
+# Create secrets directory at repo root
 mkdir -p secrets
 
-# Encrypt a secret (replace with your host public key)
+# Encrypt a secret (replace with your host public key from step 2)
 echo "my-secret-password" | age -r "ssh-ed25519 AAAAC3Nza... root@yourhost" -o secrets/my-secret.age
 ```
 
