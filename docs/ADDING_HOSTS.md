@@ -80,7 +80,7 @@ my-nixos-config/
         diskConfigPath = ./hosts/desktop/disks.nix;
         
         extraConfig = {
-          time.timeZone = "America/New_York";
+          axios.system.timeZone = "America/New_York";
         };
       };
       
@@ -113,9 +113,9 @@ my-nixos-config/
         homeProfile = "laptop";
         userModulePath = userModule;
         diskConfigPath = ./hosts/laptop/disks.nix;
-        
+
         extraConfig = {
-          time.timeZone = "America/New_York";
+          axios.system.timeZone = "America/New_York";
           boot.lanzaboote.enableSecureBoot = true;
         };
       };
@@ -321,8 +321,7 @@ Define common settings once:
 ```nix
 let
   commonConfig = {
-    time.timeZone = "America/New_York";
-    i18n.defaultLocale = "en_US.UTF-8";
+    axios.system.timeZone = "America/New_York";
   };
   
   desktopConfig = {

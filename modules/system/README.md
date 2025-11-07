@@ -28,7 +28,7 @@ System packages are organized inline by category:
 
 ## Sub-modules
 
-- `local.nix`: Locale and timezone configuration
+- `locale.nix`: Timezone and locale configuration (axios.system.timeZone required)
 - `nix.nix`: Nix and Flakes configuration
 - `boot.nix`: Boot loader and kernel configuration
 - `memory.nix`: Memory management and OOM protection

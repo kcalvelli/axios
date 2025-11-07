@@ -29,11 +29,12 @@ echo -e "${GREEN}Welcome to axiOS!${NC}"
 echo "This tool will help you create a personalized NixOS configuration."
 echo ""
 
-# Detect hardware if running on NixOS
+# Detect hardware and system settings if running on NixOS
 DETECTED_CPU=""
 DETECTED_GPU=""
 DETECTED_LAPTOP=""
 DETECTED_SSD=""
+DETECTED_TIMEZONE=""
 
 if [ -f /etc/NIXOS ]; then
   echo -e "${BLUE}Detecting hardware...${NC}"
@@ -76,7 +77,15 @@ if [ -f /etc/NIXOS ]; then
     DETECTED_SSD="false"
     echo "  ✓ Detected HDD (no SSD)"
   fi
-  
+
+  # Detect timezone
+  if command -v timedatectl >/dev/null 2>&1; then
+    DETECTED_TIMEZONE=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "")
+    if [ -n "$DETECTED_TIMEZONE" ]; then
+      echo "  ✓ Detected timezone: $DETECTED_TIMEZONE"
+    fi
+  fi
+
   echo ""
 fi
 
@@ -161,6 +170,13 @@ HOSTNAME=$(prompt "Hostname" "$(hostname 2>/dev/null || echo nixos)")
 USERNAME=$(prompt "Username" "$(whoami 2>/dev/null || echo user)")
 FULLNAME=$(prompt "Full name" "$(getent passwd $(whoami 2>/dev/null || echo $USER) 2>/dev/null | cut -d: -f5 | cut -d, -f1 || echo "$USERNAME")")
 EMAIL=$(prompt "Email address")
+
+# Timezone prompt with detection
+if [ -n "$DETECTED_TIMEZONE" ]; then
+  TIMEZONE=$(prompt "Timezone" "$DETECTED_TIMEZONE")
+else
+  TIMEZONE=$(prompt "Timezone (e.g., America/New_York, Europe/London)" "America/New_York")
+fi
 
 echo ""
 echo -e "${BOLD}Hardware Configuration:${NC}"
@@ -283,6 +299,7 @@ echo -e "${GREEN}Configuration summary:${NC}"
 echo "  Hostname: $HOSTNAME"
 echo "  User: $USERNAME ($FULLNAME)"
 echo "  Email: $EMAIL"
+echo "  Timezone: $TIMEZONE"
 echo "  Form factor: $FORMFACTOR"
 echo "  CPU: $CPU, GPU: $GPU"
 echo "  SSD: $HAS_SSD"
@@ -367,6 +384,7 @@ for template in flake.nix user.nix README.md; do
         -e "s|{{USERNAME}}|${USERNAME}|g" \
         -e "s|{{FULLNAME}}|${FULLNAME}|g" \
         -e "s|{{EMAIL}}|${EMAIL}|g" \
+        -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
         -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
         -e "s|{{CPU}}|${CPU}|g" \
         -e "s|{{GPU}}|${GPU}|g" \
@@ -391,6 +409,7 @@ done
 if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
   sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
       -e "s|{{USERNAME}}|${USERNAME}|g" \
+      -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
       -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
       -e "s|{{CPU}}|${CPU}|g" \
       -e "s|{{GPU}}|${GPU}|g" \

@@ -2,7 +2,7 @@
 {
   # Import necessary modules
   imports = [
-    ./local.nix
+    ./locale.nix
     ./nix.nix
     ./boot.nix
     ./memory.nix

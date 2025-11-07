@@ -207,11 +207,13 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   
   # Optional: Additional configuration
   extraConfig = {
-    # Any NixOS configuration options
+    # System timezone (required)
+    axios.system.timeZone = "America/New_York";
+
+    # Any additional NixOS configuration options
     # Examples:
-    time.timeZone = "America/New_York";
     services.openssh.enable = true;
-    
+
     # For extending with custom services, import your own modules:
     imports = [ ./my-services.nix ];
   };
@@ -462,9 +464,9 @@ axios.lib.mkSystem {
   # ... standard config ...
   
   extraConfig = {
-    # Override time zone
-    time.timeZone = "America/New_York";
-    
+    # System timezone (required)
+    axios.system.timeZone = "America/New_York";
+
     # Add extra packages
     environment.systemPackages = with pkgs; [
       my-custom-package

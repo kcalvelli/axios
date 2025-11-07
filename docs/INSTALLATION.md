@@ -397,15 +397,15 @@ axios.lib.mkSystem {
   # ... your config ...
   
   extraConfig = {
-    # Override time zone
-    time.timeZone = "America/New_York";
-    
+    # System timezone (required)
+    axios.system.timeZone = "America/New_York";
+
     # Add extra packages
     environment.systemPackages = with pkgs; [
       htop
       neofetch
     ];
-    
+
     # Enable SSH
     services.openssh.enable = true;
   };
