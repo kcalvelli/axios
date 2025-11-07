@@ -106,8 +106,7 @@
       # or can be overridden in host configuration if needed
     };
 
-    # GNOME Keyring for credentials
-    services.gnome.gnome-keyring.enable = true;
+    # GNOME Keyring for credentials (PAM configuration)
     security.pam.services = {
       greetd.enableGnomeKeyring = true;
       login.enableGnomeKeyring = true;
