@@ -221,6 +221,42 @@ fi
 DESCRIPTION="NixOS configuration for ${HOSTNAME}"
 DATE=$(date +"%Y-%m-%d")
 
+# Detect available disks for disk configuration
+DETECTED_DISKS=()
+DISK_DEVICE="/dev/sda"  # Default fallback
+
+if [ -f /etc/NIXOS ]; then
+  echo ""
+  echo -e "${BLUE}Detecting available disks...${NC}"
+  
+  # Get list of block devices (exclude loop, cd, etc)
+  while IFS= read -r disk; do
+    DETECTED_DISKS+=("$disk")
+    size=$(lsblk -dno SIZE "/dev/$disk" 2>/dev/null || echo "unknown")
+    echo "  • /dev/$disk ($size)"
+  done < <(lsblk -dno NAME -e 7,11 | grep -v '^loop\|^sr')
+  
+  if [ ${#DETECTED_DISKS[@]} -gt 0 ]; then
+    echo ""
+    echo -e "${YELLOW}Which disk should be used for installation?${NC}"
+    echo -e "${RED}WARNING: This disk will be completely erased!${NC}"
+    
+    # Build options array with full paths
+    DISK_OPTIONS=()
+    for disk in "${DETECTED_DISKS[@]}"; do
+      size=$(lsblk -dno SIZE "/dev/$disk" 2>/dev/null || echo "unknown")
+      DISK_OPTIONS+=("/dev/$disk ($size)")
+    done
+    
+    # Let user choose
+    selected=$(prompt_choice "Select installation disk:" "${DISK_OPTIONS[0]}" "${DISK_OPTIONS[@]}")
+    # Extract just the device path (before the space/paren)
+    DISK_DEVICE=$(echo "$selected" | cut -d' ' -f1)
+    
+    echo -e "${GREEN}Selected: $DISK_DEVICE${NC}"
+  fi
+fi
+
 # Conditional secrets config for host template (single line for sed)
 if [ "$ENABLE_SECRETS" = "true" ]; then
   SECRETS_CONFIG="      # Configure secrets directory for automatic discovery\\n      secrets.secretsDir = ../secrets;"
@@ -364,6 +400,8 @@ fi
 # Generate disks.nix in host subdirectory
 if [ -f "${TEMPLATE_DIR}/disks.nix.template" ]; then
   sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
+      -e "s|{{DATE}}|${DATE}|g" \
+      -e "s|{{DISK_DEVICE}}|${DISK_DEVICE}|g" \
       "${TEMPLATE_DIR}/disks.nix.template" > "hosts/${HOSTNAME}/disks.nix"
   echo "  ✓ hosts/${HOSTNAME}/disks.nix"
 fi
@@ -379,9 +417,15 @@ echo -e "${GREEN}${BOLD}✓ Configuration generated successfully!${NC}"
 echo ""
 echo -e "${BOLD}Next steps:${NC}"
 echo ""
-echo -e "  ${YELLOW}1. Review disk configuration:${NC}"
-echo "     Edit hosts/${HOSTNAME}/disks.nix and change /dev/sda to your disk device"
-echo "     Use 'lsblk' to find your disk"
+if [ -f /etc/NIXOS ]; then
+  echo -e "  ${YELLOW}1. Review configuration:${NC}"
+  echo "     Check hosts/${HOSTNAME}.nix for any customizations"
+  echo "     Disk: ${DISK_DEVICE} (auto-detected)"
+else
+  echo -e "  ${YELLOW}1. Review disk configuration:${NC}"
+  echo "     Edit hosts/${HOSTNAME}/disks.nix and change ${DISK_DEVICE} to your disk device"
+  echo "     Use 'lsblk' to find your disk"
+fi
 echo ""
 echo -e "  ${YELLOW}2. Review host configuration:${NC}"
 echo "     Edit hosts/${HOSTNAME}.nix to customize settings"
