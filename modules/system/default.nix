@@ -63,7 +63,4 @@
   documentation.nixos.enable = false;
   documentation.dev.enable = false;
   programs.command-not-found.enable = false;
-
-
-
 }

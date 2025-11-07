@@ -31,6 +31,15 @@ in
     })
 
     (lib.mkIf cfg.libvirt.enable {
+      # === Virtualization Packages ===
+      environment.systemPackages = with pkgs; [
+        virt-manager
+        virt-viewer
+        qemu
+        quickemu
+        quickgui
+      ];
+
       # Enable libvirt for VM management
       virtualisation.libvirtd = {
         enable = true;
@@ -40,15 +49,6 @@ in
           swtpm.enable = true;
         };
       };
-
-      # === Virtualization Packages ===
-      environment.systemPackages = with pkgs; [
-        virt-manager
-        virt-viewer
-        qemu
-        quickemu
-        quickgui
-      ];
 
       # Allow redirection of USB devices
       virtualisation.spiceUSBRedirection.enable = true;

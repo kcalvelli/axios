@@ -3,18 +3,18 @@
   # This explicit list serves as API documentation for library consumers
   flake.nixosModules = {
     system = ./system;
-    desktop = ./desktop.nix;
-    development = ./development.nix;
+    desktop = ./desktop;
+    development = ./development;
     hardware = ./hardware;
-    graphics = ./graphics.nix;
+    graphics = ./graphics;
     networking = ./networking;
     users = ./users.nix;
-    virt = ./virtualisation.nix;
+    virt = ./virtualisation;
     desktopHardware = ./hardware/desktop.nix;
     laptopHardware = ./hardware/laptop.nix;
-    gaming = ./gaming.nix;
+    gaming = ./gaming;
     ai = ./ai;
-    wayland = ./wayland.nix;
+    wayland = ./wayland;
     secrets = ./secrets;
   };
 }

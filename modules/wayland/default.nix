@@ -9,6 +9,17 @@
 
   # Configure wayland if enabled
   config = lib.mkIf config.wayland.enable {
+    # === Wayland Packages ===
+    environment.systemPackages = with pkgs; [
+      # System desktop applications
+      mate.mate-polkit
+      wayvnc
+      xwayland-satellite
+
+      # File manager
+      nautilus
+    ];
+
     # === Wayland Environment Variables ===
     environment.sessionVariables = {
       NIXOS_OZONE_WL = "1";
@@ -54,17 +65,6 @@
       accounts-daemon.enable = true;
       gvfs.enable = true;
     };
-
-    # === Wayland Packages ===
-    environment.systemPackages = with pkgs; [
-      # System desktop applications
-      mate.mate-polkit
-      wayvnc
-      xwayland-satellite
-
-      # File manager
-      nautilus
-    ];
 
     # Enable some homeManager stuff
     home-manager.sharedModules = with homeModules; [

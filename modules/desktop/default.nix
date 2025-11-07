@@ -1,11 +1,56 @@
-{ pkgs, lib, config, ... }:
+{ lib, pkgs, config, ... }:
 {
-  # Desktop applications - installed system-wide
-  # These packages are available to all users and managed at the system level.
-  # User-specific packages and tools remain in home-manager configuration.
-  # Only installed when desktop.enable = true
+  imports = [
+    ../wayland
+  ];
+
+  options.desktop = {
+    enable = lib.mkEnableOption "Desktop environment with applications and services";
+  };
 
   config = lib.mkIf config.desktop.enable {
+    wayland.enable = true;
+
+    # === Desktop Services ===
+    # Services needed by all WMs/DEs
+    services = {
+      udisks2.enable = true;
+      system76-scheduler.enable = true;
+      flatpak.enable = true;
+      fwupd.enable = true;
+      upower.enable = true;
+      libinput.enable = true;
+      acpid.enable = true;
+      power-profiles-daemon.enable = lib.mkDefault (
+        !config.hardware.system76.power-daemon.enable
+      );
+    };
+
+    # === Desktop Programs ===
+    programs = {
+      corectrl.enable = true;
+      kdeconnect.enable = true;
+      localsend = {
+        enable = true;
+        openFirewall = true;
+      };
+    };
+
+    # === XDG Portal Configuration ===
+    xdg = {
+      mime.enable = true;
+      icons.enable = true;
+      portal = {
+        enable = true;
+        extraPortals = [
+          pkgs.xdg-desktop-portal-gnome
+          pkgs.xdg-desktop-portal-gtk
+        ];
+        config.common.default = [ "gnome" "gtk" ];
+      };
+    };
+
+    # === Desktop Applications ===
     environment.systemPackages = with pkgs; [
       # === Productivity Applications ===
       obsidian # Note-taking and knowledge management
@@ -71,6 +116,12 @@
 
       # === PWA apps for all users ===
       pwa-apps
+
+      # === VPN ===
+      protonvpn-gui
+
+      # === Streaming ===
+      obs-studio
     ];
   };
 }
