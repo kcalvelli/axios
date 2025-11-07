@@ -109,6 +109,34 @@ extraConfig = {
 
 See [NixOS Options](https://search.nixos.org/options) for available options.
 
+### Enabling Secure Boot
+
+axiOS supports secure boot via [Lanzaboote](https://github.com/nix-community/lanzaboote).
+
+**To enable secure boot:**
+
+1. Add to `hosts/{{HOSTNAME}}.nix` in `extraConfig`:
+   ```nix
+   extraConfig = {
+     boot.lanzaboote.enable = true;
+   };
+   ```
+
+2. Rebuild and install Lanzaboote:
+   ```bash
+   sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+   ```
+
+3. Enroll keys in UEFI (first time only):
+   - Reboot into UEFI/BIOS setup
+   - Clear existing secure boot keys (enter "Setup Mode")
+   - Reboot into NixOS
+   - Lanzaboote will auto-enroll its keys
+
+4. Enable secure boot in UEFI and reboot
+
+See the [Lanzaboote documentation](https://github.com/nix-community/lanzaboote/blob/master/docs/QUICK_START.md) for details.
+
 ### User Configuration
 
 The `axios.user` module in `user.nix` automatically handles:
