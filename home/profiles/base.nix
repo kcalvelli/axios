@@ -12,7 +12,7 @@
   # User-specific packages remain in individual home-manager modules:
   # - ai/mcp.nix: Development tools, AI clients
   # - calendar.nix: Calendar sync tools
-  # - wayland/theming.nix: GTK/Qt theming and Material Code integration
+  # - desktop/theming.nix: GTK/Qt theming and Material Code integration
 
   imports = [
     ./defaults.nix # Sensible defaults for home-manager
