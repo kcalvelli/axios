@@ -53,14 +53,30 @@ sudo nixos-install --flake .#{{HOSTNAME}}
 ```
 
 **If updating an existing system:**
+
+axiOS provides convenient fish functions for rebuilding:
+
+```bash
+rebuild-switch    # Rebuild and switch to new configuration
+rebuild-boot      # Rebuild and activate on next boot
+rebuild-test      # Test new configuration (doesn't make it default)
+```
+
+Or use the full command:
 ```bash
 sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
 ```
 
 ## Updating
 
-To get the latest packages and axiOS features:
+To update packages and axiOS:
 
+```bash
+update-flake      # Update all flake inputs
+rebuild-switch    # Apply updates
+```
+
+Or manually:
 ```bash
 # Update all flake inputs (including axios)
 nix flake update
@@ -69,8 +85,20 @@ nix flake update
 nix flake lock --update-input axios
 
 # Apply updates
-sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+rebuild-switch
 ```
+
+## Useful Fish Functions
+
+axiOS provides these convenience functions in fish shell:
+
+- `rebuild-switch` - Rebuild and switch to new configuration
+- `rebuild-boot` - Rebuild and activate on next boot  
+- `rebuild-test` - Test new configuration without making it default
+- `update-flake` - Update all flake inputs
+- `flake-cd` - Navigate to your flake directory
+
+These automatically use your FLAKE_PATH (defaults to `~/.config/nixos_config`).
 
 ## Customization
 
@@ -124,7 +152,7 @@ axiOS supports secure boot via [Lanzaboote](https://github.com/nix-community/lan
 
 2. Rebuild and install Lanzaboote:
    ```bash
-   sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+   rebuild-switch
    ```
 
 3. Enroll keys in UEFI (first time only):
@@ -167,7 +195,7 @@ If you enabled the secrets module, you can add encrypted secrets using age.
 
 4. Rebuild:
    ```bash
-   sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+   rebuild-switch
    ```
 
 5. Secret will be available at `/run/agenix/my-secret`
