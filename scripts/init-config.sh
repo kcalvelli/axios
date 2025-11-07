@@ -29,6 +29,51 @@ echo -e "${GREEN}Welcome to axiOS!${NC}"
 echo "This tool will help you create a personalized NixOS configuration."
 echo ""
 
+# Detect hardware if running on NixOS
+DETECTED_CPU=""
+DETECTED_GPU=""
+DETECTED_LAPTOP=""
+DETECTED_SSD=""
+
+if [ -f /etc/NIXOS ]; then
+  echo -e "${BLUE}Detecting hardware...${NC}"
+  
+  # Detect CPU vendor
+  if grep -q "GenuineIntel" /proc/cpuinfo 2>/dev/null; then
+    DETECTED_CPU="intel"
+    echo "  ✓ Detected Intel CPU"
+  elif grep -q "AuthenticAMD" /proc/cpuinfo 2>/dev/null; then
+    DETECTED_CPU="amd"
+    echo "  ✓ Detected AMD CPU"
+  fi
+  
+  # Detect GPU vendor
+  if lspci 2>/dev/null | grep -i vga | grep -qi nvidia; then
+    DETECTED_GPU="nvidia"
+    echo "  ✓ Detected NVIDIA GPU"
+  elif lspci 2>/dev/null | grep -i vga | grep -qi amd; then
+    DETECTED_GPU="amd"
+    echo "  ✓ Detected AMD GPU"
+  elif lspci 2>/dev/null | grep -i vga | grep -qi intel; then
+    DETECTED_GPU="intel"
+    echo "  ✓ Detected Intel GPU"
+  fi
+  
+  # Detect if laptop (check for battery)
+  if [ -d /sys/class/power_supply/BAT* ] 2>/dev/null || [ -d /sys/class/power_supply/battery ] 2>/dev/null; then
+    DETECTED_LAPTOP="true"
+    echo "  ✓ Detected laptop (battery found)"
+  fi
+  
+  # Detect SSD (check if any disk has rotation rate of 0)
+  if lsblk -d -o name,rota 2>/dev/null | grep -q "0$"; then
+    DETECTED_SSD="true"
+    echo "  ✓ Detected SSD"
+  fi
+  
+  echo ""
+fi
+
 # Helper function to prompt for input
 prompt() {
   local prompt_text="$1"
@@ -113,13 +158,38 @@ EMAIL=$(prompt "Email address")
 
 echo ""
 echo -e "${BOLD}Hardware Configuration:${NC}"
-FORMFACTOR=$(prompt_choice "Form factor?" "desktop" "desktop" "laptop")
-CPU=$(prompt_choice "CPU vendor?" "amd" "amd" "intel")
-GPU=$(prompt_choice "GPU vendor?" "amd" "amd" "nvidia" "intel")
+
+# Form factor
+if [ "$DETECTED_LAPTOP" = "true" ]; then
+  FORMFACTOR=$(prompt_choice "Form factor?" "laptop" "desktop" "laptop")
+else
+  FORMFACTOR=$(prompt_choice "Form factor?" "desktop" "desktop" "laptop")
+fi
+
+# CPU
+if [ -n "$DETECTED_CPU" ]; then
+  CPU=$(prompt_choice "CPU vendor?" "$DETECTED_CPU" "amd" "intel")
+else
+  CPU=$(prompt_choice "CPU vendor?" "amd" "amd" "intel")
+fi
+
+# GPU
+if [ -n "$DETECTED_GPU" ]; then
+  GPU=$(prompt_choice "GPU vendor?" "$DETECTED_GPU" "amd" "nvidia" "intel")
+else
+  GPU=$(prompt_choice "GPU vendor?" "amd" "amd" "nvidia" "intel")
+fi
 
 echo ""
 echo -e "${BOLD}Optional Features:${NC}"
-HAS_SSD=$(prompt_bool "Do you have an SSD?" "y")
+
+# SSD detection
+if [ -n "$DETECTED_SSD" ]; then
+  HAS_SSD=$(prompt_bool "Do you have an SSD?" "$([[ "$DETECTED_SSD" = "true" ]] && echo y || echo n)")
+else
+  HAS_SSD=$(prompt_bool "Do you have an SSD?" "y")
+fi
+
 ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
 ENABLE_AI=$(prompt_bool "Enable AI services (Ollama, OpenWebUI, Claude CLI)?" "n")
 ENABLE_SECRETS=$(prompt_bool "Enable secrets management (age-encrypted secrets)?" "n")
