@@ -69,7 +69,9 @@ sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
 
 ## Updating
 
-To update packages and axiOS:
+### Updating Packages and System
+
+To update all packages to their latest versions:
 
 ```bash
 update-flake      # Update all flake inputs
@@ -78,14 +80,34 @@ rebuild-switch    # Apply updates
 
 Or manually:
 ```bash
-# Update all flake inputs (including axios)
 nix flake update
-
-# Or update just axios
-nix flake lock --update-input axios
-
-# Apply updates
 rebuild-switch
+```
+
+### Updating axiOS Framework
+
+To update to the latest version of axios:
+
+```bash
+# Update only axios (keeps other inputs at current versions)
+nix flake lock --update-input axios
+rebuild-switch
+```
+
+Or update everything at once:
+```bash
+update-flake      # Updates axios + all other inputs
+rebuild-switch
+```
+
+**Check for breaking changes:**
+- Review [axios releases](https://github.com/kcalvelli/axios/releases) before updating
+- Check release notes for any required configuration changes
+- Test updates with `rebuild-test` before committing
+
+**Rollback if needed:**
+```bash
+sudo nixos-rebuild switch --rollback
 ```
 
 ## Useful Fish Functions
