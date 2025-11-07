@@ -8,7 +8,6 @@
     hardware = ./hardware;
     graphics = ./graphics.nix;
     networking = ./networking;
-    services = ./services;
     users = ./users.nix;
     virt = ./virtualisation.nix;
     desktopHardware = ./hardware/desktop.nix;

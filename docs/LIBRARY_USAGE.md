@@ -208,14 +208,12 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   # Optional: Additional configuration
   extraConfig = {
     # Any NixOS configuration options
-  };
-  
-  # Optional: Service configurations (if modules.services = true)
-  services = {
-    hass.enable = bool;         # Home Assistant
-    ntop.enable = bool;         # Network monitoring
-    mqtt.enable = bool;         # MQTT broker
-    # ... other services
+    # Examples:
+    time.timeZone = "America/New_York";
+    services.openssh.enable = true;
+    
+    # For extending with custom services, import your own modules:
+    imports = [ ./my-services.nix ];
   };
   
   # Optional: Virtualization config (if modules.virt = true)
@@ -317,11 +315,11 @@ Enable only the modules you need:
 - Gamescope
 - Gaming utilities
 
-**Services:**
-- Caddy reverse proxy
-- Home Assistant
-- MQTT broker
-- Other system services
+**AI Services:**
+- Ollama (local LLM server)
+- OpenWebUI (web interface)
+- Claude CLI with MCP servers
+- AI development tools
 
 ### Home Manager Profiles
 

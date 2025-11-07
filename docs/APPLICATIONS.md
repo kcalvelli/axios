@@ -353,15 +353,16 @@ When `graphics` module is enabled:
 
 ---
 
-## Network Services (Optional)
+## AI Services (Optional)
 
-When `services` module is enabled, additional services are available:
+Enable with `modules.ai = true`
 
-- **Caddy** - Web server with automatic HTTPS
-- **Home Assistant** - Home automation platform
-- **MQTT** - Message broker for IoT
-- **ntopng** - Network traffic monitoring
-- **OpenWebUI** - Web interface for LLMs
+- **Ollama** - Run large language models locally
+- **OpenWebUI** - Beautiful web interface for Ollama (via Tailscale)
+- **Claude CLI** - Official Anthropic CLI with MCP server support
+- **GitHub Copilot CLI** - AI-powered command suggestions
+
+Includes pre-configured MCP servers: filesystem, nixos, journal, sequential-thinking, context7
 
 ---
 

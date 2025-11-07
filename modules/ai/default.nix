@@ -8,6 +8,7 @@ let
 in
 {
   imports = [
+    ./caddy.nix
     ./ollama.nix
     ./packages.nix
   ];

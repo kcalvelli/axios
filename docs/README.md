@@ -11,7 +11,6 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | **See what's included** in axiOS |
 | [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
 | [USER_MODULE.md](USER_MODULE.md) | User configuration guide | Understanding user setup |
-| [ENABLING_SERVICES.md](ENABLING_SERVICES.md) | Enable optional services | Includes service port reference |
 | [SECRETS_MODULE.md](SECRETS_MODULE.md) | Managing encrypted secrets | Using age-encrypted secrets |
 | [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) | Desktop customization | Customizing Niri compositor |
 | [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
@@ -46,7 +45,7 @@ Or follow the manual installation guide:
 
 - **Update system**: `cd ~/my-nixos-config && nix flake update && sudo nixos-rebuild switch --flake .#HOSTNAME`
 - **Add new machine**: See [ADDING_HOSTS.md](ADDING_HOSTS.md)
-- **Enable services**: See [ENABLING_SERVICES.md](ENABLING_SERVICES.md)
+- **Enable AI**: Set `modules.ai = true` in host config
 
 ## Installation & Setup
 
@@ -101,18 +100,6 @@ Includes:
 - Troubleshooting desktop issues
 
 **For desktop users wanting to customize their Niri experience.**
-
-### 🔧 [ENABLING_SERVICES.md](ENABLING_SERVICES.md)
-**Enable and configure optional services**
-
-Covers:
-- AI services (OpenWebUI, Ollama, Claude CLI)
-- Home Assistant integration
-- Network monitoring (ntopng)
-- MQTT broker
-- Service port reference table
-
-**For users wanting to enable optional services beyond the base system.**
 
 ## Common Tasks
 

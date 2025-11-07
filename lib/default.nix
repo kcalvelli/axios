@@ -230,7 +230,6 @@ let
         lib.optional (hostCfg.modules.system or true) system
         ++ lib.optional (hostCfg.modules.desktop or false) desktop
         ++ lib.optional (hostCfg.modules.development or false) development
-        ++ lib.optional (hostCfg.modules.services or false) services
         ++ lib.optional (hostCfg.modules.graphics or false) graphics
         ++ lib.optional (hostCfg.modules.networking or true) networking
         ++ lib.optional (hostCfg.modules.users or true) users
@@ -268,10 +267,6 @@ let
             # Add virt config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.virt or false) && (hostCfg ? virt)) {
               virt = hostCfg.virt;
-            })
-            # Add services config only if module is enabled and config exists  
-            (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? services)) {
-              services = hostCfg.services;
             })
             # Enable AI module if specified
             (lib.optionalAttrs (hostCfg.modules.ai or false) {

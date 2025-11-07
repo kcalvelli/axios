@@ -209,7 +209,6 @@ ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
 ENABLE_AI=$(prompt_bool "Enable AI services (Ollama, OpenWebUI, Claude CLI)?" "n")
 ENABLE_SECRETS=$(prompt_bool "Enable secrets management (age-encrypted secrets)?" "n")
 ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
-ENABLE_SERVICES=$(prompt_bool "Enable system services (Caddy, Home Assistant, etc)?" "n")
 
 # Virtualization sub-options
 if [ "$ENABLE_VIRT" = "true" ]; then
@@ -295,7 +294,6 @@ if [ "$ENABLE_VIRT" = "true" ]; then
   echo "    - libvirt: $ENABLE_LIBVIRT"
   echo "    - containers: $ENABLE_CONTAINERS"
 fi
-echo "  Services: $ENABLE_SERVICES"
 echo ""
 echo -ne "${BLUE}Generate configuration in current directory?${NC} [Y/n]: " >&2
 read confirm
@@ -381,7 +379,6 @@ for template in flake.nix user.nix README.md; do
         -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
         -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
         -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
-        -e "s|{{ENABLE_SERVICES}}|${ENABLE_SERVICES}|g" \
         -e "s|{{DESCRIPTION}}|${DESCRIPTION}|g" \
         -e "s|{{DATE}}|${DATE}|g" \
         -e "s|{{HAS_SSD_TEXT}}|${HAS_SSD_TEXT}|g" \
@@ -406,7 +403,6 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
       -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
       -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
       -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
-      -e "s|{{ENABLE_SERVICES}}|${ENABLE_SERVICES}|g" \
       "${TEMPLATE_DIR}/host.nix.template" | \
       sed "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" > "hosts/${HOSTNAME}.nix"
   echo "  ✓ hosts/${HOSTNAME}.nix"

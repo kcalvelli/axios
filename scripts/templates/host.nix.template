@@ -22,7 +22,6 @@
       system = true;
       desktop = true;
       development = true;
-      services = {{ENABLE_SERVICES}};
       graphics = true;
       networking = true;
       users = true;

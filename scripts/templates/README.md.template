@@ -253,7 +253,26 @@ Check `hosts/{{HOSTNAME}}.nix` to see which modules are enabled:
 - `graphics` - GPU drivers and hardware acceleration
 - `networking` - Network configuration (including Tailscale)
 - `users` - User management
-- And optional: `gaming`, `virt`, `services`, `ai`, `secrets`
+- And optional: `gaming`, `virt`, `ai`, `secrets`
+
+## Extending Your Configuration
+
+axiOS is a **desktop system framework**. For additional services (web servers, databases, IoT platforms), add them in your `extraConfig`:
+
+\`\`\`nix
+extraConfig = {
+  # Import your own modules
+  imports = [ ./my-services.nix ];
+  
+  # Or configure services directly
+  services.postgresql.enable = true;
+  services.nginx.virtualHosts."example.com" = { ... };
+};
+\`\`\`
+
+See [NixOS Options](https://search.nixos.org/options) for available services.
+
+**Note:** axiOS provides desktop tools and development environment. Server services are outside the scope of this framework.
 
 ## Documentation
 
