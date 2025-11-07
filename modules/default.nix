@@ -16,5 +16,6 @@
     gaming = ./gaming.nix;
     ai = ./ai;
     wayland = ./wayland.nix;
+    secrets = ./secrets;
   };
 }

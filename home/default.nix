@@ -8,6 +8,7 @@
       workstation = ./workstation.nix;
       laptop = ./laptop.nix;
       ai = ./ai;
+      secrets = ./secrets;
     };
   };
 }

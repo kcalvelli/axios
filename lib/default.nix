@@ -237,6 +237,7 @@ let
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or false) ai
+        ++ lib.optional (hostCfg.modules.secrets or false) secrets
         # Hardware modules based on form factor and vendor
         ++ lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
         ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
@@ -288,6 +289,14 @@ let
             (lib.optionalAttrs (hostCfg.modules.gaming or false) {
               gaming.enable = true;
             })
+            # Enable secrets module if specified
+            (lib.optionalAttrs (hostCfg.modules.secrets or false) {
+              secrets.enable = true;
+            })
+            # Add secrets config only if module is enabled and config exists
+            (lib.optionalAttrs ((hostCfg.modules.secrets or false) && (hostCfg ? secrets)) {
+              secrets = hostCfg.secrets;
+            })
             # Enable desktop hardware module if vendor is msi
             (lib.optionalAttrs (hwVendor == "msi") {
               hardware.desktop = {
@@ -310,9 +319,10 @@ let
             networking.hostName = hostCfg.hostname;
 
             home-manager.sharedModules =
-              if profile == "workstation" then [ self.homeModules.workstation ]
+              (if profile == "workstation" then [ self.homeModules.workstation ]
               else if profile == "laptop" then [ self.homeModules.laptop ]
-              else [ ];
+              else [ ])
+              ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets;
           }
           dynamicConfig
         ];
