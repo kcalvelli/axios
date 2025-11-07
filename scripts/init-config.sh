@@ -124,6 +124,16 @@ ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
 ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
 ENABLE_SERVICES=$(prompt_bool "Enable system services (Caddy, Home Assistant, etc)?" "n")
 
+# Virtualization sub-options
+if [ "$ENABLE_VIRT" = "true" ]; then
+  echo -e "${BLUE}  Which virtualization features?${NC}"
+  ENABLE_LIBVIRT=$(prompt_bool "  Enable libvirt/KVM (virt-manager)?" "y")
+  ENABLE_CONTAINERS=$(prompt_bool "  Enable containers (Podman)?" "y")
+else
+  ENABLE_LIBVIRT="false"
+  ENABLE_CONTAINERS="false"
+fi
+
 # Derived values
 IS_LAPTOP=$([ "$FORMFACTOR" = "laptop" ] && echo "true" || echo "false")
 HOME_PROFILE="$FORMFACTOR"  # "desktop" becomes "workstation", but we'll use the formfactor
@@ -174,8 +184,12 @@ fi
 echo ""
 echo -e "${GREEN}Generating configuration files...${NC}"
 
+# Create directory structure
+mkdir -p "hosts/${HOSTNAME}"
+echo "  ✓ hosts/${HOSTNAME}/"
+
 # Generate files from templates
-for template in flake.nix user.nix disks.nix README.md; do
+for template in flake.nix user.nix README.md; do
   if [ -f "${TEMPLATE_DIR}/${template}.template" ]; then
     sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
         -e "s|{{USERNAME}}|${USERNAME}|g" \
@@ -189,6 +203,8 @@ for template in flake.nix user.nix disks.nix README.md; do
         -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
         -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
         -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
+        -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
+        -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
         -e "s|{{ENABLE_SERVICES}}|${ENABLE_SERVICES}|g" \
         -e "s|{{DESCRIPTION}}|${DESCRIPTION}|g" \
         -e "s|{{DATE}}|${DATE}|g" \
@@ -197,6 +213,32 @@ for template in flake.nix user.nix disks.nix README.md; do
     echo "  ✓ ${template}"
   fi
 done
+
+# Generate host config file
+if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
+  sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
+      -e "s|{{USERNAME}}|${USERNAME}|g" \
+      -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
+      -e "s|{{CPU}}|${CPU}|g" \
+      -e "s|{{GPU}}|${GPU}|g" \
+      -e "s|{{HAS_SSD}}|${HAS_SSD}|g" \
+      -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
+      -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
+      -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
+      -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
+      -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
+      -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
+      -e "s|{{ENABLE_SERVICES}}|${ENABLE_SERVICES}|g" \
+      "${TEMPLATE_DIR}/host.nix.template" > "hosts/${HOSTNAME}.nix"
+  echo "  ✓ hosts/${HOSTNAME}.nix"
+fi
+
+# Generate disks.nix in host subdirectory
+if [ -f "${TEMPLATE_DIR}/disks.nix.template" ]; then
+  sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
+      "${TEMPLATE_DIR}/disks.nix.template" > "hosts/${HOSTNAME}/disks.nix"
+  echo "  ✓ hosts/${HOSTNAME}/disks.nix"
+fi
 
 # Create .gitignore
 if [ -f "${TEMPLATE_DIR}/gitignore.template" ]; then
@@ -210,15 +252,19 @@ echo ""
 echo -e "${BOLD}Next steps:${NC}"
 echo ""
 echo -e "  ${YELLOW}1. Review disk configuration:${NC}"
-echo "     Edit disks.nix and change /dev/sda to your disk device"
+echo "     Edit hosts/${HOSTNAME}/disks.nix and change /dev/sda to your disk device"
 echo "     Use 'lsblk' to find your disk"
 echo ""
-echo -e "  ${YELLOW}2. Initialize git repository:${NC}"
+echo -e "  ${YELLOW}2. Review host configuration:${NC}"
+echo "     Edit hosts/${HOSTNAME}.nix to customize settings"
+echo "     See extraConfig section for additional options"
+echo ""
+echo -e "  ${YELLOW}3. Initialize git repository:${NC}"
 echo "     git init"
 echo "     git add ."
 echo "     git commit -m 'Initial axiOS configuration'"
 echo ""
-echo -e "  ${YELLOW}3. Install or rebuild:${NC}"
+echo -e "  ${YELLOW}4. Install or rebuild:${NC}"
 echo "     # For fresh installation:"
 echo "     sudo nixos-install --flake .#${HOSTNAME}"
 echo ""

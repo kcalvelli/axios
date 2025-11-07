@@ -2,49 +2,27 @@
   description = "{{DESCRIPTION}}";
 
   inputs = {
+    # Use axios as the base framework
     axios.url = "github:kcalvelli/axios";
+    
+    # Follow axios's nixpkgs to ensure compatibility
     nixpkgs.follows = "axios/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }: {
-    nixosConfigurations.{{HOSTNAME}} = axios.lib.mkSystem {
-      hostname = "{{HOSTNAME}}";
-      system = "x86_64-linux";
-      formFactor = "{{FORMFACTOR}}";
+  outputs = { self, axios, nixpkgs, ... }:
+    let
+      # User module path
+      userModule = self.outPath + "/user.nix";
       
-      hardware = {
-        cpu = "{{CPU}}";
-        gpu = "{{GPU}}";
-        hasSSD = {{HAS_SSD}};
-        isLaptop = {{IS_LAPTOP}};
-        # vendor = "msi";      # Optional: Only for MSI motherboards (enables sensor support)
-        # vendor = "system76"; # Optional: Only for System76 laptops (enables firmware/power daemons)
-      };
-      
-      modules = {
-        system = true;
-        desktop = true;
-        development = true;
-        graphics = true;
-        networking = true;
-        users = true;
-        services = {{ENABLE_SERVICES}};
-        virt = {{ENABLE_VIRT}};
-        gaming = {{ENABLE_GAMING}};
-        ai = false;      # Enable for Ollama + OpenWebUI + Claude CLI
-        secrets = false; # Enable for age-encrypted secrets management
-      };
-      
-      homeProfile = "{{HOME_PROFILE}}";
-      userModulePath = self.outPath + "/user.nix";
-      diskConfigPath = ./disks.nix;
-      
-      extraConfig = {
-        # Add any additional NixOS configuration here
-        # Examples:
-        # time.timeZone = "America/New_York";
-        # services.openssh.enable = true;
+      # Load host configuration
+      hostCfg = (import ./hosts/{{HOSTNAME}}.nix {
+        lib = nixpkgs.lib;
+        userModulePath = userModule;
+      }).hostConfig;
+    in
+    {
+      nixosConfigurations = {
+        {{HOSTNAME}} = axios.lib.mkSystem hostCfg;
       };
     };
-  };
 }

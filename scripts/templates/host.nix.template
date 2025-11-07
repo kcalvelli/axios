@@ -1,0 +1,58 @@
+# Host: {{HOSTNAME}} ({{FORMFACTOR}})
+{ lib, userModulePath, ... }:
+{
+  hostConfig = {
+    # Basic identification
+    hostname = "{{HOSTNAME}}";
+    system = "x86_64-linux";
+    formFactor = "{{FORMFACTOR}}"; # desktop, laptop, or server
+    
+    # Hardware configuration
+    hardware = {
+      # vendor = "msi";      # Optional: Only for MSI motherboards
+      # vendor = "system76"; # Optional: Only for System76 laptops
+      cpu = "{{CPU}}";    # For nixos-hardware modules
+      gpu = "{{GPU}}";    # For nixos-hardware modules
+      hasSSD = {{HAS_SSD}};  # For nixos-hardware SSD optimizations
+      isLaptop = {{IS_LAPTOP}};
+    };
+    
+    # NixOS modules to enable
+    modules = {
+      system = true;
+      desktop = true;
+      development = true;
+      services = {{ENABLE_SERVICES}};
+      graphics = true;
+      networking = true;
+      users = true;
+      virt = {{ENABLE_VIRT}};
+      gaming = {{ENABLE_GAMING}};
+      ai = false;      # Enable for Ollama + OpenWebUI + Claude CLI
+      secrets = false; # Enable for age-encrypted secrets management
+    };
+    
+    # Virtualization (if virt module enabled)
+    virt = {
+      libvirt.enable = {{ENABLE_LIBVIRT}};
+      containers.enable = {{ENABLE_CONTAINERS}};
+    };
+    
+    # Home-manager profile (from home/profiles/)
+    homeProfile = "{{HOME_PROFILE}}";
+    
+    # User module path
+    userModulePath = userModulePath;
+    
+    # Optional: Extra NixOS configuration
+    extraConfig = {
+      # Add any additional NixOS configuration here
+      # Examples:
+      # time.timeZone = "America/New_York";
+      # services.openssh.enable = true;
+    };
+    
+    # Disk configuration path
+    diskConfigPath = ./{{HOSTNAME}}/disks.nix;
+  };
+}
