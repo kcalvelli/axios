@@ -76,6 +76,6 @@ in
 
     # Install agenix CLI and age package
     environment.systemPackages = [ pkgs.age ]
-      ++ lib.optional cfg.installCLI inputs.agenix.packages.${pkgs.system}.default;
+      ++ lib.optional cfg.installCLI inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 }
