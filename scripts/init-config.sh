@@ -121,6 +121,8 @@ echo ""
 echo -e "${BOLD}Optional Features:${NC}"
 HAS_SSD=$(prompt_bool "Do you have an SSD?" "y")
 ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
+ENABLE_AI=$(prompt_bool "Enable AI services (Ollama, OpenWebUI, Claude CLI)?" "n")
+ENABLE_SECRETS=$(prompt_bool "Enable secrets management (age-encrypted secrets)?" "n")
 ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
 ENABLE_SERVICES=$(prompt_bool "Enable system services (Caddy, Home Assistant, etc)?" "n")
 
@@ -158,7 +160,13 @@ echo "  Form factor: $FORMFACTOR"
 echo "  CPU: $CPU, GPU: $GPU"
 echo "  SSD: $HAS_SSD"
 echo "  Gaming: $ENABLE_GAMING"
+echo "  AI Services: $ENABLE_AI"
+echo "  Secrets: $ENABLE_SECRETS"
 echo "  Virtualization: $ENABLE_VIRT"
+if [ "$ENABLE_VIRT" = "true" ]; then
+  echo "    - libvirt: $ENABLE_LIBVIRT"
+  echo "    - containers: $ENABLE_CONTAINERS"
+fi
 echo "  Services: $ENABLE_SERVICES"
 echo ""
 echo -ne "${BLUE}Generate configuration in current directory?${NC} [Y/n]: " >&2
@@ -202,6 +210,8 @@ for template in flake.nix user.nix README.md; do
         -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
         -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
         -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
+        -e "s|{{ENABLE_AI}}|${ENABLE_AI}|g" \
+        -e "s|{{ENABLE_SECRETS}}|${ENABLE_SECRETS}|g" \
         -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
         -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
         -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
@@ -225,6 +235,8 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
       -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
       -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
       -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
+      -e "s|{{ENABLE_AI}}|${ENABLE_AI}|g" \
+      -e "s|{{ENABLE_SECRETS}}|${ENABLE_SECRETS}|g" \
       -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
       -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
       -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \

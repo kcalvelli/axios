@@ -28,8 +28,8 @@
       users = true;
       virt = {{ENABLE_VIRT}};
       gaming = {{ENABLE_GAMING}};
-      ai = false;      # Enable for Ollama + OpenWebUI + Claude CLI
-      secrets = false; # Enable for age-encrypted secrets management
+      ai = {{ENABLE_AI}};
+      secrets = {{ENABLE_SECRETS}};
     };
     
     # Virtualization (if virt module enabled)
