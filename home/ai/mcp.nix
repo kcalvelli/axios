@@ -102,7 +102,7 @@ in
     # Export user-scoped MCP setup script
     # Note: Run this manually after nixos-rebuild if activation doesn't trigger
     home.file."scripts/setup-claude-mcp-user" = {
-      source = ../../scripts/setup-claude-mcp-user.sh;
+      source = ../../scripts/init-claude-mcp.sh;
       executable = true;
     };
 
