@@ -14,7 +14,6 @@
     laptopHardware = ./hardware/laptop.nix;
     gaming = ./gaming;
     ai = ./ai;
-    wayland = ./wayland;
     secrets = ./secrets;
   };
 }
