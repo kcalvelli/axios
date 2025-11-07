@@ -50,6 +50,7 @@
       # Examples:
       # time.timeZone = "America/New_York";
       # services.openssh.enable = true;
+{{SECRETS_CONFIG}}
     };
     
     # Disk configuration path

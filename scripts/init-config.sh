@@ -151,6 +151,13 @@ fi
 DESCRIPTION="NixOS configuration for ${HOSTNAME}"
 DATE=$(date +"%Y-%m-%d")
 
+# Conditional secrets config for host template (single line for sed)
+if [ "$ENABLE_SECRETS" = "true" ]; then
+  SECRETS_CONFIG="      # Configure secrets directory for automatic discovery\\n      secrets.secretsDir = ../secrets;"
+else
+  SECRETS_CONFIG=""
+fi
+
 echo ""
 echo -e "${GREEN}Configuration summary:${NC}"
 echo "  Hostname: $HOSTNAME"
@@ -195,6 +202,44 @@ echo -e "${GREEN}Generating configuration files...${NC}"
 # Create directory structure
 mkdir -p "hosts/${HOSTNAME}"
 echo "  ✓ hosts/${HOSTNAME}/"
+
+# Create secrets directory if secrets module is enabled
+if [ "$ENABLE_SECRETS" = "true" ]; then
+  mkdir -p "secrets"
+  echo "  ✓ secrets/"
+  
+  # Create a README in secrets directory
+  cat > "secrets/README.md" << 'EOF'
+# Secrets Directory
+
+This directory is for age-encrypted secrets.
+
+## Quick Start
+
+1. Get your host's public SSH key:
+   ```bash
+   sudo cat /etc/ssh/ssh_host_ed25519_key.pub
+   ```
+
+2. Create your first secret:
+   ```bash
+   echo "my-secret-value" | age -r "ssh-ed25519 AAAA... root@hostname" -o secrets/my-secret.age
+   ```
+
+3. Enable in your host config:
+   Edit `hosts/hostname.nix` and add:
+   ```nix
+   extraConfig = {
+     secrets.secretsDir = ../secrets;
+   };
+   ```
+
+4. Rebuild and the secret will be available at `/run/agenix/my-secret`
+
+See https://github.com/kcalvelli/axios/blob/master/docs/SECRETS_MODULE.md for details.
+EOF
+  echo "  ✓ secrets/README.md"
+fi
 
 # Generate files from templates
 for template in flake.nix user.nix README.md; do
@@ -241,7 +286,8 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
       -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
       -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
       -e "s|{{ENABLE_SERVICES}}|${ENABLE_SERVICES}|g" \
-      "${TEMPLATE_DIR}/host.nix.template" > "hosts/${HOSTNAME}.nix"
+      "${TEMPLATE_DIR}/host.nix.template" | \
+      sed "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" > "hosts/${HOSTNAME}.nix"
   echo "  ✓ hosts/${HOSTNAME}.nix"
 fi
 
