@@ -136,11 +136,6 @@ if [ "$HAS_SSD" = "true" ]; then
   HAS_SSD_TEXT=", SSD"
 fi
 
-EXTRA_GROUPS=""
-if [ "$ENABLE_VIRT" = "true" ]; then
-  EXTRA_GROUPS='      "libvirtd"     # virtualization'
-fi
-
 DESCRIPTION="NixOS configuration for ${HOSTNAME}"
 DATE=$(date +"%Y-%m-%d")
 
@@ -198,7 +193,6 @@ for template in flake.nix user.nix disks.nix README.md; do
         -e "s|{{DESCRIPTION}}|${DESCRIPTION}|g" \
         -e "s|{{DATE}}|${DATE}|g" \
         -e "s|{{HAS_SSD_TEXT}}|${HAS_SSD_TEXT}|g" \
-        -e "s|{{EXTRA_GROUPS}}|${EXTRA_GROUPS}|g" \
         "${TEMPLATE_DIR}/${template}.template" > "${template}"
     echo "  ✓ ${template}"
   fi

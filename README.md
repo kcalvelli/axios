@@ -79,7 +79,7 @@ For manual setup, you'll create just 3 files:
 - [Installation Guide](docs/INSTALLATION.md) - Step-by-step setup
 - [Application Catalog](docs/APPLICATIONS.md) - See what's included
 - [Library API Reference](docs/LIBRARY_USAGE.md) - Using `axios.lib.mkSystem`
-- [Quick Reference](docs/QUICK_REFERENCE.md) - Common commands
+- [Adding Multiple Hosts](docs/ADDING_HOSTS.md) - Multi-host setups
 
 ## Library API
 
@@ -100,12 +100,10 @@ diskConfigPath = ./disks.nix;
 
 ## Examples
 
-Check out these example repositories:
+Check out these example configurations:
 
 - [examples/minimal-flake](examples/minimal-flake/) - Minimal single-host configuration
 - [examples/multi-host](examples/multi-host/) - Multiple hosts with shared config
-
-Real-world example: [kcalvelli/nixos_config](https://github.com/kcalvelli/nixos_config) - Personal configs using axios as a library
 
 ## What's Included
 

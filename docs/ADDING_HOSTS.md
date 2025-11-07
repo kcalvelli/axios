@@ -447,5 +447,5 @@ nixos-rebuild build-vm --flake .#newhost
 ## More Information
 
 - [Library Usage Guide](LIBRARY_USAGE.md) - Complete library API
-- [Quick Reference](QUICK_REFERENCE.md) - Common commands
 - [Installation Guide](INSTALLATION.md) - Getting started
+- [Enabling Services](ENABLING_SERVICES.md) - Optional services

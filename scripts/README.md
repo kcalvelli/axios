@@ -1,129 +1,95 @@
 # axiOS Scripts
 
-Utility scripts for axiOS framework desktop customization and development.
+Utility scripts for axiOS framework.
 
 ## Directory Structure
 
 ```
 scripts/
-├── test-build.sh       # Build validation and testing script
-├── shell/              # Shell scripts
-│   ├── wallpaper-blur.sh
-│   └── update-material-code-theme.sh
-├── nix/                # Nix wrapper modules
-│   └── wallpaper-scripts.nix
-└── README.md           # This file
+├── init-config.sh          # Interactive configuration generator
+├── init-claude-mcp.sh      # Claude MCP project setup
+├── wallpaper-blur.sh       # Wallpaper blur for Niri overview
+├── templates/              # Config templates for init-config.sh
+└── README.md              # This file
 ```
 
-## Development Scripts
+## User Scripts
 
-### 🧪 test-build.sh
+### 🚀 init-config.sh
 
-**Comprehensive validation script for testing flake updates before merging PRs.**
+**Interactive configuration generator for axiOS.**
 
-Tests flake structure, builds real NixOS configurations, and catches dependency conflicts that CI can't detect.
+This is the main entry point for creating a new axiOS configuration:
 
-**Quick Start:**
 ```bash
-cd ~/Projects/axios
-gh pr checkout <PR_NUMBER>
-./scripts/test-build.sh
+mkdir ~/my-nixos-config && cd ~/my-nixos-config
+nix run github:kcalvelli/axios#init
 ```
 
-**Features:**
-- ✓ Flake structure validation
-- ✓ Real client configuration builds
-- ✓ Dependency conflict detection
-- ✓ Version change analysis
-- ✓ Detailed logging for debugging
+**What it does:**
+- Asks questions about your system (hostname, hardware, preferences)
+- Generates a complete configuration tailored to your needs
+- Creates flake.nix, user.nix, disks.nix, and README.md
+- Provides next steps for installation
 
-See inline documentation in the script for full details and configuration options.
-
-**Exit codes:**
-- `0` = Safe to merge
-- `1` = Do not merge (build failed)
+**Recommended for all new users.**
 
 ---
 
-## Available Scripts
+### 🤖 init-claude-mcp.sh
+
+**Initialize Claude CLI MCP configuration for a project.**
+
+```bash
+# Automatically installed to ~/scripts/ when AI module is enabled
+~/scripts/init-claude-mcp.sh [project-directory]
+```
+
+**What it does:**
+- Copies MCP server configuration template to project
+- Sets up Claude CLI for the project
+- Enables MCP servers (filesystem, nixos, journal, etc.)
+
+**Requirements:**
+- AI module enabled in your configuration
+- Claude CLI installed
+
+---
 
 ### 🎨 wallpaper-blur.sh
 
-Generates blurred wallpaper for Niri overview mode.
+**Generates blurred wallpaper for Niri overview mode.**
 
-**Usage:**
 ```bash
+# Automatically installed to ~/scripts/ when desktop module is enabled
 ~/scripts/wallpaper-blur.sh
 ```
 
 **What it does:**
 - Takes current wallpaper
-- Creates blurred version
+- Creates blurred version for overview mode
 - Saves to `~/.cache/niri/overview-blur.jpg`
-- Used by DankMaterialShell hooks
+- Called automatically by DankMaterialShell hooks
 
 **Requirements:**
-- ImageMagick (automatically installed)
+- Desktop module enabled
 - Niri compositor
-- Wallpaper set via `swaybg` or similar
+- ImageMagick (auto-installed)
 
-This script is automatically installed to `~/scripts/` by home-manager when you enable the desktop module.
-
----
-
-### 🎨 update-material-code-theme.sh
-
-Updates Material Code theme for Niri.
-
-**Usage:**
-```bash
-~/scripts/update-material-code-theme.sh
-```
-
-**What it does:**
-- Downloads latest Material Code theme
-- Applies to Niri configuration
-- Refreshes desktop appearance
-
-This script is automatically installed to `~/scripts/` by home-manager when you enable the desktop module.
-
----
-
-## Nix Integration Module
-
-The `nix/` directory contains a Nix module that integrates shell scripts into the system:
-
-### 🎨 wallpaper-scripts.nix
-
-Manages wallpaper and theme scripts with:
-- Script installation to `~/scripts/`
-- ImageMagick dependencies
-- Cache directory creation
-- DankMaterialShell hook integration
-
-**Imported by:** `home/desktops/common/wallpaper-blur.nix`
+This script runs automatically when your wallpaper changes.
 
 ---
 
 ## For axiOS Library Users
 
-If you're using axiOS as a library (recommended), these scripts are automatically available when you enable the desktop module:
+If you're using axiOS as a library (recommended), scripts are automatically available:
 
 ```nix
 # In your flake that uses axios
 axios.lib.mkSystem {
-  # ... other config ...
-  modules.desktop = true;  # Scripts automatically installed
+  modules.desktop = true;  # Installs wallpaper-blur.sh to ~/scripts/
+  modules.ai = true;       # Installs init-claude-mcp.sh to ~/scripts/
 }
 ```
 
-The scripts work automatically with DankMaterialShell and Niri. No manual setup needed.
-
----
-
-## Notes
-
-- Scripts are installed to `~/scripts/` in your home directory
-- Scripts integrate with DankMaterialShell hooks automatically
-- ImageMagick dependency is handled by the Nix module
-- Scripts run without root privileges
+Scripts work automatically with no manual setup needed.

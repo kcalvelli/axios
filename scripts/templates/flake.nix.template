@@ -31,6 +31,8 @@
         services = {{ENABLE_SERVICES}};
         virt = {{ENABLE_VIRT}};
         gaming = {{ENABLE_GAMING}};
+        ai = false;      # Enable for Ollama + OpenWebUI + Claude CLI
+        secrets = false; # Enable for age-encrypted secrets management
       };
       
       homeProfile = "{{HOME_PROFILE}}";

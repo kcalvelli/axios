@@ -7,17 +7,16 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
 | [INSTALLATION.md](INSTALLATION.md) | Install axiOS on your machine | **Start here** for new installations |
-| [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
-| [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) | Breaking changes between versions | Before major version updates |
-| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | **See what's included** in axiOS |
-| [QUICK_REFERENCE.md](QUICK_REFERENCE.md) | Quick command reference | Quick lookups and common tasks |
-| [PACKAGES.md](PACKAGES.md) | Package organization guide | Before adding new packages |
-| [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
 | [LIBRARY_USAGE.md](LIBRARY_USAGE.md) | Using axios as a library | Using axios in your own flake |
-| [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) | Desktop customization | Customizing Niri compositor |
+| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | **See what's included** in axiOS |
+| [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
+| [USER_MODULE.md](USER_MODULE.md) | User configuration guide | Understanding user setup |
 | [ENABLING_SERVICES.md](ENABLING_SERVICES.md) | Enable optional services | Includes service port reference |
-| [AI_MODULE_IMPLEMENTATION.md](AI_MODULE_IMPLEMENTATION.md) | AI module internals | For developers/contributors |
-| [MCP_CLIENTS_SETUP.md](MCP_CLIENTS_SETUP.md) | MCP server setup | Advanced Claude CLI configuration |
+| [SECRETS_MODULE.md](SECRETS_MODULE.md) | Managing encrypted secrets | Using age-encrypted secrets |
+| [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) | Desktop customization | Customizing Niri compositor |
+| [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
+| [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes | When experiencing problems |
+| [BINARY_CACHE.md](BINARY_CACHE.md) | Using the binary cache | Speed up builds |
 
 ## Quick Start
 
@@ -46,9 +45,8 @@ Or follow the manual installation guide:
 ### Existing Users
 
 - **Update system**: `cd ~/my-nixos-config && nix flake update && sudo nixos-rebuild switch --flake .#HOSTNAME`
-- **Add packages**: See [PACKAGES.md](PACKAGES.md) for organization guidelines
 - **Add new machine**: See [ADDING_HOSTS.md](ADDING_HOSTS.md)
-- **Quick reference**: See [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
+- **Enable services**: See [ENABLING_SERVICES.md](ENABLING_SERVICES.md)
 
 ## Installation & Setup
 
@@ -56,39 +54,13 @@ Or follow the manual installation guide:
 **Complete installation guide from start to finish**
 
 Topics covered:
-- Downloading and preparing the installer ISO
-- Creating bootable installation media
-- Installing to VMs (VMware, VirtualBox, QEMU, etc.)
-- Installing to bare metal
-- Automated vs manual installation
-- Post-installation setup and configuration
-- Troubleshooting common issues
+- Using the interactive generator
+- Manual configuration setup
+- Creating your user module
+- Disk configuration options
+- Building and deploying your system
 
 **Start here if you're installing axiOS for the first time.**
-
-### 🔨 [BUILDING_ISO.md](BUILDING_ISO.md)
-**Build and customize the axiOS installer ISO**
-
-Topics covered:
-- Building the ISO from source
-- Customizing packages and branding
-- Testing in VMs and QEMU
-- CI/CD integration for automated builds
-- Creating custom variations
-
-**For developers who want to build or customize the installer.**
-
-### ⚡ [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
-**Fast command reference for common operations**
-
-Quick access to:
-- ISO build and testing commands
-- VM testing procedures
-- Installer customization
-- Common troubleshooting fixes
-- Frequently used operations
-
-**For quick lookups without reading full documentation.**
 
 ## Configuration & Maintenance
 
@@ -106,18 +78,6 @@ Comprehensive list of:
 - Virtualization tools (when enabled)
 
 **Browse this to see everything axiOS includes out of the box.**
-
-### 📚 [PACKAGES.md](PACKAGES.md)
-**Package organization philosophy and best practices**
-
-Learn about:
-- System vs Home Manager package placement
-- Module organization structure
-- Decision trees for adding packages
-- Inline package organization
-- Best practices for package management
-
-**Read this before adding new packages to understand where they belong.**
 
 ### 🖥️ [ADDING_HOSTS.md](ADDING_HOSTS.md)
 **Managing multiple machines with axiOS**
@@ -154,28 +114,6 @@ Covers:
 
 **For users wanting to enable optional services beyond the base system.**
 
-### 🤖 [AI_MODULE_IMPLEMENTATION.md](AI_MODULE_IMPLEMENTATION.md)
-**Technical implementation details of the AI module**
-
-Developer reference for:
-- AI module structure and components
-- MCP server integration details
-- Ollama and OpenWebUI configuration
-- Claude CLI setup internals
-
-**For developers/contributors understanding the AI module architecture.**
-
-### 🔌 [MCP_CLIENTS_SETUP.md](MCP_CLIENTS_SETUP.md)
-**Model Context Protocol setup guide**
-
-Detailed guide for:
-- MCP server configuration
-- Claude CLI integration
-- Custom MCP server development
-- Troubleshooting MCP connections
-
-**For advanced users working with MCP servers and Claude CLI.**
-
 ## Common Tasks
 
 ### Updating Your System
@@ -201,67 +139,49 @@ sudo nix-collect-garbage -d
 
 ### Adding a New Package
 
-1. Determine if it's a system or user package (see [PACKAGES.md](PACKAGES.md))
-2. Add to `extraConfig` in your flake.nix or user.nix
-3. Rebuild: `sudo nixos-rebuild switch --flake .#HOSTNAME`
+Add packages to your `extraConfig` in your host configuration:
+
+```nix
+extraConfig = {
+  environment.systemPackages = with pkgs; [ package-name ];
+  # or for user packages
+  home-manager.users.youruser = {
+    home.packages = with pkgs; [ package-name ];
+  };
+};
+```
+
+Then rebuild: `sudo nixos-rebuild switch --flake .#HOSTNAME`
 
 ### Adding a New Machine
 
 1. Create a new host configuration in your flake.nix
-2. Create corresponding disk config
+2. Create corresponding disk config  
 3. See [ADDING_HOSTS.md](ADDING_HOSTS.md) for details
-
-### Customizing Desktop
-
-- Edit Niri config: `home/niri.nix` in your axios fork or via extraConfig
-- Set wallpaper with blur: `~/scripts/wallpaper-changed.sh "onWallpaperChanged" /path/to/image.jpg`
-- See [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) for desktop customization
-
-## Screenshots
-
-Visual examples of the axiOS desktop:
-
-- **Niri Overview**: `screenshots/overview.png` - Workspace overview mode
-- **Dropdown Terminal**: `screenshots/dropdown.png` - Ghostty terminal
-- **File Manager**: `screenshots/nautilus.png` - Themed file browser
 
 ## Repository Structure
 
 ```
 axios/
-├── lib/                # Exported library functions (mkSystem)
+├── lib/                # Library functions (mkSystem API)
 ├── modules/            # NixOS system modules
-│   ├── system/        # Core system utilities and configuration
-│   ├── desktop.nix    # Desktop services
-│   ├── wayland.nix    # Niri compositor and Wayland setup
-│   ├── development.nix # Development tools and environments
-│   ├── gaming.nix     # Gaming support (Steam, GameMode) - optional
-│   ├── graphics.nix   # Graphics drivers and GPU tools
-│   ├── hardware/      # Hardware-specific configs (desktop/laptop)
-│   ├── networking/    # Network configuration and services
-│   ├── services/      # System services - optional
-│   ├── users.nix      # User management
-│   └── virtualisation.nix # VMs and containers - optional
-├── home/               # Home Manager configurations
-│   ├── browser/       # Browser and PWA configurations
-│   ├── terminal/      # Shell and terminal configs
-│   ├── wayland.nix    # Wayland desktop user config
-│   ├── workstation.nix # Workstation profile
-│   ├── laptop.nix     # Laptop profile
-│   ├── niri.nix       # Niri compositor keybindings and rules
-│   └── resources/     # Icons, themes, and assets
-│       └── pwa-icons/ # PWA application icons (bundled)
-├── pkgs/               # Custom package definitions
-│   └── pwa-apps/      # PWA package with bundled icons
-├── scripts/            # Utility scripts
-├── devshells/          # Development environments (Rust, Zig, QML, etc.)
-├── examples/           # Example configurations
-└── docs/               # Documentation (you are here)
-    ├── APPLICATIONS.md # Complete application catalog
-    └── ...
+│   ├── system/        # Core system configuration
+│   ├── desktop.nix    # Desktop environment
+│   ├── wayland.nix    # Niri compositor
+│   ├── development.nix # Development tools
+│   ├── gaming.nix     # Gaming support (optional)
+│   ├── hardware/      # Hardware configs
+│   ├── networking/    # Network services
+│   ├── services/      # Optional services
+│   ├── secrets/       # Secrets management
+│   └── users.nix      # User management
+├── home/              # Home Manager user configs
+│   ├── profiles/      # Workstation and laptop profiles
+│   ├── browser/       # Browser and PWA configs
+│   └── terminal/      # Shell configurations
+├── examples/          # Example configurations
+└── docs/              # Documentation
 ```
-
-Each module directory contains a `README.md` explaining its purpose and organization.
 
 ## Help and Support
 

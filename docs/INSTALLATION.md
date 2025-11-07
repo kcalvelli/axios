@@ -475,7 +475,6 @@ lsblk
 ## More Information
 
 - [Library API Reference](LIBRARY_USAGE.md) - Complete documentation
-- [Quick Reference](QUICK_REFERENCE.md) - Common commands
 - [Adding Hosts](ADDING_HOSTS.md) - Multi-machine management
 - [Examples](../examples/minimal-flake/) - Working example
 

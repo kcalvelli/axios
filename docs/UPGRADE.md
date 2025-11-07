@@ -25,9 +25,8 @@ sudo nixos-rebuild switch --flake .#HOSTNAME
 
 ### 1. Check What's New
 
-Before upgrading, review changes:
-- **[CHANGELOG.md](../CHANGELOG.md)** - All changes in the new version
-- **[MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)** - Breaking changes and required actions
+Before upgrading, check for breaking changes:
+- **[GitHub Releases](https://github.com/kcalvelli/axios/releases)** - Release notes and changelogs
 
 ### 2. Update Axios Input
 
@@ -112,16 +111,13 @@ sudo nixos-rebuild switch --rollback
 2. No config modifications required
 3. Everything should work identically
 
-See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md#2025-11-04---architectural-improvements) for details.
-
 ---
 
 ## Upgrade Checklist
 
 Use this checklist when upgrading:
 
-- [ ] Read CHANGELOG.md for the new version
-- [ ] Review MIGRATION_GUIDE.md for breaking changes
+- [ ] Check [GitHub Releases](https://github.com/kcalvelli/axios/releases) for changes
 - [ ] Backup important data (optional but recommended)
 - [ ] Update flake.lock: `nix flake lock --update-input axios`
 - [ ] Review lock file changes: `git diff flake.lock`
@@ -137,7 +133,7 @@ Use this checklist when upgrading:
 ### Build Fails After Update
 
 1. **Check error message** - often indicates missing config
-2. **Review MIGRATION_GUIDE.md** - check for required changes
+2. **Review release notes** - check for required changes
 3. **Search issues** - [GitHub Issues](https://github.com/kcalvelli/axios/issues)
 4. **Rollback** - use `--rollback` flag to revert
 
