@@ -45,14 +45,9 @@ git commit -m "Initial axiOS configuration for {{HOSTNAME}}"
 
 Optional: Push to your own GitHub/GitLab repository.
 
-### 3. Install or Rebuild
+### 3. Apply Configuration
 
-**If installing NixOS** (from the installer):
-```bash
-sudo nixos-install --flake .#{{HOSTNAME}}
-```
-
-**If updating an existing system:**
+**On an existing NixOS system:**
 
 axiOS provides convenient fish functions for rebuilding:
 
@@ -66,6 +61,22 @@ Or use the full command:
 ```bash
 sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
 ```
+
+**For fresh NixOS installation:**
+
+1. Boot the NixOS installer ISO
+2. Partition and format your disks (or let the installer handle it)
+3. Clone your config repository:
+   ```bash
+   git clone https://github.com/your-username/your-config /mnt/etc/nixos
+   ```
+4. Install NixOS with your flake:
+   ```bash
+   sudo nixos-install --flake /mnt/etc/nixos#{{HOSTNAME}}
+   ```
+5. Reboot and log in with the initial password (change it immediately!)
+
+See the [Installation Guide](https://github.com/kcalvelli/axios/blob/master/docs/INSTALLATION.md) for detailed instructions.
 
 ## Updating
 
