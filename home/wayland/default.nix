@@ -8,9 +8,8 @@ let
 in
 {
   imports = [
-    ./wayland-theming.nix
-    ./wayland-material.nix
-    ./niri.nix
+    ./theming.nix
+    ../niri
     inputs.dankMaterialShell.homeModules.dankMaterialShell.default
   ];
 
