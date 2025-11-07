@@ -1,4 +1,4 @@
-{ pkgs, inputs, config, ... }:
+{ config, ... }:
 
 let
   # Wallpaper change hook script for DankMaterialShell
@@ -8,11 +8,6 @@ let
   wallpaperChangedScript = ../../scripts/wallpaper-changed.sh;
 in
 {
-  programs.dankMaterialShell = {
-    enable = true;
-    quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-  };
-
   # Wallpaper management scripts for DankMaterialShell
   home.file."scripts/wallpaper-changed.sh" = {
     source = wallpaperChangedScript;
