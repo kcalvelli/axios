@@ -15,6 +15,7 @@
   # - wayland-material.nix: Theme building tools
 
   imports = [
+    ./defaults.nix # Sensible defaults for home-manager
     ../ai
     ../security.nix
     ../browser
