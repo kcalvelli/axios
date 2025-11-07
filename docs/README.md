@@ -268,9 +268,9 @@ Each module directory contains a `README.md` explaining its purpose and organiza
 ### Getting Help
 
 1. **Check documentation**: Start with the relevant guide above
-2. **Search issues**: Look through [existing GitHub issues](https://github.com/kcalvelli/nixos_config/issues)
+2. **Search issues**: Look through [existing GitHub issues](https://github.com/kcalvelli/axios/issues)
 3. **Ask the community**: Post on [NixOS Discourse](https://discourse.nixos.org/)
-4. **Report bugs**: Create a [new issue](https://github.com/kcalvelli/nixos_config/issues/new) with details
+4. **Report bugs**: Create a [new issue](https://github.com/kcalvelli/axios/issues/new) with details
 
 ### External Resources
 
@@ -292,9 +292,9 @@ When updating documentation:
 ## Quick Links
 
 - 📖 **Main README**: [../README.md](../README.md)
-- 💾 **Repository**: https://github.com/kcalvelli/nixos_config
-- 🚀 **Releases**: https://github.com/kcalvelli/nixos_config/releases
-- 🐛 **Issues**: https://github.com/kcalvelli/nixos_config/issues
+- 💾 **Repository**: https://github.com/kcalvelli/axios
+- 🚀 **Releases**: https://github.com/kcalvelli/axios/releases
+- 🐛 **Issues**: https://github.com/kcalvelli/axios/issues
 
 ---
 

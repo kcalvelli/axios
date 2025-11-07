@@ -1,6 +1,6 @@
 # Enabling Services in axiOS
 
-Services are enabled in your host configuration file (`~/.config/nixos_config/hosts/yourhost.nix`).
+Services are enabled in your host configuration file (e.g., `hosts/yourhost.nix`).
 
 ## Quick Reference
 
@@ -192,9 +192,9 @@ Here's a full host config with all services enabled:
 After editing your host config:
 
 ```bash
-cd ~/.config/nixos_config
+cd ~/my-nixos-config
 nix flake update axios  # Pull latest changes
-rebuild-switch          # Apply configuration
+sudo nixos-rebuild switch --flake .#yourhost
 ```
 
 ## Checking Service Status

@@ -598,8 +598,7 @@ If axios doesn't provide something you need:
 ## Examples
 
 - [Minimal Single Host](../examples/minimal-flake/) - Basic single machine
-- [Multiple Hosts](../examples/multi-host/) - Managing multiple machines  
-- [Real World](https://github.com/kcalvelli/nixos_config) - Actual usage in production
+- [Multiple Hosts](../examples/multi-host/) - Managing multiple machines
 
 ## Support
 

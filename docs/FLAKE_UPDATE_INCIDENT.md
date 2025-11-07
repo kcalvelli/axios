@@ -28,7 +28,7 @@ inputs.axios.url = "github:kcalvelli/axios/1ae9947";  # Known working commit
 
 **Option 2: Update axios and regenerate flake.lock**
 ```bash
-cd /home/keith/.config/nixos_config
+cd ~/my-nixos-config
 nix flake update axios
 sudo nixos-rebuild switch --flake .#your-hostname
 ```

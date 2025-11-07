@@ -443,7 +443,6 @@ nixos-rebuild build-vm --flake .#newhost
 
 - [examples/minimal-flake](../examples/minimal-flake/) - Single host
 - [examples/multi-host](../examples/multi-host/) - Multiple hosts (coming soon)
-- [Real world example](https://github.com/kcalvelli/nixos_config) - Production multi-host setup
 
 ## More Information
 

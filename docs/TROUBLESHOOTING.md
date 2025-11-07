@@ -16,10 +16,10 @@ error: getting attributes of path '/nix/store/...-gnu-config-...': No such file 
 ### Solutions (Try in Order)
 
 #### 1. Remove FlakeHub References
-Already done in axios as of commit `0728065`. Verify your client config:
+Already done in axios as of commit `0728065`. Verify your config:
 
 ```bash
-cd ~/.config/nixos_config
+cd ~/my-nixos-config
 cat flake.lock | jq '[.nodes | to_entries[] | select(.value.locked.url != null and (.value.locked.url | contains("flakehub")))] | length'
 # Should output: 0
 ```
@@ -51,7 +51,7 @@ If corruption persists:
 
 ```bash
 # Backup your configuration
-cd ~/.config/nixos_config
+cd ~/my-nixos-config
 git commit -am "backup before store rebuild"
 
 # Clear all build artifacts
