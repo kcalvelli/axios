@@ -10,19 +10,30 @@ Generated with [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS fra
 - **Hardware:** {{CPU}} CPU, {{GPU}} GPU{{HAS_SSD_TEXT}}
 - **Home Profile:** {{HOME_PROFILE}}
 
+## Structure
+
+```
+.
+├── flake.nix              # Main flake configuration
+├── user.nix               # User account settings
+├── hosts/
+│   ├── {{HOSTNAME}}.nix        # Host-specific configuration
+│   └── {{HOSTNAME}}/
+│       └── disks.nix      # Disk partitioning (disko)
+└── README.md              # This file
+```
+
 ## Next Steps
 
-### 1. Review Disk Configuration
+### 1. Review Configuration
 
-⚠️  **IMPORTANT:** Edit `disks.nix` and change `/dev/sda` to your actual disk device.
+**Disk configuration** is in `hosts/{{HOSTNAME}}/disks.nix`
+- Device has been set automatically based on your selection
+- Review partition layout if needed
 
-```bash
-# Find your disk device
-lsblk
-
-# Edit disks.nix
-vim disks.nix  # or nano, or your preferred editor
-```
+**Host configuration** is in `hosts/{{HOSTNAME}}.nix`
+- Review enabled modules
+- Add any custom settings in `extraConfig`
 
 ### 2. Initialize Git Repository
 
@@ -51,7 +62,13 @@ sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
 To get the latest packages and axiOS features:
 
 ```bash
+# Update all flake inputs (including axios)
 nix flake update
+
+# Or update just axios
+nix flake lock --update-input axios
+
+# Apply updates
 sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
 ```
 
@@ -59,33 +76,66 @@ sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
 
 ### Adding Packages
 
-Edit `flake.nix` and add to `extraConfig`:
+Edit `hosts/{{HOSTNAME}}.nix` and add to `extraConfig`:
 
 ```nix
 extraConfig = {
+  # System packages
   environment.systemPackages = with pkgs; [
-    # your-package-here
+    your-package-here
   ];
+  
+  # Or user packages via home-manager
+  home-manager.users.{{USERNAME}} = {
+    home.packages = with pkgs; [
+      your-package-here
+    ];
+  };
 };
 ```
 
 ### Changing Settings
 
-All NixOS options can be added to `extraConfig` in `flake.nix`.
+All NixOS options can be added to `extraConfig` in `hosts/{{HOSTNAME}}.nix`.
+
+Examples:
+```nix
+extraConfig = {
+  time.timeZone = "America/New_York";
+  services.openssh.enable = true;
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+};
+```
 
 See [NixOS Options](https://search.nixos.org/options) for available options.
 
-### User-Specific Configuration
+### User Configuration
 
-Edit `user.nix` to customize:
-- Extra groups
-- Home-manager settings
-- User packages
+The `axios.user` module in `user.nix` automatically handles:
+- User account creation
+- Initial password (change on first login!)
+- Home-manager integration
+- Git configuration
+- Standard group memberships
+
+## Enabled Modules
+
+Check `hosts/{{HOSTNAME}}.nix` to see which modules are enabled:
+- `system` - Core system utilities
+- `desktop` - Niri compositor and desktop environment
+- `development` - Development tools (Rust, Python, Node, etc)
+- `graphics` - GPU drivers and hardware acceleration
+- `networking` - Network configuration (including Tailscale)
+- `users` - User management
+- And optional: `gaming`, `virt`, `services`, `ai`, `secrets`
 
 ## Documentation
 
 - [axiOS Documentation](https://github.com/kcalvelli/axios/tree/master/docs)
+- [Installation Guide](https://github.com/kcalvelli/axios/blob/master/docs/INSTALLATION.md)
 - [Application Catalog](https://github.com/kcalvelli/axios/blob/master/docs/APPLICATIONS.md) - See what's included
+- [Library API Reference](https://github.com/kcalvelli/axios/blob/master/docs/LIBRARY_USAGE.md)
+- [Secrets Management](https://github.com/kcalvelli/axios/blob/master/docs/SECRETS_MODULE.md) - If you enabled secrets
 - [Adding Hosts](https://github.com/kcalvelli/axios/blob/master/docs/ADDING_HOSTS.md) - Multi-machine management
 - [NixOS Manual](https://nixos.org/manual/nixos/stable/)
 
