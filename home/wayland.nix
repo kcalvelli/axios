@@ -1,10 +1,10 @@
 { pkgs, inputs, config, ... }:
 let
-  # Wallpaper blur script for DankMaterialShell
+  # Wallpaper change hook script for DankMaterialShell
   # This is a hook script called by Dank Hooks plugin with:
   # $1 = hook name ("onWallpaperChanged")
   # $2 = wallpaper path
-  wallpaperBlurScript = ../scripts/wallpaper-blur.sh;
+  wallpaperChangedScript = ../scripts/wallpaper-changed.sh;
 in
 {
   imports = [
@@ -36,7 +36,7 @@ in
 
   # Wallpaper management scripts for DankMaterialShell
   home.file."scripts/wallpaper-changed.sh" = {
-    source = wallpaperBlurScript;
+    source = wallpaperChangedScript;
     executable = true;
   };
 
