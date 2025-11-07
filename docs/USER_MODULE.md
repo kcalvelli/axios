@@ -105,27 +105,25 @@ Here's what a user module looks like with axios defaults:
 { config, ... }:
 let
   username = "myuser";
-  fullName = "My Full Name";
-  email = "user@example.com";
 in
 {
   # Define the primary user
   users.users.${username} = {
     isNormalUser = true;
-    description = fullName;
+    description = "My Full Name";
     initialPassword = "changeme";  # Change on first login
     # Groups automatically added based on enabled modules!
+    extraGroups = config.axios.users.defaultExtraGroups;
   };
 
   # Home Manager configuration
   home-manager.users.${username} = {
-    # stateVersion, FLAKE_PATH automatically configured!
+    # stateVersion, FLAKE_PATH: automatically configured!
+    # Niri blur wallpaper: automatically configured!
+    # Git: automatically configured from user description + email
 
-    # Git user configuration (optional convenience helper)
-    axios.git.user = {
-      name = fullName;
-      email = email;
-    };
+    # User email (used for git, etc.)
+    axios.user.email = "user@example.com";
 
     # Add any user-specific home-manager config here
   };
@@ -136,6 +134,19 @@ in
 ```
 
 That's it! Much cleaner than manually specifying all groups and configuration.
+
+### What Gets Auto-Configured
+
+When you set:
+- `users.users.${username}.description = "My Full Name"` - Automatically used for git user name
+- `axios.user.email = "user@example.com"` - Automatically used for git user email
+- `extraGroups = config.axios.users.defaultExtraGroups` - All necessary groups based on enabled modules
+
+axios automatically configures:
+- Git user name (from system user description) and email (from axios.user.email)
+- Home-manager stateVersion
+- FLAKE_PATH environment variable
+- Niri blur wallpaper for overview mode
 
 ## Advanced Configuration
 
@@ -186,19 +197,6 @@ networking.samba = {
 };
 ```
 
-### Git Configuration Without axios.git.user
-
-If you prefer direct control:
-
-```nix
-home-manager.users.myuser = {
-  programs.git.settings.user = {
-    name = "My Name";
-    email = "my@email.com";
-    # Full control over git config
-  };
-};
-```
 
 ## Configuration Options Reference
 
@@ -241,15 +239,11 @@ home-manager.users.myuser = {
 - **Default:** `"${HOME}/.config/nixos"`
 - **Description:** Path to NixOS flake (sets FLAKE_PATH variable)
 
-#### `axios.git.user.name`
+#### `axios.user.email`
 - **Type:** string
 - **Default:** `""`
-- **Description:** Git user name for commits
-
-#### `axios.git.user.email`
-- **Type:** string
-- **Default:** `""`
-- **Description:** Git user email for commits
+- **Description:** User's email address - automatically used for git commits and other tools
+- **Example:** `"user@example.com"`
 
 ## Benefits
 
@@ -284,16 +278,18 @@ users.users.myuser = {
 };
 ```
 
-### 3. Use axios Helpers
+### 3. Trust the Defaults
 
-Prefer axios convenience options:
+Let axios automatically configure git and other tools from your user information:
 
 ```nix
-# ✓ Good
-axios.git.user = { name = "..."; email = "..."; };
-
-# Also fine, more control
-programs.git.settings.user = { name = "..."; email = "..."; };
+# ✓ Good - git auto-configured from these
+users.users.myuser = {
+  description = "My Full Name";  # Used for git user.name
+};
+home-manager.users.myuser = {
+  axios.user.email = "my@email.com";  # Used for git user.email
+};
 ```
 
 ### 4. Document Overrides
@@ -364,7 +360,7 @@ axiOS follows **convention over configuration**:
 - ✅ Nix trusted-users for wheel group
 - ✅ Niri blur wallpaper autoconfiguration
 - ✅ Optional Samba user shares
-- ✅ Git user configuration helper
+- ✅ Automatic git configuration from user information
 
 Your user module should focus on what's actually user-specific:
 - Username

@@ -1,32 +1,18 @@
-{ pkgs, lib, config, ... }:
+{ pkgs, lib, config, osConfig ? { }, ... }:
 let
-  cfg = config.axios.git;
+  userCfg = config.axios.user;
+  # Get user's full name from system user description, fallback to username
+  userName = osConfig.users.users.${config.home.username}.description or config.home.username;
+  userEmail = userCfg.email;
 in
 {
-  options.axios.git = {
-    user = {
-      name = lib.mkOption {
-        type = lib.types.str;
-        default = "";
-        description = "Git user name for commits";
-        example = "John Doe";
-      };
-
-      email = lib.mkOption {
-        type = lib.types.str;
-        default = "";
-        description = "Git user email for commits";
-        example = "john@example.com";
-      };
-    };
-  };
-
   config = {
     programs = {
       git = {
         enable = true;
-        # User name and email can be set via axios.git.user for convenience
-        # or directly via programs.git.settings.user for full control
+        # User name and email are automatically configured from:
+        # - Full name: users.users.${username}.description (system account)
+        # - Email: axios.user.email (home-manager)
         settings = lib.mkMerge [
           {
             core.pager = "${pkgs.delta}/bin/delta";
@@ -59,11 +45,11 @@ in
             };
           }
 
-          # Merge in user config from axios.git.user
-          (lib.mkIf (cfg.user.name != "" && cfg.user.email != "") {
+          # Automatically configure git user from system account + axios.user.email
+          (lib.mkIf (userEmail != "") {
             user = {
-              name = cfg.user.name;
-              email = cfg.user.email;
+              name = userName;
+              email = userEmail;
             };
           })
         ];
