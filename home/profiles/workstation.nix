@@ -2,7 +2,7 @@
 {
   # Workstation profile: full desktop with gaming and device support
   imports = [
-    ./profiles/base.nix
+    ./base.nix
   ];
 
   # Solaar autostart for Logitech Unifying devices
