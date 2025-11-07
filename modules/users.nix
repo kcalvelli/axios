@@ -70,7 +70,7 @@ in
         Full name of the user.
 
         Automatically used for:
-        - System user description (users.users.\${username}.description)
+        - System user description (users.users.\${userCfg.name}.description)
         - Git user.name configuration
       '';
       example = "John Doe";
