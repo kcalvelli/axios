@@ -63,12 +63,18 @@ if [ -f /etc/NIXOS ]; then
   if [ -d /sys/class/power_supply/BAT* ] 2>/dev/null || [ -d /sys/class/power_supply/battery ] 2>/dev/null; then
     DETECTED_LAPTOP="true"
     echo "  ✓ Detected laptop (battery found)"
+  else
+    DETECTED_LAPTOP="false"
+    echo "  ✓ Detected desktop (no battery)"
   fi
   
   # Detect SSD (check if any disk has rotation rate of 0)
   if lsblk -d -o name,rota 2>/dev/null | grep -q "0$"; then
     DETECTED_SSD="true"
     echo "  ✓ Detected SSD"
+  else
+    DETECTED_SSD="false"
+    echo "  ✓ Detected HDD (no SSD)"
   fi
   
   echo ""
@@ -159,23 +165,31 @@ EMAIL=$(prompt "Email address")
 echo ""
 echo -e "${BOLD}Hardware Configuration:${NC}"
 
-# Form factor
-if [ "$DETECTED_LAPTOP" = "true" ]; then
-  FORMFACTOR=$(prompt_choice "Form factor?" "laptop" "desktop" "laptop")
+# Form factor - only ask if not detected
+if [ -n "$DETECTED_LAPTOP" ]; then
+  if [ "$DETECTED_LAPTOP" = "true" ]; then
+    FORMFACTOR="laptop"
+    echo -e "${GREEN}✓ Form factor: laptop (detected)${NC}"
+  else
+    FORMFACTOR="desktop"
+    echo -e "${GREEN}✓ Form factor: desktop (detected)${NC}"
+  fi
 else
   FORMFACTOR=$(prompt_choice "Form factor?" "desktop" "desktop" "laptop")
 fi
 
-# CPU
+# CPU - only ask if not detected
 if [ -n "$DETECTED_CPU" ]; then
-  CPU=$(prompt_choice "CPU vendor?" "$DETECTED_CPU" "amd" "intel")
+  CPU="$DETECTED_CPU"
+  echo -e "${GREEN}✓ CPU: $CPU (detected)${NC}"
 else
   CPU=$(prompt_choice "CPU vendor?" "amd" "amd" "intel")
 fi
 
-# GPU
+# GPU - only ask if not detected
 if [ -n "$DETECTED_GPU" ]; then
-  GPU=$(prompt_choice "GPU vendor?" "$DETECTED_GPU" "amd" "nvidia" "intel")
+  GPU="$DETECTED_GPU"
+  echo -e "${GREEN}✓ GPU: $GPU (detected)${NC}"
 else
   GPU=$(prompt_choice "GPU vendor?" "amd" "amd" "nvidia" "intel")
 fi
@@ -183,9 +197,10 @@ fi
 echo ""
 echo -e "${BOLD}Optional Features:${NC}"
 
-# SSD detection
+# SSD - only ask if not detected
 if [ -n "$DETECTED_SSD" ]; then
-  HAS_SSD=$(prompt_bool "Do you have an SSD?" "$([[ "$DETECTED_SSD" = "true" ]] && echo y || echo n)")
+  HAS_SSD="$DETECTED_SSD"
+  echo -e "${GREEN}✓ SSD: $HAS_SSD (detected)${NC}"
 else
   HAS_SSD=$(prompt_bool "Do you have an SSD?" "y")
 fi
