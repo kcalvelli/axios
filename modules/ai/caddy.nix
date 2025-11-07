@@ -13,9 +13,9 @@ in
         }
       '';
     };
-    
+
     networking.firewall.allowedTCPPorts = [ 80 443 ];
-    
+
     # Integrate with Tailscale for TLS certificates
     services.tailscale.permitCertUid = config.services.caddy.user;
   };
