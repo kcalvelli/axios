@@ -137,6 +137,43 @@ axiOS supports secure boot via [Lanzaboote](https://github.com/nix-community/lan
 
 See the [Lanzaboote documentation](https://github.com/nix-community/lanzaboote/blob/master/docs/QUICK_START.md) for details.
 
+### Adding Secrets
+
+If you enabled the secrets module, you can add encrypted secrets using age.
+
+**To add a secret:**
+
+1. Get your host's SSH public key:
+   ```bash
+   sudo cat /etc/ssh/ssh_host_ed25519_key.pub
+   ```
+
+2. Create an encrypted secret:
+   ```bash
+   echo "my-secret-value" | age -r "ssh-ed25519 AAAA... root@{{HOSTNAME}}" -o secrets/my-secret.age
+   ```
+
+3. Configure the secret in `hosts/{{HOSTNAME}}.nix`:
+   ```nix
+   extraConfig = {
+     age.secrets.my-secret = {
+       file = ../secrets/my-secret.age;
+       # Optional: specify owner, group, mode
+       # owner = "{{USERNAME}}";
+       # group = "users";
+     };
+   };
+   ```
+
+4. Rebuild:
+   ```bash
+   sudo nixos-rebuild switch --flake .#{{HOSTNAME}}
+   ```
+
+5. Secret will be available at `/run/agenix/my-secret`
+
+See [Secrets Module Documentation](https://github.com/kcalvelli/axios/blob/master/docs/SECRETS_MODULE.md) for more details.
+
 ### User Configuration
 
 The `axios.user` module in `user.nix` automatically handles:
