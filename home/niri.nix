@@ -2,18 +2,11 @@
 {
   imports = [
     inputs.niri.homeModules.niri
-    inputs.dankMaterialShell.homeModules.dankMaterialShell.niri
   ];
 
-  programs = {
-    niri.package = lib.mkForce pkgs.niri;
-    dankMaterialShell = {
-      niri = {
-        enableKeybinds = true;
-        enableSpawn = true;
-      };
-    };
-    niri.settings = {
+  programs.niri.package = lib.mkForce pkgs.niri;
+  
+  programs.niri.settings = {
       prefer-no-csd = true;
       xwayland-satellite.path = "${lib.getExe pkgs.xwayland-satellite}";
       screenshot-path = "~/Pictures/Screenshots/Screenshot-from-%Y-%m-%d-%H-%M-%S.png";
