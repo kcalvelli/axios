@@ -102,50 +102,40 @@ This creates shares like `username-Music`, `username-Pictures`, etc. for all nor
 Here's what a user module looks like with axios defaults:
 
 ```nix
-{ config, ... }:
-let
-  username = "myuser";
-in
+{ ... }:
 {
-  # Define the primary user
-  users.users.${username} = {
-    isNormalUser = true;
-    description = "My Full Name";
-    initialPassword = "changeme";  # Change on first login
-    # Groups automatically added based on enabled modules!
-    extraGroups = config.axios.users.defaultExtraGroups;
+  # Define the primary user with axios
+  # This automatically creates the user account, sets up home-manager,
+  # and configures git from these three values
+  axios.user = {
+    name = "myuser";
+    fullName = "My Full Name";
+    email = "user@example.com";
   };
 
-  # Home Manager configuration
-  home-manager.users.${username} = {
-    # stateVersion, FLAKE_PATH: automatically configured!
-    # Niri blur wallpaper: automatically configured!
-    # Git: automatically configured from user description + email
-
-    # User email (used for git, etc.)
-    axios.user.email = "user@example.com";
-
-    # Add any user-specific home-manager config here
-  };
-
-  # Optional: User-specific system configuration
-  # Example: Additional services, custom configuration, etc.
+  # Everything else is automatically configured:
+  # - User account with sensible defaults (isNormalUser, initialPassword, extraGroups)
+  # - Home-manager (stateVersion, FLAKE_PATH)
+  # - Git (user.name and user.email)
+  # - Niri blur wallpaper
+  # - Samba shares (enable with networking.samba.enableUserShares in host config)
+  # - Nix trusted-users (via @wheel group)
 }
 ```
 
-That's it! Much cleaner than manually specifying all groups and configuration.
+That's it! Just three values (name, fullName, email) and everything is configured automatically.
 
 ### What Gets Auto-Configured
 
 When you set:
-- `users.users.${username}.description = "My Full Name"` - Automatically used for git user name
-- `axios.user.email = "user@example.com"` - Automatically used for git user email
-- `extraGroups = config.axios.users.defaultExtraGroups` - All necessary groups based on enabled modules
+- `axios.user.name = "myuser"` - Username for the account
+- `axios.user.fullName = "My Full Name"` - Full name (used for git user.name and system description)
+- `axios.user.email = "user@example.com"` - Email address (used for git user.email)
 
 axios automatically configures:
-- Git user name (from system user description) and email (from axios.user.email)
-- Home-manager stateVersion
-- FLAKE_PATH environment variable
+- User account (isNormalUser, initialPassword "changeme", extraGroups based on enabled modules)
+- Git user name and email
+- Home-manager stateVersion and FLAKE_PATH
 - Niri blur wallpaper for overview mode
 
 ## Advanced Configuration

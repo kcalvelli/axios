@@ -1,6 +1,7 @@
 { inputs, self, config, lib, ... }:
 let
   cfg = config.axios.users;
+  userCfg = config.axios.user;
 
   # Determine which groups to add based on enabled modules
   autoGroups = lib.lists.unique (lib.flatten [
@@ -49,6 +50,46 @@ let
   ]);
 in
 {
+  options.axios.user = {
+    name = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = ''
+        Username for the primary user account.
+
+        When set along with fullName and email, axios automatically creates
+        the user account with sensible defaults.
+      '';
+      example = "myuser";
+    };
+
+    fullName = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = ''
+        Full name of the user.
+
+        Automatically used for:
+        - System user description (users.users.\${username}.description)
+        - Git user.name configuration
+      '';
+      example = "John Doe";
+    };
+
+    email = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = ''
+        Email address for the user.
+
+        Automatically used for:
+        - Git user.email configuration
+        - Other tools requiring email
+      '';
+      example = "user@example.com";
+    };
+  };
+
   options.axios.users = {
     autoGroups = lib.mkOption {
       type = lib.types.bool;
@@ -92,14 +133,30 @@ in
     };
   };
 
-  config = {
+  config = lib.mkMerge [
     # Configure home-manager for user configurations
-    # User accounts are defined in your config repo via userModulePath parameter
-    home-manager = {
-      # useGlobalPkgs and useUserPackages are set in system/default.nix
-      extraSpecialArgs = {
-        inherit inputs self;
+    {
+      home-manager = {
+        # useGlobalPkgs and useUserPackages are set in system/default.nix
+        extraSpecialArgs = {
+          inherit inputs self;
+        };
       };
-    };
-  };
+    }
+
+    # Automatically create user when axios.user is configured
+    (lib.mkIf (userCfg.name != "") {
+      users.users.${userCfg.name} = {
+        isNormalUser = lib.mkDefault true;
+        description = lib.mkDefault userCfg.fullName;
+        initialPassword = lib.mkDefault "changeme";
+        extraGroups = lib.mkDefault cfg.defaultExtraGroups;
+      };
+
+      home-manager.users.${userCfg.name} = {
+        # Email is passed through to home-manager for git config
+        axios.user.email = lib.mkDefault userCfg.email;
+      };
+    })
+  ];
 }
