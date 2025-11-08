@@ -20,12 +20,20 @@ in
         oci-containers.backend = lib.mkDefault "podman";
         podman = {
           enable = true;
-          dockerCompat = true;
+          dockerCompat = false;
           defaultNetwork.settings = {
             dns_enabled = true;
           };
         };
+        docker = {
+          enable = true;
+        };
       };
+      users.users.${username}.extraGroups = [ "docker" ];
+      environment.systemPackages = with pkgs; [
+        winboat
+        freerdp
+      ];
       # Uncomment if you want to use waydroid
       #virtualisation.waydroid.enable = true;
     })
