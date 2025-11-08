@@ -25,7 +25,7 @@
   xdg.configFile."DankMaterialShell/plugin_settings.json".text = builtins.toJSON {
     dankHooks = {
       enabled = true;
-      wallpaperPath = toString (pkgs.writeShellScript "wallpaper-changed" (builtins.readFile ../../scripts/wallpaper-changed.sh));
+      wallpaperPath = "${config.home.homeDirectory}/scripts/wallpaper-changed.sh";
     };
   };
 
