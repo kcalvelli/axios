@@ -11,30 +11,30 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ### Added
 - **Containers Module Enhancements**
-  - Added Docker alongside Podman (Winboat requires Docker)
-  - Enabled Waydroid for Android app support
-  - Added Winboat and FreeRDP packages
-  - Automatic docker group membership for all normal users when containers enabled
+- Added Docker alongside Podman (Winboat requires Docker)
+- Enabled Waydroid for Android app support
+- Added Winboat and FreeRDP packages
+- Automatic docker group membership for all normal users when containers enabled
 - **Virtualization Improvements**
-  - Added dynamic ownership configuration for libvirt/QEMU
-  - Fixed permission denied errors when accessing ISO files in user directories
-  - Added polkit support for better user permissions
+- Added dynamic ownership configuration for libvirt/QEMU
+- Fixed permission denied errors when accessing ISO files in user directories
+- Added polkit support for better user permissions
 
 ### Changed
 - **Major Module Refactoring**
-  - Consolidated `wayland` and `niri` home modules into unified `desktop` module
-  - Merged `wayland-theming` and `wayland-material` into single `desktop/theming.nix`
-  - Consolidated `modules/wayland` into `modules/desktop`
-  - Moved DankMaterialShell configuration to desktop default.nix
+- Consolidated `wayland` and `niri` home modules into unified `desktop` module
+- Merged `wayland-theming` and `wayland-material` into single `desktop/theming.nix`
+- Consolidated `modules/wayland` into `modules/desktop`
+- Moved DankMaterialShell configuration to desktop default.nix
 - **AI Module Restructuring**
-  - Separated ollama and open-webui into independent modules
-  - Merged caddy.nix into open-webui.nix (co-located with service it supports)
-  - Consolidated packages.nix into AI module default.nix
-  - Added separate enable options: `services.ai.ollama.enable` and `services.ai.openWebUI.enable`
+- Separated ollama and open-webui into independent modules
+- Merged caddy.nix into open-webui.nix (co-located with service it supports)
+- Consolidated packages.nix into AI module default.nix
+- Added separate enable options: `services.ai.ollama.enable` and `services.ai.openWebUI.enable`
 - **Code Quality**
-  - Removed all unused code detected by deadnix (27 files cleaned up)
-  - Fixed deprecated NixOS options (qemuVerbatimConfig → qemu.verbatimConfig)
-  - Removed deprecated OVMF configuration (now included by default)
+- Removed all unused code detected by deadnix (27 files cleaned up)
+- Fixed deprecated NixOS options (qemuVerbatimConfig → qemu.verbatimConfig)
+- Removed deprecated OVMF configuration (now included by default)
 
 ### Fixed
 - Restored required `config`, `osConfig`, and `inputs` to secrets module

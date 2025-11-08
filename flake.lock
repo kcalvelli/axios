@@ -62,8 +62,12 @@
   },
   "dankMaterialShell": {
   "inputs": {
-  "dgop": "dgop",
-  "dms-cli": "dms-cli",
+  "dgop": [
+  "dgop"
+  ],
+  "dms-cli": [
+  "dms-cli"
+  ],
   "nixpkgs": [
   "nixpkgs"
   ]
@@ -127,16 +131,15 @@
   "dgop": {
   "inputs": {
   "nixpkgs": [
-  "dankMaterialShell",
   "nixpkgs"
   ]
   },
   "locked": {
-  "lastModified": 1762435535,
-  "narHash": "sha256-QhzRn7pYN35IFpKjjxJAj3GPJECuC+VLhoGem3ezycc=",
+  "lastModified": 1762562974,
+  "narHash": "sha256-JqOEEI+rtSLTz4zWT2UEKWXCJfYSXLi7ELV98iffjTA=",
   "owner": "AvengeMedia",
   "repo": "dgop",
-  "rev": "6cf638dde818f9f8a2e26d0243179c43cb3458d7",
+  "rev": "ec6b4dadb29b290159deea80a02dfc59bbb75860",
   "type": "github"
   },
   "original": {
@@ -168,21 +171,40 @@
   "dms-cli": {
   "inputs": {
   "nixpkgs": [
-  "dankMaterialShell",
   "nixpkgs"
   ]
   },
   "locked": {
-  "lastModified": 1762491516,
-  "narHash": "sha256-oGLH5Gje/p2Hc1kO3m8P5eAZ7JldBI30EmwzEET4cNU=",
+  "lastModified": 1762621281,
+  "narHash": "sha256-V0z9hdfDDfo4PUrChWfxjjmDfrPJ+ukFDtfCsqXThw8=",
   "owner": "AvengeMedia",
   "repo": "danklinux",
-  "rev": "050cf28a2963a7698ed4759736fe5fe77eee7cc2",
+  "rev": "4e0208333ba2d043029336ff59c707ebbc45ad2e",
   "type": "github"
   },
   "original": {
   "owner": "AvengeMedia",
   "repo": "danklinux",
+  "type": "github"
+  }
+  },
+  "dsearch": {
+  "inputs": {
+  "nixpkgs": [
+  "nixpkgs"
+  ]
+  },
+  "locked": {
+  "lastModified": 1762206307,
+  "narHash": "sha256-iyeIqpFn49CwftVeiYHaw2mSfJeZw2gX7urOzwnWQiA=",
+  "owner": "AvengeMedia",
+  "repo": "danksearch",
+  "rev": "b2ec55d4bc4c1be15a7d25c9db952a400f97c2ae",
+  "type": "github"
+  },
+  "original": {
+  "owner": "AvengeMedia",
+  "repo": "danksearch",
   "type": "github"
   }
   },
@@ -828,7 +850,10 @@
   "agenix": "agenix",
   "dankMaterialShell": "dankMaterialShell",
   "devshell": "devshell",
+  "dgop": "dgop",
   "disko": "disko",
+  "dms-cli": "dms-cli",
+  "dsearch": "dsearch",
   "fenix": "fenix",
   "flake-parts": "flake-parts",
   "flake-utils": "flake-utils",

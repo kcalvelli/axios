@@ -6,7 +6,7 @@
     ./wallpaper.nix
     ./niri.nix
     inputs.dankMaterialShell.homeModules.dankMaterialShell.default
-    inputs.dsearch.homeModules.default 
+    inputs.dsearch.homeModules.default
   ];
 
   # DankMaterialShell configuration
