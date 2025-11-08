@@ -78,18 +78,27 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    dgop = {
+      url = "github:AvengeMedia/dgop";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    dms-cli = {
+      url = "github:AvengeMedia/danklinux";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     dankMaterialShell = {
       url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
-      #inputs.dms-cli.follows = "dms-cli";
-      #inputs.quickshell.follows = "quickshell";
+      inputs.dgop.follows = "dgop";
+      inputs.dms-cli.follows = "dms-cli";
     };
 
-    # Override dms-cli to get latest CUPS support (0.4.x)
-    #dms-cli = {
-    #  url = "github:AvengeMedia/danklinux";
-    #  inputs.nixpkgs.follows = "nixpkgs";
-    #};
+    dsearch = {
+      url = "github:AvengeMedia/danksearch";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     niri = {
       url = "github:sodiboo/niri-flake";
