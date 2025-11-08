@@ -21,13 +21,21 @@
     };
   };
 
-  # Configure DankHooks plugin settings
-  xdg.configFile."DankMaterialShell/plugin_settings.json".text = builtins.toJSON {
-    dankHooks = {
-      enabled = true;
-      wallpaperPath = "${config.home.homeDirectory}/scripts/wallpaper-changed.sh";
-    };
-  };
+  # Configure DankHooks plugin default settings (only if plugin_settings.json doesn't exist)
+  home.activation.setDefaultPluginSettings = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+        pluginSettingsFile="$HOME/.config/DankMaterialShell/plugin_settings.json"
+        if [ ! -f "$pluginSettingsFile" ]; then
+          $DRY_RUN_CMD mkdir -p "$HOME/.config/DankMaterialShell"
+          cat > "$pluginSettingsFile" << 'EOF'
+    {
+      "dankHooks": {
+        "enabled": true,
+        "wallpaperPath": "${config.home.homeDirectory}/scripts/wallpaper-changed.sh"
+      }
+    }
+    EOF
+        fi
+  '';
 
   programs.dsearch = {
     enable = true;
