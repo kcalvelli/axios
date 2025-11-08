@@ -167,10 +167,10 @@ in
   # console.log('Updated theme JSON:', themeJsonPath, '→', primary, darkMode ? '(dark)' : '(light)')
   # '';
 
-  # Ensure base16 VSCode extension files are writable so VSCode can detect it
+  # Ensure base16 VSCode extension has proper permissions so VSCode can detect it
   home.activation.fixVSCodeExtensionPermissions = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     if [ -d "${base16ExtDir}" ]; then
-      $DRY_RUN_CMD chmod -R u+w "${base16ExtDir}" 2>/dev/null || true
+      $DRY_RUN_CMD chmod -R u+rwX "${base16ExtDir}" 2>/dev/null || true
     fi
   '';
 }
