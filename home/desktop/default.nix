@@ -1,4 +1,4 @@
-{ inputs, pkgs, config, ... }:
+{ inputs, pkgs, ... }:
 
 {
   imports = [
@@ -21,22 +21,6 @@
     };
   };
 
-  # Configure DankHooks plugin default settings (only if plugin_settings.json doesn't exist)
-  home.activation.setDefaultPluginSettings = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-        pluginSettingsFile="$HOME/.config/DankMaterialShell/plugin_settings.json"
-        if [ ! -f "$pluginSettingsFile" ]; then
-          $DRY_RUN_CMD mkdir -p "$HOME/.config/DankMaterialShell"
-          cat > "$pluginSettingsFile" << 'EOF'
-    {
-      "dankHooks": {
-        "enabled": true,
-        "wallpaperPath": "${config.home.homeDirectory}/scripts/wallpaper-changed.sh"
-      }
-    }
-    EOF
-        fi
-  '';
-
   programs.dsearch = {
     enable = true;
   };
@@ -52,3 +36,4 @@
     indicator = true;
   };
 }
+
