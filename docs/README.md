@@ -12,7 +12,7 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
 | [USER_MODULE.md](USER_MODULE.md) | User configuration guide | Understanding user setup |
 | [SECRETS_MODULE.md](SECRETS_MODULE.md) | Managing encrypted secrets | Using age-encrypted secrets |
-| [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md) | Desktop customization | Customizing Niri compositor |
+| [THEMING.md](THEMING.md) | Desktop theming and customization | Customizing your desktop |
 | [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes | When experiencing problems |
 | [BINARY_CACHE.md](BINARY_CACHE.md) | Using the binary cache | Speed up builds |
@@ -90,16 +90,16 @@ Covers:
 
 **For users managing axiOS across multiple machines.**
 
-### 🎨 [NIRI_WALLPAPER.md](NIRI_WALLPAPER.md)
-**Desktop customization with Niri compositor**
+### 🎨 [THEMING.md](THEMING.md)
+**Desktop theming and customization**
 
 Includes:
 - Wallpaper blur effects for overview mode
 - DankMaterialShell integration
-- Automatic wallpaper script setup
-- Troubleshooting desktop issues
+- VSCode theme setup
+- Application theming overview
 
-**For desktop users wanting to customize their Niri experience.**
+**For desktop users wanting to customize their experience.**
 
 ## Common Tasks
 
