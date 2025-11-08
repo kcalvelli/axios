@@ -47,10 +47,6 @@ in
           package = pkgs.qemu_kvm;
           runAsRoot = false;
           swtpm.enable = true;
-          ovmf = {
-            enable = true;
-            packages = [ pkgs.OVMFFull.fd ];
-          };
         };
         # Allow libvirt to access user files
         # This fixes "Permission denied" errors when accessing ISOs in ~/Downloads
