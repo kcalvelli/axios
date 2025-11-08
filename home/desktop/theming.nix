@@ -167,10 +167,46 @@ in
   # console.log('Updated theme JSON:', themeJsonPath, '→', primary, darkMode ? '(dark)' : '(light)')
   # '';
 
-  # Ensure base16 VSCode extension has proper permissions so VSCode can detect it
-  home.activation.fixVSCodeExtensionPermissions = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+  # Register base16 VSCode extension so VSCode can detect it
+  home.activation.registerVSCodeExtension = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     if [ -d "${base16ExtDir}" ]; then
       $DRY_RUN_CMD chmod -R u+rwX "${base16ExtDir}" 2>/dev/null || true
+      
+      extJson="${codeExtDir}/extensions.json"
+      extId="local.dynamic-base16-dankshell"
+      
+      # Ensure extensions.json exists
+      if [ ! -f "$extJson" ]; then
+        $DRY_RUN_CMD mkdir -p "${codeExtDir}"
+        echo '[]' > "$extJson"
+      fi
+      
+      # Only register if not already in extensions.json
+      if ! grep -q "$extId" "$extJson" 2>/dev/null; then
+        timestamp=$(date +%s)000
+        
+        # Add extension entry to extensions.json
+        $DRY_RUN_CMD ${pkgs.jq}/bin/jq '. += [{
+          "identifier": {"id": "'"$extId"'"},
+          "version": "0.0.1",
+          "location": {
+            "$mid": 1,
+            "path": "'"${base16ExtDir}"'",
+            "scheme": "file"
+          },
+          "relativeLocation": "local.dynamic-base16-dankshell-0.0.1",
+          "metadata": {
+            "installedTimestamp": '"$timestamp"',
+            "pinned": false,
+            "source": "gallery",
+            "targetPlatform": "undefined",
+            "updated": false,
+            "private": false,
+            "isPreReleaseVersion": false,
+            "hasPreReleaseVersion": false
+          }
+        }]' "$extJson" > "$extJson.tmp" && mv "$extJson.tmp" "$extJson"
+      fi
     fi
   '';
 }
