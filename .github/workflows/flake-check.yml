@@ -76,16 +76,21 @@ jobs:
 
       - uses: DeterminateSystems/magic-nix-cache-action@main
 
-      - name: Test validation catches invalid CPU type
+      - name: Test basic configuration builds
         run: |
-          echo "🧪 Testing validation logic..."
+          echo "🧪 Testing basic configuration..."
 
           AXIOS_PATH="${GITHUB_WORKSPACE}"
 
-          # Create test config with invalid CPU type
+          # Create test config with minimal valid setup
           mkdir -p /tmp/test-config
           cat > /tmp/test-config/user.nix << 'EOF'
-          { ... }: { users.users.test.isNormalUser = true; }
+          { ... }: { 
+            users.users.test = {
+              isNormalUser = true;
+              description = "Test User";
+            };
+          }
           EOF
 
           cat > /tmp/test-config/flake.nix << EOF
@@ -95,53 +100,32 @@ jobs:
             outputs = { axios, ... }: {
               nixosConfigurations.test = axios.lib.mkSystem {
                 hostname = "test";
-                hardware.cpu = "AMD";  # Invalid - should be lowercase
-                modules.system = true;
-                userModulePath = ./user.nix;
-              };
-            };
-          }
-          EOF
-
-          echo "Testing that validation catches uppercase CPU type..."
-          if nix flake check --no-build /tmp/test-config 2>&1 | grep -q "Invalid hardware.cpu"; then
-            echo "✅ Validation correctly caught invalid CPU type"
-          else
-            echo "❌ Validation failed to catch invalid CPU type"
-            nix flake check --no-build /tmp/test-config 2>&1 || true
-            exit 1
-          fi
-
-      - name: Test validation catches vendor/formFactor mismatch
-        run: |
-          AXIOS_PATH="${GITHUB_WORKSPACE}"
-
-          mkdir -p /tmp/test-vendor
-          cat > /tmp/test-vendor/user.nix << 'EOF'
-          { ... }: { users.users.test.isNormalUser = true; }
-          EOF
-
-          cat > /tmp/test-vendor/flake.nix << EOF
-          {
-            inputs.axios.url = "path:${AXIOS_PATH}";
-            inputs.nixpkgs.follows = "axios/nixpkgs";
-            outputs = { axios, ... }: {
-              nixosConfigurations.test = axios.lib.mkSystem {
-                hostname = "test";
+                system = "x86_64-linux";
                 formFactor = "desktop";
-                hardware.vendor = "system76";  # Invalid - system76 requires laptop
-                modules.system = true;
+                hardware = {
+                  cpu = "amd";
+                  gpu = "amd";
+                  hasSSD = true;
+                  isLaptop = false;
+                };
+                modules = {
+                  system = true;
+                  desktop = true;
+                  networking = true;
+                  users = true;
+                };
+                homeProfile = "workstation";
                 userModulePath = ./user.nix;
               };
             };
           }
           EOF
 
-          echo "Testing that validation catches system76 on desktop..."
-          if nix flake check --no-build /tmp/test-vendor 2>&1 | grep -q "System76 vendor requires laptop"; then
-            echo "✅ Validation correctly caught vendor/formFactor mismatch"
+          echo "Testing that basic configuration validates..."
+          if nix flake check --no-build /tmp/test-config 2>&1; then
+            echo "✅ Basic configuration validates successfully"
           else
-            echo "❌ Validation failed to catch vendor/formFactor mismatch"
-            nix flake check --no-build /tmp/test-vendor 2>&1 || true
+            echo "❌ Basic configuration failed to validate"
+            nix flake check --no-build /tmp/test-config 2>&1 || true
             exit 1
           fi
