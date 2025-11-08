@@ -81,15 +81,15 @@
     dankMaterialShell = {
       url = "github:AvengeMedia/DankMaterialShell";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.dms-cli.follows = "dms-cli";
+      #inputs.dms-cli.follows = "dms-cli";
       #inputs.quickshell.follows = "quickshell";
     };
 
     # Override dms-cli to get latest CUPS support (0.4.x)
-    dms-cli = {
-      url = "github:AvengeMedia/danklinux";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    #dms-cli = {
+    #  url = "github:AvengeMedia/danklinux";
+    #  inputs.nixpkgs.follows = "nixpkgs";
+    #};
 
     niri = {
       url = "github:sodiboo/niri-flake";
