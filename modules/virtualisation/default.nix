@@ -28,14 +28,18 @@ in
         docker = {
           enable = true;
         };
+        waydroid.enable = true;
       };
-      users.users.${username}.extraGroups = [ "docker" ];
+      
+      # Add all normal users to docker group when containers are enabled
+      users.groups.docker = {
+        members = lib.attrNames (lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users);
+      };
+      
       environment.systemPackages = with pkgs; [
         winboat
         freerdp
       ];
-      # Uncomment if you want to use waydroid
-      #virtualisation.waydroid.enable = true;
     })
 
     (lib.mkIf cfg.libvirt.enable {
