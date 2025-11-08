@@ -2,15 +2,11 @@
 
 let
   cfg = config.services.ai;
-  domain = config.networking.hostName;
-  tailnet = config.networking.tailscale.domain;
-  hasTailscaleDomain = tailnet != null;
 in
 {
   imports = [
-    ./caddy.nix
     ./ollama.nix
-    ./packages.nix
+    ./open-webui.nix
   ];
 
   options = {
@@ -19,29 +15,28 @@ in
     };
   };
 
-  config = lib.mkMerge [
-    # Always apply when AI is enabled
-    (lib.mkIf cfg.enable {
-      # Add users to systemd-journal group using userGroups
-      # This avoids infinite recursion by not modifying users.users directly
-      users.groups.systemd-journal = {
-        members = lib.attrNames (lib.filterAttrs (name: user: user.isNormalUser or false) config.users.users);
-      };
-    })
+  config = lib.mkIf cfg.enable {
+    # Add users to systemd-journal group using userGroups
+    # This avoids infinite recursion by not modifying users.users directly
+    users.groups.systemd-journal = {
+      members = lib.attrNames (lib.filterAttrs (name: user: user.isNormalUser or false) config.users.users);
+    };
 
-    # Only configure Caddy and WEBUI_URL if Tailscale domain is set
-    (lib.mkIf (cfg.enable && hasTailscaleDomain) {
-      # Caddy reverse proxy for OpenWebUI
-      # Tailscale MagicDNS doesn't support custom subdomains, so we use the main domain
-      # Future services will need to use path-based routing or separate Tailscale machines
-      services.caddy.virtualHosts."${domain}.${tailnet}" = {
-        extraConfig = ''
-          reverse_proxy http://127.0.0.1:8080
-        '';
-      };
+    # AI tools and packages
+    environment.systemPackages = with pkgs; [
+      # AI assistant tools
+      whisper-cpp
+      nodejs # For npx MCP servers
+      python3 # For mcpo venv
+      mcp-chat # Custom CLI for using MCP tools with local Ollama models      
+    ] ++ (with inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}; [
+      copilot-cli
+      claude-code
+    ]);
 
-      # Update WEBUI_URL for main domain
-      services.open-webui.environment.WEBUI_URL = "http://${domain}.${tailnet}";
-    })
-  ];
+    # Enable both ollama and open-webui by default when AI is enabled
+    # Can be individually disabled if needed
+    services.ai.ollama.enable = lib.mkDefault true;
+    services.ai.openWebUI.enable = lib.mkDefault true;
+  };
 }

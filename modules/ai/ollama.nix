@@ -10,7 +10,13 @@ let
   ];
 in
 {
-  config = lib.mkIf cfg.enable {
+  options = {
+    services.ai.ollama = {
+      enable = lib.mkEnableOption "Ollama AI model server";
+    };
+  };
+
+  config = lib.mkIf (cfg.enable && cfg.ollama.enable) {
     # AMD GPU ROCm and OpenCL support for AI workloads
     hardware.amdgpu.opencl.enable = true;
     hardware.graphics.extraPackages = with pkgs; [ rocmPackages.clr.icd ];
@@ -28,21 +34,6 @@ in
       port = 11434;
       host = "0.0.0.0";
       openFirewall = true;
-    };
-
-    # Open WebUI for Ollama
-    services.open-webui = {
-      enable = true;
-      host = "0.0.0.0";
-      port = 8080;
-      openFirewall = true;
-      environment = {
-        STATIC_DIR = "${config.services.open-webui.stateDir}/static";
-        DATA_DIR = "${config.services.open-webui.stateDir}/data";
-        HF_HOME = "${config.services.open-webui.stateDir}/hf_home";
-        SENTENCE_TRANSFORMERS_HOME = "${config.services.open-webui.stateDir}/transformers_home";
-        # WEBUI_URL is set in default.nix to avoid duplicate variable definitions
-      };
     };
 
     # Systemd service to pull default models on first boot
