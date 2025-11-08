@@ -1,5 +1,5 @@
 # Desktop disk configuration
-{ lib, ... }:
+{ ... }:
 {
   disko.devices = {
     disk = {

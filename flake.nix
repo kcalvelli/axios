@@ -131,7 +131,7 @@
     flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
       systems = import systems;
 
-      perSystem = { pkgs, system, ... }: {
+      perSystem = { pkgs, ... }: {
         formatter = pkgs.nixpkgs-fmt;
 
         # Apps - exposed as `nix run github:kcalvelli/axios#<app>`

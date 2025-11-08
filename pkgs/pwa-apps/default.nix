@@ -38,7 +38,7 @@ let
     mimeTypes = pwa.mimeTypes or [ ];
     startupWMClass = urlToAppId pwa.url;
     actions = lib.mapAttrs
-      (actionId: action: {
+      (_actionId: action: {
         name = action.name;
         exec = "${lib.getExe brave} --app=${action.url}";
       })

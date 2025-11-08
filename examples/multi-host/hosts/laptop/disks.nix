@@ -1,5 +1,5 @@
 # Laptop disk configuration
-{ lib, ... }:
+{ ... }:
 {
   disko.devices = {
     disk = {

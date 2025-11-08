@@ -81,7 +81,7 @@ in
         (lib.mkIf cfg.enableUserShares (
           let
             # Get all normal users
-            normalUsers = lib.filterAttrs (name: user: user.isNormalUser or false) config.users.users;
+            normalUsers = lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users;
 
             # Generate share config for a user's directory
             mkUserShare = username: shareName: {

@@ -1,4 +1,4 @@
-{ lib, self, pkgs, ... }:
+{ lib, pkgs, ... }:
 {
   # Install cachix for cache management
   environment.systemPackages = with pkgs; [

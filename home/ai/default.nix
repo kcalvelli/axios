@@ -1,4 +1,4 @@
-{ config, lib, pkgs, osConfig ? { }, ... }:
+{ ... }:
 
 {
   # AI home-manager configuration

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, inputs, osConfig ? { }, ... }:
+{ lib, ... }:
 
 let
   cfg = config.secrets;

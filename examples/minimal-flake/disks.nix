@@ -2,7 +2,7 @@
 # This is a simple single-disk setup with ext4
 # See https://github.com/nix-community/disko for more templates
 
-{ lib, ... }:
+{ ... }:
 {
   disko.devices = {
     disk = {

@@ -1,5 +1,5 @@
 # Server disk configuration with separate data partition
-{ lib, ... }:
+{ ... }:
 {
   disko.devices = {
     disk = {

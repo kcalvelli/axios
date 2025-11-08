@@ -1,4 +1,4 @@
-{ self, config, ... }:
+{ ... }:
 let
   username = "admin";
   fullName = "Server Admin";

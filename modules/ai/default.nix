@@ -19,7 +19,7 @@ in
     # Add users to systemd-journal group using userGroups
     # This avoids infinite recursion by not modifying users.users directly
     users.groups.systemd-journal = {
-      members = lib.attrNames (lib.filterAttrs (name: user: user.isNormalUser or false) config.users.users);
+      members = lib.attrNames (lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users);
     };
 
     # AI tools and packages

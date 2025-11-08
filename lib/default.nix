@@ -254,7 +254,7 @@ let
           )
           laptopHardware;
 
-      hostModule = { config, lib, ... }:
+      hostModule = { lib, ... }:
         let
           hwVendor = hostCfg.hardware.vendor or null;
           profile = hostCfg.homeProfile or "workstation";

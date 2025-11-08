@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 {
   # Workstation profile: full desktop with gaming and device support
   imports = [

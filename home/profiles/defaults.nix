@@ -1,7 +1,6 @@
-{ config, lib, osConfig ? { }, ... }:
+{ config, lib, ... }:
 let
   cfg = config.axios.home;
-  userCfg = config.axios.user;
 in
 {
   options.axios = {
