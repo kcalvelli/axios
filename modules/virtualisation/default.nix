@@ -47,18 +47,17 @@ in
           package = pkgs.qemu_kvm;
           runAsRoot = false;
           swtpm.enable = true;
+          # Configure QEMU security - allow access to user directories
+          verbatimConfig = ''
+            user = "root"
+            group = "root"
+            dynamic_ownership = 1
+          '';
         };
         # Allow libvirt to access user files
         # This fixes "Permission denied" errors when accessing ISOs in ~/Downloads
         onBoot = "ignore";
         onShutdown = "shutdown";
-        
-        # Configure QEMU security - allow access to user directories
-        qemuVerbatimConfig = ''
-          user = "root"
-          group = "root"
-          dynamic_ownership = 1
-        '';
       };
 
       # Configure QEMU to run with user permissions
