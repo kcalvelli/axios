@@ -8,6 +8,8 @@ let
   gtk3Css = "${config.home.homeDirectory}/.config/gtk-3.0/dank-colors.css";
   qt6ct = "${config.home.homeDirectory}/.config/qt6ct/colors/matugen.conf";
   qt5ct = "${config.home.homeDirectory}/.config/qt5ct/colors/matugen.conf";
+  
+  base16ExtDir = "${codeExtDir}/local.dynamic-base16-dankshell-0.0.1";
 in
 {
   # Basic theming for all WMs
@@ -164,5 +166,12 @@ in
     await mkdir(dirname(themeJsonPath), { recursive: true })
     await writeFile(themeJsonPath, JSON.stringify(vscodeTheme, null, 2))
     console.log('Updated theme JSON:', themeJsonPath, '→', primary, darkMode ? '(dark)' : '(light)')
+  '';
+
+  # Ensure base16 VSCode extension files are writable so VSCode can detect it
+  home.activation.fixVSCodeExtensionPermissions = config.lib.dag.entryAfter ["writeBoundary"] ''
+    if [ -d "${base16ExtDir}" ]; then
+      $DRY_RUN_CMD chmod -R u+w "${base16ExtDir}" 2>/dev/null || true
+    fi
   '';
 }
