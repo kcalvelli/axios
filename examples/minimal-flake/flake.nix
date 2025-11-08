@@ -55,7 +55,7 @@
           # Add any additional NixOS options here
           # Required: Set system timezone
           axios.system.timeZone = "America/New_York";
-          
+
           # For example:
           # time.hardwareClockInLocalTime = true;
         };
