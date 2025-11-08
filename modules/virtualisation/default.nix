@@ -47,8 +47,27 @@ in
           package = pkgs.qemu_kvm;
           runAsRoot = false;
           swtpm.enable = true;
+          ovmf = {
+            enable = true;
+            packages = [ pkgs.OVMFFull.fd ];
+          };
         };
+        # Allow libvirt to access user files
+        # This fixes "Permission denied" errors when accessing ISOs in ~/Downloads
+        onBoot = "ignore";
+        onShutdown = "shutdown";
+        
+        # Configure QEMU security - allow access to user directories
+        qemuVerbatimConfig = ''
+          user = "root"
+          group = "root"
+          dynamic_ownership = 1
+        '';
       };
+
+      # Configure QEMU to run with user permissions
+      # This allows access to files in user directories
+      security.polkit.enable = true;
 
       # Allow redirection of USB devices
       virtualisation.spiceUSBRedirection.enable = true;
