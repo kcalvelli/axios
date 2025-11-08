@@ -45,7 +45,7 @@
 
         extraConfig = {
           # Desktop-specific configuration
-          # time.timeZone = "America/New_York";
+          axios.system.timeZone = "America/New_York";
         };
       };
 
@@ -68,6 +68,7 @@
 
         extraConfig = {
           # Laptop-specific configuration
+          axios.system.timeZone = "America/New_York";
           # services.thermald.enable = true;
         };
       };
@@ -103,6 +104,7 @@
 
         extraConfig = {
           # Server-specific configuration
+          axios.system.timeZone = "America/New_York";
           # services.openssh.enable = true;
         };
       };
