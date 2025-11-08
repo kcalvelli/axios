@@ -142,6 +142,7 @@
               export AXIOS_TEMPLATE_DIR="${./scripts/templates}"
               exec ${pkgs.bash}/bin/bash ${./scripts/init-config.sh}
             '');
+            meta.description = "Initialize a new axiOS configuration";
           };
         };
       };
