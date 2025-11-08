@@ -30,12 +30,12 @@ in
         };
         waydroid.enable = true;
       };
-      
+
       # Add all normal users to docker group when containers are enabled
       users.groups.docker = {
         members = lib.attrNames (lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users);
       };
-      
+
       environment.systemPackages = with pkgs; [
         winboat
         freerdp

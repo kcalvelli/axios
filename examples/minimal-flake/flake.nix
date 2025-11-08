@@ -9,7 +9,7 @@
     nixpkgs.follows = "axios/nixpkgs";
   };
 
-  outputs = { axios, ... }:
+  outputs = { self, axios, ... }:
     let
       # Define your host configuration
       myHostConfig = {
