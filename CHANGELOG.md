@@ -7,6 +7,29 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+## [2025-11-08.1] - Theming & VSCode Integration Improvements
+
+### Added
+- **DankMaterialShell Enhancements**
+  - Added DankHooks plugin for enhanced functionality
+  - Integrated dsearch (DankMaterialShell search) feature
+  - Added VSCode extension registration system
+  - Implemented Base16 color scheme support for VSCode (Dank16)
+  - Added wallpaper-changed.sh script integration
+
+### Changed
+- **Theming Improvements**
+  - Simplified theming documentation for better clarity
+  - Disabled Material Code theme as DMS default
+  - Reverted to simple plugin installation per documentation
+  - Allow users to modify plugin settings via GUI
+  - Made Base16 VSCode extension files writable for proper detection
+
+### Fixed
+- Added config parameter to function signature in theming module
+- Fixed wallpaper script path to reference deployed location in user home directory
+- Removed material-code theme update from wallpaper hook (refactored approach)
+
 ## [2025-11-08] - Desktop Consolidation & Module Cleanup
 
 ### Added
