@@ -116,6 +116,10 @@ jobs:
                 };
                 homeProfile = "workstation";
                 userModulePath = ./user.nix;
+                extraConfig = {
+                  # Required: Set timezone
+                  axios.system.timeZone = "America/New_York";
+                };
               };
             };
           }
