@@ -4,11 +4,15 @@
 { pkgs, inputs, system }:
 let
   mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
+  spec-kit = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.spec-kit;
 in
 mkShell {
   name = "spec-kit";
 
   packages = [
+    # Spec Kit (from nix-ai-tools, daily updated)
+    spec-kit
+
     # Core tools
     pkgs.python311
     pkgs.uv
@@ -36,8 +40,8 @@ mkShell {
   commands = [
     {
       name = "specify";
-      help = "Run GitHub Spec Kit CLI via uvx";
-      command = ''uvx --from git+https://github.com/github/spec-kit.git specify "$@"'';
+      help = "Run GitHub Spec Kit CLI";
+      command = "specify \"$@\"";
     }
     {
       name = "spec-check";
@@ -64,8 +68,8 @@ mkShell {
         echo "  aider        - AI pair programming assistant"
         echo ""
         echo "Documentation: https://github.com/github/spec-kit"
+        echo "Spec Kit: $(specify --version 2>/dev/null || echo 'installed via nix-ai-tools')"
         echo "Python: $(python --version)"
-        echo "uv: $(uv --version)"
         echo "Node.js: $(node --version)"
       '';
     }
