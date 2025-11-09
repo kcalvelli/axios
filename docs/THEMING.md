@@ -14,17 +14,27 @@ axiOS uses [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell)
 
 ## Wallpaper Blur for Overview Mode
 
-When you change wallpapers in DankMaterialShell, a blurred version is automatically created for Niri's overview background.
+axiOS provides a wallpaper blur script that creates a blurred version of your wallpaper for Niri's overview background.
 
-### How It Works
+### Setup Instructions
 
-The Dank Hooks plugin automatically:
-1. Detects when wallpaper changes
-2. Generates a blurred version using ImageMagick
-3. Saves it to `~/.cache/niri/overview-blur.jpg`
-4. Displays it using `swaybg` as the overview background
+To enable automatic wallpaper blur when changing wallpapers:
 
-The wallpaper blur script and plugin are automatically configured by axiOS. No manual setup required.
+1. **Enable the DankHooks Plugin:**
+   - Open DankMaterialShell settings
+   - Navigate to **Plugins**
+   - Find **Dank Hooks** and click **Enable**
+
+2. **Configure the Wallpaper Hook:**
+   - In the DankHooks plugin settings, find **Wallpaper Changed**
+   - Set the hook path to: `~/scripts/wallpaper-changed.sh`
+   - The script is automatically deployed to your home directory by axiOS
+
+The hook will now automatically:
+1. Detect when wallpaper changes
+2. Generate a blurred version using ImageMagick
+3. Save it to `~/.cache/niri/overview-blur.jpg`
+4. Display it using `swaybg` as the overview background
 
 ### Manual Testing
 
@@ -37,10 +47,11 @@ Test the wallpaper blur generation:
 ### Troubleshooting
 
 **Blurred background not appearing:**
-1. Check that `~/.cache/niri/overview-blur.jpg` exists
-2. Verify ImageMagick is installed: `which magick`
-3. Check that swaybg is running: `ps aux | grep swaybg`
-4. Monitor logs: `journalctl --user -u dms -f`
+1. Verify DankHooks plugin is enabled in DMS settings
+2. Check that the wallpaper hook path is correctly configured to `~/scripts/wallpaper-changed.sh`
+3. Ensure `~/.cache/niri/overview-blur.jpg` exists after changing wallpapers
+4. Verify ImageMagick is installed: `which magick`
+5. Check that swaybg is running: `ps aux | grep swaybg`
 
 ## Niri Overview Mode
 

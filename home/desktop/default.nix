@@ -13,12 +13,6 @@
   programs.dankMaterialShell = {
     enable = true;
     quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-
-    # Install DankHooks plugin for wallpaper blur and other system event hooks
-    plugins.dankHooks = {
-      enable = true;
-      src = ./dms-plugins/DankHooks;
-    };
   };
 
   programs.dsearch = {
