@@ -3,7 +3,7 @@
 # rather than a traditional tech stack shell. It works with AI coding agents.
 { pkgs, inputs, system }:
 let
-  mkShell = inputs.devshell.legacyPackages.${system}.mkShell;
+  mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
 in
 mkShell {
   name = "spec-kit";

@@ -2,9 +2,9 @@
 # Uses zig-overlay for up-to-date Zig versions
 { pkgs, inputs, system }:
 let
-  mkShell = inputs.devshell.legacyPackages.${system}.mkShell;
+  mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
   zigPkgs = import inputs.nixpkgs {
-    inherit system;
+    system = pkgs.stdenv.hostPlatform.system;
     overlays = [ inputs."zig-overlay".overlays.default ];
   };
 in

@@ -2,7 +2,7 @@
 # Includes Qt6, QML tools, and all dependencies needed for building Quickshell
 { pkgs, inputs, system }:
 let
-  mkShell = inputs.devshell.legacyPackages.${system}.mkShell;
+  mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
 in
 mkShell {
   name = "qml";
