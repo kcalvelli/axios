@@ -2,8 +2,8 @@
 # Includes common build dependencies and development tools
 { pkgs, inputs, system }:
 let
-  mkShell = inputs.devshell.legacyPackages.${system}.mkShell;
-  fenixPkgs = inputs.fenix.packages.${system};
+  mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
+  fenixPkgs = inputs.fenix.packages.${pkgs.stdenv.hostPlatform.system};
   toolchain = fenixPkgs.stable.toolchain; # or .default.toolchain for nightly
 in
 mkShell {
