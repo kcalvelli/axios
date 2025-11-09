@@ -51,6 +51,19 @@ in
 {
   # Create AI tool configurations when AI is enabled
   config = lib.mkIf (osConfig.services.ai.enable or false) {
+    # Shell aliases for AI tools
+    programs.bash.shellAliases = {
+      cm = "claude-monitor";
+      cmonitor = "claude-monitor";
+      ccm = "claude-monitor";
+    };
+
+    programs.zsh.shellAliases = {
+      cm = "claude-monitor";
+      cmonitor = "claude-monitor";
+      ccm = "claude-monitor";
+    };
+
     # Install required packages
     home.packages = (with pkgs; [
 

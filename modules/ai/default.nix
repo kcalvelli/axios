@@ -29,6 +29,7 @@ in
       nodejs # For npx MCP servers
       python3 # For mcpo venv
       mcp-chat # Custom CLI for using MCP tools with local Ollama models
+      claude-monitor # Real-time Claude Code usage monitoring
     ] ++ (with inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}; [
       # Claude-specific tools
       copilot-cli
