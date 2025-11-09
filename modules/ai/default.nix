@@ -28,10 +28,27 @@ in
       whisper-cpp
       nodejs # For npx MCP servers
       python3 # For mcpo venv
-      mcp-chat # Custom CLI for using MCP tools with local Ollama models      
+      mcp-chat # Custom CLI for using MCP tools with local Ollama models
     ] ++ (with inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}; [
+      # Claude-specific tools
       copilot-cli
       claude-code
+
+      # AI pair programming and assistants
+      aider-chat # AI pair programming with Claude/GPT
+      goose-ai # AI agent system (supports Claude models)
+
+      # Repository and context management for Claude
+      repomix # Pack repositories for Claude context
+      repo-visualizer # Visualize repo structure
+
+      # CLI interfaces for AI models
+      llm # Simon Willison's LLM CLI (supports Claude API)
+      fabric # AI pattern framework for structured interactions
+
+      # AI-enhanced development tools
+      opencommit # AI-powered commit messages
+      spellcheck # AI spellchecking
     ]);
 
     # Enable both ollama and open-webui by default when AI is enabled
