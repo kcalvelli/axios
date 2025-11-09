@@ -32,7 +32,10 @@ in
     ] ++ (with inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}; [
       # Claude-specific tools
       copilot-cli
-      claude-code
+      claude-code # Claude CLI with MCP support
+      claude-desktop # Claude Desktop GUI app with native MCP support
+      claude-code-router # Claude model routing
+      claudebox # Claude sandbox environment
 
       # AI pair programming and assistants
       aider-chat # AI pair programming with Claude/GPT
