@@ -1,4 +1,4 @@
-{ lib, stdenv, brave, makeDesktopItem, symlinkJoin }:
+{ lib, stdenv, brave, makeDesktopItem, symlinkJoin, substituteInPlace ? null }:
 
 let
   pwaDefs = import ./pwa-defs.nix;
