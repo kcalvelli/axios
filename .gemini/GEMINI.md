@@ -46,10 +46,4 @@
     - For targeted file or content searches, prefer `glob` and `search_file_content`.
     - Use `ls`, `cat`, and `grep` for simple exploration when appropriate.
 - **Commit and Push Workflow:** When asked to commit, you must follow this procedure:
-    1. Run `nix fmt .` to format all generated code.
-    2. Run `git status` to see the state of the repository.
-    3. Use `git add` to stage all appropriate changes.
-    4. Review the changes using `git diff --staged`.
-    5. Examine `git log -n 3` to match the recent commit message style.
-    6. Propose a concise, well-formatted commit message for approval.
-    7. Run `git push`.
+    1. Provide an appropriate commit message, and prompt the user to commit.  Do not attempt to commit yourself.
