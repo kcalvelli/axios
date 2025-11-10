@@ -2,6 +2,12 @@
 
 let
   cfg = config.services.ai;
+
+  # Renames the 'code' package binary to 'coder' to avoid conflicts with VSCode.
+  code-renamed = pkgs.runCommand "code-renamed" { } ''
+    mkdir -p $out/bin
+    ln -s ${inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.code}/bin/code $out/bin/coder
+  '';
 in
 {
   imports = [
@@ -35,7 +41,7 @@ in
       copilot-cli # GitHub Copilot CLI
       claude-code # Claude CLI with MCP support
       goose-cli
-      code
+      # code # Renamed to 'coder' to avoid conflict with VSCode
       claude-code-router
       backlog-md
       crush
@@ -43,7 +49,9 @@ in
       codex
       catnip
       gemini-cli
-    ]);
+    ]) ++ [
+      code-renamed
+    ];
 
     # Enable both ollama and open-webui by default when AI is enabled
     # Can be individually disabled if needed
