@@ -40,14 +40,9 @@ in
         ai-tools.copilot-cli # GitHub Copilot CLI
         ai-tools.claude-code # Claude CLI with MCP support
         ai-tools.goose-cli
-        (pkgs.symlinkJoin {
-          name = "coder";
-          paths = [ ai-tools.code ];
-          postBuild = ''
-            mkdir -p $out/bin
-            ln -s $out/bin/code $out/bin/coder
-          '';
-        })
+        (pkgs.writeShellScriptBin "coder" ''
+          exec ${ai-tools.code}/bin/code "$@"
+        '')
         ai-tools.claude-code-router
         ai-tools.backlog-md
         ai-tools.crush
