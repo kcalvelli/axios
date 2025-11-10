@@ -40,9 +40,6 @@ in
         ai-tools.copilot-cli # GitHub Copilot CLI
         ai-tools.claude-code # Claude CLI with MCP support
         ai-tools.goose-cli
-        (pkgs.writeShellScriptBin "coder" ''
-          exec ${ai-tools.code}/bin/code "$@"
-        '')
         ai-tools.claude-code-router
         ai-tools.backlog-md
         ai-tools.crush
