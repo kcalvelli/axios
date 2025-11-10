@@ -12,7 +12,7 @@ import requests
 from typing import List, Dict, Any, Generator
 
 # --- Configuration ---
-DEFAULT_MODEL = "qwen2.5-coder:7b"
+DEFAULT_MODEL = "llama3.1:8b"
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MCPO_URL = "http://localhost:8000"
 REQUEST_TIMEOUT = 120
@@ -38,16 +38,7 @@ class ChatClient:
         self.messages: List[Dict[str, Any]] = [
             {
                 "role": "system",
-                "content": """You are a helpful assistant with access to tools. When the user asks questions that can be answered using the available tools, you MUST use them instead of providing manual instructions.
-
-Guidelines:
-- For systemd logs or journal queries: Use journal tools.
-- For file operations: Use filesystem tools.
-- For NixOS packages: Use mcp-nixos tools.
-- NEVER tell users to run journalctl, cat, or other commands manually when you have tools available.
-- Always use the appropriate tool for the task.
-- Use `.` as the separator for tool names, e.g., `filesystem.read_file`.
-"""
+                "content": """You are a helpful assistant. You have tools available - USE THEM. Do not suggest commands or manual steps. Call the appropriate tool to answer the question directly."""
             }
         ]
 
@@ -167,37 +158,44 @@ Guidelines:
 
             if stream:
                 buffer = ""
+                complete_message = None
                 for chunk in response.iter_content(chunk_size=None):
                     buffer += chunk.decode('utf-8')
                     while '\n' in buffer:
                         line, buffer = buffer.split('\n', 1)
                         if line:
                             part = json.loads(line)
-                            self.messages.append(part['message'])
                             content = part.get("message", {}).get("content", "")
                             if content:
                                 yield content
-                            
+
                             if part.get("done"):
+                                complete_message = part['message']
                                 tool_calls = part.get("message", {}).get("tool_calls")
                                 if tool_calls:
+                                    self.messages.append(complete_message)
                                     self._handle_tool_calls(tool_calls)
                                     # After tool calls, get the final, non-streamed response
                                     final_gen = self.send_request(stream=True)
                                     for final_content in final_gen:
                                         yield final_content
-                                return
+                                    return
+
+                # Append the complete message only once
+                if complete_message:
+                    self.messages.append(complete_message)
+                return
             else: # Non-streaming for single query
                 result = response.json()
                 assistant_message = result.get("message", {})
                 self.messages.append(assistant_message)
-                
+
                 if tool_calls := assistant_message.get("tool_calls"):
                     self._handle_tool_calls(tool_calls)
                     # Get final response after tool execution
                     final_result = requests.post(
                         f"{self.ollama_url}/api/chat",
-                        json={"model": self.model, "messages": self.messages, "stream": False},
+                        json={"model": self.model, "messages": self.messages, "tools": self.tools, "stream": False},
                         timeout=REQUEST_TIMEOUT
                     ).json()
                     final_message = final_result.get("message", {})
