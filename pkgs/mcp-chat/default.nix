@@ -1,7 +1,6 @@
 { lib
 , python3
 , makeWrapper
-, substituteInPlace
 }:
 
 python3.pkgs.buildPythonApplication {
@@ -18,7 +17,6 @@ python3.pkgs.buildPythonApplication {
 
   nativeBuildInputs = [
     makeWrapper
-    substituteInPlace
   ];
 
   dontBuild = true;
