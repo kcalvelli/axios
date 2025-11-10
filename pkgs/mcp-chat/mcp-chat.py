@@ -6,6 +6,7 @@ Usage: mcp-chat [--model MODEL] [--mcpo-url URL] [--query "Your query"]
 
 import argparse
 import json
+import re
 import sys
 import requests
 from typing import List, Dict, Any, Generator
@@ -56,13 +57,21 @@ Guidelines:
             print("Loading tools...", end="", flush=True)
 
         try:
-            # Dynamic server discovery
-            resp = requests.get(self.mcpo_url, timeout=5)
+            # Dynamic server discovery from OpenAPI spec
+            resp = requests.get(f"{self.mcpo_url}/openapi.json", timeout=5)
             resp.raise_for_status()
-            server_names = resp.json().get("servers", [])
-        except (requests.RequestException, json.JSONDecodeError) as e:
+            openapi_spec = resp.json()
+
+            # Parse server names from description field
+            # Format: "- [server-name](/server-name/docs)"
+            description = openapi_spec.get("info", {}).get("description", "")
+            server_names = re.findall(r'\[([^\]]+)\]\(/[^\)]+/docs\)', description)
+
+            if not server_names:
+                raise ValueError("No servers found in OpenAPI description")
+        except (requests.RequestException, json.JSONDecodeError, ValueError) as e:
             if not silent:
-                print(f"{Colors.ERROR}\nWarning: Failed to discover servers from mcpo root. Falling back to default list. ({e}){Colors.RESET}", file=sys.stderr)
+                print(f"{Colors.ERROR}\nWarning: Failed to discover servers from mcpo. Falling back to default list. ({e}){Colors.RESET}", file=sys.stderr)
             server_names = ["journal", "mcp-nixos", "sequential-thinking", "context7", "filesystem"]
 
         for server in server_names:
