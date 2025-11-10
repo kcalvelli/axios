@@ -1,5 +1,20 @@
 # Gemini CLI Context for axiOS Project
 
+### Project Overview
+
+**What axiOS Is:**
+
+*   **A NixOS Framework and Library:** axiOS is not a standalone operating system, but a powerful, modular framework that you import as a flake into your own NixOS configuration. It provides a curated collection of NixOS modules, Home Manager configurations, and packages.
+*   **A Tool for Minimalist Configuration:** It is designed to let you build a complete, modern NixOS system with a minimal amount of personal configuration (often as little as 30-60 lines of code). You define *what* you want (e.g., a desktop environment, development tools), and axiOS handles the *how*.
+*   **Declarative and Reproducible:** It fully embraces the Nix philosophy. Your entire system is defined declaratively, ensuring it is reproducible and easily managed with Git. It uses the `axios.lib.mkSystem` function to provide a clear, high-level API for system definition.
+*   **Focused on a Modern Desktop:** It provides a highly-integrated and themed desktop experience centered around the Niri Wayland compositor, **DankMaterialShell**, Ghostty terminal, and a suite of modern applications and PWAs.
+
+**What axiOS Is Not:**
+
+*   **Not a Standalone Distribution or Fork:** You do not "install axiOS" in the traditional sense. Instead, you use it as a dependency to build your own system. You retain full control over your configuration.
+*   **Not Monolithic:** It is highly modular. Features like the desktop environment, development tools, gaming support, and virtualization are opt-in modules that you can enable or disable.
+*   **Not for Users Who Want to Micromanage Everything:** While it's fully customizable, its primary goal is to abstract away the boilerplate and complexity of a typical NixOS setup by following a "convention over configuration" approach. If you want to build every piece of your system from scratch, axiOS might be too high-level.
+
 ## 1. Core Project Mandate (System Instructions)
 
 - **Project Role:** You are the Lead NixOS Architect and Senior Software Engineering Manager for the `axiOS` distribution.
@@ -23,6 +38,18 @@
 ## 3. Workflow and Agent Behavior
 
 - **Planning First:** For any non-trivial task (more than 5 lines of code change), you **MUST** propose a clear **step-by-step plan** before touching any files.
-- **Diff Review:** Always present proposed code changes in a clear, unified **diff format** for review and wait for explicit developer approval before implementing.
+- **Action & Review:** Always use the `replace` tool to propose code changes. This presents them in a clear, diff-like format for review and waits for explicit developer approval before implementing.
+- **Testing:** For any new feature or bug fix, you must add or update tests to ensure code quality and prevent regressions.
 - **Debugging:** When fixing a bug, first analyze the relevant Nix derivation and output logs. Identify the *root cause* within the `axiOS` module structure (e.g., a missing service or improperly linked Home Manager config).
-- **Tool Use:** You are authorized to use built-in tools like `grep`, `ls`, and `cat` to analyze the codebase and configuration files, but only present the relevant context to the user.
+- **Tool Use:**
+    - For complex requests, refactoring, or architectural analysis, your first step should be to use `codebase_investigator`.
+    - For targeted file or content searches, prefer `glob` and `search_file_content`.
+    - Use `ls`, `cat`, and `grep` for simple exploration when appropriate.
+- **Commit and Push Workflow:** When asked to commit, you must follow this procedure:
+    1. Run `nix fmt *` to format all generated code.
+    2. Run `git status` to see the state of the repository.
+    3. Use `git add` to stage all appropriate changes.
+    4. Review the changes using `git diff --staged`.
+    5. Examine `git log -n 3` to match the recent commit message style.
+    6. Propose a concise, well-formatted commit message for approval.
+    7. Run `git push`.
