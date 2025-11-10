@@ -1,6 +1,7 @@
 { lib
 , python3
 , makeWrapper
+, substituteInPlace
 }:
 
 python3.pkgs.buildPythonApplication {
@@ -15,19 +16,23 @@ python3.pkgs.buildPythonApplication {
     requests
   ];
 
-  nativeBuildInputs = [ makeWrapper ];
+  nativeBuildInputs = [
+    makeWrapper
+    substituteInPlace
+  ];
 
   dontBuild = true;
+
+  postPatch = ''
+    substituteInPlace mcp-chat.py \
+      --replace "#!/usr/bin/env python3" "#!${python3.interpreter}"
+  '';
 
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/bin
-    cp mcp-chat.py $out/bin/mcp-chat
-    chmod +x $out/bin/mcp-chat
-
-    # Add shebang and make executable
-    sed -i '1i#!/usr/bin/env python3' $out/bin/mcp-chat
+    install -m 755 mcp-chat.py $out/bin/mcp-chat
 
     # Wrap to ensure Python and dependencies are in PATH
     wrapProgram $out/bin/mcp-chat \
