@@ -34,7 +34,14 @@ in
       # Claude tools
       copilot-cli # GitHub Copilot CLI
       claude-code # Claude CLI with MCP support
-      claude-desktop # Claude Desktop GUI app with native MCP support
+      goose-cli
+      code
+      claude-code-router
+      backlog-md
+      crush
+      forge
+      codex
+      catnip
     ]);
 
     # Enable both ollama and open-webui by default when AI is enabled

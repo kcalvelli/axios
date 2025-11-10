@@ -209,9 +209,55 @@ Access via: `nix develop .#rust`
 
 ## Testing & CI
 
-GitHub Actions workflows:
-- `.github/workflows/build-devshells.yml` - Builds all devshells
-- Triggered on changes to `devshells/`, `flake.nix`, `flake.lock`
+GitHub Actions workflows provide automated testing and validation:
+
+### Core Validation Workflows
+
+**Flake Check** (`.github/workflows/flake-check.yml`)
+- Validates flake structure with `nix flake check --all-systems`
+- Builds example configurations (minimal-flake, multi-host) with dry-run
+- Triggers: push to master, PRs, manual
+- Uses Cachix for build acceleration
+
+**Code Formatting** (`.github/workflows/formatting.yml`)
+- Checks Nix code formatting with `nix fmt -- --check`
+- Triggers: push to master/PRs on `**.nix` files, manual
+- Provides helpful fix instructions on failure
+
+**Test Init Script** (`.github/workflows/test-init-script.yml`)
+- Tests `nix run .#init` command functionality
+- Triggers: push to master/PRs on `scripts/**` or `flake.nix`, manual
+
+### Build Workflows
+
+**Build DevShells** (`.github/workflows/build-devshells.yml`)
+- Builds all development shells (rust, zig, qml, etc.)
+- Lists available shells with `nix flake show`
+- Triggers: push to master/PRs on `devshells/**`, `devshells.nix`, `flake.*`, manual
+
+### Dependency Management
+
+**Update flake.lock** (`.github/workflows/flake-lock-updater.yml`)
+- Weekly automated flake.lock updates (Mondays 6 AM UTC)
+- Creates PRs with validation and manual testing instructions
+- Runs `nix flake check` for structure validation
+- Includes comprehensive PR body with testing requirements
+- Triggers: weekly cron schedule, manual
+
+**Update flake.lock (Direct)** (`.github/workflows/flake-lock-updater-direct.yml`)
+- Alternative direct-commit workflow (disabled by default)
+- Triggers: manual only
+
+### CI Infrastructure
+
+All workflows use:
+- DeterminateSystems/nix-installer-action for Nix installation
+- DeterminateSystems/magic-nix-cache-action for caching
+- Cachix (axios cache) for build artifact storage (where applicable)
+
+### Manual Testing
+
+**Important**: CI validates structure but not actual builds. Use `./scripts/test-build.sh` for full validation before merging dependency updates.
 
 ## AI Module Specifics
 
@@ -260,7 +306,6 @@ environment.systemPackages = [
 
 When working on this project:
 - Always follow the module structure pattern
-- Never import applications.nix unconditionally
 - Keep packages inside mkIf blocks
 - Use `${pkgs.stdenv.hostPlatform.system}` not `${system}`
 - This is a library - avoid hardcoded personal preferences
