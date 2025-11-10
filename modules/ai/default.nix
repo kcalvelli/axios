@@ -42,6 +42,7 @@ in
       forge
       codex
       catnip
+      gemini-cli
     ]);
 
     # Enable both ollama and open-webui by default when AI is enabled
