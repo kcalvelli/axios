@@ -37,5 +37,5 @@ in
 
   # Automatically generate overlay from all package directories
   flake.overlays.default = _final: prev:
-    lib.genAttrs packageNames (name: prev.callPackage (pkgsDir + "/${name}") { });
+    lib.genAttrs packageNames (name: prev.callPackage (pkgsDir + "/${name}") { substituteInPlace = prev.substituteInPlace; });
 }
