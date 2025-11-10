@@ -3,11 +3,6 @@
 let
   cfg = config.services.ai;
 
-  # Renames the 'code' package binary to 'coder' to avoid conflicts with VSCode.
-  code-renamed = pkgs.runCommand "code-renamed" { } ''
-    mkdir -p $out/bin
-    ln -s ${inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.code}/bin/code $out/bin/coder
-  '';
 in
 {
   imports = [
@@ -36,22 +31,32 @@ in
       python3 # For mcpo venv
       mcp-chat # CLI for testing MCP servers with local Ollama models
       claude-monitor # Real-time Claude Code usage monitoring
-    ] ++ (with inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}; [
-      # Claude tools
-      copilot-cli # GitHub Copilot CLI
-      claude-code # Claude CLI with MCP support
-      goose-cli
-      # code # Renamed to 'coder' to avoid conflict with VSCode
-      claude-code-router
-      backlog-md
-      crush
-      forge
-      codex
-      catnip
-      gemini-cli
-    ]) ++ [
-      code-renamed
-    ];
+    ] ++ (
+      let
+        ai-tools = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system};
+      in
+      [
+        # Claude tools
+        ai-tools.copilot-cli # GitHub Copilot CLI
+        ai-tools.claude-code # Claude CLI with MCP support
+        ai-tools.goose-cli
+        (pkgs.symlinkJoin {
+          name = "coder";
+          paths = [ ai-tools.code ];
+          postBuild = ''
+            mkdir -p $out/bin
+            ln -s $out/bin/code $out/bin/coder
+          '';
+        })
+        ai-tools.claude-code-router
+        ai-tools.backlog-md
+        ai-tools.crush
+        ai-tools.forge
+        ai-tools.codex
+        ai-tools.catnip
+        ai-tools.gemini-cli
+      ]
+    );
 
     # Enable both ollama and open-webui by default when AI is enabled
     # Can be individually disabled if needed
