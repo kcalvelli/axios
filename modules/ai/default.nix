@@ -24,7 +24,9 @@ in
       whisper-cpp
       nodejs # For npx MCP servers
       claude-monitor # Real-time Claude Code usage monitoring
-      nodePackages."@google/jules"
+      (pkgs.writeShellScriptBin "jules" ''
+        exec ${pkgs.nodejs_20}/bin/npx @google/jules@latest "$@"
+      '')      
     ] ++ (
       let
         ai-tools = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system};
