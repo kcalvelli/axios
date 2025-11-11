@@ -18,11 +18,13 @@ in
 
       identityPaths = lib.mkOption {
         type = lib.types.listOf lib.types.str;
-        default = [ "~/.ssh/id_ed25519" "~/.ssh/id_rsa" ];
+        default = [
+          "${config.home.homeDirectory}/.ssh/id_ed25519"
+          "${config.home.homeDirectory}/.ssh/id_rsa"
+        ];
         description = ''
           Paths to SSH private keys used to decrypt secrets.
-          By default, uses the user's SSH keys.
-          Paths with ~ are expanded to the user's home directory.
+          By default, uses the user's SSH keys (id_ed25519 and id_rsa).
         '';
       };
 
