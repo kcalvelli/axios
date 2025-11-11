@@ -165,26 +165,78 @@ class ChatClient:
             return 0.0
         return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
+    def _get_keyword_tool_prefixes(self, query: str) -> List[str]:
+        """Get tool prefixes that should be included based on query keywords."""
+        query_lower = query.lower()
+
+        # Keyword patterns mapped to tool prefixes
+        keyword_patterns = {
+            "journal": ["error", "log", "fail", "crash", "panic", "systemd", "service", "unit", "boot"],
+            "filesystem": ["file", "directory", "folder", "path", "read", "write", "list", "create"],
+            "mcp-nixos": ["nix", "package", "nixos", "nixpkgs", "derivation", "flake"],
+            "context7": ["documentation", "docs", "library", "api", "reference"],
+            "sequential-thinking": ["think", "reason", "analyze", "plan", "solve"],
+        }
+
+        matched_prefixes = set()
+        for prefix, keywords in keyword_patterns.items():
+            for keyword in keywords:
+                if keyword in query_lower:
+                    matched_prefixes.add(prefix)
+                    break  # Only need one match per prefix
+
+        return list(matched_prefixes)
+
     def _select_relevant_tools(self, query: str) -> List[Dict[str, Any]]:
-        """Select the most relevant tools for a query using embeddings."""
+        """Select the most relevant tools using hybrid keyword + RAG approach."""
         if not self.tool_embeddings:
             # Fallback to all tools if embeddings failed
             return self.tools
 
+        # Step 1: Get keyword-matched tool prefixes
+        keyword_prefixes = self._get_keyword_tool_prefixes(query)
+
+        # Step 2: Add all tools matching keyword prefixes (guaranteed inclusion)
+        guaranteed_indices = set()
+        for i, tool in enumerate(self.tools):
+            tool_name = tool["function"]["name"]
+            if any(tool_name.startswith(prefix + ".") for prefix in keyword_prefixes):
+                guaranteed_indices.add(i)
+
+        # Step 3: Use RAG to select remaining tools to fill up to top_k
         query_embedding = self._get_embedding(query)
 
-        # Calculate similarities
+        # Calculate similarities for all tools
         similarities = [
             (i, self._cosine_similarity(query_embedding, tool_emb))
             for i, tool_emb in enumerate(self.tool_embeddings)
         ]
 
-        # Sort by similarity (descending) and take top-k
+        # Sort by similarity (descending)
         similarities.sort(key=lambda x: x[1], reverse=True)
-        top_indices = [idx for idx, _ in similarities[:self.top_k_tools]]
+
+        # Add top RAG tools until we reach top_k (excluding already guaranteed tools)
+        # Limit diversity: max 4 tools per prefix from RAG to prevent overwhelming one category
+        selected_indices = list(guaranteed_indices)
+        prefix_counts = {}
+
+        for idx, _ in similarities:
+            if idx not in guaranteed_indices:
+                tool_name = self.tools[idx]["function"]["name"]
+                prefix = tool_name.split(".")[0]
+
+                # Skip if this prefix already has 4 tools from RAG (not counting guaranteed)
+                if prefix_counts.get(prefix, 0) >= 4:
+                    continue
+
+                selected_indices.append(idx)
+                prefix_counts[prefix] = prefix_counts.get(prefix, 0) + 1
+
+                if len(selected_indices) >= self.top_k_tools:
+                    break
 
         # Return the selected tools
-        return [self.tools[i] for i in top_indices]
+        return [self.tools[i] for i in selected_indices]
 
     def _call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Execute a tool call via mcpo."""
@@ -307,7 +359,11 @@ class ChatClient:
 
                 # Select relevant tools for this query
                 relevant_tools = self._select_relevant_tools(user_input)
-                print(f"{Colors.TOOL}[Using {len(relevant_tools)} relevant tools]{Colors.RESET}")
+                keyword_prefixes = self._get_keyword_tool_prefixes(user_input)
+                if keyword_prefixes:
+                    print(f"{Colors.TOOL}[Using {len(relevant_tools)} tools: {', '.join(keyword_prefixes)} + RAG]{Colors.RESET}")
+                else:
+                    print(f"{Colors.TOOL}[Using {len(relevant_tools)} tools via RAG]{Colors.RESET}")
 
                 print(f"{Colors.ASSISTANT}Assistant:{Colors.RESET} ", end="", flush=True)
                 # Use non-streaming mode as streaming has issues with RAG-selected tools
