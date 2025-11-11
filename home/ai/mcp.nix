@@ -8,8 +8,8 @@ let
   mcp-git = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-git}/bin/mcp-server-git";
   mcp-github = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-github}/bin/mcp-server-github";
   mcp-time = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-time}/bin/mcp-server-time";
-  brave-search-mcp = "${pkgs.brave-search-mcp-server}/bin/brave-search-mcp-server";
-  tavily-mcp = "${pkgs.tavily-mcp}/bin/tavily-mcp";
+  brave-search-mcp = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-brave-search}/bin/mcp-server-brave-search";
+  tavily-mcp = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.tavily-mcp}/bin/tavily-mcp";
 
   # Claude Code server configuration
   # Syntax follows: https://docs.claude.com/en/docs/claude-code/mcp
