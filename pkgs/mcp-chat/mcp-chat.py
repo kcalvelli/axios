@@ -17,7 +17,7 @@ DEFAULT_MODEL = "llama3.1:8b"
 DEFAULT_EMBEDDING_MODEL = "nomic-embed-text"
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MCPO_URL = "http://localhost:8000"
-DEFAULT_TOP_K_TOOLS = 10
+DEFAULT_TOP_K_TOOLS = 15
 REQUEST_TIMEOUT = 120
 
 # --- ANSI Color Codes ---
@@ -249,12 +249,16 @@ class ChatClient:
                                 complete_message = part['message']
                                 tool_calls = part.get("message", {}).get("tool_calls")
                                 if tool_calls:
+                                    print()  # Add newline before tool output
                                     self.messages.append(complete_message)
                                     self._handle_tool_calls(tool_calls)
-                                    # After tool calls, get the final, non-streamed response
-                                    final_gen = self.send_request(stream=True, tools=active_tools)
+                                    # After tool calls, use non-streaming mode for final response
+                                    # (streaming mode seems to have issues with post-tool synthesis)
+                                    print(f"{Colors.ASSISTANT}Assistant:{Colors.RESET} ", end="", flush=True)
+                                    final_gen = self.send_request(stream=False, tools=active_tools)
                                     for final_content in final_gen:
-                                        yield final_content
+                                        print(final_content, end="", flush=True)
+                                    print()
                                     return
 
                 # Append the complete message only once
@@ -306,9 +310,10 @@ class ChatClient:
                 print(f"{Colors.TOOL}[Using {len(relevant_tools)} relevant tools]{Colors.RESET}")
 
                 print(f"{Colors.ASSISTANT}Assistant:{Colors.RESET} ", end="", flush=True)
-                for content_part in self.send_request(stream=True, tools=relevant_tools):
-                    print(content_part, end="", flush=True)
-                print("\n")
+                # Use non-streaming mode as streaming has issues with RAG-selected tools
+                response = "".join(self.send_request(stream=False, tools=relevant_tools))
+                print(response)
+                print()
 
             except (EOFError, KeyboardInterrupt):
                 print("\nGoodbye!")
