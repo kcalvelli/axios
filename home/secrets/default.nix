@@ -28,7 +28,7 @@ in
 
       secretsDir = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
-        default = null;
+        default = osConfig.secrets.secretsDir or null;
         example = lib.literalExpression "./secrets";
         description = ''
           Optional path to a directory containing .age secret files for this user.
@@ -36,6 +36,7 @@ in
           in this directory as secrets, making them available at
           ~/.config/agenix/<filename> (without the .age extension).
 
+          By default, inherits from system-level secrets.secretsDir if configured.
           This provides convention over configuration for simple use cases.
           For more control, use age.secrets directly.
         '';

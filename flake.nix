@@ -105,9 +105,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Fun with "AI" 
+    # Fun with "AI"
     nix-ai-tools.url = "github:numtide/nix-ai-tools";
     mcp-journal.url = "github:kcalvelli/mcp-journal";
+    mcp-servers-nix = {
+      url = "github:natsukium/mcp-servers-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Rust overlay
     rust-overlay = {

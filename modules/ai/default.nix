@@ -5,14 +5,9 @@ let
 
 in
 {
-  imports = [
-    ./ollama.nix
-    ./open-webui.nix
-  ];
-
   options = {
     services.ai = {
-      enable = lib.mkEnableOption "AI tools and services (copilot-cli, claude-code, ollama, openwebui)";
+      enable = lib.mkEnableOption "AI tools and services (copilot-cli, claude-code)";
     };
   };
 
@@ -28,8 +23,6 @@ in
       # AI assistant tools
       whisper-cpp
       nodejs # For npx MCP servers
-      python3 # For mcpo venv
-      mcp-chat # CLI for testing MCP servers with local Ollama models
       claude-monitor # Real-time Claude Code usage monitoring
     ] ++ (
       let
@@ -49,10 +42,5 @@ in
         ai-tools.gemini-cli
       ]
     );
-
-    # Enable both ollama and open-webui by default when AI is enabled
-    # Can be individually disabled if needed
-    services.ai.ollama.enable = lib.mkDefault true;
-    services.ai.openWebUI.enable = lib.mkDefault true;
   };
 }

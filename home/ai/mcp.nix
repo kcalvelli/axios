@@ -1,49 +1,97 @@
 { config, lib, pkgs, inputs, osConfig ? { }, ... }:
 
 let
-  # Claude CLI MCP configuration (unchanged from your original)
-  claudeMcpConfig = {
-    mcpServers = {
-      # Journal log access via custom mcp-journal server
-      journal = {
+  # MCP server definitions using mcp-servers-nix library
+  # Define servers once, generate configs for multiple AI tools
+
+  # Resolve executable paths
+  mcp-git = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-git}/bin/mcp-server-git";
+  mcp-github = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-github}/bin/mcp-server-github";
+  mcp-time = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-time}/bin/mcp-server-time";
+  brave-search-mcp = "${pkgs.brave-search-mcp-server}/bin/brave-search-mcp-server";
+  tavily-mcp = "${pkgs.tavily-mcp}/bin/tavily-mcp";
+
+  # Claude Code server configuration
+  # Syntax follows: https://docs.claude.com/en/docs/claude-code/mcp
+  claude-code-servers = {
+    # Use mcp-servers-nix modules for built-in servers
+    programs = {
+      git.enable = true;
+      github = {
+        enable = true;
+        passwordCommand = {
+          GITHUB_PERSONAL_ACCESS_TOKEN = [
+            (lib.getExe config.programs.gh.package)
+            "auth"
+            "token"
+          ];
+        };
         type = "stdio";
+      };
+      time.enable = true;
+    };
+
+    # Custom and third-party servers
+    settings.servers = {
+      # axios custom MCP servers
+      journal = {
         command = "${inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/mcp-journal";
-        args = [ ];
-        env = { };
       };
 
-      # NixOS package and option search
       mcp-nixos = {
-        type = "stdio";
-        command = "nix";
+        command = "${pkgs.nix}/bin/nix";
         args = [ "run" "github:utensils/mcp-nixos" "--" ];
         env = {
           MCP_NIXOS_CLEANUP_ORPHANS = "true";
         };
       };
 
-      # Sequential thinking for enhanced reasoning
+      # AI enhancement servers
       sequential-thinking = {
-        type = "stdio";
-        command = "npx";
+        command = "${pkgs.nodejs}/bin/npx";
         args = [ "-y" "@modelcontextprotocol/server-sequential-thinking" ];
-        env = { };
       };
 
-      # Context7 for context management
       context7 = {
-        type = "stdio";
-        command = "npx";
+        command = "${pkgs.nodejs}/bin/npx";
         args = [ "-y" "@upstash/context7-mcp" ];
-        env = { };
       };
 
       # Filesystem access (restricted to /tmp and ~/Projects)
       filesystem = {
-        type = "stdio";
-        command = "npx";
-        args = [ "-y" "@modelcontextprotocol/server-filesystem" "/tmp" "${config.home.homeDirectory}/Projects" ];
-        env = { };
+        command = "${pkgs.nodejs}/bin/npx";
+        args = [
+          "-y"
+          "@modelcontextprotocol/server-filesystem"
+          "/tmp"
+          "${config.home.homeDirectory}/Projects"
+        ];
+      };
+
+      # Search tools (require API keys)
+      # Users should configure secrets in their downstream config:
+      #   age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
+      #   age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
+      brave-search = {
+        command = brave-search-mcp;
+        passwordCommand = lib.mkIf (config.age.secrets ? brave-api-key) {
+          BRAVE_API_KEY = [ "${pkgs.coreutils}/bin/cat" config.age.secrets.brave-api-key.path ];
+        };
+        # Fallback to environment variable if secret not configured
+        env = lib.mkIf (!(config.age.secrets ? brave-api-key)) {
+          BRAVE_API_KEY = ''''${BRAVE_API_KEY}'';
+        };
+      };
+
+      tavily = {
+        command = tavily-mcp;
+        passwordCommand = lib.mkIf (config.age.secrets ? tavily-api-key) {
+          TAVILY_API_KEY = [ "${pkgs.coreutils}/bin/cat" config.age.secrets.tavily-api-key.path ];
+        };
+        # Fallback to environment variable if secret not configured
+        env = lib.mkIf (!(config.age.secrets ? tavily-api-key)) {
+          TAVILY_API_KEY = ''''${TAVILY_API_KEY}'';
+        };
       };
     };
   };
@@ -64,147 +112,19 @@ in
       ccm = "claude-monitor";
     };
 
-    # Install required packages
-    home.packages = (with pkgs; [
-
-    ]) ++ [
-      # MCP servers - add new servers here to make them available in PATH
-      # This allows any MCP client (Claude CLI, LM Studio, etc.) to use them
+    # Install MCP server packages
+    home.packages = [
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ] ++ [
-      # Wrapper script for running mcpo with Nix Python in a venv
-      (pkgs.writeShellScriptBin "mcpo-runner" ''
-        # Include all necessary binaries for mcpo and MCP servers it spawns
-        export PATH="${lib.makeBinPath [
-          pkgs.nodejs
-          pkgs.nix
-          pkgs.python3
-          pkgs.bash
-          pkgs.coreutils
-          pkgs.gnugrep
-          pkgs.gnused
-          pkgs.findutils
-        ]}"
-        VENV_DIR="$HOME/.local/share/mcpo-venv"
-
-        # Create venv if it doesn't exist
-        if [ ! -d "$VENV_DIR" ]; then
-          ${pkgs.python3}/bin/python -m venv "$VENV_DIR"
-        fi
-
-        # Install/upgrade mcpo in the venv
-        "$VENV_DIR/bin/pip" install --quiet --upgrade mcpo 2>/dev/null || {
-          echo "Warning: Failed to install mcpo"
-        }
-
-        # Run mcpo
-        exec "$VENV_DIR/bin/mcpo" "$@"
-      '')
     ];
 
-    # ---------- YOUR ORIGINAL CLAUDE SETUP (unchanged) ----------
-    # Claude CLI .mcp.json template (for copying to new projects)
-    home.file.".mcp.json.template".text = lib.generators.toJSON { } claudeMcpConfig;
+    # Claude Code MCP configuration (declarative)
+    # This replaces the imperative activation script approach
+    programs.claude-code.mcpServers =
+      (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
 
-    # Export Claude MCP initialization script (project-scoped)
-    home.file."scripts/init-claude-mcp" = {
-      source = ../../scripts/init-claude-mcp.sh;
-      executable = true;
-    };
-
-    # Export user-scoped MCP setup script
-    # Note: Run this manually after nixos-rebuild if activation doesn't trigger
-    home.file."scripts/setup-claude-mcp-user" = {
-      source = ../../scripts/init-claude-mcp.sh;
-      executable = true;
-    };
-
-    # Automatically configure user-scoped MCP servers for Claude CLI
-    # This makes MCP servers available in all Claude CLI sessions, not just projects
-    home.activation.claudeMcpSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD ${pkgs.writeShellScript "setup-claude-mcp" ''
-        # Only run if claude CLI is available
-        if ! command -v claude &> /dev/null; then
-          echo "Claude CLI not found, skipping MCP setup"
-          exit 0
-        fi
-
-        echo "Setting up user-scoped MCP servers for Claude CLI..."
-
-        # Function to add MCP server if it doesn't exist
-        add_mcp_server() {
-          local name="$1"
-          shift
-
-          # Check if server already exists at user scope
-          if claude mcp get "$name" -s user &> /dev/null; then
-            echo "  ✓ $name already configured"
-          else
-            echo "  + Adding $name..."
-            claude mcp add --transport stdio "$name" --scope user -- "$@" || true
-          fi
-        }
-
-        # Add all MCP servers at user scope
-        add_mcp_server journal \
-          "${inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/mcp-journal"
-
-        # Note: mcp-nixos environment variable needs to be set differently
-        # We'll add it without the env var and document it for now
-        add_mcp_server mcp-nixos \
-          nix run github:utensils/mcp-nixos --
-
-        add_mcp_server sequential-thinking \
-          npx -y @modelcontextprotocol/server-sequential-thinking
-
-        add_mcp_server context7 \
-          npx -y @upstash/context7-mcp
-
-        add_mcp_server filesystem \
-          npx -y @modelcontextprotocol/server-filesystem /tmp ${config.home.homeDirectory}/Projects
-
-        echo "✓ Claude CLI MCP setup complete!"
-        echo "  Run 'claude mcp list' to verify (check 'claude mcp get <name>' for scope)"
-      ''}
-    '';
-    # ---------- END ORIGINAL CLAUDE SETUP ----------
-
-    # ---------- NEW: mcpo so Open WebUI can use the same servers ----------
-    # Write mcpo config using the same server list
-    # NOTE: Environment variables in claudeMcpConfig (e.g., MCP_NIXOS_CLEANUP_ORPHANS)
-    # are passed through to child processes by mcpo, so they should work correctly.
-    xdg.configFile."mcpo/config.json".text =
-      lib.generators.toJSON { } claudeMcpConfig;
-
-    # Run mcpo as a user service at 127.0.0.1:8000
-    systemd.user.services.mcpo = {
-      Unit = {
-        Description = "MCP to OpenAPI proxy (mcpo)";
-        After = [ "network-online.target" ];
-      };
-      Service = {
-        ExecStart = ''
-          ${config.home.profileDirectory}/bin/mcpo-runner \
-            --config ${config.xdg.configHome}/mcpo/config.json \
-            --host 127.0.0.1 \
-            --port 8000
-        '';
-        # Restart with delay to prevent rapid restart loops
-        Restart = "always";
-        RestartSec = "10s";
-      };
-      Install = { WantedBy = [ "default.target" ]; };
-    };
-
-    # --- Helper: Open WebUI tool registration ---
-    # After switching, add these in Open WebUI → ⚙️ Admin Settings → External Tools → + Add:
-    #   http://127.0.0.1:8000/journal
-    #   http://127.0.0.1:8000/mcp-nixos
-    #   http://127.0.0.1:8000/sequential-thinking
-    #   http://127.0.0.1:8000/context7
-    #   http://127.0.0.1:8000/filesystem
-    #
-    # Each route provides OpenAPI docs at /<tool>/docs for testing.
-    # ---------- END mcpo ----------
+    # Note: Future AI tools can be added here by defining additional server configs
+    # Example for Neovim with mcphub:
+    #   home.file."${config.xdg.configHome}/mcphub/servers.json".source =
+    #     inputs.mcp-servers-nix.lib.mkConfig pkgs mcphub-servers;
   };
 }

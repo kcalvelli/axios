@@ -137,7 +137,7 @@ inputs.something.packages.${system}.package-name
 
 - Home modules mirror NixOS module structure
 - Use `osConfig.services.ai.enable or false` to check system-level config
-- Automatic MCP server configuration via home activation scripts
+- Declarative MCP server configuration via `programs.claude-code.mcpServers`
 
 ## Important Inputs
 
@@ -146,6 +146,7 @@ inputs = {
   nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   home-manager;
   nix-ai-tools;      # AI tools (claude-code, copilot-cli)
+  mcp-servers-nix;   # MCP server configuration library and packages
   dankMaterialShell; # DMS/Niri shell
   mcp-journal;       # MCP server for journal access
   agenix;            # Secrets management
@@ -262,16 +263,57 @@ All workflows use:
 ## AI Module Specifics
 
 The `services.ai.enable` module provides:
-- **Tools**: claude-code, claude-desktop, copilot-cli, mcp-chat, claude-monitor
-- **Services**: Ollama (local LLM), Open WebUI (web interface)
-- **MCP Servers**: journal, mcp-nixos, sequential-thinking, context7, filesystem
-- **mcpo proxy**: Exposes MCP servers as OpenAPI at 127.0.0.1:8000
+- **Tools**: claude-code, copilot-cli, claude-monitor, and other AI assistants
+- **MCP Servers**: journal, mcp-nixos, sequential-thinking, context7, filesystem, git, github, brave-search, tavily
+- **Architecture**: Uses `mcp-servers-nix` library for declarative MCP server configuration
 
 ### MCP Configuration
 
-- User-scoped: `~/.config/claude/mcp.json` (via home activation)
-- Project-scoped: `.mcp.json` (created per-project)
-- mcpo config: `~/.config/mcpo/config.json`
+- **Declarative**: MCP servers configured via `programs.claude-code.mcpServers` in home-manager
+- **Library-based**: Uses `inputs.mcp-servers-nix.lib.evalModule` to generate tool-specific configs
+- **Multi-tool ready**: Can generate configs for Claude Code, Neovim (mcphub), Cursor, and other MCP clients
+- **Pre-packaged servers**: MCP servers from `mcp-servers-nix` overlay (no runtime downloads)
+- **Security**: Supports `passwordCommand` for secrets (e.g., GitHub token via `gh auth token`)
+
+### MCP Server Categories
+
+1. **Core Tools**: git, github, filesystem, time
+2. **NixOS Integration**: journal (system logs), mcp-nixos (packages/options)
+3. **AI Enhancement**: sequential-thinking, context7
+4. **Search**: brave-search, tavily (require API keys)
+
+### Configuring API Keys for Search Servers
+
+Search MCP servers (brave-search, tavily) require API keys. Configure them in your downstream config using agenix:
+
+**1. Create encrypted secret files** (in your config repo, e.g., `~/.config/nixos_config`):
+```bash
+# Create secrets directory
+mkdir -p secrets
+
+# Encrypt your API keys (requires your SSH key in age.identityPaths)
+echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
+echo "your-tavily-api-key" | agenix -e secrets/tavily-api-key.age
+```
+
+**2. Configure secrets in your home-manager config**:
+```nix
+{
+  # Enable secrets
+  secrets.enable = true;
+
+  # Register API key secrets
+  age.secrets.brave-api-key = {
+    file = ./secrets/brave-api-key.age;
+  };
+
+  age.secrets.tavily-api-key = {
+    file = ./secrets/tavily-api-key.age;
+  };
+}
+```
+
+axios will automatically use `passwordCommand` to securely load these secrets. If secrets aren't configured, it falls back to environment variables (`$BRAVE_API_KEY`, `$TAVILY_API_KEY`).
 
 ## Common Patterns
 

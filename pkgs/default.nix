@@ -31,7 +31,10 @@ in
         config = {
           allowUnfree = true;
         };
-        overlays = [ self.overlays.default ];
+        overlays = [
+          self.overlays.default
+          inputs.mcp-servers-nix.overlays.default
+        ];
       };
     };
 
