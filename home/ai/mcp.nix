@@ -119,8 +119,11 @@ in
 
     # Claude Code MCP configuration (declarative)
     # This replaces the imperative activation script approach
-    programs.claude-code.mcpServers =
-      (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+    programs.claude-code = {
+      enable = true;
+      mcpServers =
+        (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+    };
 
     # Note: Future AI tools can be added here by defining additional server configs
     # Example for Neovim with mcphub:
