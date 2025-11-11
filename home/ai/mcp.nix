@@ -4,12 +4,8 @@ let
   # MCP server definitions using mcp-servers-nix library
   # Define servers once, generate configs for multiple AI tools
 
-  # Resolve executable paths
-  mcp-git = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-git}/bin/mcp-server-git";
-  mcp-github = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-github}/bin/mcp-server-github";
-  mcp-time = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-time}/bin/mcp-server-time";
-  brave-search-mcp = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.mcp-server-brave-search}/bin/mcp-server-brave-search";
-  tavily-mcp = "${inputs.mcp-servers-nix.packages.${pkgs.stdenv.hostPlatform.system}.tavily-mcp}/bin/tavily-mcp";
+  # Note: Server paths are resolved by mcp-servers-nix.lib.evalModule
+  # No need to pre-resolve paths here
 
   # Claude Code server configuration
   # Syntax follows: https://docs.claude.com/en/docs/claude-code/mcp
@@ -73,7 +69,8 @@ let
       #   age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
       #   age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
       brave-search = {
-        command = brave-search-mcp;
+        command = "${pkgs.nodejs}/bin/npx";
+        args = [ "-y" "@modelcontextprotocol/server-brave-search" ];
         passwordCommand = lib.mkIf (config.age.secrets ? brave-api-key) {
           BRAVE_API_KEY = [ "${pkgs.coreutils}/bin/cat" config.age.secrets.brave-api-key.path ];
         };
@@ -84,7 +81,8 @@ let
       };
 
       tavily = {
-        command = tavily-mcp;
+        command = "${pkgs.nodejs}/bin/npx";
+        args = [ "-y" "tavily-mcp" ];
         passwordCommand = lib.mkIf (config.age.secrets ? tavily-api-key) {
           TAVILY_API_KEY = [ "${pkgs.coreutils}/bin/cat" config.age.secrets.tavily-api-key.path ];
         };
