@@ -13,6 +13,7 @@ python3.pkgs.buildPythonApplication {
 
   propagatedBuildInputs = with python3.pkgs; [
     requests
+    numpy
   ];
 
   nativeBuildInputs = [
@@ -40,7 +41,7 @@ python3.pkgs.buildPythonApplication {
   '';
 
   meta = with lib; {
-    description = "Simple CLI for chatting with Ollama models using MCP tools via mcpo";
+    description = "CLI for chatting with Ollama models using MCP tools via mcpo with RAG-based tool selection";
     homepage = "https://github.com/yourusername/axios";
     license = licenses.mit;
     platforms = platforms.linux;

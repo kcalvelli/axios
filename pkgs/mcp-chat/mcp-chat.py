@@ -9,12 +9,15 @@ import json
 import re
 import sys
 import requests
-from typing import List, Dict, Any, Generator
+from typing import List, Dict, Any, Generator, Tuple
+import numpy as np
 
 # --- Configuration ---
 DEFAULT_MODEL = "llama3.1:8b"
+DEFAULT_EMBEDDING_MODEL = "nomic-embed-text"
 DEFAULT_OLLAMA_URL = "http://localhost:11434"
 DEFAULT_MCPO_URL = "http://localhost:8000"
+DEFAULT_TOP_K_TOOLS = 10
 REQUEST_TIMEOUT = 120
 
 # --- ANSI Color Codes ---
@@ -30,11 +33,14 @@ class Colors:
 class ChatClient:
     """Manages the chat session, including tools, messages, and API interaction."""
 
-    def __init__(self, model: str, ollama_url: str, mcpo_url: str):
+    def __init__(self, model: str, ollama_url: str, mcpo_url: str, embedding_model: str, top_k_tools: int):
         self.model = model
         self.ollama_url = ollama_url
         self.mcpo_url = mcpo_url
+        self.embedding_model = embedding_model
+        self.top_k_tools = top_k_tools
         self.tools: List[Dict[str, Any]] = []
+        self.tool_embeddings: List[np.ndarray] = []
         self.messages: List[Dict[str, Any]] = [
             {
                 "role": "system",
@@ -75,7 +81,13 @@ class ChatClient:
                     print(f"{Colors.ERROR}\nWarning: Failed to fetch tools from {server}: {e}{Colors.RESET}", file=sys.stderr)
 
         if not silent:
-            print(f" {len(self.tools)} tools loaded.\n")
+            print(f" {len(self.tools)} tools loaded.")
+
+        # Compute embeddings for all tools
+        self._compute_tool_embeddings(silent)
+
+        if not silent:
+            print()
 
     def _parse_and_add_tools(self, server_name: str, openapi_spec: Dict[str, Any]):
         """Parse an OpenAPI spec and add the defined tools."""
@@ -113,6 +125,67 @@ class ChatClient:
                     }
                 })
 
+    def _get_embedding(self, text: str) -> np.ndarray:
+        """Get embedding vector for text using Ollama."""
+        try:
+            resp = requests.post(
+                f"{self.ollama_url}/api/embeddings",
+                json={"model": self.embedding_model, "prompt": text},
+                timeout=30
+            )
+            resp.raise_for_status()
+            embedding = resp.json().get("embedding", [])
+            return np.array(embedding)
+        except requests.RequestException as e:
+            print(f"{Colors.ERROR}Warning: Failed to get embedding: {e}{Colors.RESET}", file=sys.stderr)
+            return np.zeros(768)  # Return zero vector on error
+
+    def _compute_tool_embeddings(self, silent: bool = False):
+        """Compute and store embeddings for all tools."""
+        if not silent:
+            print(" Computing embeddings...", end="", flush=True)
+
+        for tool in self.tools:
+            func = tool["function"]
+            # Create a comprehensive text representation of the tool
+            tool_text = f"{func['name']}: {func['description']}"
+            if func['parameters'].get('properties'):
+                param_names = ', '.join(func['parameters']['properties'].keys())
+                tool_text += f" Parameters: {param_names}"
+
+            embedding = self._get_embedding(tool_text)
+            self.tool_embeddings.append(embedding)
+
+        if not silent:
+            print(f" Done.")
+
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        """Calculate cosine similarity between two vectors."""
+        if np.linalg.norm(a) == 0 or np.linalg.norm(b) == 0:
+            return 0.0
+        return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+    def _select_relevant_tools(self, query: str) -> List[Dict[str, Any]]:
+        """Select the most relevant tools for a query using embeddings."""
+        if not self.tool_embeddings:
+            # Fallback to all tools if embeddings failed
+            return self.tools
+
+        query_embedding = self._get_embedding(query)
+
+        # Calculate similarities
+        similarities = [
+            (i, self._cosine_similarity(query_embedding, tool_emb))
+            for i, tool_emb in enumerate(self.tool_embeddings)
+        ]
+
+        # Sort by similarity (descending) and take top-k
+        similarities.sort(key=lambda x: x[1], reverse=True)
+        top_indices = [idx for idx, _ in similarities[:self.top_k_tools]]
+
+        # Return the selected tools
+        return [self.tools[i] for i in top_indices]
+
     def _call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> str:
         """Execute a tool call via mcpo."""
         print(f"{Colors.TOOL}[Tool Call: {tool_name}]{Colors.RESET}")
@@ -145,12 +218,15 @@ class ChatClient:
             
             self.messages.append({"role": "tool", "content": tool_result})
 
-    def send_request(self, stream: bool = True) -> Generator[str, None, None]:
+    def send_request(self, stream: bool = True, tools: List[Dict[str, Any]] = None) -> Generator[str, None, None]:
         """Send chat request to Ollama and handle the response."""
+        # Use provided tools or default to all tools
+        active_tools = tools if tools is not None else self.tools
+
         try:
             response = requests.post(
                 f"{self.ollama_url}/api/chat",
-                json={"model": self.model, "messages": self.messages, "tools": self.tools, "stream": stream},
+                json={"model": self.model, "messages": self.messages, "tools": active_tools, "stream": stream},
                 timeout=REQUEST_TIMEOUT,
                 stream=stream
             )
@@ -176,7 +252,7 @@ class ChatClient:
                                     self.messages.append(complete_message)
                                     self._handle_tool_calls(tool_calls)
                                     # After tool calls, get the final, non-streamed response
-                                    final_gen = self.send_request(stream=True)
+                                    final_gen = self.send_request(stream=True, tools=active_tools)
                                     for final_content in final_gen:
                                         yield final_content
                                     return
@@ -195,7 +271,7 @@ class ChatClient:
                     # Get final response after tool execution
                     final_result = requests.post(
                         f"{self.ollama_url}/api/chat",
-                        json={"model": self.model, "messages": self.messages, "tools": self.tools, "stream": False},
+                        json={"model": self.model, "messages": self.messages, "tools": active_tools, "stream": False},
                         timeout=REQUEST_TIMEOUT
                     ).json()
                     final_message = final_result.get("message", {})
@@ -224,9 +300,13 @@ class ChatClient:
                     continue
 
                 self.messages.append({"role": "user", "content": user_input})
-                
+
+                # Select relevant tools for this query
+                relevant_tools = self._select_relevant_tools(user_input)
+                print(f"{Colors.TOOL}[Using {len(relevant_tools)} relevant tools]{Colors.RESET}")
+
                 print(f"{Colors.ASSISTANT}Assistant:{Colors.RESET} ", end="", flush=True)
-                for content_part in self.send_request(stream=True):
+                for content_part in self.send_request(stream=True, tools=relevant_tools):
                     print(content_part, end="", flush=True)
                 print("\n")
 
@@ -238,21 +318,26 @@ class ChatClient:
         """Handle a single, non-interactive query."""
         self.load_tools(silent=True)
         self.messages.append({"role": "user", "content": query})
-        
-        full_response = "".join(self.send_request(stream=False))
+
+        # Select relevant tools for this query
+        relevant_tools = self._select_relevant_tools(query)
+
+        full_response = "".join(self.send_request(stream=False, tools=relevant_tools))
         print(full_response)
 
 # --- Main Execution ---
 def main():
-    parser = argparse.ArgumentParser(description="Chat with Ollama using MCP tools.")
+    parser = argparse.ArgumentParser(description="Chat with Ollama using MCP tools with RAG-based tool selection.")
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Ollama model (default: {DEFAULT_MODEL})")
+    parser.add_argument("--embedding-model", default=DEFAULT_EMBEDDING_MODEL, help=f"Embedding model for RAG (default: {DEFAULT_EMBEDDING_MODEL})")
+    parser.add_argument("--top-k", type=int, default=DEFAULT_TOP_K_TOOLS, help=f"Number of relevant tools to select (default: {DEFAULT_TOP_K_TOOLS})")
     parser.add_argument("--ollama-url", default=DEFAULT_OLLAMA_URL, help=f"Ollama API URL (default: {DEFAULT_OLLAMA_URL})")
     parser.add_argument("--mcpo-url", default=DEFAULT_MCPO_URL, help=f"MCPO URL (default: {DEFAULT_MCPO_URL})")
     parser.add_argument("--list-tools", action="store_true", help="List available tools and exit.")
     parser.add_argument("-q", "--query", type=str, help="Execute a single query and exit.")
     args = parser.parse_args()
 
-    client = ChatClient(args.model, args.ollama_url, args.mcpo_url)
+    client = ChatClient(args.model, args.ollama_url, args.mcpo_url, args.embedding_model, args.top_k)
 
     if args.list_tools:
         client.load_tools()
