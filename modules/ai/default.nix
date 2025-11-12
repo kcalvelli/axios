@@ -26,7 +26,7 @@ in
       claude-monitor # Real-time Claude Code usage monitoring
       (pkgs.writeShellScriptBin "jules" ''
         exec ${pkgs.nodejs_20}/bin/npx @google/jules@latest "$@"
-      '')      
+      '')
     ] ++ (
       let
         ai-tools = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system};

@@ -1,66 +1,74 @@
-{ pkgs, self, ... }:
+{ config, lib, pkgs, self, ... }:
 {
-  # Import necessary modules
-  imports = [
-    ./locale.nix
-    ./nix.nix
-    ./boot.nix
-    ./memory.nix
-    ./printing.nix
-    ./sound.nix
-    ./bluetooth.nix
-  ];
+  options.axios.system = {
+    enable = lib.mkEnableOption "core axiOS system configuration" // {
+      default = true;
+    };
+  };
 
-  # Apply axios overlay to system pkgs
-  nixpkgs.overlays = [ self.overlays.default ];
+  config = lib.mkIf config.axios.system.enable {
+    # Import necessary modules
+    imports = [
+      ./locale.nix
+      ./nix.nix
+      ./boot.nix
+      ./memory.nix
+      ./printing.nix
+      ./sound.nix
+      ./bluetooth.nix
+    ];
 
-  # Configure home-manager to use system pkgs (with overlays)
-  home-manager.useGlobalPkgs = true;
-  home-manager.useUserPackages = true;
+    # Apply axios overlay to system pkgs
+    nixpkgs.overlays = [ self.overlays.default ];
 
-  # NOTE: External home-manager modules (dankMaterialShell, niri, lazyvim) may set
-  # nixpkgs.config or nixpkgs.overlays, which triggers a deprecation warning when
-  # useGlobalPkgs = true. This is a known issue and will be fixed in future versions
-  # of those modules. The warning is harmless and can be safely ignored.
+    # Configure home-manager to use system pkgs (with overlays)
+    home-manager.useGlobalPkgs = true;
+    home-manager.useUserPackages = true;
 
-  # === System Packages ===
-  environment.systemPackages = with pkgs; [
-    # Core system utilities
-    killall
-    wget
-    curl
+    # NOTE: External home-manager modules (dankMaterialShell, niri, lazyvim) may set
+    # nixpkgs.config or nixpkgs.overlays, which triggers a deprecation warning when
+    # useGlobalPkgs = true. This is a known issue and will be fixed in future versions
+    # of those modules. The warning is harmless and can be safely ignored.
 
-    # Filesystem and mount tools
-    sshfs
-    fuse
-    ntfs3g
+    # === System Packages ===
+    environment.systemPackages = with pkgs; [
+      # Core system utilities
+      killall
+      wget
+      curl
 
-    # System monitoring and information
-    pciutils
-    wirelesstools
-    gtop
-    htop
-    lm_sensors
-    smartmontools
+      # Filesystem and mount tools
+      sshfs
+      fuse
+      ntfs3g
 
-    # Archive and compression tools
-    p7zip
-    unzip
-    unrar
-    xarchiver
+      # System monitoring and information
+      pciutils
+      wirelesstools
+      gtop
+      htop
+      lm_sensors
+      smartmontools
 
-    # Security and secret management
-    libsecret
-    lssecret
-    openssl
+      # Archive and compression tools
+      p7zip
+      unzip
+      unrar
+      xarchiver
 
-    # Nix ecosystem tools
-    fh # Flake helper CLI
-  ];
+      # Security and secret management
+      libsecret
+      lssecret
+      openssl
 
-  # Build smaller systems
-  documentation.enable = false;
-  documentation.nixos.enable = false;
-  documentation.dev.enable = false;
-  programs.command-not-found.enable = false;
+      # Nix ecosystem tools
+      fh # Flake helper CLI
+    ];
+
+    # Build smaller systems
+    documentation.enable = false;
+    documentation.nixos.enable = false;
+    documentation.dev.enable = false;
+    programs.command-not-found.enable = false;
+  };
 }

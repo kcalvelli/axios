@@ -174,9 +174,9 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   # Required parameters
   hostname = "string";
   system = "x86_64-linux" | "aarch64-linux";
-  
+
   # Hardware configuration
-  formFactor = "desktop" | "laptop" | "server";
+  formFactor = "desktop" | "laptop";
   hardware = {
     vendor = "msi" | "system76" | null;  # Optional: Hardware vendor for specific optimizations
     cpu = "amd" | "intel";                # CPU type
@@ -190,7 +190,6 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
     system = bool;       # Core system config (recommended: true)
     desktop = bool;      # Niri desktop environment
     development = bool;  # Development tools and IDEs
-    services = bool;     # System services (Caddy, Home Assistant, etc)
     graphics = bool;     # Graphics drivers and tools
     networking = bool;   # Network configuration (recommended: true)
     users = bool;        # User management (recommended: true)
@@ -266,7 +265,6 @@ Most users should **omit this field** or set it to `null`. Only use vendor-speci
 **Form Factor:**
 - `"desktop"` - Desktop optimizations
 - `"laptop"` - Laptop power management and battery optimization
-- `"server"` - Server-oriented configuration
 
 ### Module Selection
 

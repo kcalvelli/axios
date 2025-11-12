@@ -8,5 +8,5 @@
   ];
 
   # Additional AI configuration can go here
- 
+
 }
