@@ -222,7 +222,7 @@ else
 fi
 
 ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
-ENABLE_AI=$(prompt_bool "Enable AI services (Ollama, OpenWebUI, Claude CLI)?" "n")
+ENABLE_AI=$(prompt_bool "Enable AI services (Claude CLI, Github Copilot, MCP servers)?" "n")
 ENABLE_SECRETS=$(prompt_bool "Enable secrets management (age-encrypted secrets)?" "n")
 ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
 

@@ -174,7 +174,7 @@ let
                   modules.ai = true
                   modules.networking = false
 
-                AI services (Ollama, OpenWebUI) require networking. Fix by setting:
+                AI services require networking. Fix by setting:
                   modules.networking = true;
               '';
             }

@@ -113,7 +113,7 @@ Check out these example configurations:
 - **PWAs**: Progressive Web Apps integrated as native applications
 - **Virtualization**: libvirt, QEMU, Podman support (optional)
 - **Gaming**: Steam, GameMode, Proton (optional)
-- **AI Services**: Ollama, OpenWebUI, Claude CLI with MCP servers (optional)
+- **AI Services**: Githb Copilot, Claude CLI with MCP servers (optional)
 
 **See project structure and module details in [docs/README.md](docs/README.md)**
 

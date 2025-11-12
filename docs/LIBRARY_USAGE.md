@@ -316,8 +316,7 @@ Enable only the modules you need:
 - Gaming utilities
 
 **AI Services:**
-- Ollama (local LLM server)
-- OpenWebUI (web interface)
+- Github Copilot
 - Claude CLI with MCP servers
 - AI development tools
 
