@@ -9,6 +9,8 @@
       laptop = ./profiles/laptop.nix;
       ai = ./ai;
       secrets = ./secrets;
+      browser = ./browser;
+      calendar = ./calendar;
     };
   };
 }

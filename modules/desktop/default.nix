@@ -165,9 +165,11 @@
       };
     };
 
-    # Enable home-manager desktop module
+    # Enable home-manager desktop modules
     home-manager.sharedModules = with homeModules; [
       desktop
+      browser
+      calendar
     ];
   };
 }

@@ -2,7 +2,7 @@
 
 {
   # AI home-manager configuration
-  # Always import but modules will check osConfig.services.ai.enable internally
+  # This module is conditionally imported when services.ai.enable = true
   imports = [
     ./mcp.nix
   ];

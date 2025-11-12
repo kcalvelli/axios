@@ -95,37 +95,34 @@ let
   };
 in
 {
-  # Create AI tool configurations when AI is enabled
-  config = lib.mkIf (osConfig.services.ai.enable or false) {
-    # Shell aliases for AI tools
-    programs.bash.shellAliases = {
-      cm = "claude-monitor";
-      cmonitor = "claude-monitor";
-      ccm = "claude-monitor";
-    };
-
-    programs.zsh.shellAliases = {
-      cm = "claude-monitor";
-      cmonitor = "claude-monitor";
-      ccm = "claude-monitor";
-    };
-
-    # Install MCP server packages
-    home.packages = [
-      inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ];
-
-    # Claude Code MCP configuration (declarative)
-    # This replaces the imperative activation script approach
-    programs.claude-code = {
-      enable = true;
-      mcpServers =
-        (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
-    };
-
-    # Note: Future AI tools can be added here by defining additional server configs
-    # Example for Neovim with mcphub:
-    #   home.file."${config.xdg.configHome}/mcphub/servers.json".source =
-    #     inputs.mcp-servers-nix.lib.mkConfig pkgs mcphub-servers;
+  # Shell aliases for AI tools
+  programs.bash.shellAliases = {
+    cm = "claude-monitor";
+    cmonitor = "claude-monitor";
+    ccm = "claude-monitor";
   };
+
+  programs.zsh.shellAliases = {
+    cm = "claude-monitor";
+    cmonitor = "claude-monitor";
+    ccm = "claude-monitor";
+  };
+
+  # Install MCP server packages
+  home.packages = [
+    inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
+  ];
+
+  # Claude Code MCP configuration (declarative)
+  # This replaces the imperative activation script approach
+  programs.claude-code = {
+    enable = true;
+    mcpServers =
+      (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+  };
+
+  # Note: Future AI tools can be added here by defining additional server configs
+  # Example for Neovim with mcphub:
+  #   home.file."${config.xdg.configHome}/mcphub/servers.json".source =
+  #     inputs.mcp-servers-nix.lib.mkConfig pkgs mcphub-servers;
 }

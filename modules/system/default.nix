@@ -6,18 +6,18 @@
     };
   };
 
-  config = lib.mkIf config.axios.system.enable {
-    # Import necessary modules
-    imports = [
-      ./locale.nix
-      ./nix.nix
-      ./boot.nix
-      ./memory.nix
-      ./printing.nix
-      ./sound.nix
-      ./bluetooth.nix
-    ];
+  # Import necessary modules (must be at top level to register options)
+  imports = [
+    ./locale.nix
+    ./nix.nix
+    ./boot.nix
+    ./memory.nix
+    ./printing.nix
+    ./sound.nix
+    ./bluetooth.nix
+  ];
 
+  config = lib.mkIf config.axios.system.enable {
     # Apply axios overlay to system pkgs
     nixpkgs.overlays = [ self.overlays.default ];
 
