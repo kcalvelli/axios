@@ -5,6 +5,7 @@
     ./theming.nix
     ./wallpaper.nix
     ./niri.nix
+    ./syncthing.nix
     inputs.dankMaterialShell.homeModules.dankMaterialShell.default
     inputs.dsearch.homeModules.default
   ];
