@@ -34,6 +34,10 @@ let
         command = "${inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/mcp-journal";
       };
 
+      nix-devshell-mcp = {
+        command = "${inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/nix-devshell-mcp";
+      };
+
       mcp-nixos = {
         command = "${pkgs.nix}/bin/nix";
         args = [ "run" "github:utensils/mcp-nixos" "--" ];
@@ -111,6 +115,7 @@ in
   # Install MCP server packages
   home.packages = [
     inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # Claude Code MCP configuration (declarative)

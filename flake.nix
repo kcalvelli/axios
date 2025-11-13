@@ -108,6 +108,7 @@
     # Fun with "AI"
     nix-ai-tools.url = "github:numtide/nix-ai-tools";
     mcp-journal.url = "github:kcalvelli/mcp-journal";
+    nix-devshell-mcp.url = "github:kcalvelli/nix-devshell-mcp";
     mcp-servers-nix = {
       url = "github:natsukium/mcp-servers-nix";
       inputs.nixpkgs.follows = "nixpkgs";
