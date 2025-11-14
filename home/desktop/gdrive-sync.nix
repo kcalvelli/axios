@@ -138,30 +138,11 @@ let
 in
 {
   # Google Drive sync for desktop users
-  home.packages = [ pkgs.rclone ];
+  home.packages = [
+    pkgs.rclone
 
-  # Create log directory
-  home.file."${logDir}/.keep".text = "";
-
-  # Merge all services
-  systemd.user.services = lib.mkMerge [
-    picturesSync.service
-    documentsSync.service
-    musicSync.service
-  ];
-
-  # Merge all timers
-  systemd.user.timers = lib.mkMerge [
-    picturesSync.timer
-    documentsSync.timer
-    musicSync.timer
-  ];
-
-  # Setup helper script
-  home.file.".local/bin/setup-gdrive-sync" = {
-    executable = true;
-    text = ''
-      #!/usr/bin/env bash
+    # Setup helper script (properly in PATH)
+    (pkgs.writeShellScriptBin "setup-gdrive-sync" ''
       set -euo pipefail
 
       echo "=== Google Drive Sync Setup ==="
@@ -254,6 +235,23 @@ in
       echo ""
       echo "View logs: journalctl --user -u 'gdrive-*' -f"
       echo "Manual sync: systemctl --user start gdrive-{pictures,documents,music}-sync.service"
-    '';
-  };
+    '')
+  ];
+
+  # Create log directory
+  home.file."${logDir}/.keep".text = "";
+
+  # Merge all services
+  systemd.user.services = lib.mkMerge [
+    picturesSync.service
+    documentsSync.service
+    musicSync.service
+  ];
+
+  # Merge all timers
+  systemd.user.timers = lib.mkMerge [
+    picturesSync.timer
+    documentsSync.timer
+    musicSync.timer
+  ];
 }
