@@ -27,7 +27,10 @@
           path = "${config.home.homeDirectory}/Pictures";
           id = "pictures";
           label = "Pictures";
-          # Non-destructive versioning: keep deleted/modified files for 30 days
+          # Receive-only: desktop acts as permanent archive
+          # Deletions on phone will NOT delete from desktop
+          type = "receiveonly";
+          # Non-destructive versioning: keep overwritten files for 30 days
           versioning = {
             type = "trashcan";
             params = {
