@@ -1,7 +1,9 @@
 { config, lib, pkgs, ... }:
 
 let
-  remoteName = "gdrive";
+  # Separate remotes for Google Drive and Google Photos
+  gdriveRemote = "gdrive";      # Google Drive (type: drive)
+  gphotosRemote = "gphotos";    # Google Photos (type: google photos)
   syncInterval = "15min";
 
   rcloneConfigPath = "${config.home.homeDirectory}/.config/rclone/rclone.conf";
@@ -12,23 +14,27 @@ let
   commonOptions = [
     "--retries" "3"
     "--retries-sleep" "1m"
-    "--drive-skip-gdocs"
-    "--drive-use-trash"
     "--config" rcloneConfigPath
   ];
 
+  # Google Drive specific options
+  gdriveOptions = [
+    "--drive-skip-gdocs"
+    "--drive-use-trash"
+  ];
+
   # Generate one-way sync service (remote -> local, read-only pull)
-  mkCopyService = { name, remoteDir, localDir }:
+  mkCopyService = { name, remote, remoteDir, localDir, extraOptions ? [] }:
     let
       serviceName = "gdrive-${name}-sync";
       execCommand = lib.strings.escapeShellArgs (
         [
           rcloneBin
           "sync"
-          "${remoteName}:${remoteDir}"
+          "${remote}:${remoteDir}"
           "${config.home.homeDirectory}/${localDir}"
           "--log-file" "${logDir}/gdrive-${name}.log"
-        ] ++ commonOptions
+        ] ++ commonOptions ++ extraOptions
       );
     in
     {
@@ -63,7 +69,7 @@ let
     };
 
   # Generate bidirectional sync service
-  mkBisyncService = { name, remoteDir, localDir, maxDelete ? "50%" }:
+  mkBisyncService = { name, remote, remoteDir, localDir, maxDelete ? "50%", extraOptions ? [] }:
     let
       serviceName = "gdrive-${name}-sync";
       bisyncOptions = [
@@ -75,10 +81,10 @@ let
         [
           rcloneBin
           "bisync"
-          "${remoteName}:${remoteDir}"
+          "${remote}:${remoteDir}"
           "${config.home.homeDirectory}/${localDir}"
           "--log-file" "${logDir}/gdrive-${name}.log"
-        ] ++ bisyncOptions ++ commonOptions
+        ] ++ bisyncOptions ++ commonOptions ++ extraOptions
       );
     in
     {
@@ -112,27 +118,33 @@ let
       };
     };
 
-  # Pictures: one-way pull only
+  # Pictures: one-way pull from Google Photos (read-only)
   picturesSync = mkCopyService {
     name = "pictures";
-    remoteDir = "Photos";
+    remote = gphotosRemote;
+    remoteDir = "media/by-month";  # Google Photos organizes by date
     localDir = "Pictures";
+    extraOptions = [];
   };
 
-  # Documents: bidirectional sync
+  # Documents: bidirectional sync with Google Drive
   documentsSync = mkBisyncService {
     name = "documents";
+    remote = gdriveRemote;
     remoteDir = "Documents";
     localDir = "Documents";
     maxDelete = "50%";
+    extraOptions = gdriveOptions;
   };
 
-  # Music: bidirectional sync
+  # Music: bidirectional sync with Google Drive
   musicSync = mkBisyncService {
     name = "music";
+    remote = gdriveRemote;
     remoteDir = "Music";
     localDir = "Music";
     maxDelete = "50%";
+    extraOptions = gdriveOptions;
   };
 
 in
@@ -145,35 +157,66 @@ in
     (pkgs.writeShellScriptBin "setup-gdrive-sync" ''
       set -euo pipefail
 
-      echo "=== Google Drive Sync Setup ==="
+      echo "=== Google Drive & Photos Sync Setup ==="
       echo ""
 
-      # Check if rclone config exists
-      if [ ! -f "${rcloneConfigPath}" ]; then
-        echo "Step 1: Configure rclone for Google Drive"
-        echo "----------------------------------------"
+      # Check for Google Drive remote
+      if ! ${rcloneBin} listremotes --config ${rcloneConfigPath} 2>/dev/null | grep -q "^${gdriveRemote}:"; then
+        echo "Step 1a: Configure rclone for Google Drive"
+        echo "-------------------------------------------"
+        echo "You need to create a remote named '${gdriveRemote}' for Google Drive."
+        echo ""
+        echo "Instructions:"
         echo "1. Choose 'n' for new remote"
-        echo "2. Name it '${remoteName}'"
-        echo "3. Choose 'drive' (Google Drive)"
-        echo "4. Leave client_id and client_secret blank"
-        echo "5. Choose scope '1' (full access)"
-        echo "6. Leave root_folder_id blank"
-        echo "7. Leave service_account_file blank"
+        echo "2. Name it '${gdriveRemote}'"
+        echo "3. Choose '22' for Google Drive"
+        echo "4. Leave client_id and client_secret blank (press Enter)"
+        echo "5. Choose scope '1' (full access to all files)"
+        echo "6. Leave root_folder_id blank (press Enter)"
+        echo "7. Leave service_account_file blank (press Enter)"
         echo "8. Choose 'n' for advanced config"
         echo "9. Choose 'y' to use auto config (opens browser)"
-        echo "10. Choose 'n' for team drive"
+        echo "10. Authenticate in browser"
+        echo "11. Choose 'n' for team drive"
+        echo "12. Confirm with 'y'"
+        echo "13. Choose 'q' to quit"
         echo ""
         read -p "Press Enter to start rclone config..."
         ${rcloneBin} config
         echo ""
       else
-        echo "✓ Rclone config found at ${rcloneConfigPath}"
+        echo "✓ Google Drive remote '${gdriveRemote}' found"
+        echo ""
+      fi
+
+      # Check for Google Photos remote
+      if ! ${rcloneBin} listremotes --config ${rcloneConfigPath} 2>/dev/null | grep -q "^${gphotosRemote}:"; then
+        echo "Step 1b: Configure rclone for Google Photos"
+        echo "--------------------------------------------"
+        echo "You need to create a remote named '${gphotosRemote}' for Google Photos."
+        echo ""
+        echo "Instructions:"
+        echo "1. Choose 'n' for new remote"
+        echo "2. Name it '${gphotosRemote}'"
+        echo "3. Choose '23' for Google Photos"
+        echo "4. Leave client_id and client_secret blank (press Enter)"
+        echo "5. Choose 'n' for advanced config"
+        echo "6. Choose 'y' to use auto config (opens browser)"
+        echo "7. Authenticate in browser"
+        echo "8. Confirm with 'y'"
+        echo "9. Choose 'q' to quit"
+        echo ""
+        read -p "Press Enter to start rclone config..."
+        ${rcloneBin} config
+        echo ""
+      else
+        echo "✓ Google Photos remote '${gphotosRemote}' found"
         echo ""
       fi
 
       # Initialize bidirectional syncs with --resync
-      echo "Step 2: Initialize bidirectional syncs"
-      echo "---------------------------------------"
+      echo "Step 2: Initialize bidirectional syncs (Google Drive only)"
+      echo "-----------------------------------------------------------"
       echo ""
       echo "⚠️  WARNING: BEFORE PROCEEDING ⚠️"
       echo "Bidirectional sync will MERGE both locations."
@@ -190,10 +233,10 @@ in
 
         # Count files on both sides
         local_count=$(find "$local_dir" -type f 2>/dev/null | wc -l || echo "0")
-        remote_count=$(${rcloneBin} size "${remoteName}:$remote_dir" --config ${rcloneConfigPath} 2>/dev/null | grep "Total objects:" | awk '{print $3}' || echo "0")
+        remote_count=$(${rcloneBin} size "${gdriveRemote}:$remote_dir" --config ${rcloneConfigPath} 2>/dev/null | grep "Total objects:" | awk '{print $3}' || echo "0")
 
         echo "  Local $local_dir: $local_count files"
-        echo "  Remote ${remoteName}:$remote_dir: $remote_count files"
+        echo "  Remote ${gdriveRemote}:$remote_dir: $remote_count files"
         echo ""
 
         read -p "Initialize $folder sync? This will MERGE both locations. [y/N] " -n 1 -r
@@ -205,11 +248,13 @@ in
 
         echo "Initializing $folder sync..."
         ${rcloneBin} bisync \
-          "${remoteName}:$remote_dir" \
+          "${gdriveRemote}:$remote_dir" \
           "$local_dir" \
           --resync \
           --create-empty-src-dirs \
-          --config ${rcloneConfigPath}
+          --config ${rcloneConfigPath} \
+          --drive-skip-gdocs \
+          --drive-use-trash
         echo "✓ $folder initialized"
         echo ""
       done
@@ -218,11 +263,11 @@ in
       echo "Step 3: Enable automatic sync timers"
       echo "-------------------------------------"
       echo ""
-      echo "📸 Pictures: One-way sync (Google Drive → Local, read-only, safe)"
+      echo "📸 Pictures: One-way sync (Google Photos → Local, read-only)"
       systemctl --user enable --now gdrive-pictures-sync.timer
       echo "✓ Pictures sync timer enabled"
       echo ""
-      echo "📄 Documents & 🎶 Music: Bidirectional (changes sync both ways)"
+      echo "📄 Documents & 🎶 Music: Bidirectional (Google Drive ↔ Local)"
       systemctl --user enable --now gdrive-documents-sync.timer
       systemctl --user enable --now gdrive-music-sync.timer
       echo "✓ Documents and Music sync timers enabled"
