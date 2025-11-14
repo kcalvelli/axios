@@ -43,6 +43,7 @@ For manual setup, you'll create just 3 files:
 - **Ghostty terminal** - Modern GPU-accelerated terminal
 - **LazyVim** - Pre-configured Neovim with LSP support
 - **Hardware acceleration** - Optimized for AMD/Intel/Nvidia graphics
+- **Google Drive sync** - Automatic rclone-based sync with safety features (run `setup-gdrive-sync`)
 
 ### Development
 - **Multi-language environments** - Rust, Zig, Python, Node.js
@@ -107,7 +108,7 @@ Check out these example configurations:
 
 ## What's Included
 
-- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell, Ghostty terminal
+- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell, Ghostty terminal, Google Drive sync
 - **Development**: Rust, Zig, Python, Node.js toolchains with LSP support
 - **Applications**: Full productivity suite - see [Application Catalog](docs/APPLICATIONS.md)
 - **PWAs**: Progressive Web Apps integrated as native applications
