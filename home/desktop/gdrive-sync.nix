@@ -1,9 +1,8 @@
 { config, lib, pkgs, ... }:
 
 let
-  # Separate remotes for Google Drive and Google Photos
+  # Google Drive remote for Documents and Music
   gdriveRemote = "gdrive";      # Google Drive (type: drive)
-  gphotosRemote = "gphotos";    # Google Photos (type: google photos)
   syncInterval = "15min";
 
   rcloneConfigPath = "${config.home.homeDirectory}/.config/rclone/rclone.conf";
@@ -118,15 +117,6 @@ let
       };
     };
 
-  # Pictures: one-way pull from Google Photos (read-only)
-  picturesSync = mkCopyService {
-    name = "pictures";
-    remote = gphotosRemote;
-    remoteDir = "media/by-month";  # Google Photos organizes by date
-    localDir = "Pictures";
-    extraOptions = [];
-  };
-
   # Documents: bidirectional sync with Google Drive
   documentsSync = mkBisyncService {
     name = "documents";
@@ -157,13 +147,16 @@ in
     (pkgs.writeShellScriptBin "setup-gdrive-sync" ''
       set -euo pipefail
 
-      echo "=== Google Drive & Photos Sync Setup ==="
+      echo "=== Google Drive Sync Setup ==="
+      echo ""
+      echo "This will sync Documents and Music with Google Drive."
+      echo "Note: Photos are NOT synced via Google Drive - use Syncthing instead."
       echo ""
 
       # Check for Google Drive remote
       if ! ${rcloneBin} listremotes --config ${rcloneConfigPath} 2>/dev/null | grep -q "^${gdriveRemote}:"; then
-        echo "Step 1a: Configure rclone for Google Drive"
-        echo "-------------------------------------------"
+        echo "Step 1: Configure rclone for Google Drive"
+        echo "------------------------------------------"
         echo "You need to create a remote named '${gdriveRemote}' for Google Drive."
         echo ""
         echo "Instructions:"
@@ -189,34 +182,9 @@ in
         echo ""
       fi
 
-      # Check for Google Photos remote
-      if ! ${rcloneBin} listremotes --config ${rcloneConfigPath} 2>/dev/null | grep -q "^${gphotosRemote}:"; then
-        echo "Step 1b: Configure rclone for Google Photos"
-        echo "--------------------------------------------"
-        echo "You need to create a remote named '${gphotosRemote}' for Google Photos."
-        echo ""
-        echo "Instructions:"
-        echo "1. Choose 'n' for new remote"
-        echo "2. Name it '${gphotosRemote}'"
-        echo "3. Choose '23' for Google Photos"
-        echo "4. Leave client_id and client_secret blank (press Enter)"
-        echo "5. Choose 'n' for advanced config"
-        echo "6. Choose 'y' to use auto config (opens browser)"
-        echo "7. Authenticate in browser"
-        echo "8. Confirm with 'y'"
-        echo "9. Choose 'q' to quit"
-        echo ""
-        read -p "Press Enter to start rclone config..."
-        ${rcloneBin} config
-        echo ""
-      else
-        echo "✓ Google Photos remote '${gphotosRemote}' found"
-        echo ""
-      fi
-
       # Initialize bidirectional syncs with --resync
-      echo "Step 2: Initialize bidirectional syncs (Google Drive only)"
-      echo "-----------------------------------------------------------"
+      echo "Step 2: Initialize bidirectional syncs"
+      echo "---------------------------------------"
       echo ""
       echo "⚠️  WARNING: BEFORE PROCEEDING ⚠️"
       echo "Bidirectional sync will MERGE both locations."
@@ -263,10 +231,6 @@ in
       echo "Step 3: Enable automatic sync timers"
       echo "-------------------------------------"
       echo ""
-      echo "📸 Pictures: One-way sync (Google Photos → Local, read-only)"
-      systemctl --user enable --now gdrive-pictures-sync.timer
-      echo "✓ Pictures sync timer enabled"
-      echo ""
       echo "📄 Documents & 🎶 Music: Bidirectional (Google Drive ↔ Local)"
       systemctl --user enable --now gdrive-documents-sync.timer
       systemctl --user enable --now gdrive-music-sync.timer
@@ -279,7 +243,9 @@ in
       systemctl --user list-timers 'gdrive-*'
       echo ""
       echo "View logs: journalctl --user -u 'gdrive-*' -f"
-      echo "Manual sync: systemctl --user start gdrive-{pictures,documents,music}-sync.service"
+      echo "Manual sync: systemctl --user start gdrive-{documents,music}-sync.service"
+      echo ""
+      echo "For photo sync, consider using Syncthing to sync between devices."
     '')
   ];
 
@@ -288,14 +254,12 @@ in
 
   # Merge all services
   systemd.user.services = lib.mkMerge [
-    picturesSync.service
     documentsSync.service
     musicSync.service
   ];
 
   # Merge all timers
   systemd.user.timers = lib.mkMerge [
-    picturesSync.timer
     documentsSync.timer
     musicSync.timer
   ];
