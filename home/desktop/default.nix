@@ -7,6 +7,7 @@
     ./niri.nix
     ./gdrive-sync.nix
     ./syncthing.nix
+    ./photo-organizer.nix
     inputs.dankMaterialShell.homeModules.dankMaterialShell.default
     inputs.dsearch.homeModules.default
   ];
