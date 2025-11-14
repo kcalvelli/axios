@@ -32,9 +32,6 @@
       celluloid # Video player
       amberol # Music player
 
-      # === Cloud & Sync ===
-      nextcloud-client # Nextcloud sync client
-
       # === System Utilities ===
       baobab # Disk usage analyzer
       swappy # Screenshot annotation
