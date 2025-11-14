@@ -2,7 +2,7 @@
 
 let
   # Google Drive remote for Documents and Music
-  gdriveRemote = "gdrive";      # Google Drive (type: drive)
+  gdriveRemote = "gdrive"; # Google Drive (type: drive)
   syncInterval = "15min";
 
   rcloneConfigPath = "${config.home.homeDirectory}/.config/rclone/rclone.conf";
@@ -11,9 +11,12 @@ let
 
   # Common options for all rclone operations
   commonOptions = [
-    "--retries" "3"
-    "--retries-sleep" "1m"
-    "--config" rcloneConfigPath
+    "--retries"
+    "3"
+    "--retries-sleep"
+    "1m"
+    "--config"
+    rcloneConfigPath
   ];
 
   # Google Drive specific options
@@ -23,7 +26,7 @@ let
   ];
 
   # Generate one-way sync service (remote -> local, read-only pull)
-  mkCopyService = { name, remote, remoteDir, localDir, extraOptions ? [] }:
+  mkCopyService = { name, remote, remoteDir, localDir, extraOptions ? [ ] }:
     let
       serviceName = "gdrive-${name}-sync";
       execCommand = lib.strings.escapeShellArgs (
@@ -32,7 +35,8 @@ let
           "sync"
           "${remote}:${remoteDir}"
           "${config.home.homeDirectory}/${localDir}"
-          "--log-file" "${logDir}/gdrive-${name}.log"
+          "--log-file"
+          "${logDir}/gdrive-${name}.log"
         ] ++ commonOptions ++ extraOptions
       );
     in
@@ -68,13 +72,14 @@ let
     };
 
   # Generate bidirectional sync service
-  mkBisyncService = { name, remote, remoteDir, localDir, maxDelete ? "50%", extraOptions ? [] }:
+  mkBisyncService = { name, remote, remoteDir, localDir, maxDelete ? "50%", extraOptions ? [ ] }:
     let
       serviceName = "gdrive-${name}-sync";
       bisyncOptions = [
         "--resilient"
         "--check-access"
-        "--max-delete" maxDelete
+        "--max-delete"
+        maxDelete
       ];
       execCommand = lib.strings.escapeShellArgs (
         [
@@ -82,7 +87,8 @@ let
           "bisync"
           "${remote}:${remoteDir}"
           "${config.home.homeDirectory}/${localDir}"
-          "--log-file" "${logDir}/gdrive-${name}.log"
+          "--log-file"
+          "${logDir}/gdrive-${name}.log"
         ] ++ bisyncOptions ++ commonOptions ++ extraOptions
       );
     in
