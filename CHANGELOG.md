@@ -11,48 +11,48 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ### Added
 - **MCP Server Enhancements**
-  - Integrated nix-devshell-mcp server for Nix development environment management
+- Integrated nix-devshell-mcp server for Nix development environment management
 - **AI Tools Expansion**
-  - Added Google Jules CLI via npm
-  - Added Gemini CLI and integration
-  - Added Claude Desktop and additional Claude tools
-  - Added Claude usage monitoring to AI module
-  - Added Claude Code project context file (CLAUDE.md)
+- Added Google Jules CLI via npm
+- Added Gemini CLI and integration
+- Added Claude Desktop and additional Claude tools
+- Added Claude usage monitoring to AI module
+- Added Claude Code project context file (CLAUDE.md)
 
 ### Changed
 - **Module Architecture Refactoring**
-  - Implemented CODE_REVIEW.md recommendations for home module architecture
-  - Added axios.system.enable option with mkIf guards for consistency
-  - Moved browser and calendar modules to desktop.enable conditional loading
-  - Fixed AI module to follow conditional import pattern at system level
-  - Cleaned up base profile to include only core tools (security, terminal)
+- Implemented CODE_REVIEW.md recommendations for home module architecture
+- Added axios.system.enable option with mkIf guards for consistency
+- Moved browser and calendar modules to desktop.enable conditional loading
+- Fixed AI module to follow conditional import pattern at system level
+- Cleaned up base profile to include only core tools (security, terminal)
 - **AI Module Restructuring**
-  - Migrated from mcpo to mcp-servers-nix library for declarative MCP configuration
-  - Removed ollama and open-webui from AI module (these were overly opinionated for a library)
-  - Renamed 'code' from nix-ai-tools to 'coder' to avoid VSCode conflict
-  - Removed overlapping AI CLI tools, retained only essentials
-  - Removed spec-kit devshell, integrated spec-kit from nix-ai-tools
+- Migrated from mcpo to mcp-servers-nix library for declarative MCP configuration
+- Removed ollama and open-webui from AI module (these were overly opinionated for a library)
+- Renamed 'code' from nix-ai-tools to 'coder' to avoid VSCode conflict
+- Removed overlapping AI CLI tools, retained only essentials
+- Removed spec-kit devshell, integrated spec-kit from nix-ai-tools
 - **Dependency Updates**
-  - Updated flake inputs for latest features and fixes
+- Updated flake inputs for latest features and fixes
 
 ### Fixed
 - **AI Module Fixes**
-  - Fixed MCP server package names from mcp-servers-nix
-  - Enabled programs.claude-code module for proper MCP configuration
-  - Fixed brave-search and tavily to use npx for execution
+- Fixed MCP server package names from mcp-servers-nix
+- Enabled programs.claude-code module for proper MCP configuration
+- Fixed brave-search and tavily to use npx for execution
 - **Build System Fixes**
-  - Fixed deprecated system references to use stdenv.hostPlatform.system
+- Fixed deprecated system references to use stdenv.hostPlatform.system
 - **Configuration Fixes**
-  - Fixed age identityPaths to use absolute paths
+- Fixed age identityPaths to use absolute paths
 - **Home Module Fixes**
-  - Fixed AI module conditional loading (removed from base.nix)
-  - Fixed home module import paths after restructuring
+- Fixed AI module conditional loading (removed from base.nix)
+- Fixed home module import paths after restructuring
 
 ### Removed
 - **AI Module Cleanup**
-  - Removed mcp-chat custom package (experimental tool no longer needed)
-  - Removed ollama module (overly opinionated for a library distribution)
-  - Removed open-webui module (overly opinionated for a library distribution)
+- Removed mcp-chat custom package (experimental tool no longer needed)
+- Removed ollama module (overly opinionated for a library distribution)
+- Removed open-webui module (overly opinionated for a library distribution)
 
 ### Documentation
 - Enhanced GEMINI.md with project overview and workflow improvements
