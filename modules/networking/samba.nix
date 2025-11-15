@@ -52,10 +52,9 @@ in
       enable = true;
       openFirewall = true;
 
-      # Enable PAM integration for password sync
-      # Note: Users still need to be added to Samba's password database
+      # Note: Users must be added to Samba's password database manually
       # Use: samba-add-user <username>
-      enablePAM = true;
+      # PAM password sync was removed by upstream Samba
 
       # Disable legacy NetBIOS browser; prefer WS-Discovery instead.
       nmbd.enable = false;
