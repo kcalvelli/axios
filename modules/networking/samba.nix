@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ config, lib, pkgs, ... }:
 let
   cfg = config.networking.samba;
 in
@@ -25,9 +25,37 @@ in
   };
 
   config = {
+    # Helper script for adding users to Samba password database
+    environment.systemPackages = [
+      (pkgs.writeShellScriptBin "samba-add-user" ''
+        if [ -z "$1" ]; then
+          echo "Usage: samba-add-user <username>"
+          echo ""
+          echo "Adds a Unix user to Samba's password database."
+          echo "The user must already exist as a Unix user."
+          echo ""
+          echo "After adding, you can connect to Samba shares using:"
+          echo "  smb://username@hostname/share"
+          exit 1
+        fi
+
+        if ! id "$1" &>/dev/null; then
+          echo "Error: User '$1' does not exist as a Unix user"
+          exit 1
+        fi
+
+        sudo ${pkgs.samba}/bin/smbpasswd -a "$1"
+      '')
+    ];
+
     services.samba = {
       enable = true;
       openFirewall = true;
+
+      # Enable PAM integration for password sync
+      # Note: Users still need to be added to Samba's password database
+      # Use: samba-add-user <username>
+      enablePAM = true;
 
       # Disable legacy NetBIOS browser; prefer WS-Discovery instead.
       nmbd.enable = false;

@@ -156,7 +156,8 @@ in
       echo "=== Google Drive Sync Setup ==="
       echo ""
       echo "This will sync Documents and Music with Google Drive."
-      echo "Note: Photos are NOT synced via Google Drive - use Syncthing instead."
+      echo "Note: Photos are NOT synced automatically due to Google Photos API restrictions."
+      echo "Consider using Google Takeout for manual photo backups."
       echo ""
 
       # Check for Google Drive remote
@@ -250,8 +251,6 @@ in
       echo ""
       echo "View logs: journalctl --user -u 'gdrive-*' -f"
       echo "Manual sync: systemctl --user start gdrive-{documents,music}-sync.service"
-      echo ""
-      echo "For photo sync, consider using Syncthing to sync between devices."
     '')
   ];
 
