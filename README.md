@@ -57,6 +57,7 @@ For manual setup, you'll create just 3 files:
 - **Virtualization** - libvirt, QEMU, Podman
 - **Hardware optimization** - Automatic desktop/laptop configuration
 - **Modular architecture** - Enable only what you need
+- **Self-hosted services** - Caddy + Tailscale HTTPS, Immich photo backup
 
 ## Screenshots
 
@@ -114,7 +115,8 @@ Check out these example configurations:
 - **PWAs**: Progressive Web Apps integrated as native applications
 - **Virtualization**: libvirt, QEMU, Podman support (optional)
 - **Gaming**: Steam, GameMode, Proton (optional)
-- **AI Services**: Githb Copilot, Claude CLI with MCP servers (optional)
+- **AI Services**: GitHub Copilot, Claude CLI with MCP servers (optional)
+- **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)
 
 **See project structure and module details in [docs/README.md](docs/README.md)**
 
