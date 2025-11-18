@@ -15,5 +15,6 @@
     gaming = ./gaming;
     ai = ./ai;
     secrets = ./secrets;
+    services = ./services;
   };
 }

@@ -237,6 +237,7 @@ let
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or false) ai
         ++ lib.optional (hostCfg.modules.secrets or false) secrets
+        ++ lib.optional (hostCfg.modules.services or false) services
         # Hardware modules based on form factor and vendor
         ++ lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
         ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
@@ -291,6 +292,14 @@ let
             # Add secrets config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.secrets or false) && (hostCfg ? secrets)) {
               secrets = hostCfg.secrets;
+            })
+            # Enable selfHosted module if specified
+            (lib.optionalAttrs (hostCfg.modules.services or false) {
+              selfHosted.enable = true;
+            })
+            # Add selfHosted config only if module is enabled and config exists
+            (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? selfHosted)) {
+              selfHosted = hostCfg.selfHosted;
             })
             # Enable desktop hardware module if vendor is msi
             (lib.optionalAttrs (hwVendor == "msi") {
