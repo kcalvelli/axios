@@ -8,23 +8,29 @@ let
   tailscaleDomain = config.networking.tailscale.domain;
 
   # Generate external library mount paths
-  externalLibraryMounts = lib.mapAttrs' (name: path: {
-    name = "/mnt/immich-external/${name}";
-    value = {
-      device = path;
-      options = [ "bind" ];
-    };
-  }) cfg.externalLibraries;
+  externalLibraryMounts = lib.mapAttrs'
+    (name: path: {
+      name = "/mnt/immich-external/${name}";
+      value = {
+        device = path;
+        options = [ "bind" ];
+      };
+    })
+    cfg.externalLibraries;
 
   # Generate tmpfiles rules for mount points
-  externalLibraryTmpfiles = lib.mapAttrsToList (name: _path:
-    "d /mnt/immich-external/${name} 0755 immich immich -"
-  ) cfg.externalLibraries;
+  externalLibraryTmpfiles = lib.mapAttrsToList
+    (name: _path:
+      "d /mnt/immich-external/${name} 0755 immich immich -"
+    )
+    cfg.externalLibraries;
 
   # Generate ReadWritePaths for systemd hardening
-  externalLibraryPaths = lib.mapAttrsToList (name: _path:
-    "/mnt/immich-external/${name}"
-  ) cfg.externalLibraries;
+  externalLibraryPaths = lib.mapAttrsToList
+    (name: _path:
+      "/mnt/immich-external/${name}"
+    )
+    cfg.externalLibraries;
 in
 {
   options.selfHosted.immich = {
@@ -112,29 +118,32 @@ in
     # Enable Immich service
     services.immich = {
       enable = true;
-      host = "127.0.0.1";  # Only listen locally, Caddy handles external access
+      host = "127.0.0.1"; # Only listen locally, Caddy handles external access
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
 
       # GPU acceleration
-      accelerationDevices = lib.mkIf cfg.enableGpuAcceleration null;  # null = all devices
+      accelerationDevices = lib.mkIf cfg.enableGpuAcceleration null; # null = all devices
     };
 
     # Configure Caddy reverse proxy for Immich
-    selfHosted.caddy.extraConfig = let
-      domain = if cfg.subdomain != null
-        then "${cfg.subdomain}.${tailscaleDomain}"
-        else "${config.networking.hostName}.${tailscaleDomain}";
-    in ''
-      ${domain} {
-        reverse_proxy http://127.0.0.1:${toString cfg.port}
+    selfHosted.caddy.extraConfig =
+      let
+        domain =
+          if cfg.subdomain != null
+          then "${cfg.subdomain}.${tailscaleDomain}"
+          else "${config.networking.hostName}.${tailscaleDomain}";
+      in
+      ''
+        ${domain} {
+          reverse_proxy http://127.0.0.1:${toString cfg.port}
 
-        # Immich requires large uploads for photos/videos
-        request_body {
-          max_size 50GB
+          # Immich requires large uploads for photos/videos
+          request_body {
+            max_size 50GB
+          }
         }
-      }
-    '';
+      '';
 
     # GPU user groups for hardware acceleration
     users.users.immich.extraGroups = lib.optionals cfg.enableGpuAcceleration [

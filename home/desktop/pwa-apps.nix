@@ -90,7 +90,7 @@ in
       (pkgs.pwa-apps.override {
         extraDefs = if cfg.includeDefaults then cfg.extraApps else
           # If not including defaults, pass empty base and only extra apps
-          cfg.extraApps;
+        cfg.extraApps;
         extraIconPaths = lib.optional (cfg.iconPath != null) cfg.iconPath;
       })
     ];

@@ -1,6 +1,10 @@
-{ lib, stdenv, brave, makeDesktopItem, symlinkJoin
-, extraDefs ? {}
-, extraIconPaths ? []
+{ lib
+, stdenv
+, brave
+, makeDesktopItem
+, symlinkJoin
+, extraDefs ? { }
+, extraIconPaths ? [ ]
 }:
 
 let
