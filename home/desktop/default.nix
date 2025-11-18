@@ -6,9 +6,13 @@
     ./wallpaper.nix
     ./niri.nix
     ./gdrive-sync.nix
+    ./pwa-apps.nix
     inputs.dankMaterialShell.homeModules.dankMaterialShell.default
     inputs.dsearch.homeModules.default
   ];
+
+  # Enable PWA apps by default for desktop users
+  axios.pwa.enable = true;
 
   # DankMaterialShell configuration
   programs.dankMaterialShell = {

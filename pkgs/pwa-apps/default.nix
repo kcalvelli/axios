@@ -1,8 +1,12 @@
-{ lib, stdenv, brave, makeDesktopItem, symlinkJoin }:
+{ lib, stdenv, brave, makeDesktopItem, symlinkJoin
+, extraDefs ? {}
+, extraIconPaths ? []
+}:
 
 let
-  pwaDefs = import ./pwa-defs.nix;
-  iconPath = ../../home/resources/pwa-icons;
+  baseDefs = import ./pwa-defs.nix;
+  pwaDefs = baseDefs // extraDefs;
+  baseIconPath = ../../home/resources/pwa-icons;
 
   # Helper to convert URL to Brave's app-id format for WM_CLASS matching
   # Brave's format: brave-{domain}{path}-Default where path uses __ for /
@@ -60,11 +64,21 @@ let
       mkdir -p $out/bin
       mkdir -p $out/share/icons/hicolor/128x128/apps
 
-      # Install icons
+      # Install icons from base path and extra paths
       ${lib.concatStringsSep "\n" (lib.mapAttrsToList (pwaId: pwa: ''
-        if [ -f ${iconPath}/${pwa.icon}.png ]; then
-          cp ${iconPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+        icon_found=false
+        # Check base icon path first
+        if [ -f ${baseIconPath}/${pwa.icon}.png ]; then
+          cp ${baseIconPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+          icon_found=true
         fi
+        # Check extra icon paths if not found
+        ${lib.concatStringsSep "\n" (map (extraPath: ''
+          if [ "$icon_found" = false ] && [ -f ${extraPath}/${pwa.icon}.png ]; then
+            cp ${extraPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+            icon_found=true
+          fi
+        '') extraIconPaths)}
       '') pwaDefs)}
 
       # Generate launcher scripts

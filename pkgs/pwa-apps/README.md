@@ -91,6 +91,8 @@ This pattern is used in:
 
 ## Adding New PWAs
 
+### Adding to axios (for public PWAs)
+
 1. Get the icon (128x128 PNG recommended):
    ```bash
    cp icon.png home/resources/pwa-icons/my-app.png
@@ -115,6 +117,41 @@ This pattern is used in:
    ```
 
 3. Rebuild your configuration
+
+### Adding custom PWAs in downstream config
+
+For self-hosted services or user-specific PWAs, use the `axios.pwa` home-manager module to extend the default set:
+
+1. Create an icons directory in your config and add the icon:
+   ```bash
+   mkdir -p ~/.config/nixos_config/icons
+   cp icon.png ~/.config/nixos_config/icons/my-app.png
+   git add icons/  # Must be tracked by git for flake to include it
+   ```
+
+2. Configure in your home-manager settings (e.g., `keith.nix`):
+   ```nix
+   {
+     home-manager.users.myuser = {
+       axios.pwa = {
+         iconPath = ./icons;
+         extraApps.my-app = {
+           name = "My App";
+           url = "https://my-server.example.com";
+           icon = "my-app";
+           categories = [ "Network" ];
+         };
+       };
+     };
+   }
+   ```
+
+3. Rebuild your configuration
+
+This approach is ideal for:
+- Self-hosted services (Immich, Nextcloud, etc.)
+- Internal/corporate applications
+- Any PWA with a user-specific URL
 
 ## Technical Details
 

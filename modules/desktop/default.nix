@@ -74,8 +74,8 @@
       vdirsyncer
       khal
 
-      # === PWA apps for all users ===
-      pwa-apps
+      # Note: PWA apps are now managed via home-manager (axios.pwa module)
+      # This allows users to add custom PWAs with their own URLs and icons
 
       # === VPN ===
       protonvpn-gui
