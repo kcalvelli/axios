@@ -105,6 +105,8 @@
         extraConfig = {
           # Server-specific configuration
           axios.system.timeZone = "America/New_York";
+          # Required for selfHosted services
+          networking.tailscale.domain = "example-tailnet.ts.net";
           # services.openssh.enable = true;
         };
       };
