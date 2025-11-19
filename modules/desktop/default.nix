@@ -1,4 +1,4 @@
-{ lib, pkgs, config, homeModules, ... }:
+{ lib, pkgs, config, homeModules, inputs, ... }:
 let
   userCfg = config.axios.user;
 in
@@ -91,6 +91,7 @@ in
     # Enable DankMaterialShell with greeter
     programs.dankMaterialShell = {
       enable = true; # Provides system packages (matugen, hyprpicker, cava, etc.)
+      quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
       greeter = {
         enable = true;
         compositor.name = "niri";
