@@ -1,5 +1,10 @@
 { lib, pkgs, config, homeModules, ... }:
+let
+  userCfg = config.axios.user;
+in
 {
+  # Note: DMS NixOS modules are imported in lib/default.nix baseModules
+
   options.desktop = {
     enable = lib.mkEnableOption "Desktop environment with applications and services";
   };
@@ -44,35 +49,23 @@
 
       # === Wayland Tools ===
       fuzzel # Application launcher
-      wl-clipboard # Clipboard utilities
       wtype # Wayland key automation
       playerctl # Media player control
       pavucontrol # Audio control
-      cava # Audio visualizer
       wf-recorder # Screen recording
       slurp # Screen area selection (for wf-recorder)
-      hyprpicker # Color picker
 
       # === Theming & Appearance ===
-      matugen # Material theme generator
+      # Note: matugen, hyprpicker, cava provided by DMS
       colloid-gtk-theme # GTK theme
       colloid-icon-theme # Icon theme
       adwaita-icon-theme # GNOME icon theme
       papirus-icon-theme # Papirus icon theme
       adw-gtk3 # Adwaita GTK3 theme
 
-      # === Qt Configuration ===
-      kdePackages.qt6ct # Qt6 configuration tool
-
-      # === Fonts ===
-      # System-wide fonts (deduplicated from home-manager)
-      nerd-fonts.fira-code # Nerd Fonts variant of Fira Code
-      inter # Inter font family
-      material-symbols # Material Design symbols
-
-      # === DankMaterialShell Calendar ===
+      # === Calendar Sync ===
+      # Note: khal provided by DMS, fonts provided by DMS greeter
       vdirsyncer
-      khal
 
       # Note: PWA apps are now managed via home-manager (axios.pwa module)
       # This allows users to add custom PWAs with their own URLs and icons
@@ -99,8 +92,8 @@
     programs.dankMaterialShell.greeter = {
       enable = true;
       compositor.name = "niri";
-      # Note: configHome will be set automatically to the first normal user's home
-      # or can be overridden in host configuration if needed
+      # Auto-detect configHome from axios.user.name (convention over configuration)
+      configHome = lib.mkIf (userCfg.name != "") "/home/${userCfg.name}";
     };
 
     # GNOME Keyring for credentials (PAM configuration)
