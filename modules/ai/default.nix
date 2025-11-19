@@ -32,7 +32,7 @@ in
         ai-tools = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system};
       in
       [
-        # Claude tools
+        # AI tools
         ai-tools.copilot-cli # GitHub Copilot CLI
         ai-tools.claude-code # Claude CLI with MCP support
         ai-tools.goose-cli
@@ -43,6 +43,7 @@ in
         ai-tools.codex
         ai-tools.catnip
         ai-tools.gemini-cli
+        ai-tools.claude-desktop
       ]
     );
   };
