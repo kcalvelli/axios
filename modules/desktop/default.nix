@@ -88,12 +88,15 @@ in
       GNOME_SOFTWARE_USE_FLATPAK_ONLY = "1";
     };
 
-    # Enable DankMaterialShell greeter with niri
-    programs.dankMaterialShell.greeter = {
-      enable = true;
-      compositor.name = "niri";
-      # Auto-detect configHome from axios.user.name (convention over configuration)
-      configHome = lib.mkIf (userCfg.name != "") "/home/${userCfg.name}";
+    # Enable DankMaterialShell with greeter
+    programs.dankMaterialShell = {
+      enable = true; # Provides system packages (matugen, hyprpicker, cava, etc.)
+      greeter = {
+        enable = true;
+        compositor.name = "niri";
+        # Auto-detect configHome from axios.user.name (convention over configuration)
+        configHome = lib.mkIf (userCfg.name != "") "/home/${userCfg.name}";
+      };
     };
 
     # GNOME Keyring for credentials (PAM configuration)
