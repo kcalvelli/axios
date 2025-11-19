@@ -29,6 +29,11 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 ### Fixed
 - Added required tailscale domain to server example config
 - Fixed duplicate DMS module import causing option declaration errors
+- Enabled DMS NixOS module for system packages (matugen, hyprpicker, cava)
+- Set quickshell package at NixOS level for proper theme worker operation
+
+### Removed
+- Removed dgop input (DMS now manages its own)
 
 ## [2025-11-13] - MCP Integration & Home Module Architecture
 

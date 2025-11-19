@@ -62,9 +62,7 @@
     },
     "dankMaterialShell": {
       "inputs": {
-        "dgop": [
-          "dgop"
-        ],
+        "dgop": "dgop",
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -128,6 +126,7 @@
     "dgop": {
       "inputs": {
         "nixpkgs": [
+          "dankMaterialShell",
           "nixpkgs"
         ]
       },
@@ -900,7 +899,6 @@
         "agenix": "agenix",
         "dankMaterialShell": "dankMaterialShell",
         "devshell": "devshell",
-        "dgop": "dgop",
         "disko": "disko",
         "dsearch": "dsearch",
         "fenix": "fenix",
