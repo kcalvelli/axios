@@ -7,6 +7,29 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+## [2025-11-19] - DMS Integration & Upstream Module Architecture
+
+### Changed
+- **DankMaterialShell Integration**
+  - Updated to DMS v0.6.2 with new NixOS module architecture
+  - Removed dms-cli input (DMS now packages dmsCli directly)
+  - Moved DMS NixOS modules to baseModules in lib/default.nix
+  - Auto-detect greeter configHome from axios.user.name
+  - Removed 9 redundant packages now provided by DMS:
+    - wl-clipboard, cava, hyprpicker, matugen, qt6ct
+    - Fonts: fira-code, inter, material-symbols
+    - khal (calendar)
+  - Removed redundant wl-paste clipboard spawn (DMS provides this)
+
+### Added
+- **PWA Module**
+  - Added extensible PWA module for custom progressive web apps
+  - Users can add custom PWAs with their own URLs and icons
+
+### Fixed
+- Added required tailscale domain to server example config
+- Fixed duplicate DMS module import causing option declaration errors
+
 ## [2025-11-13] - MCP Integration & Home Module Architecture
 
 ### Added
