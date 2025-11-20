@@ -124,6 +124,11 @@ in
 
       # GPU acceleration
       accelerationDevices = lib.mkIf cfg.enableGpuAcceleration null; # null = all devices
+
+      # Disable new version check to work around frontend bug in v2.2.3
+      settings = {
+        newVersionCheck.enabled = false;
+      };
     };
 
     # Configure Caddy reverse proxy for Immich
