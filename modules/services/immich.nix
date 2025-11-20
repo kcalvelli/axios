@@ -91,7 +91,7 @@ in
     # Enable Immich service
     services.immich = {
       enable = true;
-      package = immichPackage; # Use v2.3.1 to fix rendering loop bug
+      #package = immichPackage; # Use v2.3.1 to fix rendering loop bug
       host = "127.0.0.1"; # Only listen locally, Caddy handles external access
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
