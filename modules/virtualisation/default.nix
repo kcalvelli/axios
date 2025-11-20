@@ -36,10 +36,10 @@ in
         members = lib.attrNames (lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users);
       };
 
-      environment.systemPackages = with pkgs; [
-        winboat
-        freerdp
-      ];
+      #environment.systemPackages = with pkgs; [
+      #  winboat
+      #  freerdp
+      #];
     })
 
     (lib.mkIf cfg.libvirt.enable {
