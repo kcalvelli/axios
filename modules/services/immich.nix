@@ -136,6 +136,9 @@ in
       in
       ''
         ${domain} {
+          # Force HTTP/1.1 for WebSocket compatibility
+          protocols h1
+
           reverse_proxy http://127.0.0.1:${toString cfg.port} {
             # Prevent WebSocket timeout disconnects
             stream_timeout 0
