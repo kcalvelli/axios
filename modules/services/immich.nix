@@ -136,7 +136,10 @@ in
       in
       ''
         ${domain} {
-          reverse_proxy http://127.0.0.1:${toString cfg.port}
+          reverse_proxy http://127.0.0.1:${toString cfg.port} {
+            header_up Connection {http.request.header.Connection}
+            header_up Upgrade {http.request.header.Upgrade}
+          }
 
           # Immich requires large uploads for photos/videos
           request_body {
