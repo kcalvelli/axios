@@ -32,8 +32,6 @@ in
     ];
 
     services.caddy = {
-      # Set global log level to DEBUG for troubleshooting
-      logFormat = "level DEBUG";
 
       # Global Caddy settings
       globalConfig = ''

@@ -7,30 +7,6 @@ let
   selfHostedCfg = config.selfHosted;
   tailscaleDomain = config.networking.tailscale.domain;
 
-  # Generate external library mount paths
-  externalLibraryMounts = lib.mapAttrs'
-    (name: path: {
-      name = "/mnt/immich-external/${name}";
-      value = {
-        device = path;
-        options = [ "bind" ];
-      };
-    })
-    cfg.externalLibraries;
-
-  # Generate tmpfiles rules for mount points
-  externalLibraryTmpfiles = lib.mapAttrsToList
-    (name: _path:
-      "d /mnt/immich-external/${name} 0755 immich immich -"
-    )
-    cfg.externalLibraries;
-
-  # Generate ReadWritePaths for systemd hardening
-  externalLibraryPaths = lib.mapAttrsToList
-    (name: _path:
-      "/mnt/immich-external/${name}"
-    )
-    cfg.externalLibraries;
 in
 {
   options.selfHosted.immich = {
@@ -57,22 +33,6 @@ in
       type = lib.types.path;
       default = "/var/lib/immich";
       description = "Directory used to store uploaded media files.";
-    };
-
-    externalLibraries = lib.mkOption {
-      type = lib.types.attrsOf lib.types.path;
-      default = { };
-      example = {
-        pictures = "/home/user/Pictures";
-        videos = "/home/user/Videos";
-      };
-      description = ''
-        External libraries to make available to Immich via bind mounts.
-        Each entry creates a bind mount at /mnt/immich-external/{name}.
-
-        In the Immich web UI, add these as external library paths:
-        /mnt/immich-external/{name}
-      '';
     };
 
     enableGpuAcceleration = lib.mkOption {
@@ -125,7 +85,6 @@ in
       # GPU acceleration
       accelerationDevices = lib.mkIf cfg.enableGpuAcceleration null; # null = all devices
 
-      # Disable new version check to work around frontend bug in v2.2.3
       settings = {
         newVersionCheck.enabled = false;
       };
@@ -141,15 +100,7 @@ in
       in
       ''
         ${domain} {
-          reverse_proxy http://127.0.0.1:${toString cfg.port} {
-            header_up Connection {http.request.header.Connection}
-            header_up Upgrade {http.request.header.Upgrade}
-          }
-
-          # Immich requires large uploads for photos/videos
-          request_body {
-            max_size 50GB
-          }
+          reverse_proxy http://127.0.0.1:${toString cfg.port}
         }
       '';
 
@@ -161,18 +112,5 @@ in
 
     # Redis requires vm.overcommit_memory = 1
     boot.kernel.sysctl."vm.overcommit_memory" = lib.mkForce 1;
-
-    # External library configuration
-    systemd.tmpfiles.rules = lib.mkIf (cfg.externalLibraries != { }) (
-      [ "d /mnt/immich-external 0755 immich immich -" ] ++ externalLibraryTmpfiles
-    );
-
-    # Bind mounts for external libraries
-    fileSystems = lib.mkIf (cfg.externalLibraries != { }) externalLibraryMounts;
-
-    # Override systemd hardening to allow access to bind-mounted external libraries
-    systemd.services.immich-server.serviceConfig = lib.mkIf (cfg.externalLibraries != { }) {
-      ReadWritePaths = externalLibraryPaths;
-    };
   };
 }
