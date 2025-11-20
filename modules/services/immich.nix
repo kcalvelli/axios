@@ -136,7 +136,13 @@ in
       in
       ''
         ${domain} {
-          reverse_proxy http://127.0.0.1:${toString cfg.port}
+          reverse_proxy http://127.0.0.1:${toString cfg.port} {
+            # Forward required headers for Immich
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+          }
 
           # Immich requires large uploads for photos/videos
           request_body {
