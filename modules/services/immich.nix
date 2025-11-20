@@ -6,20 +6,6 @@ let
   cfg = config.selfHosted.immich;
   selfHostedCfg = config.selfHosted;
   tailscaleDomain = config.networking.tailscale.domain;
-
-  # Override Immich to v2.3.1 to fix rendering loop bug
-  # See: https://github.com/immich-app/immich/releases/tag/v2.3.1
-  # TODO: Remove this override once nixpkgs updates to 2.3.1+
-  immichPackage = pkgs.immich.overrideAttrs (oldAttrs: rec {
-    version = "2.3.1";
-    src = pkgs.fetchFromGitHub {
-      owner = "immich-app";
-      repo = "immich";
-      rev = "v${version}";
-      hash = "sha256-17d56jjbnk4zalmcf6czqrx639k3nard37ahqz6mnkns19nkkw9b";
-    };
-  });
-
 in
 {
   options.selfHosted.immich = {
@@ -91,7 +77,6 @@ in
     # Enable Immich service
     services.immich = {
       enable = true;
-      package = immichPackage; # Use v2.3.1 to fix rendering loop bug
       host = "127.0.0.1"; # Only listen locally, Caddy handles external access
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
