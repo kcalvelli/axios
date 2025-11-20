@@ -36,11 +36,6 @@ in
       globalConfig = ''
         # Use Tailscale for HTTPS certificates
         # Caddy automatically gets certs from local Tailscale daemon for *.ts.net domains
-        {
-          log {
-            level DEBUG
-          }
-        }
       '';
 
       # Additional config from selfHosted.caddy.extraConfig and service modules
