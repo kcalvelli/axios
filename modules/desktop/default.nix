@@ -19,6 +19,7 @@ in
 
       # File manager
       nautilus
+      file-roller # Archive manager
 
       # === Productivity Applications ===
       obsidian # Note-taking and knowledge management
@@ -114,7 +115,6 @@ in
       nautilus-open-any-terminal.enable = true;
       nautilus-open-any-terminal.terminal = "ghostty";
       evince.enable = true;
-      file-roller.enable = true;
       gnome-disks.enable = true;
       seahorse.enable = true;
       corectrl.enable = true;
