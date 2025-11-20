@@ -136,7 +136,11 @@ in
       in
       ''
         ${domain} {
-          reverse_proxy http://127.0.0.1:${toString cfg.port}
+          reverse_proxy http://127.0.0.1:${toString cfg.port} {
+            # Prevent WebSocket timeout disconnects
+            stream_timeout 0
+            stream_close_delay 1h
+          }
 
           # Immich requires large uploads for photos/videos
           request_body {
