@@ -43,6 +43,7 @@ in
         ai-tools.codex
         ai-tools.catnip
         ai-tools.gemini-cli
+        ai-tools.spec-kit
       ]
     );
   };
