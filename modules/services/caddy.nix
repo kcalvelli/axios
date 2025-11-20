@@ -36,6 +36,12 @@ in
       globalConfig = ''
         # Use Tailscale for HTTPS certificates
         # Caddy automatically gets certs from local Tailscale daemon for *.ts.net domains
+
+        # Force HTTP/1.1 for WebSocket compatibility
+        # HTTP/2 doesn't properly support WebSocket protocol upgrade
+        servers {
+          protocols h1
+        }
       '';
 
       # Additional config from selfHosted.caddy.extraConfig and service modules
