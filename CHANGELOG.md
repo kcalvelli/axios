@@ -7,6 +7,30 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+## [2025-11-21] - Immich 2.3.1 Custom Package
+
+### Added
+- **Custom Immich Package**
+  - Added complete Immich 2.3.1 derivation in `pkgs/immich/`
+  - Fixes critical rendering loop bug from version 2.2.3
+  - Includes corePlugin manifest for workflow capabilities
+  - Proper pnpmDeps hash for reproducible builds
+  - Will be removed once nixpkgs updates to 2.3.1+
+
+### Fixed
+- **Immich Service**
+  - Fixed browser freeze caused by new version notification rendering loop
+  - Fixed 502 error from missing corePlugin manifest.json
+  - Fixed externalDomain configuration for proper web app connectivity
+  - Service now starts reliably and web app works correctly
+- **Desktop Module**
+  - Removed deprecated `programs.file-roller.enable` option
+  - Added file-roller directly to system packages
+
+### Changed
+- Updated Immich service to use custom package from `pkgs.immich`
+- Simplified Immich module by removing failed override attempts
+
 ## [2025-11-19] - DMS Integration & Upstream Module Architecture
 
 ### Changed
