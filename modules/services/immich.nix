@@ -77,6 +77,7 @@ in
     # Enable Immich service
     services.immich = {
       enable = true;
+      package = pkgs.immich; # Custom package from pkgs/immich/ with v2.3.1
       host = "127.0.0.1"; # Only listen locally, Caddy handles external access
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
