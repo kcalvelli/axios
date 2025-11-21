@@ -199,6 +199,10 @@ stdenv.mkDerivation (finalAttrs: {
     ln -s '${finalAttrs.passthru.web}' "$packageOut/build/www"
     ln -s '${geodata}' "$packageOut/build/geodata"
 
+    # Build and install core plugins
+    mkdir -p "$packageOut/build/corePlugin"
+    cp plugins/manifest.json "$packageOut/build/corePlugin/manifest.json"
+
     echo '${builtins.toJSON buildLock}' > "$packageOut/build/build-lock.json"
 
     makeWrapper '${lib.getExe nodejs}' "$out/bin/immich-admin" \
