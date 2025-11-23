@@ -218,13 +218,31 @@ All PRs must pass:
 - Migration guides provided for breaking changes
 - Examples: removal of ollama module, file-roller enable option
 
+## License & Legal
+**Project License**: [EXPLICIT] MIT License
+- **Copyright**: (c) 2023 Keith Calvelli
+- **Terms**: Permissive open-source license
+- **Commercial Use**: Allowed
+- **Modification**: Allowed
+- **Distribution**: Allowed
+- **Sublicensing**: Allowed
+- **Warranty**: None (AS-IS)
+- **Liability**: Authors not liable
+- **Requirement**: Must include license and copyright notice
+
+**Evidence**: LICENSE file (root), README.md:98-99
+
+**Implications for Contributors**:
+- All contributions are under MIT License
+- Contributors retain copyright but grant MIT permissions
+- No CLA (Contributor License Agreement) required
+
 ## Unknowns
 - [TBD] PR review process and requirements
 - [TBD] Breaking change policy and communication strategy
 - [TBD] Security vulnerability disclosure process
 - [TBD] Contribution guidelines (CONTRIBUTING.md not found)
 - [TBD] Code of conduct
-- [TBD] License terms (LICENSE file not checked)
 - [TBD] Merge strategy (squash, rebase, or merge commits)
 - [TBD] Branch naming conventions
 - [TBD] Issue triage process

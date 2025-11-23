@@ -164,11 +164,19 @@ Recent activity shows heavy development in:
 - **Release Frequency**: High - multiple releases per month
 - **Changelog**: Maintained in CHANGELOG.md following Keep a Changelog format
 
+## License
+**License Type**: [EXPLICIT] MIT License (evidence: LICENSE file, README.md:98-99)
+**Copyright**: (c) 2023 Keith Calvelli
+**Permissions**: Use, copy, modify, merge, publish, distribute, sublicense, sell
+**Conditions**: Include copyright notice and license in all copies
+**Limitations**: No warranty provided
+
+This is a permissive open-source license allowing both personal and commercial use.
+
 ## Unknowns & Ambiguities
 - [TBD] Test strategy for module functionality beyond CI validation
 - [TBD] Production deployment patterns for users of this library
 - [TBD] Contribution guidelines (CONTRIBUTING.md not found)
-- [TBD] License information (LICENSE file not checked)
 - [TBD] Documentation website or hosted docs location
 - [TBD] User telemetry or analytics (if any)
 - [TBD] Support channels or community forums

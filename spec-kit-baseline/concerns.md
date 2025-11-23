@@ -272,16 +272,35 @@ Runtime Errors (systemd)
 ### Licensing
 
 #### Project License
-**License**: [TBD] Not checked (LICENSE file existence unknown)
+**License**: [EXPLICIT] MIT License
+**Copyright**: (c) 2023 Keith Calvelli
+**Type**: Permissive open-source
 
-**Evidence**: [TBD] Root LICENSE file
+**Key Terms**:
+- ✓ Commercial use allowed
+- ✓ Modification allowed
+- ✓ Distribution allowed
+- ✓ Private use allowed
+- ✓ Sublicensing allowed
+- ✗ No warranty provided
+- ✗ No liability accepted
+- ⚠ Must include copyright notice and license
+
+**Evidence**: LICENSE file (root), README.md:98-99
+
+**Compatibility**: Compatible with most open-source licenses (GPL, Apache, BSD, etc.)
 
 #### Dependency Licenses
 **Analysis**: Nix packages include license metadata
 
 **Nixpkgs**: Mixed licenses (per package)
+- Most packages: MIT, BSD, Apache 2.0, GPL variants
+- License metadata available via: `nix eval .#<package>.meta.license`
 
-**Compliance**: User responsibility to ensure compliance
+**Compliance**:
+- MIT License is permissive and compatible with most licenses
+- User responsibility to verify compliance for their specific use case
+- Downstream users should audit licenses if distributing binaries
 
 ### Data Governance
 

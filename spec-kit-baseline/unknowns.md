@@ -3,6 +3,16 @@
 ## Purpose
 This document consolidates all items marked as `[TBD]` or unclear during reverse engineering. These require human review and input before the baseline is considered complete.
 
+## Resolved Items
+[Previously unknown items that have been verified and documented]
+
+### License Information ✅
+- **Resolution**: MIT License confirmed
+- **Copyright**: (c) 2023 Keith Calvelli
+- **Documentation**: discovery-report.md, constitution.md, concerns.md
+- **Completed**: 2025-11-23
+- **Impact**: Legal compliance requirements now clear, users understand usage rights
+
 ## Critical Unknowns
 [Items that block full understanding of the system]
 
@@ -12,13 +22,6 @@ This document consolidates all items marked as `[TBD]` or unclear during reverse
 - **Impact**: Cannot verify module interactions or edge cases
 - **Source**: constitution.md, runbook.md
 - **Recommendation**: Consider NixOS VM tests for integration testing
-
-### License Information
-- **Question**: What is the project license?
-- **Context**: LICENSE file existence not verified during reconnaissance
-- **Impact**: Cannot determine usage rights and obligations
-- **Source**: discovery-report.md, constitution.md
-- **Priority**: HIGH - Required for legal compliance
 
 ### Contribution Guidelines
 - **Question**: What is the process for contributing to the project?
@@ -346,7 +349,7 @@ This document consolidates all items marked as `[TBD]` or unclear during reverse
 
 ## Review Checklist
 Before marking baseline as complete:
-- [ ] License terms documented
+- [x] License terms documented (MIT License, documented in discovery-report.md, constitution.md, concerns.md)
 - [ ] All module package lists inventoried
 - [ ] Service configuration details documented
 - [ ] Security audit completed (PII, permissions, secrets)
@@ -361,7 +364,7 @@ Before marking baseline as complete:
 ## Prioritized Action Items
 
 ### High Priority (Blockers)
-1. Verify and document LICENSE
+1. ~~Verify and document LICENSE~~ ✅ **COMPLETED** - MIT License documented in discovery-report.md, constitution.md, concerns.md
 2. Security audit (PII in logs, git history, permissions)
 3. Document PR review process and contribution guidelines
 
@@ -402,7 +405,6 @@ Before marking baseline as complete:
 - Security audit status
 
 **Confidence Blockers**:
-- Missing LICENSE information
 - Incomplete security audit
 - No contribution guidelines
 - Limited module deep-dive
