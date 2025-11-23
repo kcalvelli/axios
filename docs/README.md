@@ -7,8 +7,9 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
 | [INSTALLATION.md](INSTALLATION.md) | Install axiOS on your machine | **Start here** for new installations |
+| [MODULE_REFERENCE.md](MODULE_REFERENCE.md) | Complete guide to all modules | **Learn what each module does** |
 | [LIBRARY_USAGE.md](LIBRARY_USAGE.md) | Using axios as a library | Using axios in your own flake |
-| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | **See what's included** in axiOS |
+| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | See what's included in axiOS |
 | [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
 | [USER_MODULE.md](USER_MODULE.md) | User configuration guide | Understanding user setup |
 | [SECRETS_MODULE.md](SECRETS_MODULE.md) | Managing encrypted secrets | Using age-encrypted secrets |

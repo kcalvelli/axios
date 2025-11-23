@@ -195,6 +195,9 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
     users = bool;        # User management (recommended: true)
     virt = bool;         # Virtualization (libvirt, containers)
     gaming = bool;       # Gaming support (Steam, GameMode)
+    ai = bool;           # AI tools (GitHub Copilot, Claude Code, MCP servers)
+    secrets = bool;      # Encrypted secrets management (agenix)
+    services = bool;     # Self-hosted services (Immich, Caddy)
   };
   
   # Home Manager profile
@@ -221,6 +224,15 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   virt = {
     libvirt.enable = bool;
     containers.enable = bool;
+  };
+
+  # Optional: Self-hosted services (if modules.services = true)
+  selfHosted = {
+    immich = {
+      enable = bool;                    # Photo management server
+      enableGpuAcceleration = bool;     # Use GPU for ML/transcoding
+      gpuType = "amd" | "nvidia" | "intel";
+    };
   };
 };
 ```
@@ -315,10 +327,23 @@ Enable only the modules you need:
 - Gamescope
 - Gaming utilities
 
-**AI Services:**
-- Github Copilot
-- Claude CLI with MCP servers
+**AI (Artificial Intelligence):**
+- GitHub Copilot CLI (code suggestions)
+- Claude Code (AI pair programming)
+- MCP servers for enhanced context (filesystem, git, github, nixos, journal)
 - AI development tools
+
+**Secrets:**
+- agenix for encrypted secrets
+- Automatic secret decryption at boot
+- Secure API key management
+- See [SECRETS_MODULE.md](SECRETS_MODULE.md) for details
+
+**Services (Self-Hosted):**
+- Immich (photo management and backup)
+- Caddy reverse proxy with automatic HTTPS
+- Tailscale integration for secure remote access
+- Optional GPU acceleration for photo ML features
 
 ### Home Manager Profiles
 
@@ -459,16 +484,24 @@ Use `extraConfig` to override or add options:
 ```nix
 axios.lib.mkSystem {
   # ... standard config ...
-  
+
   extraConfig = {
     # System timezone (required)
     axios.system.timeZone = "America/New_York";
+
+    # Enable crash diagnostics for automatic recovery from system freezes
+    hardware.crashDiagnostics = {
+      enable = true;
+      rebootOnPanic = 30;        # Auto-reboot after 30 seconds
+      treatOopsAsPanic = true;   # Aggressive recovery from kernel errors
+      enableCrashDump = false;   # Disable to save RAM (kdump uses memory)
+    };
 
     # Add extra packages
     environment.systemPackages = with pkgs; [
       my-custom-package
     ];
-    
+
     # Override any NixOS option
     services.openssh.settings.PermitRootLogin = "no";
   };

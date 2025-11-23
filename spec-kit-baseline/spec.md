@@ -321,18 +321,19 @@ Exposed via `inputs.axios.nixosModules.<name>`:
 - `desktop`: Desktop environment module
 - `development`: Development tools module
 - `hardware`: Hardware configuration module
-- `desktopHardware`: Desktop-specific hardware
-- `laptopHardware`: Laptop-specific hardware
-- `graphics`: Graphics drivers module
+- `desktopHardware`: Desktop-specific hardware (auto-enabled)
+- `laptopHardware`: Laptop-specific hardware (auto-enabled)
+- `crashDiagnostics`: Kernel crash diagnostics and recovery
+- `graphics`: Graphics drivers module (includes AMD GPU recovery)
 - `networking`: Networking services module
 - `users`: User management module
 - `virt`: Virtualization module
 - `gaming`: Gaming configuration module
 - `ai`: AI tools module
 - `secrets`: Secrets management module
-- `services`: System services module
+- `services`: System services module (enables selfHosted)
 
-Evidence: modules/default.nix:4-19
+Evidence: modules/default.nix:4-20
 
 #### Home Manager Modules
 Exposed via `inputs.axios.homeModules.<name>`:
