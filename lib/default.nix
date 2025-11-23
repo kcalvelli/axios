@@ -239,6 +239,8 @@ let
         ++ lib.optional (hostCfg.modules.ai or false) ai
         ++ lib.optional (hostCfg.modules.secrets or false) secrets
         ++ lib.optional (hostCfg.modules.services or false) services
+        # Hardware modules - always available for configuration
+        ++ [ crashDiagnostics ]
         # Hardware modules based on form factor and vendor
         ++ lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
         ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
