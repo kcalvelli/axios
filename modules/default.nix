@@ -12,6 +12,7 @@
     virt = ./virtualisation;
     desktopHardware = ./hardware/desktop.nix;
     laptopHardware = ./hardware/laptop.nix;
+    crashDiagnostics = ./hardware/crash-diagnostics.nix;
     gaming = ./gaming;
     ai = ./ai;
     secrets = ./secrets;

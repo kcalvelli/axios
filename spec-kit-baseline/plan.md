@@ -289,6 +289,7 @@
 - **Location**: User home directory
 - **Purpose**: User documents, media, configuration files
 - **Evidence**: home/desktop/gdrive-sync.nix (Documents, Music folders)
+- **Sync Configuration**: Bidirectional sync with `maxDelete = "100"` (integer count limit for safety)
 
 #### Immich Database (Services Module)
 - **Technology**: PostgreSQL (assumed, typical for Immich)

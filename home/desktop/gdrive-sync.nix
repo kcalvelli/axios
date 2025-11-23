@@ -72,7 +72,7 @@ let
     };
 
   # Generate bidirectional sync service
-  mkBisyncService = { name, remote, remoteDir, localDir, maxDelete ? "50%", extraOptions ? [ ] }:
+  mkBisyncService = { name, remote, remoteDir, localDir, maxDelete ? "100", extraOptions ? [ ] }:
     let
       serviceName = "gdrive-${name}-sync";
       bisyncOptions = [
@@ -129,7 +129,7 @@ let
     remote = gdriveRemote;
     remoteDir = "Documents";
     localDir = "Documents";
-    maxDelete = "50%";
+    maxDelete = "100";
     extraOptions = gdriveOptions;
   };
 
@@ -139,7 +139,7 @@ let
     remote = gdriveRemote;
     remoteDir = "Music";
     localDir = "Music";
-    maxDelete = "50%";
+    maxDelete = "100";
     extraOptions = gdriveOptions;
   };
 

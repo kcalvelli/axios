@@ -561,6 +561,78 @@ nix flake metadata --json | jq '.locks.nodes'
    - Error messages with `--show-trace`
    - Minimal reproduction
 
+## Common Issues
+
+### irqbalance Permission Denied Warnings
+
+**Symptom**: System logs show repeated irqbalance warnings:
+```
+irqbalance: IRQ XX affinity is now unmanaged
+irqbalance: Cannot change IRQ XX affinity: Permission denied
+```
+
+**Analysis**:
+- **NOT a problem** - These are cosmetic informational warnings
+- Certain IRQs are managed by other kernel mechanisms and locked from userspace changes
+- Some hardware doesn't support affinity changes for specific IRQs
+- The kernel may have already set optimal affinity
+
+**Impact**: None - System performance is unaffected
+
+**Solutions** (optional):
+1. **Do nothing** (recommended) - Warnings are harmless
+2. **Disable irqbalance** if you don't need dynamic IRQ balancing:
+   ```nix
+   services.irqbalance.enable = false;
+   ```
+3. **Reduce logging verbosity**:
+   ```nix
+   systemd.services.irqbalance.serviceConfig.StandardOutput = "null";
+   ```
+
+### System Freezes (Desktop)
+
+**Symptom**: Complete system freeze requiring hard reboot
+
+**Common Causes**:
+1. **GPU Driver Hang** (most common on AMD/NVIDIA)
+2. **Kernel bug** or memory issue
+3. **Disk I/O hang** (NVMe driver issue)
+
+**Diagnostics**:
+```bash
+# Check for unclean shutdown after reboot
+journalctl -b 0 | grep -i "uncleanly shut down"
+
+# Check previous boot logs for errors
+journalctl -b -1 --priority=0..3
+
+# Check kernel logs from previous boot
+journalctl -b -1 -k
+```
+
+**Prevention**:
+1. **Enable crash diagnostics module**:
+   ```nix
+   hardware.crashDiagnostics.enable = true;
+   ```
+   This enables:
+   - Automatic reboot on kernel panic (30s default)
+   - Kernel oops treated as panic for recovery
+   - Optional crash dumps for analysis
+
+2. **GPU recovery** (AMD, already enabled in graphics module):
+   - `amdgpu.gpu_recovery=1` allows GPU reset on hang
+
+**Post-Freeze Analysis**:
+```bash
+# Check for crash dumps
+ls -la /sys/fs/pstore/
+
+# Review journal for clues
+journalctl -b -1 --since "HH:MM:SS" | tail -100
+```
+
 ## Unknowns
 - [TBD] VM testing procedures with axios modules
 - [TBD] Integration testing strategy for module interactions
