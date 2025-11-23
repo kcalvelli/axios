@@ -1,10 +1,57 @@
 # axiOS Project Context
 
+## 📋 Spec-Driven Development Workflow
+
+**IMPORTANT**: This project follows a **spec-driven development** workflow. All work should reference and update the comprehensive baseline documentation in `spec-kit-baseline/`.
+
+### Source of Truth Documentation
+
+**Primary Reference**: `spec-kit-baseline/` directory contains the complete system specification:
+
+- **[discovery-report.md](../spec-kit-baseline/discovery-report.md)** - Repository structure, technology stack, module inventory
+- **[constitution.md](../spec-kit-baseline/constitution.md)** - Non-negotiable rules, standards, and architectural constraints
+- **[spec.md](../spec-kit-baseline/spec.md)** - Features, user journeys, API surface, acceptance criteria
+- **[plan.md](../spec-kit-baseline/plan.md)** - Technical architecture, module breakdown, data flows
+- **[runbook.md](../spec-kit-baseline/runbook.md)** - Development setup, operations, deployment procedures
+- **[concerns.md](../spec-kit-baseline/concerns.md)** - Security, performance, error handling, observability
+- **[glossary.md](../spec-kit-baseline/glossary.md)** - Domain terminology, acronyms, NixOS concepts
+- **[unknowns.md](../spec-kit-baseline/unknowns.md)** - Gaps requiring human review (50+ items tracked)
+
+### Workflow for Changes
+
+**Before making changes:**
+1. Read relevant baseline documents to understand current state
+2. Check `unknowns.md` for known gaps in that area
+3. Verify against `constitution.md` for non-negotiable constraints
+
+**When implementing:**
+1. Follow patterns documented in `constitution.md` and `plan.md`
+2. Reference `spec.md` for feature requirements and acceptance criteria
+3. Use `glossary.md` for consistent terminology
+
+**After changes:**
+1. Update affected baseline documents to reflect new reality
+2. Move resolved items from `unknowns.md` to appropriate documents
+3. Add new unknowns if discovered during implementation
+
+### Quick Reference for AI Assistants
+
+When asked to work on axiOS:
+- **Architecture questions** → `plan.md`
+- **Code standards** → `constitution.md`
+- **Feature details** → `spec.md`
+- **How to do X** → `runbook.md`
+- **Security/performance** → `concerns.md`
+- **What does X mean** → `glossary.md`
+- **Incomplete information** → `unknowns.md`
+
 ## Overview
 
 axiOS is a **modular NixOS distribution** implemented as a Nix flake library. It provides reusable NixOS and home-manager modules for building customized NixOS systems with opinionated configurations.
 
 **Key Philosophy**: This is a library/framework, not a personal configuration. Design decisions should avoid hardcoding personal preferences or regional defaults.
+
+**For complete architecture details**, see [spec-kit-baseline/plan.md](../spec-kit-baseline/plan.md)
 
 ## Project Structure
 
@@ -346,10 +393,56 @@ environment.systemPackages = [
 
 ## Notes for AI Assistants
 
-When working on this project:
-- Always follow the module structure pattern
-- Keep packages inside mkIf blocks
+### Spec-Driven Workflow (MANDATORY)
+
+**Always consult the spec-kit baseline before and after making changes:**
+
+1. **Before any work**: Read relevant `spec-kit-baseline/*.md` documents
+2. **During work**: Follow `constitution.md` constraints and `plan.md` patterns
+3. **After work**: Update baseline docs to reflect changes
+
+**Non-Negotiable Rules** (from [constitution.md](../spec-kit-baseline/constitution.md)):
+- Always follow the module structure pattern (directory-based with default.nix)
+- Keep packages inside mkIf blocks (conditional evaluation)
 - Use `${pkgs.stdenv.hostPlatform.system}` not `${system}`
 - This is a library - avoid hardcoded personal preferences
+- NO regional defaults - users MUST set timezone explicitly
 - Check `modules/default.nix` for module registry
 - Host configs are downstream - axios provides modules only
+
+**When uncertain**: Check `unknowns.md` - if your question is listed, acknowledge the gap and propose a solution for human review.
+
+### Documentation Maintenance
+
+**If you modify code, you MUST update baseline docs:**
+- Add new modules → Update `spec.md` (features) and `plan.md` (architecture)
+- Change patterns → Update `constitution.md` (if architectural) or `concerns.md` (if cross-cutting)
+- Resolve unknowns → Move from `unknowns.md` to appropriate document
+- Find gaps → Add to `unknowns.md` with context
+
+### Confidence Markers
+
+Use these when updating baseline docs:
+- `[EXPLICIT]` - Found directly in code/documentation
+- `[INFERRED]` - Derived from code patterns with high confidence
+- `[ASSUMED]` - Best guess based on standard conventions
+- `[TBD]` - Insufficient evidence, requires human input
+
+### Quick Reference Card
+
+This document provides **quick reference** for common operations. For comprehensive information:
+
+| Need | Quick Reference Below | Detailed Documentation |
+|------|----------------------|------------------------|
+| Module structure | ✓ Module Pattern Rules | constitution.md (ADR-001) |
+| Adding modules | ✓ Common Operations | runbook.md (Module Development) |
+| Architecture overview | ✓ Project Structure | plan.md (full breakdown) |
+| All features | - | spec.md (20 KB) |
+| Testing/CI | ✓ Testing & CI | runbook.md + constitution.md |
+| Terminology | - | glossary.md (19 KB) |
+
+---
+
+## Quick Reference (Supplement to Baseline Docs)
+
+The sections below provide quick access to common patterns. **For comprehensive details, always refer to spec-kit-baseline/ documents.**
