@@ -227,7 +227,15 @@ let
 
       hwModules = hardwareModules hostCfg.hardware;
 
-      ourModules = with self.nixosModules;
+      # Core modules that are ALWAYS imported (provide options but may not be enabled)
+      # Add new modules here if they should be available for configuration without a modules.X flag
+      coreModules = with self.nixosModules; [
+        crashDiagnostics  # Always available for extraConfig.hardware.crashDiagnostics
+        hardware          # Parent hardware module
+      ];
+
+      # Modules controlled by modules.X flags
+      flaggedModules = with self.nixosModules;
         lib.optional (hostCfg.modules.system or true) system
         ++ lib.optional (hostCfg.modules.desktop or false) desktop
         ++ lib.optional (hostCfg.modules.development or false) development
@@ -238,11 +246,11 @@ let
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or false) ai
         ++ lib.optional (hostCfg.modules.secrets or false) secrets
-        ++ lib.optional (hostCfg.modules.services or false) services
-        # Hardware modules - always available for configuration
-        ++ [ crashDiagnostics ]
-        # Hardware modules based on form factor and vendor
-        ++ lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
+        ++ lib.optional (hostCfg.modules.services or false) services;
+
+      # Hardware modules conditionally imported based on vendor/formFactor
+      conditionalHwModules = with self.nixosModules;
+        lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
         ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
         # Generic hardware based on form factor (if no specific vendor)
         ++ lib.optional
@@ -257,6 +265,8 @@ let
             (hostCfg.formFactor or "" == "laptop")
           )
           laptopHardware;
+
+      ourModules = coreModules ++ flaggedModules ++ conditionalHwModules;
 
       hostModule = { lib, ... }:
         let

@@ -137,6 +137,68 @@ in
 }
 ```
 
+### Module Import Pattern (lib/default.nix)
+
+**CRITICAL**: When adding a new module, you MUST update TWO locations:
+
+1. **Register in modules/default.nix** (flake output):
+   ```nix
+   flake.nixosModules = {
+     myNewModule = ./my-new-module;
+   };
+   ```
+
+2. **Import in lib/default.nix** (buildModules function):
+
+Modules fall into THREE categories:
+
+**Category 1: Core Modules (Always Imported)**
+- Modules that provide options but don't require a `modules.X` flag
+- Users configure them directly in `extraConfig`
+- Add to `coreModules` list in lib/default.nix
+
+```nix
+coreModules = with self.nixosModules; [
+  crashDiagnostics  # Always available for extraConfig.hardware.crashDiagnostics
+  hardware          # Parent hardware module
+  myNewModule       # Add here if always-available
+];
+```
+
+**Category 2: Flagged Modules (Conditional on modules.X)**
+- Modules controlled by `modules.X = true/false` in host config
+- Add to `flaggedModules` list in lib/default.nix
+
+```nix
+flaggedModules = with self.nixosModules;
+  lib.optional (hostCfg.modules.system or true) system
+  ++ lib.optional (hostCfg.modules.myNewModule or false) myNewModule;  # Add here
+```
+
+**Category 3: Conditional Hardware Modules**
+- Modules imported based on hardware.vendor or formFactor
+- Add to `conditionalHwModules` with appropriate condition
+
+```nix
+conditionalHwModules = with self.nixosModules;
+  lib.optional (hostCfg.hardware.vendor or null == "myvendor") myVendorModule;
+```
+
+**Decision Guide:**
+- **Core**: Module provides optional configuration (like crashDiagnostics) → Add to `coreModules`
+- **Flagged**: Module is a major feature users explicitly enable → Add to `flaggedModules`
+- **Conditional**: Module auto-enables based on hardware detection → Add to `conditionalHwModules`
+
+**Example: Adding a new "monitoring" module**
+```nix
+# 1. Create modules/monitoring/default.nix
+# 2. Register in modules/default.nix:
+flake.nixosModules.monitoring = ./monitoring;
+
+# 3. Import in lib/default.nix (flaggedModules):
+++ lib.optional (hostCfg.modules.monitoring or false) monitoring
+```
+
 ## Key Architectural Decisions
 
 ### 1. No Regional Defaults

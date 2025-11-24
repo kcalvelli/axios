@@ -33,6 +33,48 @@
 
 ## Module Breakdown
 
+### Module Registration Pattern
+
+**CRITICAL**: All new modules must be registered in TWO locations:
+
+1. **modules/default.nix** - Declares the module as a flake output
+2. **lib/default.nix (buildModules)** - Imports the module into user configurations
+
+#### Module Categories
+
+Modules are imported using one of three patterns:
+
+**Core Modules (Always Imported)**
+- Location: `coreModules` list in lib/default.nix
+- Purpose: Provide optional configuration without requiring `modules.X` flag
+- Examples: crashDiagnostics, hardware
+- User access: Configure via `extraConfig.hardware.crashDiagnostics.*`
+
+**Flagged Modules (Conditional on modules.X)**
+- Location: `flaggedModules` list in lib/default.nix
+- Purpose: Major features users explicitly enable
+- Examples: desktop, development, gaming, ai, secrets, services
+- User access: Enable via `modules.desktop = true`
+
+**Conditional Hardware Modules**
+- Location: `conditionalHwModules` list in lib/default.nix
+- Purpose: Auto-enable based on hardware.vendor or formFactor
+- Examples: desktopHardware (when vendor="msi"), laptopHardware (when vendor="system76")
+- User access: Automatic based on hardware config
+
+#### Adding a New Module Checklist
+
+1. Create module directory: `modules/my-module/default.nix`
+2. Follow module template pattern with `enable` option and `mkIf` blocks
+3. Register in `modules/default.nix`:
+   ```nix
+   flake.nixosModules.myModule = ./my-module;
+   ```
+4. Import in `lib/default.nix` in appropriate category:
+   - Core: Add to `coreModules` if always-available
+   - Flagged: Add to `flaggedModules` with `lib.optional` and flag check
+   - Conditional: Add to `conditionalHwModules` with hardware condition
+
 ### NixOS Modules
 
 #### modules/system/
