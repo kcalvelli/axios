@@ -18,7 +18,7 @@ jobs:
     name: Test axios init command
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       
       - uses: DeterminateSystems/nix-installer-action@main
       
