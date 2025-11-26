@@ -230,8 +230,8 @@ let
       # Core modules that are ALWAYS imported (provide options but may not be enabled)
       # Add new modules here if they should be available for configuration without a modules.X flag
       coreModules = with self.nixosModules; [
-        crashDiagnostics  # Always available for extraConfig.hardware.crashDiagnostics
-        hardware          # Parent hardware module
+        crashDiagnostics # Always available for extraConfig.hardware.crashDiagnostics
+        hardware # Parent hardware module
       ];
 
       # Modules controlled by modules.X flags
