@@ -106,7 +106,6 @@
 - `home/security/`: Security tools
 
 ### Custom Packages (`pkgs/`)
-- `pkgs/immich/`: Custom Immich 2.3.1 package (temporary, fixes rendering bug)
 - `pkgs/pwa-apps/`: Progressive Web App package builder
 
 ### DevShells (`devshells/`)

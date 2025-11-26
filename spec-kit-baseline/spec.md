@@ -151,9 +151,9 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 
 #### Immich Photo Backup
 - **Purpose**: Self-hosted photo and video backup solution
-- **Implementation Evidence**: modules/services/immich.nix, pkgs/immich/, CHANGELOG.md:13-18
+- **Implementation Evidence**: modules/services/immich.nix, CHANGELOG.md:13-18
 - **Confidence**: [EXPLICIT]
-- **Version**: Custom 2.3.1 package (fixes rendering bug from 2.2.3)
+- **Version**: Uses nixpkgs version (custom 2.3.1 override removed 2025-11-26)
 - **Integration**: Caddy reverse proxy, external domain configuration
 
 #### Google Drive Sync

@@ -237,11 +237,12 @@ This document consolidates all items marked as `[TBD]` or unclear during reverse
 ## Deprecated/Legacy Code
 [Old patterns that may need migration]
 
-### Custom Immich Package
+### [RESOLVED] Custom Immich Package
 - **Description**: Temporary v2.3.1 package while nixpkgs lags
 - **Evidence**: pkgs/immich/, CHANGELOG.md
 - **Question**: When will nixpkgs update? What's the removal timeline?
 - **Source**: spec.md, concerns.md
+- **Resolution**: Removed 2025-11-26, now using nixpkgs version
 
 ### System Reference Pattern
 - **Description**: Old `${system}` pattern deprecated

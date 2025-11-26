@@ -32,6 +32,7 @@ test-disk.qcow2
 
 # Generated files
 hardware-configuration.nix.new
+reverse-specs.md
 
 # Editor backup files
 *.backup

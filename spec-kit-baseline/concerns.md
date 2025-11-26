@@ -492,7 +492,7 @@ journalctl --since "1 hour ago"
 8. **Aspect Files**: Clean separation of concerns within modules (e.g., networking/samba.nix, networking/tailscale.nix)
 
 ### Anti-Patterns Identified
-1. **Custom Package Override**: Immich 2.3.1 custom package due to nixpkgs lag - increases maintenance burden (evidence: pkgs/immich/, CHANGELOG.md:13-18) - [RECOMMENDATION]: Remove once nixpkgs updates
+1. **[RESOLVED] Custom Package Override**: Immich custom package removed, now uses nixpkgs version (resolved: 2025-11-26)
 2. **[POTENTIAL] Missing Tests**: No module interaction testing beyond flake check (evidence: no test infrastructure found) - [RECOMMENDATION]: Consider NixOS VM tests
 3. **[TBD] Incomplete Documentation**: Some modules lack detailed documentation (evidence: no README in most module directories) - [RECOMMENDATION]: Add per-module README files
 

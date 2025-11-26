@@ -219,13 +219,13 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Definition**: Self-hosted photo and video backup solution with mobile app
 
 **Usage**: Photo management service
-- Package: Custom v2.3.1 (temporary)
+- Package: Uses nixpkgs version
 - Service: modules/services/immich.nix
 - Access: HTTPS via Caddy + Tailscale
 
 **Related Terms**: Photo Backup, Self-Hosted, Caddy
 
-**Evidence**: modules/services/immich.nix, pkgs/immich/, CHANGELOG.md:13-18
+**Evidence**: modules/services/immich.nix, CHANGELOG.md:13-18
 
 ### Lanzaboote
 **Definition**: Secure Boot support for NixOS
@@ -336,7 +336,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Related Terms**: Nix Store, Package, Build
 
-**Evidence**: pkgs/immich/default.nix
+**Evidence**: pkgs/pwa-apps/default.nix, pkgs/default.nix
 
 ### Nix Store
 **Definition**: Content-addressed, immutable storage for Nix packages and build artifacts
