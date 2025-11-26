@@ -14,7 +14,10 @@
 curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
 ```
 
-**Required External Services**: None for development
+**Required External Services**:
+- **Google Gemini**: API Key required for Gemini integration
+  - Set `GEMINI_API_KEY` environment variable
+  - Key available from Google AI Studio
 
 ### Installation Steps
 

@@ -1,0 +1,37 @@
+name: Gemini Spec Compliance Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  gemini-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Gemini Code Review
+        uses: google-gemini/gemini-cli-action@v1
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          model: "gemini-1.5-pro-latest"
+          prompt: |
+            You are the Lead Architect for the axiOS project. Your goal is to enforce the project's Constitution.
+            
+            Review the code changes in this Pull Request against the following rules from spec-kit-baseline/constitution.md:
+
+            1. **Formatting:** Is the code formatted with `nixfmt-rfc-style`?
+            2. **Module Structure:** Do modules follow the directory-based structure?
+            3. **Conditionals:** Are all packages inside `mkIf` blocks?
+            4. **Regional Defaults:** Are there any hardcoded timezones or locales? (This is forbidden)
+            5. **System Reference:** Is `pkgs.stdenv.hostPlatform.system` used instead of `system`?
+
+            If you find ANY violation, flag it as a critical issue.
+            If the changes are compliant, confirm they adhere to the Constitution.
+            
+            Be concise and professional.
+          context_files: "spec-kit-baseline/constitution.md,spec-kit-baseline/spec.md"
