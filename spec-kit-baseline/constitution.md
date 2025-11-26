@@ -153,7 +153,7 @@ All PRs must pass:
   3. Init script test (if scripts/ changed)
   4. DevShell builds (if devshells/ changed)
 - **Recommended Checks**:
-  1. AI Spec Review (gemini-review) - Automated compliance check against Constitution
+  1. [TBD] No automated architectural reviews yet
 - **Merge Strategy**: [TBD] Not explicitly documented
 
 ### CI/CD Pipeline Stages

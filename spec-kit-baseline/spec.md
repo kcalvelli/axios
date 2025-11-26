@@ -112,8 +112,6 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **copilot-cli**: GitHub Copilot CLI
   - **claude-monitor**: Resource monitoring for AI sessions
   - **gemini-cli**: Google Gemini CLI for development tasks
-    - **gemini-architect**: Wrapper for spec-aware architectural queries
-    - **gemini-review**: Wrapper for spec-compliance code reviews
 
 #### MCP Server Configuration
 - **Purpose**: Declarative Model Context Protocol server configuration
