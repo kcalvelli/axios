@@ -114,7 +114,7 @@ nix fmt -- --check .
 nix fmt
 ```
 - Location: All .nix files
-- Framework: nixpkgs-fmt
+- Framework: nixfmt-rfc-style
 
 ### Module Evaluation Tests
 ```bash

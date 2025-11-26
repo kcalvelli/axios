@@ -10,10 +10,9 @@ let
 
   # Get all directories in pkgs/ that contain a default.nix
   pkgsDir = ./.;
-  packageDirs = builtins.filter
-    (name: name != "default.nix" &&
-      builtins.pathExists (pkgsDir + "/${name}/default.nix"))
-    (builtins.attrNames (builtins.readDir pkgsDir));
+  packageDirs = builtins.filter (
+    name: name != "default.nix" && builtins.pathExists (pkgsDir + "/${name}/default.nix")
+  ) (builtins.attrNames (builtins.readDir pkgsDir));
 
   # Convert directory names with dashes to valid attribute names
   # (they're already valid in Nix, but this makes it explicit)
@@ -39,6 +38,6 @@ in
     };
 
   # Automatically generate overlay from all package directories
-  flake.overlays.default = _final: prev:
-    lib.genAttrs packageNames (name: prev.callPackage (pkgsDir + "/${name}") { });
+  flake.overlays.default =
+    _final: prev: lib.genAttrs packageNames (name: prev.callPackage (pkgsDir + "/${name}") { });
 }

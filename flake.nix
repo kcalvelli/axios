@@ -125,42 +125,50 @@
   };
 
   outputs =
-    inputs@{ flake-parts
-    , systems
-    , nixpkgs
-    , ...
+    inputs@{
+      flake-parts,
+      systems,
+      nixpkgs,
+      ...
     }:
-    flake-parts.lib.mkFlake { inherit inputs; } ({ self, ... }: {
-      systems = import systems;
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { self, ... }:
+      {
+        systems = import systems;
 
-      perSystem = { pkgs, ... }: {
-        formatter = pkgs.nixpkgs-fmt;
+        perSystem =
+          { pkgs, ... }:
+          {
+            formatter = pkgs.nixfmt-rfc-style;
 
-        # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
-        apps = {
-          init = {
-            type = "app";
-            program = toString (pkgs.writeShellScript "axios-init" ''
-              export AXIOS_TEMPLATE_DIR="${./scripts/templates}"
-              exec ${pkgs.bash}/bin/bash ${./scripts/init-config.sh}
-            '');
-            meta.description = "Initialize a new axiOS configuration";
+            # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
+            apps = {
+              init = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "axios-init" ''
+                    export AXIOS_TEMPLATE_DIR="${./scripts/templates}"
+                    exec ${pkgs.bash}/bin/bash ${./scripts/init-config.sh}
+                  ''
+                );
+                meta.description = "Initialize a new axiOS configuration";
+              };
+            };
           };
+
+        imports = [
+          ./pkgs
+          ./modules
+          ./home
+          ./devshells.nix
+        ];
+
+        # Export library functions for downstream flakes
+        flake.lib = import ./lib {
+          inherit inputs;
+          inherit self;
+          lib = nixpkgs.lib;
         };
-      };
-
-      imports = [
-        ./pkgs
-        ./modules
-        ./home
-        ./devshells.nix
-      ];
-
-      # Export library functions for downstream flakes
-      flake.lib = import ./lib {
-        inherit inputs;
-        inherit self;
-        lib = nixpkgs.lib;
-      };
-    });
+      }
+    );
 }

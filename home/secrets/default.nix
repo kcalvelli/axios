@@ -1,4 +1,10 @@
-{ config, lib, inputs, osConfig ? { }, ... }:
+{
+  config,
+  lib,
+  inputs,
+  osConfig ? { },
+  ...
+}:
 
 let
   cfg = config.secrets;
@@ -55,11 +61,7 @@ in
       let
         # Read all .age files from the secrets directory
         secretFiles = builtins.readDir cfg.secretsDir;
-        ageFiles = lib.filterAttrs
-          (name: type:
-            type == "regular" && lib.hasSuffix ".age" name
-          )
-          secretFiles;
+        ageFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".age" name) secretFiles;
 
         # Generate age.secrets entries for home-manager
         mkSecretEntry = name: {

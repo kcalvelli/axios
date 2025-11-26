@@ -9,7 +9,8 @@
     nixpkgs.follows = "axios/nixpkgs";
   };
 
-  outputs = { axios, ... }:
+  outputs =
+    { axios, ... }:
     let
       # Shared configuration across all hosts
       sharedConfig = {

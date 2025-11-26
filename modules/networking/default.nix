@@ -11,7 +11,10 @@ in
 
   options.axios.networking = {
     backend = lib.mkOption {
-      type = lib.types.enum [ "iwd" "wpa_supplicant" ];
+      type = lib.types.enum [
+        "iwd"
+        "wpa_supplicant"
+      ];
       default = "iwd";
       description = "WiFi backend for NetworkManager. iwd is recommended for modern hardware and WiFi 6E support. Use wpa_supplicant only for legacy hardware.";
     };

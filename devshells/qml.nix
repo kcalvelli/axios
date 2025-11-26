@@ -1,6 +1,10 @@
 # QML/Qt6 development environment for Quickshell development
 # Includes Qt6, QML tools, and all dependencies needed for building Quickshell
-{ pkgs, inputs, system }:
+{
+  pkgs,
+  inputs,
+  system,
+}:
 let
   mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
 in
@@ -105,8 +109,14 @@ mkShell {
 
   env = [
     # Set Qt6 to use Wayland by default
-    { name = "QT_QPA_PLATFORM"; value = "wayland"; }
+    {
+      name = "QT_QPA_PLATFORM";
+      value = "wayland";
+    }
     # Enable QML debugging
-    { name = "QML_IMPORT_TRACE"; value = "1"; }
+    {
+      name = "QML_IMPORT_TRACE";
+      value = "1";
+    }
   ];
 }

@@ -1,6 +1,13 @@
 # devshell.nix
-{ inputs, ... }: {
-  perSystem = { pkgs, system, lib, ... }:
+{ inputs, ... }:
+{
+  perSystem =
+    {
+      pkgs,
+      system,
+      lib,
+      ...
+    }:
     {
       devShells = {
         rust = import ./devshells/rust.nix { inherit pkgs inputs system; };

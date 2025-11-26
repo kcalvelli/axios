@@ -1,7 +1,8 @@
-{ ...
+{
+  ...
 }:
 {
-  # CLI helper programs 
+  # CLI helper programs
   programs = {
     eza = {
       enable = true;
@@ -9,7 +10,10 @@
       icons = "auto";
       enableFishIntegration = true;
       enableBashIntegration = true;
-      extraOptions = [ "--group-directories-first" "--header" ];
+      extraOptions = [
+        "--group-directories-first"
+        "--header"
+      ];
     };
 
     ripgrep.enable = true;

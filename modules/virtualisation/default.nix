@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.virt;
 in
@@ -33,7 +38,9 @@ in
 
       # Add all normal users to docker group when containers are enabled
       users.groups.docker = {
-        members = lib.attrNames (lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users);
+        members = lib.attrNames (
+          lib.filterAttrs (_name: user: user.isNormalUser or false) config.users.users
+        );
       };
 
       #environment.systemPackages = with pkgs; [

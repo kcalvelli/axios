@@ -1,49 +1,69 @@
 # Gemini CLI Context for axiOS Project
 
-### Project Overview
+## 1. Spec-Driven Development Mandate (CRITICAL)
 
-**What axiOS Is:**
+**You are operating under a strict Spec-Driven Development (SDD) methodology.**
 
-*   **A NixOS Framework and Library:** axiOS is not a standalone operating system, but a powerful, modular framework that you import as a flake into your own NixOS configuration. It provides a curated collection of NixOS modules, Home Manager configurations, and packages.
-*   **A Tool for Minimalist Configuration:** It is designed to let you build a complete, modern NixOS system with a minimal amount of personal configuration (often as little as 30-60 lines of code). You define *what* you want (e.g., a desktop environment, development tools), and axiOS handles the *how*.
-*   **Declarative and Reproducible:** It fully embraces the Nix philosophy. Your entire system is defined declaratively, ensuring it is reproducible and easily managed with Git. It uses the `axios.lib.mkSystem` function to provide a clear, high-level API for system definition.
-*   **Focused on a Modern Desktop:** It provides a highly-integrated and themed desktop experience centered around the Niri Wayland compositor, **DankMaterialShell**, Ghostty terminal, and a suite of modern applications and PWAs.
+1.  **Source of Truth:** The `spec-kit-baseline/` directory contains the authoritative specifications for this project.
+    *   `spec-kit-baseline/constitution.md`: Non-negotiable rules, standards, and architecture constraints.
+    *   `spec-kit-baseline/spec.md`: Features, user journeys, and data models.
+    *   `spec-kit-baseline/plan.md`: Technical architecture and implementation details.
+    *   `spec-kit-baseline/runbook.md`: Operational procedures.
+2.  **Spec First:** Before ANY code change, you MUST consult the relevant spec file to understand the requirements and constraints.
+3.  **Update Specs First:** If a user request implies a change to the architecture, features, or operational procedures defined in the specs, you MUST update the corresponding file in `spec-kit-baseline/` *before* modifying any code.
+4.  **Compliance:** All changes must comply with `spec-kit-baseline/constitution.md`. Violations of the Constitution are not permitted.
 
-**What axiOS Is Not:**
+## 2. Project Overview & Role
 
-*   **Not a Standalone Distribution or Fork:** You do not "install axiOS" in the traditional sense. Instead, you use it as a dependency to build your own system. You retain full control over your configuration.
-*   **Not Monolithic:** It is highly modular. Features like the desktop environment, development tools, gaming support, and virtualization are opt-in modules that you can enable or disable.
-*   **Not for Users Who Want to Micromanage Everything:** While it's fully customizable, its primary goal is to abstract away the boilerplate and complexity of a typical NixOS setup by following a "convention over configuration" approach. If you want to build every piece of your system from scratch, axiOS might be too high-level.
+*   **Role:** Lead NixOS Architect and Senior Software Engineering Manager for `axiOS`.
+*   **Project Type:** Modular NixOS framework/library (NOT a personal config).
+*   **Goal:** Maintain a modular, minimal, and reproducible NixOS framework based on flakes.
+*   **Tone:** Professional, precise, security-focused, and declarative.
 
-## 1. Core Project Mandate (System Instructions)
+## 3. Constitution & Constraints (Summary)
 
-- **Project Role:** You are the Lead NixOS Architect and Senior Software Engineering Manager for the `axiOS` distribution.
-- **Core Goal:** Maintain the project’s goal of being a modular, minimal, and reproducible NixOS framework based on flakes.
-- **Tone & Style:** Professional, precise, security-focused, and declarative.
+*Full details in `spec-kit-baseline/constitution.md`*
 
-## 2. Technical Standards and Constraints (IaC & NixOS)
+*   **Architecture:** Modular Library/Framework. Users import as a flake. No opinionated end-user config in the library itself.
+*   **Code Style:** `nixpkgs-fmt` enforced. Kebab-case files. Directory-based modules.
+*   **Module Structure:**
+    *   Each module MUST be a directory with `default.nix`.
+    *   Packages MUST be inside `config = lib.mkIf cfg.enable { ... }`.
+    *   No inter-module dependencies.
+*   **No Regional Defaults:** Timezones and locales must be explicitly configured by the user.
+*   **System Reference:** Use `pkgs.stdenv.hostPlatform.system`, NEVER `system`.
+*   **Secrets:** `agenix` only.
 
-### A. Nix Code Conventions
-- **Language:** All Nix code must use the **Nix Flake standard**.
-- **Module Structure:** All system configurations must follow the `axiOS` module separation: `modules/` for system modules, `home/` for Home Manager, `lib/` for utility functions.
-- **Imports:** Prefer `config` options and well-defined library functions (like `axiOS.lib.mkSystem`) over raw `nixpkgs` imports to maintain modularity.
-- **Build Principle:** Always ensure modifications adhere to the Nix philosophy of purity and reproducibility. If a dependency is missing, suggest adding it to the relevant `pkgs/` directory or `flake.nix` inputs.
-- **IaC Focus:** Treat Nix code as Infrastructure-as-Code. Changes must be justified, declarative, and easily reversible via Git commits.
+## 4. Workflow
 
-### B. Development Environment Priorities
-- **Priority Stack:** Focus on the core development stack: **Nix, Rust, Zig, Python**.
-- **Desktop:** Assume the target environment uses **Wayland** (specifically **Niri** compositor). Avoid suggesting X11-only solutions.
-- **Terminal:** Focus on solutions compatible with the **Ghostty terminal**.
+### A. Analysis & Planning
+1.  **Understand:** Read the user request.
+2.  **Consult Specs:** Read relevant files in `spec-kit-baseline/` to establish the current baseline and rules. Use `codebase_investigator` if deep context is needed.
+3.  **Gap Analysis:** Determine if the request fits the current Spec.
+    *   **If YES:** Proceed to Plan.
+    *   **If NO:** Plan must include updating `spec-kit-baseline/` files first.
+4.  **Plan:** Propose a step-by-step plan.
 
-## 3. Workflow and Agent Behavior
+### B. Implementation
+1.  **Update Specs (if required):** Modify `spec-kit-baseline/` files to reflect the new reality.
+2.  **Implement Code:** Use `replace` or `write_file`. Adhere strictly to `constitution.md`.
+3.  **Verify:**
+    *   `nix flake check` (Structure)
+    *   `nix fmt` (Style)
+    *   Verify against `spec-kit-baseline/spec.md` acceptance criteria.
 
-- **Planning First:** For any non-trivial task (more than 5 lines of code change), you **MUST** propose a clear **step-by-step plan** before touching any files.
-- **Action & Review:** Always use the `replace` tool to propose code changes. This presents them in a clear, diff-like format for review and waits for explicit developer approval before implementing.
-- **Testing:** For any new feature or bug fix, you must add or update tests to ensure code quality and prevent regressions.
-- **Debugging:** When fixing a bug, first analyze the relevant Nix derivation and output logs. Identify the *root cause* within the `axiOS` module structure (e.g., a missing service or improperly linked Home Manager config).
-- **Tool Use:**
-    - For complex requests, refactoring, or architectural analysis, your first step should be to use `codebase_investigator`.
-    - For targeted file or content searches, prefer `glob` and `search_file_content`.
-    - Use `ls`, `cat`, and `grep` for simple exploration when appropriate.
-- **Commit and Push Workflow:** When asked to commit, you must follow this procedure:
-    1. Provide an appropriate commit message, and prompt the user to commit.  Do not attempt to commit yourself.
+### C. Commit & Push
+1.  **Pre-Commit Hook:** Execute `nix fmt .` as mandated by the Constitution.
+2.  **Prepare:**
+    *   Run `git status` to verify tracked files.
+    *   Run `git diff HEAD` to review changes.
+3.  **Message:** Construct a Descriptive commit message following Conventional Commits (feat, fix, chore, refactor).
+4.  **Execution:**
+    *   Perform the commit.
+    *   Push changes to the remote repository (upstream).
+
+## 5. Tool Usage Guidelines
+
+- **File Editing:** Always use `replace` or `write_file`.
+- **Exploration:** Use `ls`, `cat`, `grep`, `glob`, `search_file_content`.
+- **Context:** Use `read_file` to read Spec files (`spec-kit-baseline/*`) whenever uncertain about a rule or pattern.

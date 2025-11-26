@@ -1,9 +1,14 @@
 # axiOS Library Functions
 # These functions can be used by downstream flakes to build NixOS configurations
-{ inputs, self, lib }:
+{
+  inputs,
+  self,
+  lib,
+}:
 let
   # Helper to build nixos-hardware modules based on hardware configuration
-  hardwareModules = hw:
+  hardwareModules =
+    hw:
     let
       hwMods = inputs.nixos-hardware.nixosModules;
     in
@@ -15,7 +20,8 @@ let
     ++ lib.optional (hw.isLaptop or false) hwMods.common-pc-laptop;
 
   # Helper to build module list for a host configuration
-  buildModules = hostCfg:
+  buildModules =
+    hostCfg:
     let
       # Validation module - checks configuration consistency
       validationModule = {
@@ -44,9 +50,14 @@ let
 
             # Valid CPU type
             {
-              assertion = cpu == null || lib.elem cpu [ "amd" "intel" ];
+              assertion =
+                cpu == null
+                || lib.elem cpu [
+                  "amd"
+                  "intel"
+                ];
               message = ''
-                axiOS configuration error: Invalid hardware.cpu value: "${lib.generators.toPretty {} cpu}"
+                axiOS configuration error: Invalid hardware.cpu value: "${lib.generators.toPretty { } cpu}"
 
                 Valid options: "amd", "intel", or null
                 Note: Values are case-sensitive (use lowercase).
@@ -55,9 +66,15 @@ let
 
             # Valid GPU type
             {
-              assertion = gpu == null || lib.elem gpu [ "amd" "nvidia" "intel" ];
+              assertion =
+                gpu == null
+                || lib.elem gpu [
+                  "amd"
+                  "nvidia"
+                  "intel"
+                ];
               message = ''
-                axiOS configuration error: Invalid hardware.gpu value: "${lib.generators.toPretty {} gpu}"
+                axiOS configuration error: Invalid hardware.gpu value: "${lib.generators.toPretty { } gpu}"
 
                 Valid options: "amd", "nvidia", "intel", or null
               '';
@@ -65,9 +82,14 @@ let
 
             # Valid vendor
             {
-              assertion = vendor == null || lib.elem vendor [ "msi" "system76" ];
+              assertion =
+                vendor == null
+                || lib.elem vendor [
+                  "msi"
+                  "system76"
+                ];
               message = ''
-                axiOS configuration error: Invalid hardware.vendor value: "${lib.generators.toPretty {} vendor}"
+                axiOS configuration error: Invalid hardware.vendor value: "${lib.generators.toPretty { } vendor}"
 
                 Valid options: "msi", "system76", or null (for generic hardware)
 
@@ -77,9 +99,14 @@ let
 
             # Valid form factor
             {
-              assertion = formFactor == null || lib.elem formFactor [ "desktop" "laptop" ];
+              assertion =
+                formFactor == null
+                || lib.elem formFactor [
+                  "desktop"
+                  "laptop"
+                ];
               message = ''
-                axiOS configuration error: Invalid formFactor value: "${lib.generators.toPretty {} formFactor}"
+                axiOS configuration error: Invalid formFactor value: "${lib.generators.toPretty { } formFactor}"
 
                 Valid options: "desktop", "laptop"
               '';
@@ -87,9 +114,14 @@ let
 
             # Valid home profile
             {
-              assertion = homeProfile == null || lib.elem homeProfile [ "workstation" "laptop" ];
+              assertion =
+                homeProfile == null
+                || lib.elem homeProfile [
+                  "workstation"
+                  "laptop"
+                ];
               message = ''
-                axiOS configuration error: Invalid homeProfile value: "${lib.generators.toPretty {} homeProfile}"
+                axiOS configuration error: Invalid homeProfile value: "${lib.generators.toPretty { } homeProfile}"
 
                 Valid options: "workstation", "laptop"
               '';
@@ -235,7 +267,8 @@ let
       ];
 
       # Modules controlled by modules.X flags
-      flaggedModules = with self.nixosModules;
+      flaggedModules =
+        with self.nixosModules;
         lib.optional (hostCfg.modules.system or true) system
         ++ lib.optional (hostCfg.modules.desktop or false) desktop
         ++ lib.optional (hostCfg.modules.development or false) development
@@ -249,26 +282,22 @@ let
         ++ lib.optional (hostCfg.modules.services or false) services;
 
       # Hardware modules conditionally imported based on vendor/formFactor
-      conditionalHwModules = with self.nixosModules;
+      conditionalHwModules =
+        with self.nixosModules;
         lib.optional (hostCfg.hardware.vendor or null == "msi") desktopHardware
         ++ lib.optional (hostCfg.hardware.vendor or null == "system76") laptopHardware
         # Generic hardware based on form factor (if no specific vendor)
-        ++ lib.optional
-          (
-            (hostCfg.hardware.vendor or null == null) &&
-            (hostCfg.formFactor or "" == "desktop")
-          )
-          desktopHardware
-        ++ lib.optional
-          (
-            (hostCfg.hardware.vendor or null == null) &&
-            (hostCfg.formFactor or "" == "laptop")
-          )
-          laptopHardware;
+        ++ lib.optional (
+          (hostCfg.hardware.vendor or null == null) && (hostCfg.formFactor or "" == "desktop")
+        ) desktopHardware
+        ++ lib.optional (
+          (hostCfg.hardware.vendor or null == null) && (hostCfg.formFactor or "" == "laptop")
+        ) laptopHardware;
 
       ourModules = coreModules ++ flaggedModules ++ conditionalHwModules;
 
-      hostModule = { lib, ... }:
+      hostModule =
+        { lib, ... }:
         let
           hwVendor = hostCfg.hardware.vendor or null;
           profile = hostCfg.homeProfile or "workstation";
@@ -336,9 +365,14 @@ let
             networking.hostName = hostCfg.hostname;
 
             home-manager.sharedModules =
-              (if profile == "workstation" then [ self.homeModules.workstation ]
-              else if profile == "laptop" then [ self.homeModules.laptop ]
-              else [ ])
+              (
+                if profile == "workstation" then
+                  [ self.homeModules.workstation ]
+                else if profile == "laptop" then
+                  [ self.homeModules.laptop ]
+                else
+                  [ ]
+              )
               ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
               ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai;
           }
@@ -346,30 +380,37 @@ let
         ];
 
       diskModule =
-        if hostCfg ? diskConfigPath
-        then hostCfg.diskConfigPath
-        else {
-          # Default: No disk configuration
-          imports = [ ];
-        };
+        if hostCfg ? diskConfigPath then
+          hostCfg.diskConfigPath
+        else
+          {
+            # Default: No disk configuration
+            imports = [ ];
+          };
 
-      userModule =
-        if hostCfg ? userModulePath
-        then hostCfg.userModulePath
-        else { imports = [ ]; };
+      userModule = if hostCfg ? userModulePath then hostCfg.userModulePath else { imports = [ ]; };
     in
-    baseModules ++ hwModules ++ ourModules ++ [ hostModule diskModule userModule ];
+    baseModules
+    ++ hwModules
+    ++ ourModules
+    ++ [
+      hostModule
+      diskModule
+      userModule
+    ];
 
   # Main function to create a NixOS system configuration
   # Usage: mkSystem { hostConfig attrs }
-  mkSystem = hostCfg: inputs.nixpkgs.lib.nixosSystem {
-    system = hostCfg.system or "x86_64-linux";
-    specialArgs = {
-      inherit inputs self;
-      inherit (self) nixosModules homeModules;
+  mkSystem =
+    hostCfg:
+    inputs.nixpkgs.lib.nixosSystem {
+      system = hostCfg.system or "x86_64-linux";
+      specialArgs = {
+        inherit inputs self;
+        inherit (self) nixosModules homeModules;
+      };
+      modules = buildModules hostCfg;
     };
-    modules = buildModules hostCfg;
-  };
 in
 {
   inherit hardwareModules buildModules mkSystem;

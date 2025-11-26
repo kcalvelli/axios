@@ -1,6 +1,11 @@
 # Self-Hosted Services Module
 # Provides Caddy reverse proxy with Tailscale HTTPS and self-hosted services
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.selfHosted;

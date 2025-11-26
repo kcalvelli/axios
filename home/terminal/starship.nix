@@ -1,4 +1,5 @@
-{ ...
+{
+  ...
 }:
 {
   programs.starship = {
@@ -72,10 +73,24 @@
         stashed = "≡";
       };
 
-      nix_shell = { symbol = " "; format = " [$${symbol}$name]($style)"; style = "bold $palette.magenta"; };
-      rust = { format = " [ $version]($style)"; style = "bold $palette.cyan"; };
-      nodejs = { format = " [󰎙 $version]($style)"; style = "bold $palette.cyan"; };
-      python = { format = " [ $virtualenv]($style)"; style = "bold $palette.cyan"; pyenv_version_name = true; };
+      nix_shell = {
+        symbol = " ";
+        format = " [$${symbol}$name]($style)";
+        style = "bold $palette.magenta";
+      };
+      rust = {
+        format = " [ $version]($style)";
+        style = "bold $palette.cyan";
+      };
+      nodejs = {
+        format = " [󰎙 $version]($style)";
+        style = "bold $palette.cyan";
+      };
+      python = {
+        format = " [ $virtualenv]($style)";
+        style = "bold $palette.cyan";
+        pyenv_version_name = true;
+      };
 
       custom.zig = {
         description = "Zig toolchain";
@@ -93,7 +108,9 @@
         style = "bold $palette.green";
       };
 
-      package = { disabled = true; };
+      package = {
+        disabled = true;
+      };
     };
   };
 }

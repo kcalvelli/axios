@@ -1,4 +1,9 @@
-{ pkgs, lib, config, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  ...
+}:
 {
   options.gaming = {
     enable = lib.mkEnableOption "Gaming support with Steam, GameMode, and performance tools";

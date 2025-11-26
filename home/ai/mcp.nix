@@ -1,4 +1,11 @@
-{ config, lib, pkgs, inputs, osConfig ? { }, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  osConfig ? { },
+  ...
+}:
 
 let
   # MCP server definitions using mcp-servers-nix library
@@ -31,16 +38,24 @@ let
     settings.servers = {
       # axios custom MCP servers
       journal = {
-        command = "${inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/mcp-journal";
+        command = "${
+          inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
+        }/bin/mcp-journal";
       };
 
       nix-devshell-mcp = {
-        command = "${inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/nix-devshell-mcp";
+        command = "${
+          inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+        }/bin/nix-devshell-mcp";
       };
 
       mcp-nixos = {
         command = "${pkgs.nix}/bin/nix";
-        args = [ "run" "github:utensils/mcp-nixos" "--" ];
+        args = [
+          "run"
+          "github:utensils/mcp-nixos"
+          "--"
+        ];
         env = {
           MCP_NIXOS_CLEANUP_ORPHANS = "true";
         };
@@ -49,12 +64,18 @@ let
       # AI enhancement servers
       sequential-thinking = {
         command = "${pkgs.nodejs}/bin/npx";
-        args = [ "-y" "@modelcontextprotocol/server-sequential-thinking" ];
+        args = [
+          "-y"
+          "@modelcontextprotocol/server-sequential-thinking"
+        ];
       };
 
       context7 = {
         command = "${pkgs.nodejs}/bin/npx";
-        args = [ "-y" "@upstash/context7-mcp" ];
+        args = [
+          "-y"
+          "@upstash/context7-mcp"
+        ];
       };
 
       # Filesystem access (restricted to /tmp and ~/Projects)
@@ -74,9 +95,15 @@ let
       #   age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
       brave-search = {
         command = "${pkgs.nodejs}/bin/npx";
-        args = [ "-y" "@modelcontextprotocol/server-brave-search" ];
+        args = [
+          "-y"
+          "@modelcontextprotocol/server-brave-search"
+        ];
         passwordCommand = lib.mkIf (config.age.secrets ? brave-api-key) {
-          BRAVE_API_KEY = [ "${pkgs.coreutils}/bin/cat" config.age.secrets.brave-api-key.path ];
+          BRAVE_API_KEY = [
+            "${pkgs.coreutils}/bin/cat"
+            config.age.secrets.brave-api-key.path
+          ];
         };
         # Fallback to environment variable if secret not configured
         env = lib.mkIf (!(config.age.secrets ? brave-api-key)) {
@@ -86,9 +113,15 @@ let
 
       tavily = {
         command = "${pkgs.nodejs}/bin/npx";
-        args = [ "-y" "tavily-mcp" ];
+        args = [
+          "-y"
+          "tavily-mcp"
+        ];
         passwordCommand = lib.mkIf (config.age.secrets ? tavily-api-key) {
-          TAVILY_API_KEY = [ "${pkgs.coreutils}/bin/cat" config.age.secrets.tavily-api-key.path ];
+          TAVILY_API_KEY = [
+            "${pkgs.coreutils}/bin/cat"
+            config.age.secrets.tavily-api-key.path
+          ];
         };
         # Fallback to environment variable if secret not configured
         env = lib.mkIf (!(config.age.secrets ? tavily-api-key)) {

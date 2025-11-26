@@ -1,6 +1,10 @@
 # Zig development environment with latest compiler and language server
 # Uses zig-overlay for up-to-date Zig versions
-{ pkgs, inputs, system }:
+{
+  pkgs,
+  inputs,
+  system,
+}:
 let
   mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
   zigPkgs = import inputs.nixpkgs {
@@ -19,10 +23,26 @@ mkShell {
   ];
 
   commands = [
-    { name = "build"; command = "zig build"; help = "Build project"; }
-    { name = "run"; command = "zig build run"; help = "Run default target"; }
-    { name = "test"; command = "zig build test"; help = "Run tests"; }
-    { name = "fmt"; command = "zig fmt ."; help = "Format code"; }
+    {
+      name = "build";
+      command = "zig build";
+      help = "Build project";
+    }
+    {
+      name = "run";
+      command = "zig build run";
+      help = "Run default target";
+    }
+    {
+      name = "test";
+      command = "zig build test";
+      help = "Run tests";
+    }
+    {
+      name = "fmt";
+      command = "zig fmt .";
+      help = "Format code";
+    }
     {
       name = "zig-info";
       help = "Show information about this dev shell";

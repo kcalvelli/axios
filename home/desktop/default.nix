@@ -27,7 +27,11 @@
   # Desktop services
   services.gnome-keyring = {
     enable = true;
-    components = [ "pkcs11" "secrets" "ssh" ];
+    components = [
+      "pkcs11"
+      "secrets"
+      "ssh"
+    ];
   };
 
   services.kdeconnect = {
@@ -35,4 +39,3 @@
     indicator = true;
   };
 }
-

@@ -1,4 +1,10 @@
-{ config, lib, pkgs, inputs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  inputs,
+  ...
+}:
 
 let
   cfg = config.secrets;
@@ -14,7 +20,10 @@ in
 
       identityPaths = lib.mkOption {
         type = lib.types.listOf lib.types.path;
-        default = [ "/etc/ssh/ssh_host_ed25519_key" "/etc/ssh/ssh_host_rsa_key" ];
+        default = [
+          "/etc/ssh/ssh_host_ed25519_key"
+          "/etc/ssh/ssh_host_rsa_key"
+        ];
         description = ''
           Paths to SSH private keys used to decrypt secrets.
           By default, uses the system's SSH host keys.
@@ -57,11 +66,7 @@ in
       let
         # Read all .age files from the secrets directory
         secretFiles = builtins.readDir cfg.secretsDir;
-        ageFiles = lib.filterAttrs
-          (name: type:
-            type == "regular" && lib.hasSuffix ".age" name
-          )
-          secretFiles;
+        ageFiles = lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".age" name) secretFiles;
 
         # Generate age.secrets entries
         mkSecretEntry = name: {
@@ -75,7 +80,9 @@ in
     );
 
     # Install agenix CLI and age package
-    environment.systemPackages = [ pkgs.age ]
-      ++ lib.optional cfg.installCLI inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default;
+    environment.systemPackages = [
+      pkgs.age
+    ]
+    ++ lib.optional cfg.installCLI inputs.agenix.packages.${pkgs.stdenv.hostPlatform.system}.default;
   };
 }

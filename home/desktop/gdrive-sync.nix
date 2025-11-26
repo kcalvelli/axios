@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   # Google Drive remote for Documents and Music
@@ -26,7 +31,14 @@ let
   ];
 
   # Generate one-way sync service (remote -> local, read-only pull)
-  mkCopyService = { name, remote, remoteDir, localDir, extraOptions ? [ ] }:
+  mkCopyService =
+    {
+      name,
+      remote,
+      remoteDir,
+      localDir,
+      extraOptions ? [ ],
+    }:
     let
       serviceName = "gdrive-${name}-sync";
       execCommand = lib.strings.escapeShellArgs (
@@ -37,7 +49,9 @@ let
           "${config.home.homeDirectory}/${localDir}"
           "--log-file"
           "${logDir}/gdrive-${name}.log"
-        ] ++ commonOptions ++ extraOptions
+        ]
+        ++ commonOptions
+        ++ extraOptions
       );
     in
     {
@@ -72,7 +86,15 @@ let
     };
 
   # Generate bidirectional sync service
-  mkBisyncService = { name, remote, remoteDir, localDir, maxDelete ? "100", extraOptions ? [ ] }:
+  mkBisyncService =
+    {
+      name,
+      remote,
+      remoteDir,
+      localDir,
+      maxDelete ? "100",
+      extraOptions ? [ ],
+    }:
     let
       serviceName = "gdrive-${name}-sync";
       bisyncOptions = [
@@ -89,7 +111,10 @@ let
           "${config.home.homeDirectory}/${localDir}"
           "--log-file"
           "${logDir}/gdrive-${name}.log"
-        ] ++ bisyncOptions ++ commonOptions ++ extraOptions
+        ]
+        ++ bisyncOptions
+        ++ commonOptions
+        ++ extraOptions
       );
     in
     {

@@ -46,14 +46,12 @@ in
 
   # Dank Colors integration
   xdg.configFile."gtk-4.0/gtk.css" = {
-    source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/gtk-4.0/dank-colors.css";
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/gtk-4.0/dank-colors.css";
     force = true; # override anything the gtk module would write
   };
 
   xdg.configFile."gtk-3.0/gtk.css" = {
-    source = config.lib.file.mkOutOfStoreSymlink
-      "${config.home.homeDirectory}/.config/gtk-3.0/dank-colors.css";
+    source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.config/gtk-3.0/dank-colors.css";
     force = true;
   };
 

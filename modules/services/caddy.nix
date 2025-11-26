@@ -1,6 +1,11 @@
 # Caddy Reverse Proxy with Tailscale HTTPS
 # Provides automatic HTTPS certificates from Tailscale for self-hosted services
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.selfHosted;

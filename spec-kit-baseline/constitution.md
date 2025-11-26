@@ -6,8 +6,9 @@ This document defines the non-negotiable rules, standards, and architectural con
 ## Code Style Standards
 
 ### Formatting
-- **Formatter**: [EXPLICIT] nixpkgs-fmt (evidence: flake.nix:137, .github/workflows/formatting.yml)
+- **Formatter**: [EXPLICIT] nixfmt-rfc-style (evidence: flake.nix:137, .github/workflows/formatting.yml)
 - **Enforcement**: CI check on all .nix files
+- **Pre-commit Hook**: [REQUIRED] `nix fmt .` must be run before committing
 - **Command**: `nix fmt` to format all Nix files
 - **CI Validation**: Required on all PRs affecting .nix files
 
@@ -24,7 +25,7 @@ This document defines the non-negotiable rules, standards, and architectural con
   - Pattern: `userCfg`, `cfg`, `homeModules`
 
 ### Linting Rules
-- **Primary Linter**: nixpkgs-fmt (Nix code formatter)
+- **Primary Linter**: nixfmt-rfc-style (Nix code formatter)
 - **Critical Rules**:
   - Consistent indentation (2 spaces)
   - Proper attribute set formatting
@@ -66,7 +67,7 @@ All PRs must pass:
   - flake-parts - Flake organization
 - **Build Tools**:
   - Nix flakes - Primary build system
-  - nixpkgs-fmt - Code formatting
+  - nixfmt-rfc-style - Code formatting
   - devshell - Development environments
 
 ### Architecture Decision Records
@@ -139,6 +140,7 @@ All PRs must pass:
 ### Version Control Rules
 - **Branch Strategy**: [ASSUMED] Trunk-based development (master branch)
 - **Protected Branches**: master (inferred from CI workflows)
+- **Pre-commit Hook**: [REQUIRED] `nix fmt .` must be run before committing
 - **Commit Format**: [INFERRED] Descriptive commit messages, some follow Conventional Commits style
   - Recent commits show: "feat:", "fix:", "chore:", "refactor:" prefixes
 - **No Force Push**: To master branch (assumed standard practice)

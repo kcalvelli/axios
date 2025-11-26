@@ -1,4 +1,10 @@
-{ config, lib, pkgs, self, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  self,
+  ...
+}:
 {
   options.axios.system = {
     enable = lib.mkEnableOption "core axiOS system configuration" // {

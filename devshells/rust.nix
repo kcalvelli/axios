@@ -1,6 +1,10 @@
 # Rust development environment with Fenix stable toolchain
 # Includes common build dependencies and development tools
-{ pkgs, inputs, system }:
+{
+  pkgs,
+  inputs,
+  system,
+}:
 let
   mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
   fenixPkgs = inputs.fenix.packages.${pkgs.stdenv.hostPlatform.system};
@@ -20,13 +24,41 @@ mkShell {
   ];
 
   commands = [
-    { name = "check"; command = "cargo check"; help = "Type-check code"; }
-    { name = "test"; command = "cargo test"; help = "Run tests"; }
-    { name = "fmt"; command = "cargo fmt"; help = "Format code"; }
-    { name = "lint"; command = "cargo clippy -- -D warnings"; help = "Clippy (deny warnings)"; }
-    { name = "run"; command = "cargo run"; help = "Build and run"; }
-    { name = "watch"; command = "cargo watch -x check -x test"; help = "Watch mode (auto check and test)"; }
-    { name = "doc"; command = "cargo doc --open"; help = "Build and open docs"; }
+    {
+      name = "check";
+      command = "cargo check";
+      help = "Type-check code";
+    }
+    {
+      name = "test";
+      command = "cargo test";
+      help = "Run tests";
+    }
+    {
+      name = "fmt";
+      command = "cargo fmt";
+      help = "Format code";
+    }
+    {
+      name = "lint";
+      command = "cargo clippy -- -D warnings";
+      help = "Clippy (deny warnings)";
+    }
+    {
+      name = "run";
+      command = "cargo run";
+      help = "Build and run";
+    }
+    {
+      name = "watch";
+      command = "cargo watch -x check -x test";
+      help = "Watch mode (auto check and test)";
+    }
+    {
+      name = "doc";
+      command = "cargo doc --open";
+      help = "Build and open docs";
+    }
     {
       name = "rust-info";
       help = "Show information about this dev shell";

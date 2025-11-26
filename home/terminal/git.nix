@@ -1,4 +1,10 @@
-{ pkgs, lib, config, osConfig ? { }, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  osConfig ? { },
+  ...
+}:
 let
   userCfg = config.axios.user;
   # Get user's full name from system user description, fallback to username

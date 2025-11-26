@@ -27,10 +27,12 @@ in
   };
 
   config = {
-    assertions = [{
-      assertion = cfg.timeZone != "";
-      message = "axios.system.timeZone must be set in your host configuration";
-    }];
+    assertions = [
+      {
+        assertion = cfg.timeZone != "";
+        message = "axios.system.timeZone must be set in your host configuration";
+      }
+    ];
 
     # Set timezone from axios.system option
     time.timeZone = cfg.timeZone;

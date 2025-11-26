@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   cfg = config.networking.samba;
 in
@@ -16,7 +21,12 @@ in
 
     sharedDirectories = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [ "Music" "Pictures" "Videos" "Documents" ];
+      default = [
+        "Music"
+        "Pictures"
+        "Videos"
+        "Documents"
+      ];
       description = ''
         List of directories to share from each user's home directory.
         Only applies when enableUserShares is true.
@@ -124,11 +134,9 @@ in
             };
 
             # Generate all shares for all users
-            userShares = lib.concatMap
-              (username:
-                map (dir: mkUserShare username dir) cfg.sharedDirectories
-              )
-              (builtins.attrNames normalUsers);
+            userShares = lib.concatMap (username: map (dir: mkUserShare username dir) cfg.sharedDirectories) (
+              builtins.attrNames normalUsers
+            );
           in
           builtins.listToAttrs userShares
         ))

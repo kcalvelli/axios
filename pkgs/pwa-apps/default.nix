@@ -1,10 +1,11 @@
-{ lib
-, stdenv
-, brave
-, makeDesktopItem
-, symlinkJoin
-, extraDefs ? { }
-, extraIconPaths ? [ ]
+{
+  lib,
+  stdenv,
+  brave,
+  makeDesktopItem,
+  symlinkJoin,
+  extraDefs ? { },
+  extraIconPaths ? [ ],
 }:
 
 let
@@ -14,7 +15,8 @@ let
 
   # Helper to convert URL to Brave's app-id format for WM_CLASS matching
   # Brave's format: brave-{domain}{path}-Default where path uses __ for /
-  urlToAppId = url:
+  urlToAppId =
+    url:
     let
       withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
       # Replace slashes with double underscores (including trailing slash)
@@ -34,24 +36,24 @@ let
   '';
 
   # Create desktop entry for a PWA using makeDesktopItem
-  makePWADesktopItem = pwaId: pwa: makeDesktopItem {
-    name = pwaId;
-    desktopName = pwa.name;
-    comment = "Launch ${pwa.name} as a PWA";
-    exec = "pwa-${pwaId}";
-    icon = pwaId;
-    terminal = false;
-    type = "Application";
-    categories = pwa.categories or [ "Network" ];
-    mimeTypes = pwa.mimeTypes or [ ];
-    startupWMClass = urlToAppId pwa.url;
-    actions = lib.mapAttrs
-      (_actionId: action: {
+  makePWADesktopItem =
+    pwaId: pwa:
+    makeDesktopItem {
+      name = pwaId;
+      desktopName = pwa.name;
+      comment = "Launch ${pwa.name} as a PWA";
+      exec = "pwa-${pwaId}";
+      icon = pwaId;
+      terminal = false;
+      type = "Application";
+      categories = pwa.categories or [ "Network" ];
+      mimeTypes = pwa.mimeTypes or [ ];
+      startupWMClass = urlToAppId pwa.url;
+      actions = lib.mapAttrs (_actionId: action: {
         name = action.name;
         exec = "${lib.getExe brave} --app=${action.url}";
-      })
-      (pwa.actions or { });
-  };
+      }) (pwa.actions or { });
+    };
 
   # Create launchers package
   launchers = stdenv.mkDerivation {
@@ -69,21 +71,25 @@ let
       mkdir -p $out/share/icons/hicolor/128x128/apps
 
       # Install icons from base path and extra paths
-      ${lib.concatStringsSep "\n" (lib.mapAttrsToList (pwaId: pwa: ''
-        icon_found=false
-        # Check base icon path first
-        if [ -f ${baseIconPath}/${pwa.icon}.png ]; then
-          cp ${baseIconPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
-          icon_found=true
-        fi
-        # Check extra icon paths if not found
-        ${lib.concatStringsSep "\n" (map (extraPath: ''
-          if [ "$icon_found" = false ] && [ -f ${extraPath}/${pwa.icon}.png ]; then
-            cp ${extraPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+      ${lib.concatStringsSep "\n" (
+        lib.mapAttrsToList (pwaId: pwa: ''
+          icon_found=false
+          # Check base icon path first
+          if [ -f ${baseIconPath}/${pwa.icon}.png ]; then
+            cp ${baseIconPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
             icon_found=true
           fi
-        '') extraIconPaths)}
-      '') pwaDefs)}
+          # Check extra icon paths if not found
+          ${lib.concatStringsSep "\n" (
+            map (extraPath: ''
+              if [ "$icon_found" = false ] && [ -f ${extraPath}/${pwa.icon}.png ]; then
+                cp ${extraPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+                icon_found=true
+              fi
+            '') extraIconPaths
+          )}
+        '') pwaDefs
+      )}
 
       # Generate launcher scripts
       ${lib.concatStringsSep "\n" (lib.mapAttrsToList makePWALauncher pwaDefs)}

@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.axios.pwa;
@@ -34,18 +39,20 @@ let
       };
 
       actions = lib.mkOption {
-        type = lib.types.attrsOf (lib.types.submodule {
-          options = {
-            name = lib.mkOption {
-              type = lib.types.str;
-              description = "Action display name";
+        type = lib.types.attrsOf (
+          lib.types.submodule {
+            options = {
+              name = lib.mkOption {
+                type = lib.types.str;
+                description = "Action display name";
+              };
+              url = lib.mkOption {
+                type = lib.types.str;
+                description = "URL for this action";
+              };
             };
-            url = lib.mkOption {
-              type = lib.types.str;
-              description = "URL for this action";
-            };
-          };
-        });
+          }
+        );
         default = { };
         description = "Desktop entry actions";
       };
@@ -88,9 +95,12 @@ in
   config = lib.mkIf cfg.enable {
     home.packages = [
       (pkgs.pwa-apps.override {
-        extraDefs = if cfg.includeDefaults then cfg.extraApps else
-          # If not including defaults, pass empty base and only extra apps
-        cfg.extraApps;
+        extraDefs =
+          if cfg.includeDefaults then
+            cfg.extraApps
+          else
+            # If not including defaults, pass empty base and only extra apps
+            cfg.extraApps;
         extraIconPaths = lib.optional (cfg.iconPath != null) cfg.iconPath;
       })
     ];

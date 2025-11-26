@@ -27,7 +27,10 @@ in
       # Kernel modules for laptops
       boot = {
         kernelModules = [ "kvm-amd" ];
-        initrd.availableKernelModules = [ "nvme" "xhci_pci" ];
+        initrd.availableKernelModules = [
+          "nvme"
+          "xhci_pci"
+        ];
       };
 
       # SSD TRIM for laptops

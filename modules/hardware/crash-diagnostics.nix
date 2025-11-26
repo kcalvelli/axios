@@ -47,11 +47,10 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    boot.kernelParams =
-      [
-        "panic=${toString cfg.rebootOnPanic}"
-      ]
-      ++ lib.optional cfg.treatOopsAsPanic "oops=panic";
+    boot.kernelParams = [
+      "panic=${toString cfg.rebootOnPanic}"
+    ]
+    ++ lib.optional cfg.treatOopsAsPanic "oops=panic";
 
     boot.crashDump.enable = cfg.enableCrashDump;
   };

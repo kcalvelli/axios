@@ -1,6 +1,11 @@
 # Immich Service Module
 # Self-hosted photo and video backup solution with Tailscale HTTPS
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 let
   cfg = config.selfHosted.immich;
@@ -44,7 +49,13 @@ in
     };
 
     gpuType = lib.mkOption {
-      type = lib.types.nullOr (lib.types.enum [ "amd" "nvidia" "intel" ]);
+      type = lib.types.nullOr (
+        lib.types.enum [
+          "amd"
+          "nvidia"
+          "intel"
+        ]
+      );
       default = null;
       description = ''
         Type of GPU for acceleration. Used to configure appropriate user groups.
@@ -89,9 +100,10 @@ in
         server.externalDomain =
           let
             domain =
-              if cfg.subdomain != null
-              then "${cfg.subdomain}.${tailscaleDomain}"
-              else "${config.networking.hostName}.${tailscaleDomain}";
+              if cfg.subdomain != null then
+                "${cfg.subdomain}.${tailscaleDomain}"
+              else
+                "${config.networking.hostName}.${tailscaleDomain}";
           in
           "https://${domain}";
       };
@@ -101,9 +113,10 @@ in
     selfHosted.caddy.extraConfig =
       let
         domain =
-          if cfg.subdomain != null
-          then "${cfg.subdomain}.${tailscaleDomain}"
-          else "${config.networking.hostName}.${tailscaleDomain}";
+          if cfg.subdomain != null then
+            "${cfg.subdomain}.${tailscaleDomain}"
+          else
+            "${config.networking.hostName}.${tailscaleDomain}";
       in
       ''
         ${domain} {

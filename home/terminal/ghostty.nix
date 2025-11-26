@@ -13,7 +13,7 @@
   #       not by Ghostty's global keybind (Wayland doesn't support app-level global keybinds)
   xdg.configFile."ghostty/config".text = ''
     # Ghostty Configuration
-    
+
     # Import dankcolors theme (if it exists)
     config-file = ~/.config/ghostty/config-dankcolors
   '';
