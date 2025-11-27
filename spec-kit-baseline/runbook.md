@@ -48,7 +48,8 @@ nix flake check
 
 **Format Code**:
 ```bash
-nix fmt
+nix fmt .
+# OR: ./scripts/fmt.sh
 ```
 
 **Test Init Script**:
@@ -106,13 +107,16 @@ nix flake check --all-systems
 ### Code Formatting Tests
 ```bash
 # Check formatting
-nix fmt -- --check .
+nix fmt -- --fail-on-change .
+# OR: ./scripts/fmt.sh --check
 
 # Fix formatting
-nix fmt
+nix fmt .
+# OR: ./scripts/fmt.sh
 ```
 - Location: All .nix files
-- Framework: nixfmt-rfc-style
+- Framework: nixfmt-rfc-style via treefmt-nix
+- Helper script: scripts/fmt.sh (AI-safe wrapper)
 
 ### Module Evaluation Tests
 ```bash
@@ -255,7 +259,7 @@ perSystem = { config, self', inputs', pkgs, system, lib, ... }: {
 
 ### Pre-Deployment Checklist
 - [ ] All tests passing (`nix flake check`)
-- [ ] Code formatted (`nix fmt -- --check .`)
+- [ ] Code formatted (`nix fmt -- --fail-on-change .`)
 - [ ] CHANGELOG.md updated
 - [ ] Version tag created (v<YEAR>.<MONTH>.<DAY>)
 - [ ] flake.lock updated if needed
@@ -346,7 +350,7 @@ gh run view <run-id> --log
 4. Push fix
 
 **Formatting Failure**:
-1. Run `nix fmt` locally
+1. Run `nix fmt .` or `./scripts/fmt.sh` locally
 2. Commit formatted code
 3. Push fix
 

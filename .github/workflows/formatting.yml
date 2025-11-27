@@ -23,13 +23,14 @@ jobs:
       - name: Check formatting
         run: |
           echo "🎨 Checking Nix code formatting..."
-          if nix fmt -- --check .; then
+          if nix fmt -- --fail-on-change .; then
             echo "✅ All files properly formatted"
           else
             echo "❌ Formatting issues found"
             echo ""
             echo "To fix locally, run:"
-            echo "  nix fmt"
+            echo "  nix fmt ."
+            echo "  # OR: ./scripts/fmt.sh"
             echo ""
             exit 1
           fi

@@ -309,6 +309,35 @@ Access via: `nix develop .#rust`
   - Generates host configuration from templates
   - Detects system timezone automatically
 
+### Formatting Code
+
+**IMPORTANT for AI Tools**: Always use explicit directory targets when formatting to avoid ambiguity.
+
+**Format all files:**
+```bash
+nix fmt .              # Explicit current directory (RECOMMENDED)
+# OR
+./scripts/fmt.sh       # Helper script wrapper
+```
+
+**Check formatting (CI/validation):**
+```bash
+nix fmt -- --fail-on-change .   # Explicit current directory
+# OR
+./scripts/fmt.sh --check
+```
+
+**NEVER use:**
+```bash
+nix fmt               # NO ARGUMENT - may be ambiguous for AI tools
+```
+
+**Technical Details:**
+- Formatter: nixfmt-rfc-style via treefmt-nix
+- Configuration: flake.nix:149-152
+- CI validation: .github/workflows/formatting.yml
+- The `.` argument ensures the command targets the current directory tree explicitly
+
 ## File Naming Conventions
 
 - Module directories: lowercase, hyphenated (`module-name/`)

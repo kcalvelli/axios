@@ -102,6 +102,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Code formatting
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Rust overlay
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
@@ -139,7 +145,11 @@
         perSystem =
           { pkgs, ... }:
           {
-            formatter = pkgs.nixfmt-rfc-style;
+            # Code formatting with treefmt-nix
+            treefmt = {
+              projectRootFile = "flake.nix";
+              programs.nixfmt.enable = true;
+            };
 
             # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
             apps = {
@@ -157,6 +167,7 @@
           };
 
         imports = [
+          inputs.treefmt-nix.flakeModule
           ./pkgs
           ./modules
           ./home

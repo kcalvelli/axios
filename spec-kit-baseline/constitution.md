@@ -6,10 +6,15 @@ This document defines the non-negotiable rules, standards, and architectural con
 ## Code Style Standards
 
 ### Formatting
-- **Formatter**: [EXPLICIT] nixfmt-rfc-style (evidence: flake.nix:137, .github/workflows/formatting.yml)
+- **Formatter**: [EXPLICIT] nixfmt-rfc-style via treefmt-nix (evidence: flake.nix:149-152, .github/workflows/formatting.yml)
 - **Enforcement**: CI check on all .nix files
 - **Pre-commit Hook**: [REQUIRED] `nix fmt .` must be run before committing
-- **Command**: `nix fmt` to format all Nix files
+- **Commands**:
+  - `nix fmt .` - Format all Nix files (explicit directory target)
+  - `./scripts/fmt.sh` - AI-safe helper script
+  - `nix fmt -- --fail-on-change .` - Validate formatting without modifying (exits with error if changes needed)
+  - `./scripts/fmt.sh --check` - Helper script validation mode
+- **AI Tool Safety**: [EXPLICIT] Always use explicit `.` argument to avoid ambiguity
 - **CI Validation**: Required on all PRs affecting .nix files
 
 ### Naming Conventions
