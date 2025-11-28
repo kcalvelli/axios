@@ -9,6 +9,16 @@ let
 in
 {
   options.networking.samba = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Enable Samba file sharing and Windows network discovery (WSDD).
+        Enabled by default when the networking module is active.
+        Set to false to disable if you don't need Windows file sharing.
+      '';
+    };
+
     enableUserShares = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -34,7 +44,7 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf cfg.enable {
     # Helper script for adding users to Samba password database
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "samba-add-user" ''
