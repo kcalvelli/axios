@@ -7,8 +7,8 @@ Utility scripts for axiOS framework.
 ```
 scripts/
 ├── init-config.sh          # Interactive configuration generator
-├── init-claude-mcp.sh      # Claude MCP project setup
-├── wallpaper-blur.sh       # Wallpaper blur for Niri overview
+├── wallpaper-changed.sh    # Wallpaper change handler
+├── fmt.sh                  # Code formatting helper
 ├── templates/              # Config templates for init-config.sh
 └── README.md              # This file
 ```
@@ -36,60 +36,41 @@ nix run github:kcalvelli/axios#init
 
 ---
 
-### 🤖 init-claude-mcp.sh
+### 🎨 wallpaper-changed.sh
 
-**Initialize Claude CLI MCP configuration for a project.**
+**Handles wallpaper changes for Niri overview mode.**
 
 ```bash
-# Automatically installed to ~/scripts/ when AI module is enabled
-~/scripts/init-claude-mcp.sh [project-directory]
+# Called automatically by DankMaterialShell when wallpaper changes
+~/scripts/wallpaper-changed.sh
 ```
 
 **What it does:**
-- Copies MCP server configuration template to project
-- Sets up Claude CLI for the project
-- Enables MCP servers (filesystem, nixos, journal, etc.)
-
-**Requirements:**
-- AI module enabled in your configuration
-- Claude CLI installed
-
----
-
-### 🎨 wallpaper-blur.sh
-
-**Generates blurred wallpaper for Niri overview mode.**
-
-```bash
-# Automatically installed to ~/scripts/ when desktop module is enabled
-~/scripts/wallpaper-blur.sh
-```
-
-**What it does:**
-- Takes current wallpaper
+- Triggers when wallpaper changes
 - Creates blurred version for overview mode
 - Saves to `~/.cache/niri/overview-blur.jpg`
-- Called automatically by DankMaterialShell hooks
+- Integrates with DankMaterialShell hooks
 
 **Requirements:**
 - Desktop module enabled
 - Niri compositor
 - ImageMagick (auto-installed)
 
-This script runs automatically when your wallpaper changes.
+This script runs automatically when your wallpaper changes via DankMaterialShell.
 
 ---
 
 ## For axiOS Library Users
 
-If you're using axiOS as a library (recommended), scripts are automatically available:
+If you're using axiOS as a library (recommended), scripts work automatically:
 
 ```nix
 # In your flake that uses axios
 axios.lib.mkSystem {
-  modules.desktop = true;  # Installs wallpaper-blur.sh to ~/scripts/
-  modules.ai = true;       # Installs init-claude-mcp.sh to ~/scripts/
+  modules.desktop = true;  # Enables wallpaper-changed.sh integration
+  modules.ai = true;       # MCP configured declaratively (no script needed)
 }
 ```
 
-Scripts work automatically with no manual setup needed.
+**MCP Configuration:**
+MCP servers are now configured declaratively via home-manager (`home/ai/mcp.nix`). No manual setup script needed - everything is automatic when `services.ai.enable = true`.

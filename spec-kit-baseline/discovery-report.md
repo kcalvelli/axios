@@ -119,8 +119,8 @@
 
 ### Scripts (`scripts/`)
 - `scripts/init-config.sh`: Interactive configuration generator
-- `scripts/init-claude-mcp.sh`: Claude MCP initialization
 - `scripts/wallpaper-changed.sh`: Wallpaper change handler
+- `scripts/fmt.sh`: Code formatting helper
 - `scripts/templates/`: Configuration templates
 
 ### Examples (`examples/`)

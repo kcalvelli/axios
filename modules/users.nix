@@ -38,7 +38,7 @@ let
       ])
 
       (lib.optionals (config.virt.containers.enable or false) [
-        "docker" # Container management (podman-compat)
+        "podman" # Container management
       ])
 
       # Hardware-specific groups
@@ -115,7 +115,7 @@ in
         - wheel: Always (sudo access)
         - networkmanager, video, input, audio, lp, scanner: desktop module
         - kvm, libvirtd, qemu-libvirtd: virt.libvirt module
-        - docker: virt.containers module
+        - podman: virt.containers module
         - plugdev: hardware.desktop or hardware.laptop modules
         - adm, disk: development or services modules
 

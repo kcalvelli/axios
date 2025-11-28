@@ -24,7 +24,7 @@ Groups are automatically assigned based on enabled modules:
 | `kvm` | `virt.libvirt.enable` | KVM virtualization |
 | `libvirtd` | `virt.libvirt.enable` | Libvirt VM management |
 | `qemu-libvirtd` | `virt.libvirt.enable` | QEMU with libvirt |
-| `docker` | `virt.containers.enable` | Container management |
+| `podman` | `virt.containers.enable` | Container management |
 | `plugdev` | `hardware.desktop/laptop.enable` | Device access |
 | `adm` | `development.enable` or `services.enable` | Log file access |
 | `disk` | `development.enable` or `services.enable` | Disk management |

@@ -247,6 +247,11 @@ in
         fi
 
         echo "Initializing $folder sync..."
+
+        # Create RCLONE_TEST marker files required by --check-access
+        touch "$local_dir/RCLONE_TEST"
+        ${rcloneBin} touch "${gdriveRemote}:$remote_dir/RCLONE_TEST" --config ${rcloneConfigPath}
+
         ${rcloneBin} bisync \
           "${gdriveRemote}:$remote_dir" \
           "$local_dir" \

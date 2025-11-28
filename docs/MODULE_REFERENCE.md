@@ -179,7 +179,7 @@ nix develop github:kcalvelli/axios#qml    # Qt/QML environment
 
 **Includes:**
 - **libvirt/QEMU** for full virtual machines
-- **Podman** for containers (Docker-compatible)
+- **Podman** for containers
 - **virt-manager** GUI for VM management
 - USB passthrough and hardware virtualization
 

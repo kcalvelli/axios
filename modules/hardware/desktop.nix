@@ -52,10 +52,12 @@ in
         ];
       };
 
-      # Desktop power policy - schedutil balances performance and efficiency
+      # Desktop power policy - use powersave for universal compatibility
+      # Modern AMD (amd-pstate-epp) and Intel cpufreq drivers provide
+      # intelligent frequency scaling with the powersave governor
       powerManagement = {
         enable = true;
-        cpuFreqGovernor = "schedutil"; # Scales CPU frequency based on actual load
+        cpuFreqGovernor = lib.mkDefault "powersave";
       };
 
       # Desktop services

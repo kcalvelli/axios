@@ -15,7 +15,7 @@ in
       "networkmanager"
       "wheel" # sudo access
       "libvirtd" # virtualization access
-      "docker" # docker access if enabled
+      "podman" # podman container access if enabled
     ];
   };
 
