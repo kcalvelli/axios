@@ -172,14 +172,32 @@ Modules are imported using one of three patterns:
 
 #### modules/ai/
 - **Path**: `modules/ai/`
-- **Purpose**: AI tools system integration
+- **Purpose**: AI tools system integration and local LLM inference
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp
+  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama, lmstudio)
 - **Exposed Interface**: `inputs.axios.nixosModules.ai`
 - **Entry Points**: default.nix
-- **Key Options**: `services.ai.enable`
+- **Key Options**:
+  - `services.ai.enable`: Enable AI tools (claude-code, copilot-cli, etc.)
+  - `services.ai.local.enable`: Enable local LLM stack (Ollama, LM Studio, OpenCode)
+  - `services.ai.local.models`: Ollama models to preload
+  - `services.ai.local.rocmOverrideGfx`: GPU architecture override for ROCm
+  - `services.ai.local.gui`: Enable LM Studio GUI
+  - `services.ai.local.cli`: Enable OpenCode CLI
+- **Architecture**:
+  - **Two-tier config**: Base AI tools always enabled, local LLM optional via mkMerge
+  - **ROCm Integration**: Ollama configured with AMD GPU acceleration
+    - `acceleration = "rocm"` for AMD GPU support
+    - `rocmOverrideGfx = "10.3.0"` for gfx1031 GPUs
+    - `amdgpu` kernel module loaded at boot
+  - **Context Window**: 32K tokens via `OLLAMA_NUM_CTX` for agentic tool use
+  - **Model Management**: `loadModels` option preloads models on service start
+  - **MCP Support**: LM Studio and OpenCode support MCP servers (user-configured)
+    - LM Studio: `~/.config/lmstudio/mcp.json`
+    - OpenCode: `~/.config/opencode/opencode.json`
+  - **Runtime Dependencies**: nodejs, python3, uv for MCP server execution
 
 #### modules/secrets/
 - **Path**: `modules/secrets/`

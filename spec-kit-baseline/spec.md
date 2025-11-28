@@ -113,6 +113,35 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **claude-monitor**: Resource monitoring for AI sessions
   - **gemini-cli**: Google Gemini CLI for development tasks
 
+#### Local LLM Inference Stack
+- **Purpose**: Self-hosted LLM inference with AMD GPU acceleration
+- **Implementation Evidence**: modules/ai/default.nix:18-51, 99-131
+- **Confidence**: [EXPLICIT]
+- **Components**:
+  - **Ollama**: Local inference backend with ROCm acceleration
+    - 32K context window for agentic tool use
+    - ROCm override for gfx1031 GPUs (RX 5500/5600/5700 series)
+    - Automatic model preloading
+  - **LM Studio**: Native GUI for local models
+    - MCP server support via `~/.config/lmstudio/mcp.json`
+    - Can use Ollama as backend
+  - **OpenCode**: Agentic CLI for coding tasks
+    - Full file editing and shell command execution
+    - MCP server integration
+    - LSP integration
+    - Configured via `~/.config/opencode/opencode.json`
+- **Default Models**:
+  - `qwen3-coder:30b`: Primary agentic coding (MoE, ~4GB VRAM)
+  - `qwen3:14b`: General reasoning (~10GB VRAM)
+  - `deepseek-coder-v2:16b`: Multilingual coding (~11GB VRAM)
+  - `qwen3:4b`: Fast completions (~3GB VRAM)
+- **Configuration Options**:
+  - `services.ai.local.enable`: Enable local LLM stack
+  - `services.ai.local.models`: List of Ollama models to preload
+  - `services.ai.local.rocmOverrideGfx`: GPU architecture override (default: "10.3.0")
+  - `services.ai.local.gui`: Enable LM Studio (default: true)
+  - `services.ai.local.cli`: Enable OpenCode (default: true)
+
 #### MCP Server Configuration
 - **Purpose**: Declarative Model Context Protocol server configuration
 - **Implementation Evidence**: home/ai/mcp.nix, .claude/project.md:178-205
