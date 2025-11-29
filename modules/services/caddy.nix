@@ -44,7 +44,21 @@ in
             extraConfig = lib.mkOption {
               type = lib.types.lines;
               default = "";
-              description = "Additional Caddy configuration for this route handler";
+              description = ''
+                Additional Caddy configuration for the reverse_proxy block.
+                These directives go INSIDE the reverse_proxy { } block.
+                Example: stream_timeout 0, stream_close_delay 1h
+              '';
+            };
+
+            handleConfig = lib.mkOption {
+              type = lib.types.lines;
+              default = "";
+              description = ''
+                Additional Caddy configuration for the handle block.
+                These directives go OUTSIDE the reverse_proxy, but inside the handle { } block.
+                Example: request_body { max_size 50GB }
+              '';
             };
 
             priority = lib.mkOption {
@@ -101,18 +115,30 @@ in
         # Generate handle block for a single route
         mkHandle =
           route:
+          let
+            # Wrap reverse_proxy in braces if there's extraConfig
+            reverseProxyBlock =
+              if route.extraConfig != "" then
+                ''
+                  reverse_proxy ${route.target} {
+                    ${route.extraConfig}
+                  }
+                ''
+              else
+                "reverse_proxy ${route.target}";
+          in
           if route.path != null then
             ''
               handle ${route.path} {
-                reverse_proxy ${route.target}
-                ${route.extraConfig}
+                ${reverseProxyBlock}
+                ${route.handleConfig}
               }
             ''
           else
             ''
               handle {
-                reverse_proxy ${route.target}
-                ${route.extraConfig}
+                ${reverseProxyBlock}
+                ${route.handleConfig}
               }
             '';
 

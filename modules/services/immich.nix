@@ -123,11 +123,16 @@ in
         path = null; # Catch-all (will be ordered after path-specific routes)
         target = "http://127.0.0.1:${toString cfg.port}";
         priority = 1000; # Catch-all - evaluated last
+
+        # reverse_proxy subdirectives
         extraConfig = ''
           # Prevent WebSocket timeout disconnects
           stream_timeout 0
           stream_close_delay 1h
+        '';
 
+        # handle-level directives
+        handleConfig = ''
           # Immich requires large uploads for photos/videos
           request_body {
             max_size 50GB
