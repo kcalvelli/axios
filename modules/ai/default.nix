@@ -249,7 +249,7 @@ in
       };
 
       # llama-cpp inference server with ROCm acceleration
-      services.llamaServer =
+      services.llama-cpp =
         lib.mkIf (cfg.local.llamaServer.enable && cfg.local.llamaServer.model != null)
           {
             enable = true;
@@ -269,6 +269,15 @@ in
               cfg.local.llamaServer.reverseProxy.path
             ]
             ++ cfg.local.llamaServer.extraFlags;
+          };
+
+      # Add ROCm environment variable for GPU acceleration
+      systemd.services.llama-cpp =
+        lib.mkIf (cfg.local.llamaServer.enable && cfg.local.llamaServer.model != null)
+          {
+            environment = {
+              HSA_OVERRIDE_GFX_VERSION = cfg.local.rocmOverrideGfx;
+            };
           };
 
       # Ensure amdgpu kernel module loads at boot
