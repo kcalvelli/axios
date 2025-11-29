@@ -253,7 +253,18 @@ in
         lib.mkIf (cfg.local.llamaServer.enable && cfg.local.llamaServer.model != null)
           {
             enable = true;
-            package = pkgs.llama-cpp;
+            package = (
+              (pkgs.llama-cpp.overrideAttrs (
+                finalAttrs: previousAttrs: {
+                  cmakeFlags = (previousAttrs.cmakeFlags or [ ]) ++ [
+                    "-DGGML_HIP=ON"
+                  ];
+                }
+              )).override
+                {
+                  rocmSupport = true;
+                }
+            );
             model = cfg.local.llamaServer.model;
             host = cfg.local.llamaServer.host;
             port = cfg.local.llamaServer.port;
