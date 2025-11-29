@@ -163,6 +163,16 @@
                 );
                 meta.description = "Initialize a new axiOS configuration";
               };
+
+              download-llama-models = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "download-llama-models" ''
+                    exec ${pkgs.bash}/bin/bash ${./scripts/download-llama-models.sh} "$@"
+                  ''
+                );
+                meta.description = "Download GGUF models for llama-cpp server";
+              };
             };
           };
 

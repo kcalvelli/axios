@@ -41,6 +41,33 @@ in
           '';
         };
 
+        ollamaReverseProxy = {
+          enable = lib.mkEnableOption "Caddy reverse proxy for Ollama with Tailscale HTTPS" // {
+            default = false;
+          };
+
+          path = lib.mkOption {
+            type = lib.types.str;
+            default = "/ollama";
+            example = "/ai/ollama";
+            description = ''
+              Path prefix for Ollama reverse proxy.
+              Server will be accessible at: {domain}{path}/*
+              Example: edge.taile0fb4.ts.net/ollama
+            '';
+          };
+
+          domain = lib.mkOption {
+            type = lib.types.nullOr lib.types.str;
+            default = null;
+            example = "edge.taile0fb4.ts.net";
+            description = ''
+              Domain for reverse proxy. If null, uses {hostname}.{tailscale.domain}.
+              Must match the domain used by other services for path-based routing.
+            '';
+          };
+        };
+
         gui = lib.mkEnableOption "LM Studio native GUI" // {
           default = true;
         };
@@ -48,11 +75,121 @@ in
         cli = lib.mkEnableOption "OpenCode agentic CLI" // {
           default = true;
         };
+
+        llamaServer = {
+          enable = lib.mkEnableOption "llama-cpp inference server with ROCm acceleration" // {
+            default = true;
+          };
+
+          model = lib.mkOption {
+            type = lib.types.nullOr lib.types.path;
+            default = null;
+            example = "/models/mistral-instruct-7b-q4_k_m.gguf";
+            description = ''
+              Path to GGUF model file for llama-cpp server.
+              If null, service will not start until configured.
+              Recommended quantization: Q4_K_M for balanced performance.
+            '';
+          };
+
+          host = lib.mkOption {
+            type = lib.types.str;
+            default = "127.0.0.1";
+            description = "Binding address for llama-cpp server";
+          };
+
+          port = lib.mkOption {
+            type = lib.types.port;
+            default = 8081;
+            description = "Server listening port (default 8081 to avoid conflict with Ollama on 11434)";
+          };
+
+          contextSize = lib.mkOption {
+            type = lib.types.int;
+            default = 4096;
+            description = "Context window size in tokens";
+          };
+
+          gpuLayers = lib.mkOption {
+            type = lib.types.int;
+            default = -1;
+            description = ''
+              Number of layers to offload to GPU.
+              -1 = offload all layers (recommended for AMD GPUs with ROCm)
+              0 = CPU only
+            '';
+          };
+
+          extraFlags = lib.mkOption {
+            type = lib.types.listOf lib.types.str;
+            default = [
+              "--numa"
+              "numactl"
+            ];
+            description = ''
+              Additional command-line arguments for llama-cpp server.
+              Default includes NUMA optimization for multi-die AMD CPUs.
+            '';
+          };
+
+          reverseProxy = {
+            enable = lib.mkEnableOption "Caddy reverse proxy with Tailscale HTTPS" // {
+              default = false;
+            };
+
+            path = lib.mkOption {
+              type = lib.types.str;
+              default = "/llama";
+              example = "/ai/llama";
+              description = ''
+                Path prefix for reverse proxy.
+                Server will be accessible at: {domain}{path}/*
+                Example: edge.taile0fb4.ts.net/llama
+              '';
+            };
+
+            domain = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              example = "edge.taile0fb4.ts.net";
+              description = ''
+                Domain for reverse proxy. If null, uses {hostname}.{tailscale.domain}.
+                Must match the domain used by other services (e.g., Immich) for path-based routing.
+              '';
+            };
+          };
+        };
       };
     };
   };
 
   config = lib.mkMerge [
+    # Assertions for reverse proxy configuration
+    {
+      assertions = [
+        {
+          assertion =
+            cfg.enable -> (cfg.local.llamaServer.reverseProxy.enable -> config.selfHosted.enable or false);
+          message = ''
+            services.ai.local.llamaServer.reverseProxy requires selfHosted.enable = true.
+
+            Add to your configuration:
+              selfHosted.enable = true;
+          '';
+        }
+        {
+          assertion =
+            cfg.enable -> (cfg.local.ollamaReverseProxy.enable -> config.selfHosted.enable or false);
+          message = ''
+            services.ai.local.ollamaReverseProxy requires selfHosted.enable = true.
+
+            Add to your configuration:
+              selfHosted.enable = true;
+          '';
+        }
+      ];
+    }
+
     # Base AI configuration (always enabled when services.ai.enable = true)
     (lib.mkIf cfg.enable {
       # Add users to systemd-journal group using userGroups
@@ -68,6 +205,7 @@ in
         with pkgs;
         [
           # AI assistant tools
+          llama-cpp
           whisper-cpp
           nodejs # For npx MCP servers
           claude-monitor # Real-time Claude Code usage monitoring
@@ -110,6 +248,29 @@ in
         loadModels = cfg.local.models;
       };
 
+      # llama-cpp inference server with ROCm acceleration
+      services.llamaServer =
+        lib.mkIf (cfg.local.llamaServer.enable && cfg.local.llamaServer.model != null)
+          {
+            enable = true;
+            package = pkgs.llama-cpp;
+            model = cfg.local.llamaServer.model;
+            host = cfg.local.llamaServer.host;
+            port = cfg.local.llamaServer.port;
+            extraFlags = [
+              "-c"
+              (toString cfg.local.llamaServer.contextSize)
+              "-ngl"
+              (toString cfg.local.llamaServer.gpuLayers)
+            ]
+            # Add API prefix when reverse proxy is enabled
+            ++ lib.optionals cfg.local.llamaServer.reverseProxy.enable [
+              "--api-prefix"
+              cfg.local.llamaServer.reverseProxy.path
+            ]
+            ++ cfg.local.llamaServer.extraFlags;
+          };
+
       # Ensure amdgpu kernel module loads at boot
       boot.kernelModules = [ "amdgpu" ];
 
@@ -128,6 +289,48 @@ in
         ++ lib.optional cfg.local.cli (
           inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.opencode
         );
+    })
+
+    # llama-server reverse proxy configuration (conditional on reverseProxy.enable)
+    (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.llamaServer.reverseProxy.enable) {
+      selfHosted.caddy.extraConfig =
+        let
+          domain =
+            if cfg.local.llamaServer.reverseProxy.domain != null then
+              cfg.local.llamaServer.reverseProxy.domain
+            else
+              "${config.networking.hostName}.${config.networking.tailscale.domain}";
+          path = cfg.local.llamaServer.reverseProxy.path;
+        in
+        ''
+          ${domain} {
+            # Path-specific handle for llama-server (evaluated before catch-all)
+            handle ${path}/* {
+              reverse_proxy http://127.0.0.1:${toString cfg.local.llamaServer.port}
+            }
+          }
+        '';
+    })
+
+    # Ollama reverse proxy configuration (conditional on ollamaReverseProxy.enable)
+    (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.ollamaReverseProxy.enable) {
+      selfHosted.caddy.extraConfig =
+        let
+          domain =
+            if cfg.local.ollamaReverseProxy.domain != null then
+              cfg.local.ollamaReverseProxy.domain
+            else
+              "${config.networking.hostName}.${config.networking.tailscale.domain}";
+          path = cfg.local.ollamaReverseProxy.path;
+        in
+        ''
+          ${domain} {
+            # Path-specific handle for Ollama (evaluated before catch-all)
+            handle ${path}/* {
+              reverse_proxy http://127.0.0.1:11434
+            }
+          }
+        '';
     })
   ];
 }
