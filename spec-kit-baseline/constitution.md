@@ -214,6 +214,16 @@ All PRs must pass:
 - **Flake Support**: Required (this is a flake library)
 - **System Support**: Primarily x86_64-linux (evidence: systems input)
 
+### Security & Documentation Standards
+[EXPLICIT] Documentation and examples MUST NOT expose personal or sensitive information:
+- **NO Personal Domains**: Examples MUST use generic domains (e.g., `hostname.tail1234ab.ts.net`, `example-tailnet.ts.net`)
+- **NO Real Hostnames**: Use generic hostnames (e.g., `hostname`, `myhost`, `server`)
+- **NO Personal Network Identifiers**: Avoid real Tailscale domains, IP addresses, or network names
+- **Sanitize Examples**: All code examples, documentation, and error messages must use placeholder values
+- **Generic Credentials**: Examples requiring secrets should reference placeholders (e.g., `$YOUR_API_KEY`, `/path/to/your/model.gguf`)
+
+**Rationale**: Public repositories must not leak personal infrastructure details that could be used for reconnaissance or social engineering.
+
 ## Configuration Management
 - **Module Options**: Defined via `options.<module>.enable` pattern
 - **Secrets Management**: [EXPLICIT] agenix for encrypted secrets

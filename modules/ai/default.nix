@@ -53,14 +53,14 @@ in
             description = ''
               Path prefix for Ollama reverse proxy.
               Server will be accessible at: {domain}{path}/*
-              Example: edge.taile0fb4.ts.net/ollama
+              Example: hostname.tail1234ab.ts.net/ollama
             '';
           };
 
           domain = lib.mkOption {
             type = lib.types.nullOr lib.types.str;
             default = null;
-            example = "edge.taile0fb4.ts.net";
+            example = "hostname.tail1234ab.ts.net";
             description = ''
               Domain for reverse proxy. If null, uses {hostname}.{tailscale.domain}.
               Must match the domain used by other services for path-based routing.
@@ -144,14 +144,14 @@ in
               description = ''
                 Path prefix for reverse proxy.
                 Server will be accessible at: {domain}{path}/*
-                Example: edge.taile0fb4.ts.net/llama
+                Example: hostname.tail1234ab.ts.net/llama
               '';
             };
 
             domain = lib.mkOption {
               type = lib.types.nullOr lib.types.str;
               default = null;
-              example = "edge.taile0fb4.ts.net";
+              example = "hostname.tail1234ab.ts.net";
               description = ''
                 Domain for reverse proxy. If null, uses {hostname}.{tailscale.domain}.
                 Must match the domain used by other services (e.g., Immich) for path-based routing.
