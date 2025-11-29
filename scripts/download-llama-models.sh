@@ -99,15 +99,15 @@ download_model() {
     if ! mkdir -p "$dest_dir" 2>/dev/null; then
       echo -e "${YELLOW}Need sudo to create ${dest_dir}${NC}"
       sudo mkdir -p "$dest_dir"
-      sudo chown -R $USER:$USER "$dest_dir"
-      echo -e "${GREEN}Directory created and ownership set to $USER${NC}"
+      sudo chown -R $USER:users "$dest_dir"
+      echo -e "${GREEN}Directory created and ownership set to $USER:users${NC}"
     fi
   fi
 
   # Check if we can write to the directory
   if [[ ! -w "$dest_dir" ]]; then
     echo -e "${YELLOW}Directory not writable, fixing permissions...${NC}"
-    sudo chown -R $USER:$USER "$dest_dir"
+    sudo chown -R $USER:users "$dest_dir"
     need_sudo=false
   fi
 
