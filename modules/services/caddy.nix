@@ -49,10 +49,11 @@ in
 
             priority = lib.mkOption {
               type = lib.types.int;
-              default = if path == null then 1000 else 100;
+              default = 500;
               description = ''
                 Route priority. Lower numbers are evaluated first.
-                Default: 100 for path-specific routes, 1000 for catch-all.
+                Recommended: 100 for path-specific routes, 1000 for catch-all.
+                Default: 500 (medium priority).
               '';
             };
           };

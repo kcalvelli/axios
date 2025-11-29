@@ -326,7 +326,7 @@ in
           inherit domain;
           path = "${path}/*";
           target = "http://127.0.0.1:${toString cfg.local.llamaServer.port}";
-          # priority = 100; (default for path-specific routes)
+          priority = 100; # Path-specific - evaluated before catch-all
         };
     })
 
@@ -345,7 +345,7 @@ in
           inherit domain;
           path = "${path}/*";
           target = "http://127.0.0.1:11434";
-          # priority = 100; (default for path-specific routes)
+          priority = 100; # Path-specific - evaluated before catch-all
         };
     })
   ];

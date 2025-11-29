@@ -122,6 +122,7 @@ in
         inherit domain;
         path = null; # Catch-all (will be ordered after path-specific routes)
         target = "http://127.0.0.1:${toString cfg.port}";
+        priority = 1000; # Catch-all - evaluated last
         extraConfig = ''
           # Prevent WebSocket timeout disconnects
           stream_timeout 0
@@ -132,7 +133,6 @@ in
             max_size 50GB
           }
         '';
-        # priority = 1000; (default for catch-all)
       };
 
     # GPU user groups for hardware acceleration
