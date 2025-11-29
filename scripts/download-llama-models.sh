@@ -92,13 +92,23 @@ download_model() {
   echo -e "  Destination: ${dest_path}"
   echo ""
 
-  # Create directory if it doesn't exist
+  # Determine if we need sudo for this directory
+  local need_sudo=false
   if [[ ! -d "$dest_dir" ]]; then
     echo -e "${YELLOW}Creating directory: ${dest_dir}${NC}"
     if ! mkdir -p "$dest_dir" 2>/dev/null; then
       echo -e "${YELLOW}Need sudo to create ${dest_dir}${NC}"
       sudo mkdir -p "$dest_dir"
+      sudo chown -R $USER:$USER "$dest_dir"
+      echo -e "${GREEN}Directory created and ownership set to $USER${NC}"
     fi
+  fi
+
+  # Check if we can write to the directory
+  if [[ ! -w "$dest_dir" ]]; then
+    echo -e "${YELLOW}Directory not writable, fixing permissions...${NC}"
+    sudo chown -R $USER:$USER "$dest_dir"
+    need_sudo=false
   fi
 
   # Check if file already exists
