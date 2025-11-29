@@ -120,8 +120,11 @@ in
       in
       ''
         ${domain} {
-          # Explicit handle block for Immich (catch-all, evaluated after path-specific handles)
-          handle {
+          # Immich handler - catch-all EXCEPT AI service paths
+          # Note: handle directives are mutually exclusive - first match wins
+          # This handler must exclude paths used by AI services (/llama, /ollama, etc.)
+          @not_ai_paths not path /llama/* /ollama/*
+          handle @not_ai_paths {
             reverse_proxy http://127.0.0.1:${toString cfg.port} {
               # Prevent WebSocket timeout disconnects
               stream_timeout 0
