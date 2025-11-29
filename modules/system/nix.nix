@@ -25,10 +25,6 @@
       ];
       auto-optimise-store = true;
 
-      # Build performance optimizations
-      cores = 0; # Use all available cores
-      max-jobs = "auto"; # Parallel builds
-
       extra-substituters = [
         "https://axios.cachix.org" # Axios binary cache
         "https://numtide.cachix.org"
