@@ -223,6 +223,97 @@ flake.homeModules = {
 };
 ```
 
+### Adding a Service with Caddy Reverse Proxy
+
+**IMPORTANT**: Use the route registry pattern (ADR-007) for all services requiring reverse proxy.
+
+1. **Create Service Module** (following ADR-001):
+```bash
+mkdir -p modules/services/my-service
+touch modules/services/my-service/default.nix
+```
+
+2. **Service Module with Route Registration**:
+```nix
+{ config, lib, pkgs, ... }:
+let
+  cfg = config.selfHosted.myService;
+  tailscaleDomain = config.networking.tailscale.domain;
+in
+{
+  options.selfHosted.myService = {
+    enable = lib.mkEnableOption "My Service";
+
+    port = lib.mkOption {
+      type = lib.types.port;
+      default = 8080;
+      description = "Service port";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    # Enable the service
+    services.myService = {
+      enable = true;
+      port = cfg.port;
+    };
+
+    # Register Caddy route (route registry pattern - ADR-007)
+    selfHosted.caddy.routes.myService = {
+      domain = "${config.networking.hostName}.${tailscaleDomain}";
+
+      # Path-specific route (priority 100 = before catch-all)
+      path = "/myapp/*";  # Or null for catch-all
+      priority = 100;     # 100 = path-specific, 1000 = catch-all
+
+      target = "http://127.0.0.1:${toString cfg.port}";
+
+      # Optional: Additional Caddy configuration
+      extraConfig = ''
+        # Custom Caddy directives here
+        timeout 30s
+      '';
+    };
+  };
+}
+```
+
+3. **Register Module**:
+Edit `modules/services/default.nix`:
+```nix
+flake.nixosModules = {
+  # ... existing modules ...
+  myService = ./my-service;
+};
+```
+
+4. **Example: Catch-All Service** (like Immich):
+```nix
+selfHosted.caddy.routes.myService = {
+  domain = "${config.networking.hostName}.${tailscaleDomain}";
+  path = null;        # Catch-all - matches all paths
+  priority = 1000;    # Evaluated AFTER path-specific routes
+  target = "http://127.0.0.1:${toString cfg.port}";
+};
+```
+
+5. **Example: Path-Specific Service** (like llama-cpp):
+```nix
+selfHosted.caddy.routes.myService = {
+  domain = "${config.networking.hostName}.${tailscaleDomain}";
+  path = "/api/*";    # Path-specific
+  priority = 100;     # Evaluated BEFORE catch-all routes
+  target = "http://127.0.0.1:${toString cfg.port}";
+};
+```
+
+**Key Points**:
+- **DO NOT** use `selfHosted.caddy.extraConfig` for routes (deprecated pattern)
+- **DO NOT** hardcode path exclusions or reference other services' paths
+- Priority 100 = path-specific routes (evaluated first)
+- Priority 1000 = catch-all routes (evaluated last)
+- The Caddy module automatically handles route ordering by domain and priority
+
 ### Adding a DevShell
 
 1. **Create DevShell File**:

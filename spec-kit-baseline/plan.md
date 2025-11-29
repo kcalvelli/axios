@@ -219,12 +219,19 @@ Modules are imported using one of three patterns:
       - Downloads GGUF files from HuggingFace
       - Supports general purpose, coding, small/fast, and large/powerful categories
   - **Reverse Proxy Support** (both Ollama and llama-cpp):
-    - Optional Caddy integration via `selfHosted.caddy.extraConfig`
-    - Path-based routing using explicit `handle` blocks
-    - llama-cpp: Automatic `--api-prefix` configuration when enabled
-    - Compatible with other services (Immich) using explicit handle pattern
+    - Uses Caddy route registry pattern via `selfHosted.caddy.routes.<name>`
+    - **llama-server route**: Registers as `selfHosted.caddy.routes.llama`
+      - Priority: 100 (path-specific, evaluated before catch-all)
+      - Path: `${reverseProxy.path}/*` (default: "/llama/*")
+      - Target: `http://127.0.0.1:${port}` (default: 8081)
+      - Automatic `--api-prefix` configuration when enabled
+    - **Ollama route**: Registers as `selfHosted.caddy.routes.ollama`
+      - Priority: 100 (path-specific, evaluated before catch-all)
+      - Path: `${ollamaReverseProxy.path}/*` (default: "/ollama/*")
+      - Target: `http://127.0.0.1:11434`
+    - **Auto-ordering**: Routes automatically ordered before catch-all services (Immich)
     - Requires `selfHosted.enable = true`
-    - Default paths: `/ollama` for Ollama, `/llama` for llama-cpp
+    - Implementation: modules/ai/default.nix:315-350
   - **MCP Support**: LM Studio and OpenCode support MCP servers (user-configured)
     - LM Studio: `~/.config/lmstudio/mcp.json`
     - OpenCode: `~/.config/opencode/opencode.json`
@@ -251,7 +258,13 @@ Modules are imported using one of three patterns:
 - **Entry Points**: default.nix, caddy.nix, immich.nix
 - **Services**:
   - **Caddy**: Reverse proxy with Tailscale HTTPS
-  - **Immich**: Photo backup (custom 2.3.1 package)
+    - **Route Registry Pattern**: Services register routes via `selfHosted.caddy.routes.<name>`
+    - **Auto-Ordering**: Routes grouped by domain, sorted by priority (lower = first)
+    - **Decoupling**: Services don't need to know about other services' paths
+    - **Implementation**: caddy.nix:92-145 (route ordering logic)
+  - **Immich**: Photo backup (nixpkgs version)
+    - **Route Registration**: Registers as catch-all (priority 1000)
+    - **Integration**: Uses route registry instead of hardcoded path exclusions
 
 #### modules/users.nix
 - **Path**: `modules/users.nix`

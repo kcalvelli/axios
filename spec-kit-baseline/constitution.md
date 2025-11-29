@@ -130,6 +130,23 @@ All PRs must pass:
   - Home modules follow same directory structure as NixOS modules
 - **Confidence**: [EXPLICIT]
 
+#### ADR-007: Caddy Route Registry Pattern
+- **Pattern**: Services register reverse proxy routes via `selfHosted.caddy.routes.<name>`
+- **Evidence**: modules/services/caddy.nix (commits 9999853, 77ead21), spec.md:491-507, plan.md:254-260
+- **Constraints**:
+  - Services MUST register routes via `selfHosted.caddy.routes.<name>` (NOT hardcoded extraConfig)
+  - Route registration structure:
+    - `domain`: String - Domain for this route (required)
+    - `path`: String|null - Path prefix (null = catch-all)
+    - `target`: String - Upstream target URL (required)
+    - `priority`: Int - Evaluation order (100 = path-specific, 1000 = catch-all)
+    - `extraConfig`: Lines - Additional Caddy config (optional)
+  - Route ordering: Caddy module automatically groups by domain and sorts by priority
+  - Path-specific routes (priority 100) MUST be evaluated before catch-all (priority 1000)
+  - Services MUST NOT hardcode path exclusions or know about other services' paths
+- **Rationale**: Decouples services, enables automatic route ordering, prevents path conflicts
+- **Confidence**: [EXPLICIT]
+
 ### Module Boundaries
 - **Independence**: Modules are independently importable (no inter-module dependencies)
 - **Composition**: Users compose modules in their own flake configurations

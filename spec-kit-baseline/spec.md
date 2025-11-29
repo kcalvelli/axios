@@ -209,7 +209,11 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Purpose**: Reverse proxy with automatic HTTPS via Tailscale
 - **Implementation Evidence**: modules/services/caddy.nix
 - **Confidence**: [EXPLICIT]
-- **Features**: Tailscale TLS certificate integration, reverse proxy configuration
+- **Features**:
+  - Tailscale TLS certificate integration
+  - Route registry pattern for automatic path-based routing
+  - Automatic route ordering (path-specific routes before catch-all)
+  - Declarative service registration via `selfHosted.caddy.routes`
 
 #### Immich Photo Backup
 - **Purpose**: Self-hosted photo and video backup solution
@@ -484,6 +488,24 @@ Evidence: pkgs/
 
 **Source**: modules/secrets/, home/secrets/
 
+#### Caddy Route Registry
+**Purpose**: Declarative reverse proxy route registration
+**Key Fields**:
+- `selfHosted.caddy.routes.<name>.domain`: String - Domain for this route
+- `selfHosted.caddy.routes.<name>.path`: String|null - Path prefix (null = catch-all)
+- `selfHosted.caddy.routes.<name>.target`: String - Upstream target URL
+- `selfHosted.caddy.routes.<name>.priority`: Int - Route evaluation order (100 = path-specific, 1000 = catch-all)
+- `selfHosted.caddy.routes.<name>.extraConfig`: Lines - Additional Caddy configuration
+
+**Behavior**:
+- Routes are automatically grouped by domain
+- Routes are sorted by priority within each domain (lower = first)
+- Path-specific routes (priority 100) are evaluated before catch-all routes (priority 1000)
+- Services register routes independently without needing to know about other services
+
+**Source**: modules/services/caddy.nix
+**Evidence**: [EXPLICIT] (commit 9999853, 77ead21)
+
 ### Data Flow Patterns
 - **Creation**: Users define configurations in their flake
 - **Validation**: Nix evaluation validates types and structure
@@ -520,9 +542,11 @@ Evidence: pkgs/
 - [✓] MCP servers are declaratively configured for AI tools
 - [✓] Timezone must be explicitly set (no regional defaults)
 - [✓] Packages are conditionally evaluated (inside mkIf blocks)
-- [✓] Immich photo backup service runs with custom 2.3.1 package
+- [✓] Immich photo backup service runs with nixpkgs version
 - [✓] Tailscale integration provides automatic HTTPS certificates
 - [✓] Caddy reverse proxy configured for self-hosted services
+- [✓] Caddy route registry automatically orders path-specific routes before catch-all
+- [✓] Services register routes independently via `selfHosted.caddy.routes`
 - [✓] Google Drive sync via rclone with bidirectional support
 
 ### Non-Functional Criteria
