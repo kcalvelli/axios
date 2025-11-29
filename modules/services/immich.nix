@@ -109,8 +109,8 @@ in
       };
     };
 
-    # Configure Caddy reverse proxy for Immich
-    selfHosted.caddy.extraConfig =
+    # Register Immich route in Caddy route registry
+    selfHosted.caddy.routes.immich =
       let
         domain =
           if cfg.subdomain != null then
@@ -118,26 +118,22 @@ in
           else
             "${config.networking.hostName}.${tailscaleDomain}";
       in
-      ''
-        ${domain} {
-          # Immich handler - catch-all EXCEPT AI service paths
-          # Note: handle directives are mutually exclusive - first match wins
-          # This handler must exclude paths used by AI services (/llama, /ollama, etc.)
-          @not_ai_paths not path /llama/* /ollama/*
-          handle @not_ai_paths {
-            reverse_proxy http://127.0.0.1:${toString cfg.port} {
-              # Prevent WebSocket timeout disconnects
-              stream_timeout 0
-              stream_close_delay 1h
-            }
+      {
+        inherit domain;
+        path = null; # Catch-all (will be ordered after path-specific routes)
+        target = "http://127.0.0.1:${toString cfg.port}";
+        extraConfig = ''
+          # Prevent WebSocket timeout disconnects
+          stream_timeout 0
+          stream_close_delay 1h
 
-            # Immich requires large uploads for photos/videos
-            request_body {
-              max_size 50GB
-            }
+          # Immich requires large uploads for photos/videos
+          request_body {
+            max_size 50GB
           }
-        }
-      '';
+        '';
+        # priority = 1000; (default for catch-all)
+      };
 
     # GPU user groups for hardware acceleration
     users.users.immich.extraGroups = lib.optionals cfg.enableGpuAcceleration [

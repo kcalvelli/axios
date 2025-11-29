@@ -313,7 +313,7 @@ in
 
     # llama-server reverse proxy configuration (conditional on reverseProxy.enable)
     (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.llamaServer.reverseProxy.enable) {
-      selfHosted.caddy.extraConfig =
+      selfHosted.caddy.routes.llama =
         let
           domain =
             if cfg.local.llamaServer.reverseProxy.domain != null then
@@ -322,19 +322,17 @@ in
               "${config.networking.hostName}.${config.networking.tailscale.domain}";
           path = cfg.local.llamaServer.reverseProxy.path;
         in
-        ''
-          ${domain} {
-            # Path-specific handle for llama-server (evaluated before catch-all)
-            handle ${path}/* {
-              reverse_proxy http://127.0.0.1:${toString cfg.local.llamaServer.port}
-            }
-          }
-        '';
+        {
+          inherit domain;
+          path = "${path}/*";
+          target = "http://127.0.0.1:${toString cfg.local.llamaServer.port}";
+          # priority = 100; (default for path-specific routes)
+        };
     })
 
     # Ollama reverse proxy configuration (conditional on ollamaReverseProxy.enable)
     (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.ollamaReverseProxy.enable) {
-      selfHosted.caddy.extraConfig =
+      selfHosted.caddy.routes.ollama =
         let
           domain =
             if cfg.local.ollamaReverseProxy.domain != null then
@@ -343,14 +341,12 @@ in
               "${config.networking.hostName}.${config.networking.tailscale.domain}";
           path = cfg.local.ollamaReverseProxy.path;
         in
-        ''
-          ${domain} {
-            # Path-specific handle for Ollama (evaluated before catch-all)
-            handle ${path}/* {
-              reverse_proxy http://127.0.0.1:11434
-            }
-          }
-        '';
+        {
+          inherit domain;
+          path = "${path}/*";
+          target = "http://127.0.0.1:11434";
+          # priority = 100; (default for path-specific routes)
+        };
     })
   ];
 }
