@@ -111,7 +111,6 @@ in
         with pkgs;
         [
           # AI assistant tools
-          alpaca
           whisper-cpp
           nodejs # For npx MCP servers
           claude-monitor # Real-time Claude Code usage monitoring
@@ -136,6 +135,10 @@ in
             ai-tools.catnip
             ai-tools.gemini-cli
             ai-tools.spec-kit
+            # VSCode extension compatibility: claude-code symlink
+            (pkgs.writeShellScriptBin "claude-code" ''
+              exec ${ai-tools.claude-code}/bin/claude "$@"
+            '')
           ]
         );
     })
@@ -168,7 +171,10 @@ in
           python3
           uv # Python package manager for uvx
         ]
-        ++ lib.optional cfg.local.gui lmstudio
+        ++ lib.optionals cfg.local.gui [
+          lmstudio
+          alpaca
+        ]
         ++ lib.optional cfg.local.cli (
           inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.opencode
         );
