@@ -126,21 +126,6 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
     - Optional Caddy reverse proxy with path-based routing
       - Path-based routing on shared domain (e.g., edge.ts.net/ollama)
       - Compatible with other services using explicit handle blocks
-  - **llama-cpp server**: High-performance inference server with ROCm acceleration
-    - Direct GGUF model loading for fine-grained control
-    - Full GPU layer offloading (default: -1 = all layers)
-    - NUMA optimization for multi-die AMD CPUs
-    - Service port: 8081 (default)
-    - Configurable context window (default: 4096 tokens)
-    - Recommended quantization: Q4_K_M for balanced performance
-    - Model download utility: `nix run .#download-llama-models`
-      - Interactive menu with recommended models
-      - Downloads from HuggingFace
-      - Categories: general, coding, small/fast, large/powerful
-    - Optional Caddy reverse proxy with path-based routing
-      - Automatic `--api-prefix` configuration
-      - Path-based routing on shared domain (e.g., edge.ts.net/llama)
-      - Compatible with other services using explicit handle blocks
   - **LM Studio**: Native GUI for local models
     - MCP server support via `~/.config/lmstudio/mcp.json`
     - Can use Ollama as backend
@@ -163,16 +148,6 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - `services.ai.local.ollamaReverseProxy.enable`: Enable Caddy reverse proxy for Ollama (default: false)
   - `services.ai.local.ollamaReverseProxy.path`: Path prefix for Ollama proxy (default: "/ollama")
   - `services.ai.local.ollamaReverseProxy.domain`: Domain override for Ollama (default: null = use hostname)
-  - `services.ai.local.llamaServer.enable`: Enable llama-cpp server (default: true)
-  - `services.ai.local.llamaServer.model`: Path to GGUF model file (default: null)
-  - `services.ai.local.llamaServer.host`: Binding address (default: "127.0.0.1")
-  - `services.ai.local.llamaServer.port`: Server port (default: 8081)
-  - `services.ai.local.llamaServer.contextSize`: Context window in tokens (default: 4096)
-  - `services.ai.local.llamaServer.gpuLayers`: GPU layer offload count (default: -1)
-  - `services.ai.local.llamaServer.extraFlags`: Additional CLI arguments (default: ["--numa" "numactl"])
-  - `services.ai.local.llamaServer.reverseProxy.enable`: Enable Caddy reverse proxy (default: false)
-  - `services.ai.local.llamaServer.reverseProxy.path`: Path prefix for proxy (default: "/llama")
-  - `services.ai.local.llamaServer.reverseProxy.domain`: Domain override (default: null = use hostname)
 
 #### MCP Server Configuration
 - **Purpose**: Declarative Model Context Protocol server configuration

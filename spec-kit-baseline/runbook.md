@@ -297,7 +297,7 @@ selfHosted.caddy.routes.myService = {
 };
 ```
 
-5. **Example: Path-Specific Service** (like llama-cpp):
+5. **Example: Path-Specific Service** (like Ollama):
 ```nix
 selfHosted.caddy.routes.myService = {
   domain = "${config.networking.hostName}.${tailscaleDomain}";

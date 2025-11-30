@@ -75,87 +75,6 @@ in
         cli = lib.mkEnableOption "OpenCode agentic CLI" // {
           default = true;
         };
-
-        llamaServer = {
-          enable = lib.mkEnableOption "llama-cpp inference server with ROCm acceleration" // {
-            default = true;
-          };
-
-          model = lib.mkOption {
-            type = lib.types.nullOr lib.types.path;
-            default = null;
-            example = "/models/mistral-instruct-7b-q4_k_m.gguf";
-            description = ''
-              Path to GGUF model file for llama-cpp server.
-              If null, service will not start until configured.
-              Recommended quantization: Q4_K_M for balanced performance.
-            '';
-          };
-
-          host = lib.mkOption {
-            type = lib.types.str;
-            default = "127.0.0.1";
-            description = "Binding address for llama-cpp server";
-          };
-
-          port = lib.mkOption {
-            type = lib.types.port;
-            default = 8081;
-            description = "Server listening port (default 8081 to avoid conflict with Ollama on 11434)";
-          };
-
-          contextSize = lib.mkOption {
-            type = lib.types.int;
-            default = 4096;
-            description = "Context window size in tokens";
-          };
-
-          gpuLayers = lib.mkOption {
-            type = lib.types.int;
-            default = -1;
-            description = ''
-              Number of layers to offload to GPU.
-              -1 = offload all layers (recommended for AMD GPUs with ROCm)
-              0 = CPU only
-            '';
-          };
-
-          extraFlags = lib.mkOption {
-            type = lib.types.listOf lib.types.str;
-            default = [ ];
-            description = ''
-              Additional command-line arguments for llama-cpp server.
-              Example for NUMA optimization: [ "--numa" "distribute" ]
-            '';
-          };
-
-          reverseProxy = {
-            enable = lib.mkEnableOption "Caddy reverse proxy with Tailscale HTTPS" // {
-              default = false;
-            };
-
-            path = lib.mkOption {
-              type = lib.types.str;
-              default = "/llama";
-              example = "/ai/llama";
-              description = ''
-                Path prefix for reverse proxy.
-                Server will be accessible at: {domain}{path}/*
-                Example: hostname.tail1234ab.ts.net/llama
-              '';
-            };
-
-            domain = lib.mkOption {
-              type = lib.types.nullOr lib.types.str;
-              default = null;
-              example = "hostname.tail1234ab.ts.net";
-              description = ''
-                Domain for reverse proxy. If null, uses {hostname}.{tailscale.domain}.
-                Must match the domain used by other services (e.g., Immich) for path-based routing.
-              '';
-            };
-          };
-        };
       };
     };
   };
@@ -164,16 +83,6 @@ in
     # Assertions for reverse proxy configuration
     {
       assertions = [
-        {
-          assertion =
-            cfg.enable -> (cfg.local.llamaServer.reverseProxy.enable -> config.selfHosted.enable or false);
-          message = ''
-            services.ai.local.llamaServer.reverseProxy requires selfHosted.enable = true.
-
-            Add to your configuration:
-              selfHosted.enable = true;
-          '';
-        }
         {
           assertion =
             cfg.enable -> (cfg.local.ollamaReverseProxy.enable -> config.selfHosted.enable or false);
@@ -202,7 +111,7 @@ in
         with pkgs;
         [
           # AI assistant tools
-          llama-cpp
+          alpaca
           whisper-cpp
           nodejs # For npx MCP servers
           claude-monitor # Real-time Claude Code usage monitoring
@@ -245,49 +154,6 @@ in
         loadModels = cfg.local.models;
       };
 
-      # llama-cpp inference server with ROCm acceleration
-      services.llama-cpp =
-        lib.mkIf (cfg.local.llamaServer.enable && cfg.local.llamaServer.model != null)
-          {
-            enable = true;
-            package = (
-              (pkgs.llama-cpp.overrideAttrs (
-                finalAttrs: previousAttrs: {
-                  cmakeFlags = (previousAttrs.cmakeFlags or [ ]) ++ [
-                    "-DGGML_HIP=ON"
-                  ];
-                }
-              )).override
-                {
-                  rocmSupport = true;
-                }
-            );
-            model = cfg.local.llamaServer.model;
-            host = cfg.local.llamaServer.host;
-            port = cfg.local.llamaServer.port;
-            extraFlags = [
-              "-c"
-              (toString cfg.local.llamaServer.contextSize)
-              "-ngl"
-              (toString cfg.local.llamaServer.gpuLayers)
-            ]
-            # Add API prefix when reverse proxy is enabled
-            ++ lib.optionals cfg.local.llamaServer.reverseProxy.enable [
-              "--api-prefix"
-              cfg.local.llamaServer.reverseProxy.path
-            ]
-            ++ cfg.local.llamaServer.extraFlags;
-          };
-
-      # Add ROCm environment variable for GPU acceleration
-      systemd.services.llama-cpp =
-        lib.mkIf (cfg.local.llamaServer.enable && cfg.local.llamaServer.model != null)
-          {
-            environment = {
-              HSA_OVERRIDE_GFX_VERSION = cfg.local.rocmOverrideGfx;
-            };
-          };
-
       # Ensure amdgpu kernel module loads at boot
       boot.kernelModules = [ "amdgpu" ];
 
@@ -306,25 +172,6 @@ in
         ++ lib.optional cfg.local.cli (
           inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.opencode
         );
-    })
-
-    # llama-server reverse proxy configuration (conditional on reverseProxy.enable)
-    (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.llamaServer.reverseProxy.enable) {
-      selfHosted.caddy.routes.llama =
-        let
-          domain =
-            if cfg.local.llamaServer.reverseProxy.domain != null then
-              cfg.local.llamaServer.reverseProxy.domain
-            else
-              "${config.networking.hostName}.${config.networking.tailscale.domain}";
-          path = cfg.local.llamaServer.reverseProxy.path;
-        in
-        {
-          inherit domain;
-          path = "${path}/*";
-          target = "http://127.0.0.1:${toString cfg.local.llamaServer.port}";
-          priority = 100; # Path-specific - evaluated before catch-all
-        };
     })
 
     # Ollama reverse proxy configuration (conditional on ollamaReverseProxy.enable)

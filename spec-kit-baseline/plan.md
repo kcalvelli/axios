@@ -176,12 +176,12 @@ Modules are imported using one of three patterns:
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama, lmstudio, llama-cpp)
+  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama, lmstudio)
 - **Exposed Interface**: `inputs.axios.nixosModules.ai`
 - **Entry Points**: default.nix
 - **Key Options**:
   - `services.ai.enable`: Enable AI tools (claude-code, copilot-cli, etc.)
-  - `services.ai.local.enable`: Enable local LLM stack (Ollama, llama-cpp, LM Studio, OpenCode)
+  - `services.ai.local.enable`: Enable local LLM stack (Ollama, LM Studio, OpenCode)
   - `services.ai.local.models`: Ollama models to preload
   - `services.ai.local.rocmOverrideGfx`: GPU architecture override for ROCm
   - `services.ai.local.gui`: Enable LM Studio GUI
@@ -189,49 +189,28 @@ Modules are imported using one of three patterns:
   - `services.ai.local.ollamaReverseProxy.enable`: Enable Caddy reverse proxy for Ollama
   - `services.ai.local.ollamaReverseProxy.path`: Path prefix for Ollama (default: "/ollama")
   - `services.ai.local.ollamaReverseProxy.domain`: Domain override for Ollama
-  - `services.ai.local.llamaServer.enable`: Enable llama-cpp server (default: true)
-  - `services.ai.local.llamaServer.model`: Path to GGUF model file
-  - `services.ai.local.llamaServer.port`: Server port (default: 8081)
-  - `services.ai.local.llamaServer.contextSize`: Context window size (default: 4096)
-  - `services.ai.local.llamaServer.gpuLayers`: GPU offload layers (default: -1 = all)
-  - `services.ai.local.llamaServer.reverseProxy.enable`: Enable Caddy reverse proxy
-  - `services.ai.local.llamaServer.reverseProxy.path`: Path prefix (default: "/llama")
-  - `services.ai.local.llamaServer.reverseProxy.domain`: Domain override
 - **Architecture**:
   - **Two-tier config**: Base AI tools always enabled, local LLM optional via mkMerge
-  - **ROCm Integration**: Ollama and llama-cpp configured with AMD GPU acceleration
+  - **ROCm Integration**: Ollama configured with AMD GPU acceleration
     - Ollama: `acceleration = "rocm"` for AMD GPU support
-    - llama-cpp: `-ngl -1` for full GPU layer offloading
-    - `rocmOverrideGfx = "10.3.0"` for gfx1031 GPUs (applies to both)
+    - `rocmOverrideGfx = "10.3.0"` for gfx1031 GPUs (RX 5500/5600/5700 series)
     - `amdgpu` kernel module loaded at boot
-  - **Dual Inference Backends**:
+  - **Inference Backend**:
     - **Ollama** (port 11434): Model management, 32K context via `OLLAMA_NUM_CTX`
-    - **llama-cpp** (port 8081): Direct GGUF loading, fine-grained control
   - **AMD Optimizations**:
-    - Full GPU offload: `-ngl -1` (all layers to GPU)
-    - NUMA optimization: `--numa numactl` for multi-die CPUs
-    - 4096 token default context (configurable)
+    - 32K token context window for agentic tool use
+    - Automatic model preloading on service start
   - **Model Management**:
     - Ollama: `loadModels` option preloads models on service start
-    - llama-cpp: User-specified GGUF file path (optional, service won't start if null)
-      - Model download utility: `nix run .#download-llama-models` (scripts/download-llama-models.sh)
-      - Interactive menu with curated model recommendations
-      - Downloads GGUF files from HuggingFace
-      - Supports general purpose, coding, small/fast, and large/powerful categories
-  - **Reverse Proxy Support** (both Ollama and llama-cpp):
+    - Default models: qwen3-coder:30b, qwen3:14b, deepseek-coder-v2:16b, qwen3:4b
+  - **Reverse Proxy Support**:
     - Uses Caddy route registry pattern via `selfHosted.caddy.routes.<name>`
-    - **llama-server route**: Registers as `selfHosted.caddy.routes.llama`
-      - Priority: 100 (path-specific, evaluated before catch-all)
-      - Path: `${reverseProxy.path}/*` (default: "/llama/*")
-      - Target: `http://127.0.0.1:${port}` (default: 8081)
-      - Automatic `--api-prefix` configuration when enabled
     - **Ollama route**: Registers as `selfHosted.caddy.routes.ollama`
       - Priority: 100 (path-specific, evaluated before catch-all)
       - Path: `${ollamaReverseProxy.path}/*` (default: "/ollama/*")
       - Target: `http://127.0.0.1:11434`
     - **Auto-ordering**: Routes automatically ordered before catch-all services (Immich)
     - Requires `selfHosted.enable = true`
-    - Implementation: modules/ai/default.nix:315-350
   - **MCP Support**: LM Studio and OpenCode support MCP servers (user-configured)
     - LM Studio: `~/.config/lmstudio/mcp.json`
     - OpenCode: `~/.config/opencode/opencode.json`
