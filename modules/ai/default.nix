@@ -122,10 +122,10 @@ in
 
           extraFlags = lib.mkOption {
             type = lib.types.listOf lib.types.str;
-            default = [ "--numa" ];
+            default = [ ];
             description = ''
               Additional command-line arguments for llama-cpp server.
-              Default includes --numa flag for NUMA optimization on multi-die AMD CPUs.
+              Example for NUMA optimization: [ "--numa" "distribute" ]
             '';
           };
 
