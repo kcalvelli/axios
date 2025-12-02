@@ -61,11 +61,12 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 
 #### Idle Management
 - **Purpose**: Automatic screen blanking and power management
-- **Implementation Evidence**: home/desktop/niri.nix:119-124
+- **Implementation Evidence**: home/desktop/niri.nix:60-72
 - **Confidence**: [EXPLICIT]
-- **Technology**: Niri native idle configuration
+- **Technology**: swayidle with niri power-off-monitors action
 - **Default Behavior**: Screen turns off after 15 minutes of inactivity
-- **Manual Lock**: Super+Alt+L (DMS keybind)
+- **Wake Behavior**: Automatically powers monitors back on with input
+- **Manual Lock**: Super+Alt+L (DMS lock screen keybind)
 - **Important**: DMS idle management must be disabled (wlr-output-power-management protocol unsupported by niri)
 - **User Configuration**: Set timeouts to 0 in `~/.config/DankMaterialShell/settings.json`
 

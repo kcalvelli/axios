@@ -265,17 +265,19 @@ Modules are imported using one of three patterns:
 - **Exposed Interface**: `inputs.axios.homeModules.desktop`
 - **Entry Points**: default.nix
 - **Aspect Files**:
-  - niri.nix: Niri compositor configuration with native idle management
+  - niri.nix: Niri compositor configuration with swayidle integration
   - wallpaper.nix: Wallpaper management with blur
   - theming.nix: Theme coordination
   - pwa-apps.nix: Progressive web apps
   - gdrive-sync.nix: Google Drive rclone sync
 
 **Niri Idle Management**:
-- Uses niri's native `idle` configuration (not DMS idle)
+- Uses swayidle with niri's `power-off-monitors` action (not DMS idle)
 - DMS idle management is incompatible with niri (missing wlr-output-power-management protocol)
-- Configuration: `programs.niri.settings.idle.screen-off` for display power management
-- Default: Screen turns off after 15 minutes (900 seconds)
+- Implementation: swayidle launched via `spawn-at-startup` in niri configuration
+- Idle timeout: 900 seconds (15 minutes)
+- Idle action: `niri msg action power-off-monitors`
+- Resume action: `niri msg action power-on-monitors`
 - Manual lock available via DMS keybind (Super+Alt+L)
 - Users must disable DMS idle timeouts in `~/.config/DankMaterialShell/settings.json`
 

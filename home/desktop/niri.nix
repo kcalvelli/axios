@@ -57,6 +57,19 @@
             "--quit-after-last-window-closed=false" # keep the process alive
           ];
         }
+        # swayidle for idle management (replaces DMS idle)
+        # DMS idle doesn't work with niri (wlr-output-power-management protocol unsupported)
+        {
+          command = [
+            "${pkgs.swayidle}/bin/swayidle"
+            "-w"
+            "timeout"
+            "900" # 15 minutes
+            "niri msg action power-off-monitors"
+            "resume"
+            "niri msg action power-on-monitors"
+          ];
+        }
       ];
 
       layout = {
@@ -113,15 +126,6 @@
         "systemctl"
         "suspend"
       ];
-
-      # Idle configuration (replaces DMS idle - niri native)
-      # DMS doesn't work with niri (wlr-output-power-management protocol unsupported)
-      idle = {
-        # Turn off screen after 15 minutes
-        screen-off = 900;
-        # No automatic suspend (use DMS lock screen keybind: Super+Alt+L)
-        suspend = null;
-      };
 
       layer-rules = [
         {

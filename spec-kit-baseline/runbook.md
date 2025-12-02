@@ -534,12 +534,22 @@ cat ~/.config/DankMaterialShell/settings.json | grep -E "(ac|battery)(Monitor|Lo
 }
 ```
 
-2. Niri native idle is already configured in `home/desktop/niri.nix`:
+2. swayidle is already configured in `home/desktop/niri.nix`:
 ```nix
-idle = {
-  screen-off = 900;  # 15 minutes
-  suspend = null;     # No auto-suspend
-};
+spawn-at-startup = [
+  # ...
+  {
+    command = [
+      "${pkgs.swayidle}/bin/swayidle"
+      "-w"
+      "timeout"
+      "900"  # 15 minutes
+      "niri msg action power-off-monitors"
+      "resume"
+      "niri msg action power-on-monitors"
+    ];
+  }
+];
 ```
 
 3. Restart DMS:
@@ -547,12 +557,18 @@ idle = {
 dms restart
 ```
 
-4. Rebuild home-manager configuration (if you modified niri.nix):
+4. Rebuild home-manager configuration to apply swayidle:
 ```bash
 home-manager switch
 ```
 
 **Manual Lock**: Use Super+Alt+L (DMS lock screen keybind)
+
+**Technical Details**:
+- Niri doesn't have built-in idle configuration
+- swayidle is used with ext-idle-notify Wayland protocol
+- `niri msg action power-off-monitors` turns off displays
+- `niri msg action power-on-monitors` wakes them on input
 
 #### Issue: "experimental feature 'nix-command' not enabled"
 **Symptoms**: Nix commands fail with experimental feature error
