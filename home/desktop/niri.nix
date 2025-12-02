@@ -114,6 +114,15 @@
         "suspend"
       ];
 
+      # Idle configuration (replaces DMS idle - niri native)
+      # DMS doesn't work with niri (wlr-output-power-management protocol unsupported)
+      idle = {
+        # Turn off screen after 15 minutes
+        screen-off = 900;
+        # No automatic suspend (use DMS lock screen keybind: Super+Alt+L)
+        suspend = null;
+      };
+
       layer-rules = [
         {
           matches = [ { namespace = "^wallpaper$"; } ];
