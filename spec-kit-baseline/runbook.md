@@ -506,6 +506,54 @@ nix eval --show-trace <expression>
 
 ### Common Issues
 
+#### Issue: Screen blanks and doesn't recover with niri/DMS
+**Symptoms**: Screen goes black after idle timeout and doesn't wake up on keyboard/mouse input
+
+**Root Cause**: DMS idle management uses `wlr-output-power-management` protocol which niri doesn't support
+
+**Diagnosis**:
+```bash
+# Check if DMS DPMS commands fail
+dms dpms list
+# Should show: "wlr-output-power-management protocol not supported by compositor"
+
+# Check DMS idle settings
+cat ~/.config/DankMaterialShell/settings.json | grep -E "(ac|battery)(Monitor|Lock|Suspend)Timeout"
+```
+
+**Solution**:
+1. Disable DMS idle management in `~/.config/DankMaterialShell/settings.json`:
+```json
+{
+  "acMonitorTimeout": 0,
+  "acLockTimeout": 0,
+  "acSuspendTimeout": 0,
+  "batteryMonitorTimeout": 0,
+  "batteryLockTimeout": 0,
+  "batterySuspendTimeout": 0
+}
+```
+
+2. Niri native idle is already configured in `home/desktop/niri.nix`:
+```nix
+idle = {
+  screen-off = 900;  # 15 minutes
+  suspend = null;     # No auto-suspend
+};
+```
+
+3. Restart DMS:
+```bash
+dms restart
+```
+
+4. Rebuild home-manager configuration (if you modified niri.nix):
+```bash
+home-manager switch
+```
+
+**Manual Lock**: Use Super+Alt+L (DMS lock screen keybind)
+
 #### Issue: "experimental feature 'nix-command' not enabled"
 **Symptoms**: Nix commands fail with experimental feature error
 

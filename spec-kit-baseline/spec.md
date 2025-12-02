@@ -57,6 +57,17 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Confidence**: [EXPLICIT]
 - **Version**: v0.6.2 with NixOS module architecture
 - **Features**: Theming, widgets, quick shell integration
+- **Idle Management**: DMS idle disabled (incompatible with niri), uses niri native idle instead
+
+#### Idle Management
+- **Purpose**: Automatic screen blanking and power management
+- **Implementation Evidence**: home/desktop/niri.nix:119-124
+- **Confidence**: [EXPLICIT]
+- **Technology**: Niri native idle configuration
+- **Default Behavior**: Screen turns off after 15 minutes of inactivity
+- **Manual Lock**: Super+Alt+L (DMS keybind)
+- **Important**: DMS idle management must be disabled (wlr-output-power-management protocol unsupported by niri)
+- **User Configuration**: Set timeouts to 0 in `~/.config/DankMaterialShell/settings.json`
 
 #### Desktop Applications
 - **Purpose**: Curated set of desktop applications for productivity and media
