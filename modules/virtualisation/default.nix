@@ -30,7 +30,6 @@ in
             dns_enabled = true;
           };
         };
-        waydroid.enable = true;
       };
     })
 

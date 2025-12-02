@@ -139,7 +139,6 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 ### Added
 - **Containers Module Enhancements**
 - Added Docker alongside Podman (Winboat requires Docker)
-- Enabled Waydroid for Android app support
 - Added Winboat and FreeRDP packages
 - Automatic docker group membership for all normal users when containers enabled
 - **Virtualization Improvements**
