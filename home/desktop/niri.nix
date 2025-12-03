@@ -195,7 +195,7 @@
           matches = [
             {
               app-id = "brave-browser$";
-              title = "^Picture-in-Picture$";
+              title = "^Picture-in-picture$";
             }
           ];
           # Explicitly override the global rule:
