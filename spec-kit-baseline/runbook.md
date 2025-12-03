@@ -522,53 +522,30 @@ cat ~/.config/DankMaterialShell/settings.json | grep -E "(ac|battery)(Monitor|Lo
 ```
 
 **Solution**:
-1. Disable DMS idle management in `~/.config/DankMaterialShell/settings.json`:
+Configure idle management via DankMaterialShell settings in `~/.config/DankMaterialShell/settings.json`:
+
 ```json
 {
-  "acMonitorTimeout": 0,
-  "acLockTimeout": 0,
-  "acSuspendTimeout": 0,
-  "batteryMonitorTimeout": 0,
+  "acMonitorTimeout": 30,  // Minutes until monitor turns off (AC power)
+  "acLockTimeout": 0,       // Set to 0 to disable, or minutes to lock
+  "acSuspendTimeout": 0,    // Set to 0 to disable, or minutes to suspend
+  "batteryMonitorTimeout": 15,
   "batteryLockTimeout": 0,
   "batterySuspendTimeout": 0
 }
 ```
 
-2. swayidle is already configured in `home/desktop/niri.nix`:
-```nix
-spawn-at-startup = [
-  # ...
-  {
-    command = [
-      "${pkgs.swayidle}/bin/swayidle"
-      "-w"
-      "timeout"
-      "900"  # 15 minutes
-      "niri msg action power-off-monitors"
-      "resume"
-      "niri msg action power-on-monitors"
-    ];
-  }
-];
-```
-
-3. Restart DMS:
+After changing settings:
 ```bash
 dms restart
-```
-
-4. Rebuild home-manager configuration to apply swayidle:
-```bash
-home-manager switch
 ```
 
 **Manual Lock**: Use Super+Alt+L (DMS lock screen keybind)
 
 **Technical Details**:
-- Niri doesn't have built-in idle configuration
-- swayidle is used with ext-idle-notify Wayland protocol
-- `niri msg action power-off-monitors` turns off displays
-- `niri msg action power-on-monitors` wakes them on input
+- Idle management is user-configured via DankMaterialShell settings
+- No default idle configuration is provided by axiOS
+- Users control monitor timeout, lock timeout, and suspend timeout independently
 
 #### Issue: "experimental feature 'nix-command' not enabled"
 **Symptoms**: Nix commands fail with experimental feature error

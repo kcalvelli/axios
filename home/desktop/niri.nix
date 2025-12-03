@@ -57,19 +57,6 @@
             "--quit-after-last-window-closed=false" # keep the process alive
           ];
         }
-        # swayidle for idle management (replaces DMS idle)
-        # DMS idle doesn't work with niri (wlr-output-power-management protocol unsupported)
-        {
-          command = [
-            "${pkgs.swayidle}/bin/swayidle"
-            "-w"
-            "timeout"
-            "900" # 15 minutes
-            "niri msg action power-off-monitors"
-            "resume"
-            "niri msg action power-on-monitors"
-          ];
-        }
       ];
 
       layout = {
