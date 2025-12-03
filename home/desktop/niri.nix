@@ -147,7 +147,7 @@
           open-maximized = true;
         }
 
-        # 2) Specific: Google Messages PWA — float, upper right, iMessage-ish size
+        # Specific: Google Messages PWA — float, upper right, iMessage-ish size
         {
           matches = [
             { app-id = "^brave-messages\\.google\\.com__web-Default$"; }
@@ -172,7 +172,7 @@
             relative-to = "top-left";
           };
         }
-        # 2) Qalculate — float, centered, small calculator size
+        # Qalculate — float, centered, small calculator size
         {
           matches = [
             { app-id = "^qalculate-gtk$"; }
@@ -189,6 +189,32 @@
           default-window-height = {
             fixed = 700;
           };
+        }
+        # Brave - picture in picture
+        {
+          matches = [
+            {
+              app-id = "brave-browser$";
+              title = "^Picture-in-Picture$";
+            }
+          ];
+          # Explicitly override the global rule:
+          open-maximized = false;
+          open-floating = true;
+        }
+        # DMS settings
+        {
+          matches = [
+            {
+              app-id = "^org.quickshell$";
+              title = "^Settings$";
+            }
+          ];
+
+          # Explicitly override the global rule:
+          open-maximized = false;
+          open-floating = true;
+
         }
         {
           matches = [
