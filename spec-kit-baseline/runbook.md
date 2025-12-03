@@ -388,6 +388,24 @@ programs.dankMaterialShell = {
 };
 ```
 
+**Niri Integration**:
+With systemd integration enabled, DMS should not be spawned via niri:
+```nix
+# In home/desktop/niri.nix
+programs.dankMaterialShell = {
+  niri = {
+    enableKeybinds = true;
+    enableSpawn = false;  # IMPORTANT: false when using systemd service
+  };
+};
+```
+
+**Why enableSpawn = false?**
+- With `systemd.enable = true`, DMS runs as a systemd service (dms.service)
+- Setting `enableSpawn = true` would spawn a second DMS instance via niri
+- This causes duplicate DMS bars and duplicate clipboard managers
+- Keybindings still work with enableSpawn = false
+
 **Polkit Authentication**:
 - axiOS uses DankMaterialShell's built-in polkit agent (no external mate-polkit)
 - Authentication prompts handled automatically by DMS

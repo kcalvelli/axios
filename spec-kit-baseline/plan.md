@@ -282,7 +282,9 @@ Modules are imported using one of three patterns:
 - Custom quickshell package from flake inputs
 - Niri-specific settings via `programs.dankMaterialShell.niri`:
   - enableKeybinds: DMS keybindings for brightness, audio, etc.
-  - enableSpawn: DMS auto-start components (clipboard, etc.)
+  - enableSpawn: Set to false (DMS runs via systemd service instead)
+- DMS spawning: Uses systemd service (dms.service) not niri spawn
+- Clipboard: Managed by DMS enableClipboard (no manual wl-paste spawn needed)
 
 **Niri Idle Management**:
 - Idle management is user-configured via DankMaterialShell settings
