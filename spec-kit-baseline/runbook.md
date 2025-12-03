@@ -406,6 +406,23 @@ programs.dankMaterialShell = {
 - This causes duplicate DMS bars and duplicate clipboard managers
 - Keybindings still work with enableSpawn = false
 
+**Clipboard Management with enableSpawn = false**:
+DMS's `enableClipboard` feature requires `enableSpawn = true` to work. When using the systemd service approach, clipboard must be spawned manually in niri:
+
+```nix
+# In home/desktop/niri.nix spawn-at-startup
+{
+  command = [
+    "wl-paste"
+    "--watch"
+    "cliphist"
+    "store"
+  ];
+}
+```
+
+This ensures clipboard history works while preventing duplicate DMS instances.
+
 **Polkit Authentication**:
 - axiOS uses DankMaterialShell's built-in polkit agent (no external mate-polkit)
 - Authentication prompts handled automatically by DMS

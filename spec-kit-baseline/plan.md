@@ -284,7 +284,10 @@ Modules are imported using one of three patterns:
   - enableKeybinds: DMS keybindings for brightness, audio, etc.
   - enableSpawn: Set to false (DMS runs via systemd service instead)
 - DMS spawning: Uses systemd service (dms.service) not niri spawn
-- Clipboard: Managed by DMS enableClipboard (no manual wl-paste spawn needed)
+- Clipboard: Manual wl-paste spawn required in niri config
+  - DMS enableClipboard requires enableSpawn=true to work
+  - With systemd service (enableSpawn=false), must spawn wl-paste manually
+  - Prevents duplicate DMS instances while maintaining clipboard functionality
 
 **Niri Idle Management**:
 - Idle management is user-configured via DankMaterialShell settings
