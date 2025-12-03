@@ -271,6 +271,19 @@ Modules are imported using one of three patterns:
   - pwa-apps.nix: Progressive web apps
   - gdrive-sync.nix: Google Drive rclone sync
 
+**DankMaterialShell Configuration**:
+- Configured in default.nix with explicit feature toggles
+- Systemd integration enabled with auto-restart on changes
+- Polkit agent: Uses DMS built-in polkit (no external mate-polkit)
+- Feature toggles explicitly enabled:
+  - System monitoring, clipboard, VPN status, brightness control
+  - Color picker, dynamic theming, audio visualizer
+  - Calendar events, system sounds
+- Custom quickshell package from flake inputs
+- Niri-specific settings via `programs.dankMaterialShell.niri`:
+  - enableKeybinds: DMS keybindings for brightness, audio, etc.
+  - enableSpawn: DMS auto-start components (clipboard, etc.)
+
 **Niri Idle Management**:
 - Idle management is user-configured via DankMaterialShell settings
 - Users configure idle timeouts in `~/.config/DankMaterialShell/settings.json`:

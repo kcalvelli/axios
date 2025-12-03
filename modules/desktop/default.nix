@@ -20,7 +20,6 @@ in
     # === Wayland Packages ===
     environment.systemPackages = with pkgs; [
       # System desktop applications
-      mate.mate-polkit
       wayvnc
       xwayland-satellite
 

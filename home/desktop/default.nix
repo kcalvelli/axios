@@ -18,6 +18,23 @@
   programs.dankMaterialShell = {
     enable = true;
     quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
+
+    # Systemd integration
+    systemd = {
+      enable = true; # Enable systemd user service
+      restartIfChanged = true; # Auto-restart DMS on config changes
+    };
+
+    # Feature toggles (explicit configuration for clarity)
+    enableSystemMonitoring = true; # System resource monitoring widgets
+    enableClipboard = true; # Clipboard history with cliphist
+    enableVPN = true; # VPN status widget (ProtonVPN)
+    enableBrightnessControl = true; # Screen/keyboard brightness controls
+    enableColorPicker = true; # Color picker tool (hyprpicker)
+    enableDynamicTheming = true; # Dynamic theme generation (matugen)
+    enableAudioWavelength = true; # Audio visualizer (cava)
+    enableCalendarEvents = true; # Calendar integration (khal)
+    enableSystemSound = true; # System sound effects
   };
 
   programs.dsearch = {

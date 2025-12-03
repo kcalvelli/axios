@@ -53,10 +53,22 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 
 #### DankMaterialShell Integration
 - **Purpose**: Material Design shell with custom theming and widgets
-- **Implementation Evidence**: CHANGELOG.md:36-46, flake.nix:81-84
+- **Implementation Evidence**: home/desktop/default.nix:18-38, flake.nix:81-84
 - **Confidence**: [EXPLICIT]
 - **Version**: v0.6.2 with NixOS module architecture
-- **Features**: Theming, widgets, quick shell integration
+- **Configuration Levels**: NixOS module (system) and home-manager module (user)
+- **Polkit Agent**: Built-in polkit authentication agent (replaces external mate-polkit)
+- **Systemd Integration**: Enabled with auto-restart on configuration changes
+- **Feature Toggles**: All features explicitly enabled by default
+  - System Monitoring: Resource monitoring widgets
+  - Clipboard: History management with cliphist
+  - VPN: VPN status widget (ProtonVPN support)
+  - Brightness Control: Screen and keyboard brightness
+  - Color Picker: Color selection tool (hyprpicker)
+  - Dynamic Theming: Auto-theme generation (matugen)
+  - Audio Wavelength: Audio visualizer (cava)
+  - Calendar Events: Calendar integration (khal)
+  - System Sound: Sound effects
 - **Idle Management**: User-configured via DankMaterialShell settings
 
 #### Idle Management

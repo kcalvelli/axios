@@ -346,6 +346,59 @@ perSystem = { config, self', inputs', pkgs, system, lib, ... }: {
 };
 ```
 
+## Desktop Environment Configuration
+
+### DankMaterialShell Customization
+
+axiOS configures DankMaterialShell with all features explicitly enabled by default. Users can customize this configuration in their downstream host configs.
+
+**Default Configuration** (home/desktop/default.nix):
+```nix
+programs.dankMaterialShell = {
+  enable = true;
+
+  # Systemd integration
+  systemd = {
+    enable = true;
+    restartIfChanged = true;
+  };
+
+  # Feature toggles (all enabled by default)
+  enableSystemMonitoring = true;
+  enableClipboard = true;
+  enableVPN = true;
+  enableBrightnessControl = true;
+  enableColorPicker = true;
+  enableDynamicTheming = true;
+  enableAudioWavelength = true;
+  enableCalendarEvents = true;
+  enableSystemSound = true;
+};
+```
+
+**Disabling Features**:
+Users can override feature toggles in their home-manager configuration:
+
+```nix
+programs.dankMaterialShell = {
+  # Disable specific features
+  enableAudioWavelength = false;  # Disable cava visualizer
+  enableSystemSound = false;       # Disable sound effects
+  enableVPN = false;               # Disable VPN widget if not using ProtonVPN
+};
+```
+
+**Polkit Authentication**:
+- axiOS uses DankMaterialShell's built-in polkit agent (no external mate-polkit)
+- Authentication prompts handled automatically by DMS
+- No additional configuration needed
+
+**Important Note**: If using niri-flake's NixOS module that includes a polkit service, disable it to avoid conflicts:
+```nix
+systemd.user.services.niri-flake-polkit.enable = false;
+```
+(Currently not needed - niri-flake doesn't provide a polkit service)
+
 ## Deployment
 
 ### Pre-Deployment Checklist
