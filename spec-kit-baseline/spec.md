@@ -69,19 +69,17 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - Audio Wavelength: Audio visualizer (cava)
   - Calendar Events: Calendar integration (khal)
   - System Sound: Sound effects
-- **Idle Management**: User-configured via DankMaterialShell settings
 
 #### Idle Management
 - **Purpose**: Automatic screen blanking and power management
-- **Implementation Evidence**: User-configured
+- **Implementation Evidence**: home/desktop/niri.nix:14-23
 - **Confidence**: [EXPLICIT]
-- **Technology**: DankMaterialShell idle management
-- **Configuration**: Users configure idle timeouts in `~/.config/DankMaterialShell/settings.json`
-  - `acMonitorTimeout`: Minutes until monitor turns off
-  - `acLockTimeout`: Minutes until screen locks
-  - `acSuspendTimeout`: Minutes until system suspends
+- **Technology**: swayidle (via home-manager services.swayidle module)
+- **Default Configuration**: 30-minute timeout to power off monitors
+- **Command**: `niri msg action power-off-monitors`
+- **Service**: Managed via systemd user service (auto-started with graphical session)
+- **Extensibility**: Users can add additional timeouts or events via `services.swayidle.timeouts`
 - **Manual Lock**: Super+Alt+L (DMS lock screen keybind)
-- **Note**: Idle management behavior is user-controlled, no defaults provided by axiOS
 
 #### Desktop Applications
 - **Purpose**: Curated set of desktop applications for productivity and media

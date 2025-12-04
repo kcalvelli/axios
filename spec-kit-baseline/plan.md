@@ -290,13 +290,13 @@ Modules are imported using one of three patterns:
   - Prevents duplicate DMS instances while maintaining clipboard functionality
 
 **Niri Idle Management**:
-- Idle management is user-configured via DankMaterialShell settings
-- Users configure idle timeouts in `~/.config/DankMaterialShell/settings.json`:
-  - `acMonitorTimeout`: Minutes until monitor turns off
-  - `acLockTimeout`: Minutes until screen locks
-  - `acSuspendTimeout`: Minutes until system suspends
+- Implemented via `services.swayidle` home-manager module
+- Default configuration: 30-minute timeout to power off monitors
+- Command executed: `niri msg action power-off-monitors`
+- Service management: systemd user service (auto-started with graphical session)
+- Configuration location: `home/desktop/niri.nix:14-23`
+- Extensible via `services.swayidle.timeouts` list for additional idle actions
 - Manual lock available via DMS keybind (Super+Alt+L)
-- No default idle configuration provided by axiOS
 
 #### home/profiles/
 - **Path**: `home/profiles/`
