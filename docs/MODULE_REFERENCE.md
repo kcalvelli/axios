@@ -55,6 +55,12 @@ extraConfig = {
 };
 ```
 
+**Why is timezone required?**
+
+axiOS is a library framework designed for users worldwide. Unlike personal configurations, we don't assume your location or preferences. Requiring explicit timezone configuration ensures your system matches your actual location rather than a hardcoded default that might be wrong.
+
+This "library philosophy" applies throughout axiOS - no regional defaults, no hardcoded personal preferences. Your configuration expresses your choices explicitly.
+
 ---
 
 ### users
@@ -114,10 +120,11 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 
 **Includes:**
 - **[Niri](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor
-- **DankMaterialShell** - Material Design shell with custom theming
+- **DankMaterialShell** - Material Design shell with custom theming and widgets
 - **Ghostty** - Modern GPU-accelerated terminal
 - **Nautilus** - GNOME file manager
-- Desktop applications (text editor, calculator, PDF viewer)
+- **Idle Management** - Automatic screen power-off after 30 minutes (swayidle)
+- Desktop applications (text editor, calculator, PDF viewer) - See [APPLICATIONS.md](APPLICATIONS.md)
 - Fonts and icon themes
 - **Google Drive sync** (setup with `setup-gdrive-sync` command)
 
@@ -128,6 +135,31 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 **Home Profiles:**
 - `workstation`: Full desktop with productivity apps
 - `laptop`: Optimized for battery life and portability
+
+**Idle Management:**
+
+axiOS includes automatic idle management using swayidle:
+- **Default timeout**: 30 minutes of inactivity
+- **Action**: Powers off monitors via `niri msg action power-off-monitors`
+- **Service**: Managed by systemd user service (auto-starts with desktop)
+- **Manual lock**: Super+Alt+L (DankMaterialShell lock screen)
+
+**Customizing idle timeout:**
+
+```nix
+# In your user configuration (home-manager)
+services.swayidle.timeouts = [
+  {
+    timeout = 600;  # 10 minutes
+    command = "niri msg action power-off-monitors";
+  }
+  # Add additional actions:
+  {
+    timeout = 900;   # 15 minutes
+    command = "systemctl suspend";  # Suspend system
+  }
+];
+```
 
 ---
 
@@ -198,26 +230,121 @@ virt = {
 ---
 
 ### ai
-**What it does:** AI-powered development assistants and tools.
+**What it does:** AI-powered development assistants with optional local LLM inference.
 
-**Includes:**
-- **GitHub Copilot CLI** - AI code suggestions in terminal
-- **Claude Code** - AI pair programming assistant
-- **MCP servers** for enhanced context:
-  - `filesystem` - Access your files
-  - `git` - Understand your repository
-  - `github` - Read issues and PRs
-  - `mcp-nixos` - Search NixOS packages/options
-  - `journal` - Read system logs
-  - `brave-search` & `tavily` - Web search (requires API keys)
+**Two-Tier Architecture:**
 
-**When to use:** For AI-assisted development and automation
+1. **Base AI Tools** (always included when `services.ai.enable = true`):
+   - **Claude Code** - AI pair programming assistant from Anthropic
+   - **GitHub Copilot CLI** - AI code suggestions in terminal
+   - **claude-monitor** - Real-time usage monitoring
+   - **jules** - Google's AI coding assistant
+   - **Whisper.cpp** - Local speech-to-text transcription
+
+2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
+   - **Ollama** - Local inference backend with ROCm GPU acceleration
+   - **LM Studio** - Native GUI for managing and running local models
+   - **OpenCode** - Agentic CLI for coding tasks with full file editing
+
+**When to use:**
+- **Base tools:** For cloud-based AI assistance (requires API keys/subscriptions)
+- **Local LLM:** For private, offline AI inference with your own hardware
 
 **Requirements:**
-- Needs `networking = true`
-- API keys stored securely with `secrets` module (optional but recommended)
+- Needs `networking = true` for base tools
+- AMD GPU recommended for local LLM (8GB+ VRAM for larger models)
+- 16GB+ system RAM recommended for local models
 
-**See also:** [SECRETS_MODULE.md](SECRETS_MODULE.md) for API key setup
+---
+
+#### Local LLM Configuration
+
+**Enable local LLM stack:**
+
+```nix
+services.ai.local = {
+  enable = true;  # Enables Ollama + LM Studio + OpenCode
+
+  # Model management
+  models = [
+    "qwen3-coder:30b"        # Primary agentic coding (~4GB VRAM)
+    "qwen3:14b"              # General reasoning (~10GB VRAM)
+    "deepseek-coder-v2:16b"  # Multilingual coding (~11GB VRAM)
+    "qwen3:4b"               # Fast completions (~3GB VRAM)
+  ];
+
+  # AMD GPU configuration
+  rocmOverrideGfx = "10.3.0";  # For RX 5500/5600/5700 series
+
+  # Optional components
+  gui = true;  # LM Studio (default: true)
+  cli = true;  # OpenCode (default: true)
+
+  # Optional: Caddy reverse proxy for remote access
+  ollamaReverseProxy = {
+    enable = true;
+    path = "/ollama";  # Access via https://[hostname].[domain]/ollama
+  };
+};
+```
+
+**Features:**
+- **32K context window** for agentic tool use
+- **Automatic model preloading** on service start
+- **ROCm acceleration** with automatic gfx1031 override for older AMD GPUs
+- **MCP server support** in LM Studio and OpenCode
+- **LSP integration** for code intelligence
+
+**Usage:**
+
+```bash
+# Ollama CLI
+ollama run qwen3-coder:30b "Write a function to..."
+
+# LM Studio GUI
+# Launch from application menu
+
+# OpenCode CLI
+opencode "implement feature X with tests"
+```
+
+**Remote Access:**
+
+When `ollamaReverseProxy.enable = true`:
+- Access Ollama via HTTPS: `https://[hostname].[tailscale-domain]/ollama`
+- Uses existing Tailscale domain for automatic certificates
+- Compatible with other Caddy routes (path-based routing)
+
+---
+
+#### MCP Servers
+
+Model Context Protocol servers provide enhanced context to AI assistants:
+
+**Core Servers:**
+- `filesystem` - Local file system access
+- `git` - Repository structure and history
+- `github` - Issues, PRs, and repository data (requires token)
+- `time` - Time zone operations
+
+**NixOS Integration:**
+- `mcp-nixos` - Search packages and options
+- `journal` - systemd journal logs
+- `nix-devshell-mcp` - Nix development shell integration
+
+**AI Enhancement:**
+- `sequential-thinking` - Multi-step reasoning
+- `context7` - Documentation retrieval
+
+**Search (requires API keys):**
+- `brave-search` - Web search via Brave API
+- `tavily` - Advanced research
+
+**Configuration:** MCP servers are automatically configured for Claude Code. API keys can be stored securely using the `secrets` module.
+
+**See also:**
+- [SECRETS_MODULE.md](SECRETS_MODULE.md) for API key setup
+- [APPLICATIONS.md](APPLICATIONS.md) for complete tool descriptions
 
 ---
 

@@ -37,10 +37,19 @@ For manual setup, you'll create just 3 files:
 ## Features
 
 ### Desktop Experience
-- **[Niri compositor](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor
-- **DankMaterialShell** - Material design shell with custom theming
+- **[Niri compositor](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor with workspace overview
+- **DankMaterialShell** - Material design shell with:
+  - System monitoring widgets (CPU, RAM, disk usage)
+  - Clipboard history management (cliphist)
+  - VPN status widget (ProtonVPN)
+  - Brightness controls (screen & keyboard)
+  - Color picker and dynamic theming (matugen)
+  - Audio visualizer (cava)
+  - Calendar integration (khal)
+  - Built-in polkit agent
+- **Idle management** - Automatic screen power-off after 30 minutes (configurable)
 - **Wallpaper blur effects** - Automatic blur for overview mode
-- **Ghostty terminal** - Modern GPU-accelerated terminal
+- **Ghostty terminal** - Modern GPU-accelerated terminal with dropdown mode
 - **LazyVim** - Pre-configured Neovim with LSP support
 - **Hardware acceleration** - Optimized for AMD/Intel/Nvidia graphics
 - **Google Drive sync** - Automatic rclone-based sync with safety features (run `setup-gdrive-sync`)
@@ -109,13 +118,16 @@ Check out these example configurations:
 
 ## What's Included
 
-- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell, Ghostty terminal, Google Drive sync
+- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell with widgets, Ghostty terminal, idle management, Google Drive sync
 - **Development**: Rust, Zig, Python, Node.js toolchains with LSP support
-- **Applications**: Full productivity suite - see [Application Catalog](docs/APPLICATIONS.md)
+- **Applications**: 80+ apps including productivity, media, and utilities - see [Application Catalog](docs/APPLICATIONS.md)
 - **PWAs**: Progressive Web Apps integrated as native applications
 - **Virtualization**: libvirt, QEMU, Podman support (optional)
 - **Gaming**: Steam, GameMode, Proton (optional)
-- **AI Services**: GitHub Copilot, Claude CLI with MCP servers (optional)
+- **AI Services** (optional):
+  - Cloud AI: Claude Code, GitHub Copilot CLI with MCP servers
+  - Local LLM: Ollama + LM Studio + OpenCode with ROCm acceleration
+  - 32K context window for agentic coding
 - **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)
 
 **See project structure and module details in [docs/README.md](docs/README.md)**
@@ -128,6 +140,18 @@ Check out these example configurations:
 - ✅ **Clear separation** - Your personal configs vs framework code
 - ✅ **Easy sharing** - Your config repo is simple and understandable
 - ✅ **Community framework** - Benefit from improvements and updates
+- ✅ **Library design** - Not a personal config - no hardcoded regional defaults
+
+### Library Philosophy
+
+axiOS is designed as a **framework/library**, not a personal configuration:
+
+- **No regional defaults** - You must explicitly set timezone and locale (no assumptions about your location)
+- **No hardcoded preferences** - Personal choices belong in your config, not the framework
+- **Modular by design** - Enable only what you need, customize everything
+- **Multi-user ready** - Built for diverse users with different needs
+
+This means some options are **required** (like `axios.system.timeZone`) to force explicit configuration rather than assuming defaults that might not fit your use case.
 
 ## Contributing
 
