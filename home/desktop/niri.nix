@@ -11,6 +11,17 @@
     inputs.dankMaterialShell.homeModules.dankMaterialShell.niri
   ];
 
+  # Swayidle configuration
+  services.swayidle = {
+    enable = true;
+    timeouts = [
+      {
+        timeout = 1800; # 30 minutes
+        command = "niri msg action power-off-monitors";
+      }
+    ];
+  };
+
   programs = {
     niri.package = lib.mkForce pkgs.niri;
     dankMaterialShell = {
