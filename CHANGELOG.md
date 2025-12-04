@@ -7,6 +7,43 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+## [2025-12-04] - Idle Management & Comprehensive Documentation
+
+### Added
+- **Idle Management**
+  - Implemented swayidle-based automatic screen power management
+  - Default 30-minute timeout to power off monitors via `niri msg action power-off-monitors`
+  - Managed via systemd user service (auto-starts with desktop session)
+  - Fully configurable via home-manager `services.swayidle.timeouts`
+  - Manual lock available via Super+Alt+L (DMS lock screen keybind)
+- **Documentation**
+  - Created comprehensive `docs/APPLICATIONS.md` with complete 80+ app catalog
+  - Organized by category: desktop, development, terminal, gaming, virtualization, AI
+  - Added application count summary and finding applications guide
+  - Added PWA configuration examples
+
+### Changed
+- **Desktop Module**
+  - Enhanced DankMaterialShell feature documentation
+  - Added window rules for Brave picture-in-picture mode
+  - Added window rules for DMS settings window
+  - Fixed clipboard functionality with manual wl-paste spawn
+  - Prevented duplicate DMS spawning with systemd service configuration
+- **Documentation Overhaul**
+  - Rewrote AI module documentation with two-tier architecture
+  - Documented local LLM stack (Ollama, LM Studio, OpenCode)
+  - Added ROCm acceleration details and 32K context window information
+  - Expanded DankMaterialShell features (10+ specific features listed)
+  - Added library philosophy section explaining design principles
+  - Updated README with accurate application counts
+  - Added comprehensive MCP server documentation
+
+### Fixed
+- **Desktop**
+  - Restored clipboard functionality after DMS systemd service migration
+  - Fixed duplicate DMS instance spawning
+  - Optimized polkit agent configuration (consolidated to DMS built-in)
+
 ## [2025-11-21] - Immich 2.3.1 Custom Package
 
 ### Added
