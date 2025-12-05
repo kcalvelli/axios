@@ -72,14 +72,18 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 
 #### Idle Management
 - **Purpose**: Automatic screen blanking and power management
-- **Implementation Evidence**: home/desktop/niri.nix:14-23
+- **Implementation Evidence**: runbook.md:595-636
 - **Confidence**: [EXPLICIT]
-- **Technology**: swayidle (via home-manager services.swayidle module)
-- **Default Configuration**: 30-minute timeout to power off monitors
-- **Command**: `niri msg action power-off-monitors`
-- **Service**: Managed via systemd user service (auto-started with graphical session)
-- **Extensibility**: Users can add additional timeouts or events via `services.swayidle.timeouts`
+- **Technology**: User-configured via DankMaterialShell settings
+- **Default Configuration**: None provided by axiOS (user must configure)
+- **Configuration Location**: `~/.config/DankMaterialShell/settings.json`
+- **Available Settings**:
+  - `acMonitorTimeout`: Minutes until monitor turns off (default: 0 = disabled)
+  - `acLockTimeout`: Minutes until screen locks (default: 0 = disabled)
+  - `acSuspendTimeout`: Minutes until system suspends (default: 0 = disabled)
+  - Battery equivalents: `batteryMonitorTimeout`, `batteryLockTimeout`, `batterySuspendTimeout`
 - **Manual Lock**: Super+Alt+L (DMS lock screen keybind)
+- **Rationale**: Idle management delegated to user preference; swayidle had unreliable wake-up behavior
 
 #### Desktop Applications
 - **Purpose**: Curated set of desktop applications for productivity and media
