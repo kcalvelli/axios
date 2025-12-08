@@ -148,7 +148,7 @@ in
       # Ollama service with ROCm acceleration
       services.ollama = {
         enable = true;
-        package = pkgs.ollama-rocm
+        package = pkgs.ollama-rocm;
         rocmOverrideGfx = cfg.local.rocmOverrideGfx;
         environmentVariables = {
           # 32K context window for agentic tool use
