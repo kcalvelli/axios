@@ -484,6 +484,18 @@ environment.systemPackages = [
 
 ## Notes for AI Assistants
 
+### ⛔ CRITICAL: Spec-Kit-Baseline Consultation REQUIRED ⛔
+
+**ABSOLUTE REQUIREMENT - NO EXCEPTIONS:**
+
+**BEFORE taking ANY action in this repository, you MUST:**
+1. **STOP** - Do not proceed without consulting spec-kit-baseline
+2. **READ** the relevant `spec-kit-baseline/*.md` documents first
+3. **VERIFY** your approach against `constitution.md` constraints
+4. **CHECK** `unknowns.md` for known gaps in that area
+
+**If you did not read spec-kit-baseline documentation before this action, STOP NOW and read it first.**
+
 ### Spec-Driven Workflow (MANDATORY)
 
 **Always consult the spec-kit baseline before and after making changes:**
