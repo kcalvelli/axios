@@ -161,16 +161,6 @@
     ];
   };
 
-  google-duo = {
-    name = "Google Duo";
-    url = "https://duo.google.com/";
-    icon = "google-duo";
-    categories = [
-      "Network"
-      "VideoConference"
-    ];
-  };
-
   gmail = {
     name = "Gmail";
     url = "https://mail.google.com/";
