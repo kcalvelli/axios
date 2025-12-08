@@ -176,15 +176,15 @@ Modules are imported using one of three patterns:
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama, lmstudio)
+  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama, alpaca)
 - **Exposed Interface**: `inputs.axios.nixosModules.ai`
 - **Entry Points**: default.nix
 - **Key Options**:
   - `services.ai.enable`: Enable AI tools (claude-code, copilot-cli, etc.)
-  - `services.ai.local.enable`: Enable local LLM stack (Ollama, LM Studio, OpenCode)
+  - `services.ai.local.enable`: Enable local LLM stack (Ollama, Alpaca, OpenCode)
   - `services.ai.local.models`: Ollama models to preload
   - `services.ai.local.rocmOverrideGfx`: GPU architecture override for ROCm
-  - `services.ai.local.gui`: Enable LM Studio GUI
+  - `services.ai.local.gui`: Enable Alpaca GUI
   - `services.ai.local.cli`: Enable OpenCode CLI
   - `services.ai.local.ollamaReverseProxy.enable`: Enable Caddy reverse proxy for Ollama
   - `services.ai.local.ollamaReverseProxy.path`: Path prefix for Ollama (default: "/ollama")
@@ -211,8 +211,7 @@ Modules are imported using one of three patterns:
       - Target: `http://127.0.0.1:11434`
     - **Auto-ordering**: Routes automatically ordered before catch-all services (Immich)
     - Requires `selfHosted.enable = true`
-  - **MCP Support**: LM Studio and OpenCode support MCP servers (user-configured)
-    - LM Studio: `~/.config/lmstudio/mcp.json`
+  - **MCP Support**: OpenCode supports MCP servers (user-configured)
     - OpenCode: `~/.config/opencode/opencode.json`
   - **Runtime Dependencies**: nodejs, python3, uv for MCP server execution
 

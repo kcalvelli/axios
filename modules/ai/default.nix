@@ -16,7 +16,7 @@ in
       enable = lib.mkEnableOption "AI tools and services (copilot-cli, claude-code)";
 
       local = {
-        enable = lib.mkEnableOption "local LLM inference stack (Ollama, LM Studio, OpenCode)";
+        enable = lib.mkEnableOption "local LLM inference stack (Ollama, OpenCode)";
 
         models = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -68,7 +68,7 @@ in
           };
         };
 
-        gui = lib.mkEnableOption "LM Studio native GUI" // {
+        gui = lib.mkEnableOption "Alpaca native GUI for local models" // {
           default = true;
         };
 
@@ -171,10 +171,7 @@ in
           python3
           uv # Python package manager for uvx
         ]
-        ++ lib.optionals cfg.local.gui [
-          lmstudio
-          alpaca
-        ]
+        ++ lib.optional cfg.local.gui alpaca
         ++ lib.optional cfg.local.cli (
           inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.opencode
         );

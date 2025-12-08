@@ -233,7 +233,7 @@ Included when `services.ai.local.enable = true`:
 | Component | Description | Purpose |
 |-----------|-------------|---------|
 | **Ollama** | Local LLM inference backend | Run models locally with ROCm GPU acceleration |
-| **LM Studio** | Native GUI for local models | Visual interface with MCP support |
+| **Alpaca** | Native GUI for local models | GTK/libadwaita visual interface |
 | **OpenCode** | Agentic CLI for coding tasks | Full file editing with MCP integration |
 
 **Default Models** (Ollama):
@@ -247,7 +247,7 @@ Included when `services.ai.local.enable = true`:
 - ROCm acceleration for AMD GPUs (automatic override for gfx1031)
 - Automatic model preloading on service start
 - Optional Caddy reverse proxy for remote HTTPS access
-- MCP server support in LM Studio and OpenCode
+- MCP server support in OpenCode
 
 **Requirements:**
 - AMD GPU recommended (8GB+ VRAM for larger models)

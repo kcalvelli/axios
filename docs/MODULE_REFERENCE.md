@@ -243,7 +243,7 @@ virt = {
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
    - **Ollama** - Local inference backend with ROCm GPU acceleration
-   - **LM Studio** - Native GUI for managing and running local models
+   - **Alpaca** - Native GTK/libadwaita GUI for local models
    - **OpenCode** - Agentic CLI for coding tasks with full file editing
 
 **When to use:**
@@ -263,7 +263,7 @@ virt = {
 
 ```nix
 services.ai.local = {
-  enable = true;  # Enables Ollama + LM Studio + OpenCode
+  enable = true;  # Enables Ollama + Alpaca + OpenCode
 
   # Model management
   models = [
@@ -277,7 +277,7 @@ services.ai.local = {
   rocmOverrideGfx = "10.3.0";  # For RX 5500/5600/5700 series
 
   # Optional components
-  gui = true;  # LM Studio (default: true)
+  gui = true;  # Alpaca (default: true)
   cli = true;  # OpenCode (default: true)
 
   # Optional: Caddy reverse proxy for remote access
@@ -292,7 +292,7 @@ services.ai.local = {
 - **32K context window** for agentic tool use
 - **Automatic model preloading** on service start
 - **ROCm acceleration** with automatic gfx1031 override for older AMD GPUs
-- **MCP server support** in LM Studio and OpenCode
+- **MCP server support** in OpenCode
 - **LSP integration** for code intelligence
 
 **Usage:**
@@ -301,7 +301,7 @@ services.ai.local = {
 # Ollama CLI
 ollama run qwen3-coder:30b "Write a function to..."
 
-# LM Studio GUI
+# Alpaca GUI
 # Launch from application menu
 
 # OpenCode CLI

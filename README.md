@@ -126,7 +126,7 @@ Check out these example configurations:
 - **Gaming**: Steam, GameMode, Proton (optional)
 - **AI Services** (optional):
   - Cloud AI: Claude Code, GitHub Copilot CLI with MCP servers
-  - Local LLM: Ollama + LM Studio + OpenCode with ROCm acceleration
+  - Local LLM: Ollama + Alpaca + OpenCode with ROCm acceleration
   - 32K context window for agentic coding
 - **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)
 
