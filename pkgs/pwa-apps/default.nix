@@ -51,7 +51,7 @@ let
       startupWMClass = urlToAppId pwa.url;
       actions = lib.mapAttrs (_actionId: action: {
         name = action.name;
-        exec = "${lib.getExe brave} --app=${action.url}";
+        exec = ''${lib.getExe brave} --app="${action.url}"'';
       }) (pwa.actions or { });
     };
 
