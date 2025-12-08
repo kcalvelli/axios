@@ -91,6 +91,23 @@
     ];
   };
 
+  gmail = {
+    name = "Gmail";
+    url = "https://mail.google.com/";
+    icon = "gmail";
+    categories = [
+      "Office"
+      "Email"
+    ];
+    mimeTypes = [ "x-scheme-handler/mailto" ];
+    actions = {
+      "Compose" = {
+        name = "Compose";
+        url = "https://mail.google.com/mail/?view=cm&fs=1&tf=1";
+      };
+    };
+  };
+
   telegram = {
     name = "Telegram Web";
     url = "https://web.telegram.org/";
