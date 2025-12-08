@@ -91,6 +91,86 @@
     ];
   };
 
+  gemini = {
+    name = "Gemini";
+    url = "https://gemini.google.com/";
+    icon = "gemini";
+    categories = [
+      "Office"
+      "Utility"
+    ];
+  };
+
+  google-ai-studio = {
+    name = "Google AI Studio";
+    url = "https://aistudio.google.com/";
+    icon = "google-ai-studio";
+    categories = [
+      "Development"
+      "Utility"
+    ];
+  };
+
+  notebooklm = {
+    name = "NotebookLM";
+    url = "https://notebooklm.google.com/";
+    icon = "notebooklm";
+    categories = [
+      "Office"
+      "Utility"
+    ];
+  };
+
+  google-search = {
+    name = "Google Search";
+    url = "https://www.google.com/";
+    icon = "google-search";
+    categories = [
+      "Network"
+      "WebBrowser"
+    ];
+  };
+
+  youtube-music = {
+    name = "YouTube Music";
+    url = "https://music.youtube.com/";
+    icon = "youtube-music";
+    categories = [
+      "AudioVideo"
+      "Audio"
+    ];
+  };
+
+  google-news = {
+    name = "Google News";
+    url = "https://news.google.com/";
+    icon = "google-news";
+    categories = [
+      "Network"
+      "News"
+    ];
+  };
+
+  google-voice = {
+    name = "Google Voice";
+    url = "https://voice.google.com/";
+    icon = "google-voice";
+    categories = [
+      "Network"
+      "Telephony"
+    ];
+  };
+
+  google-duo = {
+    name = "Google Duo";
+    url = "https://duo.google.com/";
+    icon = "google-duo";
+    categories = [
+      "Network"
+      "VideoConference"
+    ];
+  };
+
   gmail = {
     name = "Gmail";
     url = "https://mail.google.com/";
@@ -106,6 +186,91 @@
         url = "https://mail.google.com/mail/?view=cm&fs=1&tf=1";
       };
     };
+  };
+
+  google-docs = {
+    name = "Google Docs";
+    url = "https://docs.google.com/";
+    icon = "google-docs";
+    categories = [
+      "Office"
+      "WordProcessor"
+    ];
+  };
+
+  google-sheets = {
+    name = "Google Sheets";
+    url = "https://sheets.google.com/";
+    icon = "google-sheets";
+    categories = [
+      "Office"
+      "Spreadsheet"
+    ];
+  };
+
+  google-slides = {
+    name = "Google Slides";
+    url = "https://slides.google.com/";
+    icon = "google-slides";
+    categories = [
+      "Office"
+      "Presentation"
+    ];
+  };
+
+  google-calendar = {
+    name = "Google Calendar";
+    url = "https://calendar.google.com/";
+    icon = "google-calendar";
+    categories = [
+      "Office"
+      "Calendar"
+    ];
+    mimeTypes = [
+      "x-scheme-handler/webcal"
+      "x-scheme-handler/webcals"
+      "text/calendar"
+    ];
+  };
+
+  google-keep = {
+    name = "Google Keep";
+    url = "https://keep.google.com/";
+    icon = "google-keep";
+    categories = [
+      "Office"
+      "Utility"
+    ];
+  };
+
+  google-contacts = {
+    name = "Google Contacts";
+    url = "https://contacts.google.com/";
+    icon = "google-contacts";
+    categories = [
+      "Office"
+      "ContactManagement"
+    ];
+  };
+
+  google-forms = {
+    name = "Google Forms";
+    url = "https://forms.google.com/";
+    icon = "google-forms";
+    categories = [
+      "Office"
+      "Utility"
+    ];
+  };
+
+  google-classroom = {
+    name = "Google Classroom";
+    url = "https://classroom.google.com/";
+    icon = "google-classroom";
+    categories = [
+      "Education"
+      "Office"
+    ];
   };
 
   telegram = {
