@@ -32,7 +32,7 @@ in
       discord # Communication platform
       typora # Markdown editor
       libreoffice-fresh # Office suite
-      keeper-password-manager # Password manager and secure digital vault
+      bitwarden-desktop # Password manager and secure digital vault
 
       # === Media Creation & Editing ===
       pitivi # Video editor
