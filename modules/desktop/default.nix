@@ -138,7 +138,8 @@ in
       gnome = {
         sushi.enable = true;
         gnome-keyring.enable = true;
-        evolution-data-server.enable = true; # Backend for gnome-calendar and gnome-contacts
+        evolution-data-server.enable = true;
+        gnome-online-accounts = true; 
       };
       accounts-daemon.enable = true;
       geoclue2.enable = true; # Location services for weather in gnome-calendar
