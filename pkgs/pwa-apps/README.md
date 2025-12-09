@@ -25,13 +25,6 @@ This package provides a curated collection of Progressive Web Apps (PWAs) that w
 - Google Maps
 - Google Photos
 
-### Proton Services
-- Proton Pass
-- Proton Mail
-- Proton Drive
-- Proton Calendar
-- Proton Wallet
-
 ### Communication
 - Element (Matrix client)
 - Telegram Web

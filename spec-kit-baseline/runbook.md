@@ -384,7 +384,7 @@ programs.dankMaterialShell = {
   # Disable specific features
   enableAudioWavelength = false;  # Disable cava visualizer
   enableSystemSound = false;       # Disable sound effects
-  enableVPN = false;               # Disable VPN widget if not using ProtonVPN
+  enableVPN = false;               # Disable VPN widget
 };
 ```
 
@@ -433,6 +433,129 @@ This ensures clipboard history works while preventing duplicate DMS instances.
 systemd.user.services.niri-flake-polkit.enable = false;
 ```
 (Currently not needed - niri-flake doesn't provide a polkit service)
+
+### GNOME Online Accounts Setup
+
+axiOS provides lightweight GNOME PIM (Personal Information Management) apps without requiring a full GNOME desktop. This includes Geary (email), GNOME Calendar, and GNOME Contacts, all integrated via GNOME Online Accounts.
+
+**Architecture**:
+- D-Bus backend services (accounts-daemon, gnome-keyring)
+- No GNOME Shell or gdm required
+- Works with any desktop environment (Niri, Sway, Hyprland, etc.)
+
+**First-Time Setup**:
+
+1. **Launch GNOME Online Accounts**:
+   ```bash
+   gnome-online-accounts-gtk
+   ```
+   Or search for "Online Accounts" in your application launcher.
+
+2. **Add Your Accounts**:
+   - Click **+** button to add an account
+   - Select account type:
+     - **Google**: Gmail, Calendar, Contacts (OAuth2)
+     - **Microsoft**: Outlook.com, Office 365 (OAuth2)
+     - **IMAP/SMTP**: Any email provider (manual configuration)
+     - **CalDAV**: Calendar sync (e.g., iCloud, Nextcloud)
+     - **CardDAV**: Contact sync (e.g., iCloud, Nextcloud)
+   - Follow authentication flow
+   - Select which services to enable (Mail, Calendar, Contacts)
+
+3. **Credentials Storage**:
+   - Credentials are stored in GNOME Keyring (encrypted)
+   - PAM integration unlocks keyring automatically at login
+   - No manual keyring unlock needed
+
+**Using the Applications**:
+
+**Geary (Email)**:
+```bash
+geary
+```
+- Accounts from GNOME Online Accounts appear automatically
+- No manual email configuration needed
+- Supports conversation view, search, labels
+
+**GNOME Calendar**:
+```bash
+gnome-calendar
+```
+- Syncs calendars from all configured accounts
+- Supports CalDAV for self-hosted calendars
+- Event notifications integrated with desktop
+
+**GNOME Contacts**:
+```bash
+gnome-contacts
+```
+- Syncs contacts from all configured accounts
+- Supports CardDAV for self-hosted contacts
+- Integrated with email client
+
+**Troubleshooting**:
+
+**"Cannot connect to org.gnome.evolution.dataserver.Sources5" error**:
+This means Evolution Data Server is not running. axiOS enables it by default, but if you see this error:
+1. **Verify service is enabled** in your configuration:
+   ```nix
+   services.gnome.evolution-data-server.enable = true;  # Required for calendar/contacts
+   ```
+2. **Check system service status**:
+   ```bash
+   systemctl --user status evolution-source-registry
+   systemctl --user status evolution-addressbook-factory
+   systemctl --user status evolution-calendar-factory
+   ```
+3. **Restart services**:
+   ```bash
+   systemctl --user restart evolution-source-registry
+   ```
+
+**"org.freedesktop.GeoClue2 was not provided" error**:
+This prevents weather features in GNOME Calendar. To enable:
+```nix
+services.geoclue2.enable = true;  # Location services for weather
+```
+
+**If accounts don't appear in applications**:
+1. **Check D-Bus services**:
+   ```bash
+   systemctl --user status goa-daemon
+   ```
+2. **Verify account is active**:
+   ```bash
+   gnome-online-accounts-gtk
+   ```
+   Ensure account has checkmark and is not in error state.
+
+3. **Check GNOME Keyring**:
+   ```bash
+   ps aux | grep gnome-keyring
+   ```
+   Should show keyring daemon running.
+
+4. **Re-add account**:
+   If an account shows errors, delete and re-add it in GNOME Online Accounts.
+
+**Manual IMAP/SMTP Configuration**:
+For providers not offering OAuth2:
+1. In GNOME Online Accounts, select "IMAP/SMTP"
+2. Enter email address
+3. Configure IMAP:
+   - Server: imap.example.com
+   - Port: 993 (SSL/TLS) or 143 (STARTTLS)
+   - Username: your-username
+   - Password: your-password
+4. Configure SMTP:
+   - Server: smtp.example.com
+   - Port: 465 (SSL/TLS) or 587 (STARTTLS)
+   - Username: your-username
+   - Password: your-password
+
+**Integration with DMS**:
+- DMS Calendar Events feature can sync with GNOME Calendar (via khal)
+- This provides calendar widgets in the DMS shell
 
 ## Deployment
 

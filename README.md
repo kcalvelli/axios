@@ -41,7 +41,7 @@ For manual setup, you'll create just 3 files:
 - **DankMaterialShell** - Material design shell with:
   - System monitoring widgets (CPU, RAM, disk usage)
   - Clipboard history management (cliphist)
-  - VPN status widget (ProtonVPN)
+  - VPN status widget
   - Brightness controls (screen & keyboard)
   - Color picker and dynamic theming (matugen)
   - Audio visualizer (cava)

@@ -28,7 +28,7 @@
     # Feature toggles (explicit configuration for clarity)
     enableSystemMonitoring = true; # System resource monitoring widgets
     enableClipboard = true; # Clipboard history with cliphist
-    enableVPN = true; # VPN status widget (ProtonVPN)
+    enableVPN = true; # VPN status widget
     enableBrightnessControl = true; # Screen/keyboard brightness controls
     enableColorPicker = true; # Color picker tool (hyprpicker)
     enableDynamicTheming = true; # Dynamic theme generation (matugen)

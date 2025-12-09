@@ -62,7 +62,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Feature Toggles**: All features explicitly enabled by default
   - System Monitoring: Resource monitoring widgets
   - Clipboard: History management with cliphist
-  - VPN: VPN status widget (ProtonVPN support)
+  - VPN: VPN status widget
   - Brightness Control: Screen and keyboard brightness
   - Color Picker: Color selection tool (hyprpicker)
   - Dynamic Theming: Auto-theme generation (matugen)
@@ -87,13 +87,33 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 
 #### Desktop Applications
 - **Purpose**: Curated set of desktop applications for productivity and media
-- **Implementation Evidence**: modules/desktop/default.nix:14-50
+- **Implementation Evidence**: modules/desktop/default.nix:21-90
 - **Confidence**: [EXPLICIT]
 - **Categories**:
-  - Productivity: Obsidian, Discord, Typora, LibreOffice
+  - Productivity: Obsidian, Discord, Typora, LibreOffice, Bitwarden
   - Media Creation: Pitivi, Pinta, Inkscape
   - Media Viewing: Shotwell, Loupe, Celluloid, Amberol
   - System Utilities: Baobab, Swappy, Qalculate
+  - Communication: Geary (email client)
+  - PIM: GNOME Calendar, GNOME Contacts
+  - Streaming: OBS Studio
+
+#### GNOME Online Accounts Integration
+- **Purpose**: Unified account management for email, calendar, and contacts without full GNOME desktop
+- **Implementation Evidence**: modules/desktop/default.nix:84-86, 137-143
+- **Confidence**: [EXPLICIT]
+- **Components**:
+  - **gnome-online-accounts-gtk**: Lightweight GTK UI for account configuration
+  - **Geary**: Email client with GNOME Online Accounts integration (programs.geary.enable)
+  - **GNOME Calendar**: Calendar application syncing via online accounts
+  - **GNOME Contacts**: Contact management syncing via online accounts
+- **Required Backend Services**:
+  - **services.gnome.evolution-data-server.enable**: Provides D-Bus service `org.gnome.evolution.dataserver.Sources5` for calendar/contacts data storage
+  - **services.geoclue2.enable**: Provides location services (`org.freedesktop.GeoClue2`) for weather features in calendar
+- **Supported Services**: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV
+- **Architecture**: Uses D-Bus services and GNOME keyring without requiring full GNOME desktop
+- **Integration**: Accounts configured once in gnome-online-accounts-gtk, automatically available to all PIM apps
+- **Rationale**: Evolution Data Server is a lightweight background service that provides data backends, not the full Evolution email client
 
 #### Wallpaper & Theming
 - **Purpose**: Automatic wallpaper management with blur effects
@@ -549,6 +569,9 @@ Evidence: pkgs/
 - [✓] Caddy route registry automatically orders path-specific routes before catch-all
 - [✓] Services register routes independently via `selfHosted.caddy.routes`
 - [✓] Google Drive sync via rclone with bidirectional support
+- [✓] GNOME Online Accounts provides unified account management for PIM apps
+- [✓] Geary email client integrates with GNOME Online Accounts
+- [✓] GNOME Calendar and Contacts sync via GNOME Online Accounts
 
 ### Non-Functional Criteria
 - [✓] Module evaluation is lazy (disabled modules don't evaluate)

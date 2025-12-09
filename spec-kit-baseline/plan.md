@@ -100,8 +100,25 @@ Modules are imported using one of three patterns:
 - **Exposed Interface**: `inputs.axios.nixosModules.desktop`
 - **Entry Points**: default.nix
 - **Key Options**: `desktop.enable`
-- **Packages**: 40+ desktop applications (productivity, media, utilities)
+- **Packages**: 50+ desktop applications (productivity, media, utilities, PIM)
 - **Evidence**: modules/desktop/default.nix
+- **Architecture**:
+  - **GNOME PIM Integration**: Lightweight GNOME apps without full GNOME desktop
+    - `gnome-online-accounts-gtk`: GTK UI for account configuration (D-Bus backend)
+    - `programs.geary.enable`: Email client integrating with GNOME Online Accounts
+    - `gnome-calendar`: Calendar app with online account sync
+    - `gnome-contacts`: Contact management with online account sync
+    - **Backend Services Required**:
+      - `services.accounts-daemon.enable`: User account management D-Bus service
+      - `services.gnome.gnome-keyring.enable`: Credential storage (PAM integration)
+      - `services.gnome.evolution-data-server.enable`: Calendar/contacts data backend (`org.gnome.evolution.dataserver.Sources5`)
+      - `services.geoclue2.enable`: Location services for calendar weather (`org.freedesktop.GeoClue2`)
+    - **Architecture Pattern**: D-Bus services + GNOME keyring without full GNOME stack
+    - **Supported Backends**: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV
+    - **Note**: Evolution Data Server is a lightweight service providing data storage, not the full Evolution email client
+  - **Wayland Compositor**: Niri with DMS (DankMaterialShell)
+  - **File Manager**: Nautilus with GVFS support
+  - **Authentication**: GNOME Keyring (PAM integration for greetd and login)
 
 #### modules/development/
 - **Path**: `modules/development/`

@@ -73,12 +73,6 @@ This document provides a comprehensive list of all applications included in axiO
 | **wtype** | Wayland keyboard automation | Simulate keypresses |
 | **wayvnc** | VNC server for Wayland | Remote desktop access |
 
-### Network & VPN
-
-| Application | Description |
-|-------------|-------------|
-| **ProtonVPN GUI** | VPN client with kill switch and secure core |
-
 ---
 
 ## Development Tools
@@ -371,7 +365,7 @@ Provided by DankMaterialShell:
 
 - System resource monitoring widgets
 - Clipboard history with cliphist
-- VPN status widget (ProtonVPN integration)
+- VPN status widget
 - Screen and keyboard brightness controls
 - Color picker tool
 - Audio visualizer (cava)
