@@ -77,11 +77,11 @@ in
       # Note: PWA apps are now managed via home-manager (axios.pwa module)
       # This allows users to add custom PWAs with their own URLs and icons
 
-      # === VPN ===
-      protonvpn-gui
-
       # === Streaming ===
       obs-studio
+
+      # === Password Management ===
+      onepassword-cli
     ];
 
     # === Wayland Environment Variables ===
@@ -125,6 +125,8 @@ in
         enable = true;
         openFirewall = true;
       };
+      _1password.enable = true;
+      _1password-gui.enable = true;
     };
 
     # === Desktop Services ===
@@ -141,7 +143,7 @@ in
       upower.enable = true;
       libinput.enable = true;
       acpid.enable = true;
-      power-profiles-daemon.enable = lib.mkDefault (!config.hardware.system76.power-daemon.enable);
+      power-profiles-daemon.enable = lib.mkDefault (!config.hardware.system76.power-daemon.enable);;
     };
 
     # === XDG Portal Configuration ===
