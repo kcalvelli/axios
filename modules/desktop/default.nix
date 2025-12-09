@@ -84,6 +84,7 @@ in
       gnome-online-accounts-gtk
       gnome-calendar
       gnome-contacts
+      evolution-ews
     ];
 
     # === Wayland Environment Variables ===
