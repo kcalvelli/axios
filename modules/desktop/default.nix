@@ -82,6 +82,9 @@ in
 
       # === Streaming ===
       obs-studio
+
+      # === Configure Gnome online accounts without Gnome ===
+      gnome-online-accounts-gtk
     ];
 
     # === Wayland Environment Variables ===
@@ -127,6 +130,7 @@ in
       };
       _1password.enable = true;
       _1password-gui.enable = true;
+      geary.enable = true; # Email client - uses gnome online accounts
     };
 
     # === Desktop Services ===
