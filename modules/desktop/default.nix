@@ -77,9 +77,6 @@ in
       # Note: PWA apps are now managed via home-manager (axios.pwa module)
       # This allows users to add custom PWAs with their own URLs and icons
 
-      # === VPN ===
-      protonvpn-gui
-
       # === Streaming ===
       obs-studio
 
@@ -140,8 +137,10 @@ in
       gnome = {
         sushi.enable = true;
         gnome-keyring.enable = true;
+        evolution-data-server.enable = true; # Backend for gnome-calendar and gnome-contacts
       };
       accounts-daemon.enable = true;
+      geoclue2.enable = true; # Location services for weather in gnome-calendar
       gvfs.enable = true;
       udisks2.enable = true;
       system76-scheduler.enable = true;
