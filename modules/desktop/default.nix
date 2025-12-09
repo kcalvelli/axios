@@ -129,7 +129,8 @@ in
       };
       _1password.enable = true;
       _1password-gui.enable = true;
-      geary.enable = true; # Email client - uses gnome online accounts
+      #geary.enable = true; # Email client - uses gnome online accounts
+      evolution.enable = true;
     };
 
     # === Desktop Services ===
