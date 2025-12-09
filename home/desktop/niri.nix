@@ -218,7 +218,8 @@
         }
         {
           matches = [
-            { app-id = "^org\\.gnome\\.Nautilus$"; }
+            # Match Nautilus app-id (dots are literal, not regex metacharacters in Niri)
+            { app-id = "^org.gnome.Nautilus$"; }
           ];
 
           # Override the global maximized rule
