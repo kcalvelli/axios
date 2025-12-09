@@ -80,7 +80,7 @@ in
       # === Streaming ===
       obs-studio
 
-      # === Gnome  PIM (geary added in programs below) without Gnome ===
+      # === Gnome  PIM (Evolution added in programs below) without Gnome ===
       gnome-online-accounts-gtk
       gnome-calendar
       gnome-contacts
@@ -129,7 +129,6 @@ in
       };
       _1password.enable = true;
       _1password-gui.enable = true;
-      #geary.enable = true; # Email client - uses gnome online accounts
       evolution.enable = true;
     };
 

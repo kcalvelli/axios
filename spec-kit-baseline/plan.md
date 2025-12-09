@@ -105,7 +105,7 @@ Modules are imported using one of three patterns:
 - **Architecture**:
   - **GNOME PIM Integration**: Lightweight GNOME apps without full GNOME desktop
     - `gnome-online-accounts-gtk`: GTK UI for account configuration (D-Bus backend)
-    - `programs.geary.enable`: Email client integrating with GNOME Online Accounts
+    - `programs.evolution.enable`: Email client integrating with GNOME Online Accounts
     - `gnome-calendar`: Calendar app with online account sync
     - `gnome-contacts`: Contact management with online account sync
     - **Backend Services Required**:

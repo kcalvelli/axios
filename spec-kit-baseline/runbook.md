@@ -436,7 +436,7 @@ systemd.user.services.niri-flake-polkit.enable = false;
 
 ### GNOME Online Accounts Setup
 
-axiOS provides lightweight GNOME PIM (Personal Information Management) apps without requiring a full GNOME desktop. This includes Geary (email), GNOME Calendar, and GNOME Contacts, all integrated via GNOME Online Accounts.
+axiOS provides lightweight GNOME PIM (Personal Information Management) apps without requiring a full GNOME desktop. This includes Evolution (email), GNOME Calendar, and GNOME Contacts, all integrated via GNOME Online Accounts.
 
 **Architecture**:
 - D-Bus backend services (accounts-daemon, gnome-keyring)
@@ -469,9 +469,9 @@ axiOS provides lightweight GNOME PIM (Personal Information Management) apps with
 
 **Using the Applications**:
 
-**Geary (Email)**:
+**Evolution (Email)**:
 ```bash
-geary
+evolution
 ```
 - Accounts from GNOME Online Accounts appear automatically
 - No manual email configuration needed

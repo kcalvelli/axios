@@ -94,7 +94,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - Media Creation: Pitivi, Pinta, Inkscape
   - Media Viewing: Shotwell, Loupe, Celluloid, Amberol
   - System Utilities: Baobab, Swappy, Qalculate
-  - Communication: Geary (email client)
+  - Communication: Evolution (email client)
   - PIM: GNOME Calendar, GNOME Contacts
   - Streaming: OBS Studio
 
@@ -104,7 +104,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Confidence**: [EXPLICIT]
 - **Components**:
   - **gnome-online-accounts-gtk**: Lightweight GTK UI for account configuration
-  - **Geary**: Email client with GNOME Online Accounts integration (programs.geary.enable)
+  - **Evolution**: Email client with GNOME Online Accounts integration (programs.evolution.enable)
   - **GNOME Calendar**: Calendar application syncing via online accounts
   - **GNOME Contacts**: Contact management syncing via online accounts
 - **Required Backend Services**:
@@ -570,7 +570,7 @@ Evidence: pkgs/
 - [✓] Services register routes independently via `selfHosted.caddy.routes`
 - [✓] Google Drive sync via rclone with bidirectional support
 - [✓] GNOME Online Accounts provides unified account management for PIM apps
-- [✓] Geary email client integrates with GNOME Online Accounts
+- [✓] Evolution email client integrates with GNOME Online Accounts
 - [✓] GNOME Calendar and Contacts sync via GNOME Online Accounts
 
 ### Non-Functional Criteria
