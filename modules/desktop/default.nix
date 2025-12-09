@@ -77,11 +77,11 @@ in
       # Note: PWA apps are now managed via home-manager (axios.pwa module)
       # This allows users to add custom PWAs with their own URLs and icons
 
+      # === VPN ===
+      protonvpn-gui
+
       # === Streaming ===
       obs-studio
-
-      # === Password Management ===
-      onepassword-cli
     ];
 
     # === Wayland Environment Variables ===
@@ -126,7 +126,7 @@ in
         openFirewall = true;
       };
       _1password.enable = true;
-      _1password-gui.enable = true;
+      _1password-gui.enable = true
     };
 
     # === Desktop Services ===
