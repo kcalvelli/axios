@@ -83,8 +83,10 @@ in
       # === Streaming ===
       obs-studio
 
-      # === Configure Gnome online accounts without Gnome ===
+      # === Gnome  PIM (geary added in programs below) without Gnome ===
       gnome-online-accounts-gtk
+      gnome-calendar
+      gnome-contacts
     ];
 
     # === Wayland Environment Variables ===
