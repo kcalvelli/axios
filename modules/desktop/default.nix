@@ -139,7 +139,7 @@ in
         sushi.enable = true;
         gnome-keyring.enable = true;
         evolution-data-server.enable = true;
-        gnome-online-accounts = true; 
+        gnome-online-accounts.enable = true; 
       };
       accounts-daemon.enable = true;
       geoclue2.enable = true; # Location services for weather in gnome-calendar
