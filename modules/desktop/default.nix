@@ -143,7 +143,7 @@ in
       upower.enable = true;
       libinput.enable = true;
       acpid.enable = true;
-      power-profiles-daemon.enable = lib.mkDefault (!config.hardware.system76.power-daemon.enable);;
+      power-profiles-daemon.enable = lib.mkDefault (!config.hardware.system76.power-daemon.enable);
     };
 
     # === XDG Portal Configuration ===
