@@ -181,11 +181,18 @@ in
     (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.ollamaReverseProxy.enable) {
       selfHosted.caddy.routes.ollama =
         let
+          tailscaleDomain = config.networking.tailscale.domain or null;
           domain =
             if cfg.local.ollamaReverseProxy.domain != null then
               cfg.local.ollamaReverseProxy.domain
+            else if tailscaleDomain != null then
+              "${config.networking.hostName}.${tailscaleDomain}"
             else
-              "${config.networking.hostName}.${config.networking.tailscale.domain}";
+              throw ''
+                services.ai.local.ollamaReverseProxy requires either:
+                - services.ai.local.ollamaReverseProxy.domain to be set explicitly, OR
+                - networking.tailscale.domain to be configured (enable tailscale module)
+              '';
           path = cfg.local.ollamaReverseProxy.path;
         in
         {

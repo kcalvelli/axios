@@ -264,6 +264,7 @@ let
       coreModules = with self.nixosModules; [
         crashDiagnostics # Always available for extraConfig.hardware.crashDiagnostics
         hardware # Parent hardware module
+        services # Always available for selfHosted.caddy.routes (used by AI, Immich, etc.)
       ];
 
       # Modules controlled by modules.X flags
@@ -278,8 +279,7 @@ let
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or false) ai
-        ++ lib.optional (hostCfg.modules.secrets or false) secrets
-        ++ lib.optional (hostCfg.modules.services or false) services;
+        ++ lib.optional (hostCfg.modules.secrets or false) secrets;
 
       # Hardware modules conditionally imported based on vendor/formFactor
       conditionalHwModules =

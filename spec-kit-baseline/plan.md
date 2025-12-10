@@ -47,13 +47,14 @@ Modules are imported using one of three patterns:
 **Core Modules (Always Imported)**
 - Location: `coreModules` list in lib/default.nix
 - Purpose: Provide optional configuration without requiring `modules.X` flag
-- Examples: crashDiagnostics, hardware
-- User access: Configure via `extraConfig.hardware.crashDiagnostics.*`
+- Examples: crashDiagnostics, hardware, services
+- User access: Configure via `extraConfig.hardware.crashDiagnostics.*` or `extraConfig.selfHosted.caddy.routes.*`
+- Note: services module provides `selfHosted` options (used by AI, Immich) but only activates when `selfHosted.enable = true`
 
 **Flagged Modules (Conditional on modules.X)**
 - Location: `flaggedModules` list in lib/default.nix
 - Purpose: Major features users explicitly enable
-- Examples: desktop, development, gaming, ai, secrets, services
+- Examples: desktop, development, gaming, ai, secrets
 - User access: Enable via `modules.desktop = true`
 
 **Conditional Hardware Modules**
