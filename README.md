@@ -142,6 +142,47 @@ Check out these example configurations:
 - ✅ **Community framework** - Benefit from improvements and updates
 - ✅ **Library design** - Not a personal config - no hardcoded regional defaults
 
+### Workflow Philosophy
+
+axiOS is built around a **focused, distraction-free workflow** optimized for single-monitor productivity:
+
+**Maximized Windows by Default**
+- All applications open maximized to keep your attention on the task at hand
+- Web browsers, code editors, terminals, and productivity apps fill the screen
+- Reduces context switching and visual clutter
+- Window borders are disabled for a seamless, immersive experience
+
+**Strategic Floating Windows**
+- **Utility apps** that support your work open floating:
+  - QCalculate (quick calculations during work)
+  - Nautilus file manager (1200×900, for quick file operations)
+  - Google Messages PWA (500×700, pinned top-left for quick replies)
+  - DankMaterialShell settings (configuration without disruption)
+  - Brave Picture-in-Picture (for background media)
+- These apps are intentionally kept small and out-of-the-way
+
+**Dropdown Terminal (Super+`)**
+- Instant access to a terminal overlay (97% screen width, 420px tall)
+- Perfect for quick commands while working:
+  - Git operations during code review
+  - Running builds without leaving your editor
+  - System checks and monitoring
+  - Command-line tools during development
+- Press Super+` again to dismiss and return to focused work
+
+**Scrolling Workspace Navigation**
+- Niri's scrollable tiling compositor lets you organize work by project or context
+- Each workspace holds maximized windows for different projects
+- Scroll through workspaces (Mod+Wheel) to switch between contexts seamlessly
+- Each context remains focused and distraction-free when you return to it
+
+**Single-Monitor Optimized**
+- The entire workflow is designed and tested for single-monitor setups
+- Multi-monitor configurations are not tested and may not work as expected
+- This deliberate constraint encourages focused work over sprawling layouts
+
+This workflow prioritizes **deep work over multitasking**, with every design decision aimed at keeping you focused on one task at a time while maintaining quick access to supporting tools.
+
 ### Library Philosophy
 
 axiOS is designed as a **framework/library**, not a personal configuration:
