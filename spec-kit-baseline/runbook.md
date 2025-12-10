@@ -348,6 +348,111 @@ perSystem = { config, self', inputs', pkgs, system, lib, ... }: {
 
 ## Desktop Environment Configuration
 
+## User Operations
+
+### Installing Additional Applications
+
+axiOS provides two methods for installing additional applications, with different target audiences:
+
+#### Method 1: Flathub via GNOME Software (Recommended for Most Users)
+
+**Target Audience**: Non-technical users, desktop application users
+
+**Advantages**:
+- ✅ Graphical interface (GNOME Software)
+- ✅ No system rebuilds required
+- ✅ Instant installation/removal
+- ✅ Sandboxed applications (better security)
+- ✅ Latest versions (updates independently of NixOS)
+- ✅ Automatic theme integration
+- ✅ Thousands of desktop applications available
+
+**How to Install Apps**:
+1. Open **GNOME Software** from applications menu
+2. Browse or search for applications
+3. Click **Install**
+4. Application launches immediately after installation
+
+**Example Apps Available on Flathub**:
+- **Browsers**: Firefox, Chrome, Edge, Opera, Brave
+- **Communication**: Slack, Discord, Telegram, Signal, Teams
+- **Media**: Spotify, VLC, Audacity, GIMP, Kdenlive, Blender
+- **Productivity**: LibreOffice, OnlyOffice, Thunderbird, Obsidian
+- **Development**: Postman, MongoDB Compass, Beekeeper Studio, DBeaver
+
+**Flathub Configuration**:
+- Remote automatically configured via `systemd.services.flatpak-add-flathub`
+- GNOME Software configured to use Flathub exclusively
+- GTK theme access via flatpak overrides
+
+**Troubleshooting**:
+```bash
+# Check Flathub remote is configured
+flatpak remotes
+
+# Manually add if missing (shouldn't be needed)
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+# Search for apps
+flatpak search <app-name>
+
+# Install via CLI
+flatpak install flathub org.mozilla.firefox
+```
+
+#### Method 2: NixOS Packages (For Technical Users)
+
+**Target Audience**: Technical users, reproducible builds, system administrators
+
+**Advantages**:
+- ✅ Declarative configuration (reproducible)
+- ✅ Version pinning and rollbacks
+- ✅ Deep system integration
+- ✅ Shareable configurations
+- ✅ Works for CLI tools and system services
+
+**How to Add Packages**:
+Edit your host configuration (`hosts/<hostname>.nix`):
+
+```nix
+{
+  hostConfig = {
+    # ... existing config ...
+
+    extraConfig = {
+      # Add packages here
+      environment.systemPackages = with pkgs; [
+        firefox
+        slack
+        htop
+        ripgrep
+        # ... your packages ...
+      ];
+    };
+  };
+}
+```
+
+Rebuild system:
+```bash
+sudo nixos-rebuild switch --flake .#<hostname>
+```
+
+**When to Use NixOS Packages**:
+- System services and daemons
+- Command-line utilities and development tools
+- Packages that need deep system integration
+- Building shareable/reproducible configurations
+- Multi-machine deployments
+
+**When to Use Flathub Instead**:
+- Desktop GUI applications
+- Apps that benefit from sandboxing
+- Apps that need frequent updates (browsers, chat apps)
+- User doesn't want to rebuild the system
+
+**Best Practice**: Use Flathub for desktop apps, NixOS packages for system tools and CLI utilities.
+
 ### DankMaterialShell Customization
 
 axiOS configures DankMaterialShell with all features explicitly enabled by default. Users can customize this configuration in their downstream host configs.

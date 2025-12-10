@@ -126,6 +126,28 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Implementation Evidence**: CHANGELOG.md:49, home/desktop/pwa-apps.nix, pkgs/pwa-apps/
 - **Confidence**: [EXPLICIT]
 
+#### Flatpak & Application Installation
+- **Purpose**: Provide sandboxed application installation via Flathub as the primary method for users to add applications
+- **Implementation Evidence**: modules/desktop/default.nix:154-173, home/desktop/theming.nix:68-72
+- **Confidence**: [EXPLICIT]
+- **Components**:
+  - **Flatpak Service**: Enabled system-wide (`services.flatpak.enable = true`)
+  - **GNOME Software**: Graphical app store for browsing and installing Flatpaks
+  - **Flathub Remote**: Automatically configured via systemd oneshot service
+  - **Theme Integration**: Flatpak apps access GTK themes via `xdg.dataFile."flatpak/overrides/global"`
+- **Architecture**:
+  - **Automatic Setup**: `systemd.services.flatpak-add-flathub` runs after network-online
+  - **Idempotent**: Uses `--if-not-exists` to prevent duplicate remote additions
+  - **GNOME Software Configuration**: Environment variables set to use Flathub exclusively
+- **User Experience**:
+  - **Primary Installation Method**: Flathub recommended for most users (non-technical)
+  - **Benefits**: Sandboxed apps, latest versions, no system rebuilds, GUI installation
+  - **Alternative**: Technical users can add packages via `extraConfig.environment.systemPackages`
+- **Design Philosophy**:
+  - Flatpak provides better UX for desktop applications (sandboxing, updates, GUI)
+  - NixOS packages reserved for system tools, CLI utilities, and reproducible builds
+  - Reduces maintenance burden on axiOS (doesn't need to package every GUI app)
+
 ### Development Tools
 #### Development Shells
 - **Purpose**: Project-specific development environments with complete toolchains

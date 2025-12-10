@@ -148,6 +148,55 @@ Check out these example configurations:
 
 **See project structure and module details in [docs/README.md](docs/README.md)**
 
+## Installing Additional Applications
+
+### For Most Users: Use Flathub (Recommended) 📦
+
+axiOS includes **GNOME Software** with **Flathub** pre-configured as the primary way to install additional applications. This is the **recommended approach for most users**:
+
+**Why Flathub?**
+- ✅ **Sandboxed applications** - Better security isolation
+- ✅ **Latest versions** - Apps update independently of NixOS
+- ✅ **Graphical interface** - Browse and install via GNOME Software
+- ✅ **Large ecosystem** - Thousands of desktop applications
+- ✅ **Theme integration** - Apps automatically use your GTK theme
+- ✅ **No system rebuilds** - Install/remove apps instantly
+
+**To install apps:**
+1. Open **GNOME Software** from your applications
+2. Browse or search for applications
+3. Click "Install" - that's it!
+
+Popular apps available on Flathub:
+- **Browsers**: Firefox, Chrome, Edge, Opera
+- **Communication**: Slack, Discord, Telegram, Signal
+- **Media**: Spotify, VLC, Audacity, GIMP, Kdenlive
+- **Productivity**: LibreOffice, OnlyOffice, Thunderbird
+- **Development**: Postman, MongoDB Compass, Beekeeper Studio
+- **And thousands more...**
+
+### For Technical Users: Declarative NixOS Packages
+
+If you prefer declarative configuration, add packages to your `extraConfig` in your host configuration:
+
+```nix
+extraConfig = {
+  environment.systemPackages = with pkgs; [
+    firefox
+    slack
+    # your packages here
+  ];
+};
+```
+
+**When to use NixOS packages instead of Flathub:**
+- You need packages for system services (not desktop apps)
+- You want reproducible builds across multiple machines
+- You need packages that integrate deeply with the system
+- You're building a custom configuration to share
+
+**Note**: Most desktop applications work better as Flatpaks due to sandboxing and independent updates. Reserve NixOS packages for system-level tools, command-line utilities, and development environments.
+
 ## Why axiOS?
 
 - ✅ **Minimal maintenance** - Your config is ~30 lines, axios handles the rest
