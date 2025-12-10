@@ -99,14 +99,14 @@ let
           "-y"
           "@modelcontextprotocol/server-brave-search"
         ];
-        passwordCommand = lib.mkIf (config.age.secrets ? brave-api-key) {
+        passwordCommand = lib.mkIf ((config.age or null) != null && (config.age.secrets ? brave-api-key)) {
           BRAVE_API_KEY = [
             "${pkgs.coreutils}/bin/cat"
             config.age.secrets.brave-api-key.path
           ];
         };
         # Fallback to environment variable if secret not configured
-        env = lib.mkIf (!(config.age.secrets ? brave-api-key)) {
+        env = lib.mkIf ((config.age or null) == null || !(config.age.secrets ? brave-api-key)) {
           BRAVE_API_KEY = ''''${BRAVE_API_KEY}'';
         };
       };
@@ -117,14 +117,14 @@ let
           "-y"
           "tavily-mcp"
         ];
-        passwordCommand = lib.mkIf (config.age.secrets ? tavily-api-key) {
+        passwordCommand = lib.mkIf ((config.age or null) != null && (config.age.secrets ? tavily-api-key)) {
           TAVILY_API_KEY = [
             "${pkgs.coreutils}/bin/cat"
             config.age.secrets.tavily-api-key.path
           ];
         };
         # Fallback to environment variable if secret not configured
-        env = lib.mkIf (!(config.age.secrets ? tavily-api-key)) {
+        env = lib.mkIf ((config.age or null) == null || !(config.age.secrets ? tavily-api-key)) {
           TAVILY_API_KEY = ''''${TAVILY_API_KEY}'';
         };
       };
