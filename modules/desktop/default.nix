@@ -151,20 +151,25 @@ in
       gvfs.enable = true;
       udisks2.enable = true;
       system76-scheduler.enable = true;
-      flatpak = {
-        enable = true;
-        remotes = [
-          {
-            name = "flathub";
-            location = "https://flathub.org/repo/flathub.flatpakrepo";
-          }
-        ];
-      };
+      flatpak.enable = true;
       fwupd.enable = true;
       upower.enable = true;
       libinput.enable = true;
       acpid.enable = true;
       power-profiles-daemon.enable = lib.mkDefault (!config.hardware.system76.power-daemon.enable);
+    };
+
+    # === Flatpak Flathub Setup ===
+    # Automatically add Flathub remote on system activation
+    systemd.services.flatpak-add-flathub = {
+      wantedBy = [ "multi-user.target" ];
+      wants = [ "network-online.target" ];
+      after = [ "network-online.target" ];
+      serviceConfig = {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        ExecStart = "${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo";
+      };
     };
 
     # === XDG Portal Configuration ===
