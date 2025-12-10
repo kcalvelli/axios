@@ -8,6 +8,14 @@
 <em>A modular <a href="https://nixos.org">NixOS</a> framework and library for building reproducible systems with <a href="https://github.com/nix-community/home-manager">Home Manager</a>, modern desktop environments, and curated development tools.</em>
 </p>
 
+<p align="center">
+<img src="docs/screenshots/hero-vscode-maximized.png" alt="axiOS Focused Workspace">
+</p>
+
+<p align="center">
+<em>Maximized windows, no borders, no distractions — designed for focused work</em>
+</p>
+
 ## What is axiOS?
 
 axiOS is a **NixOS framework and library** that you import into your own flake to build NixOS configurations. Think of it as a curated collection of modules, packages, and home-manager configs that work together.
@@ -70,17 +78,25 @@ For manual setup, you'll create just 3 files:
 
 ## Screenshots
 
-### Niri Overview
-![Niri Overview](docs/screenshots/overview.png)
-*[Niri](https://github.com/YaLTeR/niri) scrollable tiling compositor with workspace overview*
+### Workspace Overview with Blur Effect
+![Workspace Overview](docs/screenshots/workspace-overview.png)
+*Niri's scrollable workspace view showing multiple contexts (Discord, VS Code, Nautilus) with automatic wallpaper blur*
 
-### Dropdown Terminal
-![Dropdown Terminal](docs/screenshots/dropdown.png)
-*Ghostty terminal with dropdown mode and custom theming*
+### Dropdown Terminal (Super+`)
+![Dropdown Terminal](docs/screenshots/dropdown-terminal.png)
+*Instant terminal overlay (97% width, 420px tall) for quick commands during focused work — nix build running over VS Code*
 
-### File Manager
-![Nautilus File Manager](docs/screenshots/nautilus.png)
-*Nautilus file manager with custom theme integration*
+### Strategic Floating Windows
+![Floating Utilities](docs/screenshots/floating-utilities.png)
+*Supporting tools that don't disrupt focus: Google Fi messaging (top-left), GitHub in Brave, Nautilus file manager, and QCalculate*
+
+### DMS Material Design Shell
+![DMS Settings and Monitor](docs/screenshots/dms-settings-monitor.png)
+*DankMaterialShell with system monitor, settings panel, and Material Design widgets — showing user profile, network status, and performance graphs*
+
+### Local AI Integration
+![Alpaca Local LLM](docs/screenshots/ai-alpaca.png)
+*Alpaca GUI with local LLM inference (Ollama backend) — part of the optional AI module with ROCm GPU acceleration*
 
 ## Documentation
 
