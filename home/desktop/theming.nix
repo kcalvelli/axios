@@ -55,6 +55,7 @@ in
     force = true;
   };
 
+  # Flatpak Theming
   dconf = {
     enable = true;
     settings = {
@@ -63,6 +64,12 @@ in
       };
     };
   };
+
+  # Flatpak per-user overrides (GTK3 apps pick up your theme/cursor)
+  xdg.dataFile."flatpak/overrides/global".text = ''
+    [Context]
+    filesystems=xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro
+  '';
 
   # Register base16 VSCode extension so VSCode can detect it
   home.activation.registerVSCodeExtension = config.lib.dag.entryAfter [ "writeBoundary" ] ''
