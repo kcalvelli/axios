@@ -151,7 +151,15 @@ in
       gvfs.enable = true;
       udisks2.enable = true;
       system76-scheduler.enable = true;
-      flatpak.enable = true;
+      flatpak = {
+        enable = true;
+        remotes = [
+          {
+            name = "flathub";
+            location = "https://flathub.org/repo/flathub.flatpakrepo";
+          }
+        ];
+      };
       fwupd.enable = true;
       upower.enable = true;
       libinput.enable = true;
