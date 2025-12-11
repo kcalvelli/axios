@@ -422,10 +422,34 @@ if [ -f /etc/NIXOS ]; then
 {
 DISKS_EOF
 
-    # Extract fileSystems and swapDevices sections
-    awk '/fileSystems\./,/;/' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
-    echo "" >> "hosts/${HOSTNAME}/disks.nix"
-    awk '/swapDevices/,/;/' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
+    # Extract fileSystems and swapDevices blocks
+    # This handles multi-line declarations correctly by tracking brace/bracket depth
+    awk '
+# Match start of fileSystems or swapDevices
+/^[[:space:]]*(fileSystems\.|swapDevices)/ {
+    capture = 1
+    depth = 0
+    print
+    next
+}
+
+# When capturing, track depth and print
+capture {
+    print
+
+    # Count depth using braces and brackets
+    for (i = 1; i <= length($0); i++) {
+        c = substr($0, i, 1)
+        if (c == "{" || c == "[") depth++
+        if (c == "}" || c == "]") depth--
+    }
+
+    # Stop when we close everything and hit semicolon
+    if (depth == 0 && $0 ~ /;[[:space:]]*$/) {
+        capture = 0
+    }
+}
+' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
 
     # Close the nix expression
     echo "}" >> "hosts/${HOSTNAME}/disks.nix"
