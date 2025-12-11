@@ -212,13 +212,22 @@ Available in development shells (`nix develop .#<shell>`):
 
 Included when `services.ai.enable = true`:
 
+**CLI Coding Agents** (3 distinct AI ecosystems):
+
+| Tool | Provider | Description |
+|------|----------|-------------|
+| **claude-code** | Anthropic | CLI agent with MCP support and deep integration |
+| **copilot-cli** | GitHub/OpenAI | CLI agent with GitHub ecosystem integration |
+| **gemini-cli** | Google | Multimodal CLI agent with free tier |
+
+**Workflow & Support Tools**:
+
 | Tool | Description |
 |------|-------------|
-| **Claude Code** | AI pair programming assistant from Anthropic |
-| **GitHub Copilot CLI** | AI code suggestions in terminal |
-| **claude-monitor** | Real-time Claude Code usage monitoring |
-| **jules** | Google's AI coding assistant |
-| **Whisper.cpp** | Local speech-to-text transcription |
+| **spec-kit** | Spec-driven development framework (used by axiOS) |
+| **backlog-md** | Project management for human-AI collaboration |
+| **claude-monitor** | Real-time AI session resource monitoring |
+| **whisper-cpp** | Local speech-to-text transcription |
 
 ### Local LLM Stack (Optional)
 
@@ -241,7 +250,7 @@ Included when `services.ai.local.enable = true`:
 - ROCm acceleration for AMD GPUs (automatic override for gfx1031)
 - Automatic model preloading on service start
 - Optional Caddy reverse proxy for remote HTTPS access
-- MCP server support in OpenCode
+- MCP server support in OpenCode (user-configured)
 
 **Requirements:**
 - AMD GPU recommended (8GB+ VRAM for larger models)

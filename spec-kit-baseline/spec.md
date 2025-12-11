@@ -173,14 +173,18 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 
 ### AI & Development Assistance
 #### AI Tools Integration
-- **Purpose**: Comprehensive AI assistant integration for development
-- **Implementation Evidence**: modules/ai/, home/ai/, flake.nix:97-103
+- **Purpose**: Opinionated AI assistant integration with 3 distinct AI ecosystems
+- **Implementation Evidence**: modules/ai/default.nix:109-138, home/ai/, flake.nix:97-103
 - **Confidence**: [EXPLICIT]
-- **Tools**:
-  - **claude-code**: Claude CLI tool from nix-ai-tools
-  - **copilot-cli**: GitHub Copilot CLI
+- **CLI Coding Agents** (3 distinct AI providers):
+  - **claude-code**: Anthropic's CLI agent with MCP support and deep integration
+  - **copilot-cli**: GitHub/OpenAI CLI agent with GitHub ecosystem integration
+  - **gemini-cli**: Google's multimodal CLI agent with free tier
+- **Workflow & Support Tools**:
+  - **spec-kit**: Spec-driven development framework (used by axiOS spec-kit-baseline/)
+  - **backlog-md**: Project management for human-AI collaboration
   - **claude-monitor**: Resource monitoring for AI sessions
-  - **gemini-cli**: Google Gemini CLI for development tasks
+  - **whisper-cpp**: Speech-to-text tool
 
 #### Local LLM Inference Stack
 - **Purpose**: Self-hosted LLM inference with AMD GPU acceleration

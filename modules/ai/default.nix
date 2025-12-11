@@ -111,30 +111,24 @@ in
         with pkgs;
         [
           # AI assistant tools
-          whisper-cpp
+          whisper-cpp # Speech-to-text
           nodejs # For npx MCP servers
           claude-monitor # Real-time Claude Code usage monitoring
-          (pkgs.writeShellScriptBin "jules" ''
-            exec ${pkgs.nodejs_20}/bin/npx @google/jules@latest "$@"
-          '')
         ]
         ++ (
           let
             ai-tools = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system};
           in
           [
-            # AI tools
-            ai-tools.copilot-cli # GitHub Copilot CLI
-            ai-tools.claude-code # Claude CLI with MCP support
-            ai-tools.goose-cli
-            ai-tools.claude-code-router
-            ai-tools.backlog-md
-            ai-tools.crush
-            ai-tools.forge
-            ai-tools.codex
-            ai-tools.catnip
-            ai-tools.gemini-cli
-            ai-tools.spec-kit
+            # CLI Coding Agents (3 distinct AI ecosystems)
+            ai-tools.claude-code # Anthropic - MCP support, deep integration
+            ai-tools.copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
+            ai-tools.gemini-cli # Google - Multimodal, free tier
+
+            # Workflow & Support Tools
+            ai-tools.spec-kit # Spec-driven development framework
+            ai-tools.backlog-md # Project management for human-AI collaboration
+
             # VSCode extension compatibility: claude-code symlink
             (pkgs.writeShellScriptBin "claude-code" ''
               exec ${ai-tools.claude-code}/bin/claude "$@"

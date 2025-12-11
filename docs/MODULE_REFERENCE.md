@@ -235,11 +235,15 @@ virt = {
 **Two-Tier Architecture:**
 
 1. **Base AI Tools** (always included when `services.ai.enable = true`):
-   - **Claude Code** - AI pair programming assistant from Anthropic
-   - **GitHub Copilot CLI** - AI code suggestions in terminal
-   - **claude-monitor** - Real-time usage monitoring
-   - **jules** - Google's AI coding assistant
-   - **Whisper.cpp** - Local speech-to-text transcription
+   - **CLI Coding Agents** (3 distinct AI ecosystems):
+     - **claude-code** - Anthropic's CLI agent with MCP support
+     - **copilot-cli** - GitHub/OpenAI CLI agent with GitHub integration
+     - **gemini-cli** - Google's multimodal CLI agent with free tier
+   - **Workflow & Support Tools**:
+     - **spec-kit** - Spec-driven development framework
+     - **backlog-md** - Project management for human-AI collaboration
+     - **claude-monitor** - Real-time AI session resource monitoring
+     - **whisper-cpp** - Local speech-to-text transcription
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
    - **Ollama** - Local inference backend with ROCm GPU acceleration

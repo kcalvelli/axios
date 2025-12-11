@@ -143,9 +143,10 @@ Check out these example configurations:
 - **Virtualization**: libvirt, QEMU, Podman support (optional)
 - **Gaming**: Steam, GameMode, Proton (optional)
 - **AI Services** (optional):
-  - Cloud AI: Claude Code, GitHub Copilot CLI with MCP servers
+  - Cloud AI: 3 CLI coding agents (claude-code, copilot-cli, gemini-cli) + workflow tools
   - Local LLM: Ollama + Alpaca + OpenCode with ROCm acceleration
   - 32K context window for agentic coding
+  - Full MCP server integration
 - **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)
 
 **See project structure and module details in [docs/README.md](docs/README.md)**
