@@ -465,12 +465,23 @@ extraConfig = {
 
 ### Enable Optional Features
 
-```nix
-# Enable XDG user directories (Documents, Downloads, etc.)
-axios.home.xdgUserDirs = true;
+Home-manager options like XDG user directories and FLAKE_PATH are configured in your `user.nix` file, not in the host configuration's `extraConfig`.
 
-# Set custom FLAKE_PATH (default: ~/.config/nixos_config)
-axios.home.flakePath = "/path/to/config";
+To enable XDG user directories (Documents, Downloads, Pictures, etc.), add to your `user.nix`:
+
+```nix
+{
+  axios.user = {
+    # ... your user config ...
+  };
+
+  # Enable XDG user directories (Documents, Downloads, etc.)
+  # Safe for new installations
+  axios.home.xdgUserDirs = true;
+
+  # Optionally customize FLAKE_PATH (default: ~/.config/nixos_config)
+  # axios.home.flakePath = "/path/to/config";
+}
 ```
 
 ### Add Your Own Modules
