@@ -19,7 +19,8 @@ axios.lib.mkSystem {
   modules = { system = bool; desktop = bool; development = bool; /* ... */ };
   homeProfile = "workstation" | "laptop";
   userModulePath = path;
-  diskConfigPath = path;
+  hardwareConfigPath = path;  // Recommended: Full hardware config from nixos-generate-config
+  diskConfigPath = path;      // Legacy: Still supported for backward compatibility
   extraConfig = { /* NixOS options */ };
 }
 ```
@@ -67,8 +68,11 @@ The main function to create a NixOS system configuration.
       };
       
       homeProfile = "workstation"; # or "laptop"
-      
-      diskConfigPath = ./disks.nix;
+
+      # Hardware configuration (recommended: use hardwareConfigPath)
+      hardwareConfigPath = ./hardware.nix;  # Full hardware config from nixos-generate-config
+      # Or use legacy diskConfigPath (still supported for backward compatibility)
+      # diskConfigPath = ./disks.nix;
       
       # Optional: Additional configuration
       extraConfig = {
@@ -133,7 +137,8 @@ Helper function that builds the complete module list for a host configuration. C
 
 ### Optional Fields
 - `homeProfile`: "workstation" | "laptop" - Home-manager profile
-- `diskConfigPath`: Path to disko configuration
+- `hardwareConfigPath`: Path to hardware configuration (recommended - includes boot modules, kernel modules, filesystems, swap)
+- `diskConfigPath`: Path to disk configuration (legacy, still supported for backward compatibility)
 - `extraConfig`: Additional NixOS configuration attribute set
 - `virt`: Virtualization configuration (if modules.virt is true)
 - `services`: Services configuration (if modules.services is true)

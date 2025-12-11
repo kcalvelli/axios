@@ -590,6 +590,65 @@ lsblk -f | grep /boot
 
 ---
 
+## Migration Guide: diskConfigPath → hardwareConfigPath
+
+**For existing axiOS users:**
+
+axiOS now supports `hardwareConfigPath` which includes the **full** `hardware-configuration.nix` (boot modules, kernel modules, filesystems, and swap). This fixes boot issues with VMs and other hardware that needs specific kernel modules.
+
+### Why the Change?
+
+The old `diskConfigPath` only extracted filesystems and swap, missing critical boot configuration like:
+- `boot.initrd.availableKernelModules` (needed for VMs with VirtIO, exotic hardware)
+- `boot.kernelModules` (KVM, hardware-specific modules)
+- `hardware.cpu.*.updateMicrocode` settings
+
+This caused emergency boot issues in VMs and some hardware configurations.
+
+### Backward Compatibility
+
+**Your existing config still works!** Both `diskConfigPath` and `hardwareConfigPath` are supported:
+
+```nix
+# OLD (still works, no changes needed)
+diskConfigPath = ./hosts/hostname/disks.nix;
+
+# NEW (recommended for new configs)
+hardwareConfigPath = ./hosts/hostname/hardware.nix;
+```
+
+### How to Migrate (Optional)
+
+If you want to switch to the new approach:
+
+1. **Copy your full hardware config:**
+   ```bash
+   cp /etc/nixos/hardware-configuration.nix ~/.config/nixos_config/hosts/HOSTNAME/hardware.nix
+   ```
+
+2. **Update your host config:**
+   ```nix
+   # Change from:
+   diskConfigPath = ./hosts/HOSTNAME/disks.nix;
+
+   # To:
+   hardwareConfigPath = ./hosts/HOSTNAME/hardware.nix;
+   ```
+
+3. **Remove old file (optional):**
+   ```bash
+   rm hosts/HOSTNAME/disks.nix
+   ```
+
+4. **Rebuild:**
+   ```bash
+   sudo nixos-rebuild switch --flake .#HOSTNAME
+   ```
+
+**No rush to migrate** - your existing config will continue working indefinitely.
+
+---
+
 ## More Information
 
 - [Library API Reference](LIBRARY_USAGE.md) - Complete documentation

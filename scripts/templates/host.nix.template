@@ -43,8 +43,9 @@
     # User module path
     userModulePath = userModulePath;
 
-    # Disk configuration path (extracted from hardware-configuration.nix)
-    diskConfigPath = ./{{HOSTNAME}}/disks.nix;
+    # Hardware configuration path (copied from /etc/nixos/hardware-configuration.nix)
+    # Includes boot modules, kernel modules, filesystems, and swap
+    hardwareConfigPath = ./{{HOSTNAME}}/hardware.nix;
 
     # Optional: Extra NixOS configuration
     extraConfig = {

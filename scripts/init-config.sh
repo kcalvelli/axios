@@ -405,69 +405,24 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
   echo "  ✓ hosts/${HOSTNAME}.nix"
 fi
 
-# Generate/update hardware configuration and extract disk config
+# Generate/update hardware configuration
 # Run nixos-generate-config to ensure we have current hardware detection
 if [ -f /etc/NIXOS ]; then
   echo "  Running nixos-generate-config to detect hardware..."
   sudo nixos-generate-config --root /etc >/dev/null 2>&1 || true
 
-  # Extract filesystem and swap configuration from hardware-configuration.nix
-  # This creates a minimal disks.nix with only filesystem mounts and swap devices
+  # Copy the complete hardware-configuration.nix
+  # This includes boot modules, kernel modules, filesystems, and swap - everything needed for hardware boot
   if [ -f /etc/nixos/hardware-configuration.nix ]; then
-    cat > "hosts/${HOSTNAME}/disks.nix" <<'DISKS_EOF'
-# Disk configuration extracted from hardware-configuration.nix
-# This contains only filesystem mounts and swap devices
-{ config, lib, pkgs, ... }:
-
-{
-DISKS_EOF
-
-    # Extract fileSystems and swapDevices blocks
-    # This handles multi-line declarations correctly by tracking brace/bracket depth
-    awk '
-# Match start of fileSystems or swapDevices
-/^[[:space:]]*(fileSystems\.|swapDevices)/ {
-    capture = 1
-    depth = 0
-    print
-    next
-}
-
-# When capturing, track depth and print
-capture {
-    print
-
-    # Count depth using braces and brackets
-    for (i = 1; i <= length($0); i++) {
-        c = substr($0, i, 1)
-        if (c == "{" || c == "[") depth++
-        if (c == "}" || c == "]") depth--
-    }
-
-    # Stop when we close everything and hit semicolon
-    if (depth == 0 && $0 ~ /;[[:space:]]*$/) {
-        capture = 0
-    }
-}
-' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
-
-    # Close the nix expression
-    echo "}" >> "hosts/${HOSTNAME}/disks.nix"
-
-    # Verify the extraction worked correctly
-    if grep -q "boot\." "hosts/${HOSTNAME}/disks.nix" || grep -q "imports" "hosts/${HOSTNAME}/disks.nix"; then
-      echo -e "  ${YELLOW}⚠ Warning: disks.nix contains boot/imports lines (extraction may have failed)${NC}"
-      echo "  This file should only contain fileSystems and swapDevices"
-    fi
-
-    echo "  ✓ hosts/${HOSTNAME}/disks.nix (extracted from hardware-configuration.nix)"
+    cp /etc/nixos/hardware-configuration.nix "hosts/${HOSTNAME}/hardware.nix"
+    echo "  ✓ hosts/${HOSTNAME}/hardware.nix (copied from /etc/nixos/hardware-configuration.nix)"
   else
     echo -e "  ${YELLOW}⚠ Failed to generate hardware-configuration.nix${NC}"
-    echo "  You'll need to create hosts/${HOSTNAME}/disks.nix manually"
+    echo "  You'll need to create hosts/${HOSTNAME}/hardware.nix manually"
   fi
 else
-  echo -e "  ${YELLOW}⚠ Not running on NixOS - cannot auto-generate disk config${NC}"
-  echo "  You'll need to create hosts/${HOSTNAME}/disks.nix manually"
+  echo -e "  ${YELLOW}⚠ Not running on NixOS - cannot auto-generate hardware config${NC}"
+  echo "  You'll need to create hosts/${HOSTNAME}/hardware.nix manually"
   echo "  Install NixOS first, then run this init script"
 fi
 
@@ -483,11 +438,11 @@ echo ""
 echo -e "${BOLD}Next steps:${NC}"
 echo ""
 echo -e "  ${YELLOW}1. Review configuration:${NC}"
-if [ -f "hosts/${HOSTNAME}/disks.nix" ]; then
-  echo "     ✓ Disk configuration extracted from /etc/nixos/hardware-configuration.nix"
+if [ -f "hosts/${HOSTNAME}/hardware.nix" ]; then
+  echo "     ✓ Hardware configuration copied from /etc/nixos/hardware-configuration.nix"
 else
-  echo "     ⚠ Create hosts/${HOSTNAME}/disks.nix"
-  echo "       Run nixos-generate-config and extract filesystem/boot/swap sections"
+  echo "     ⚠ Create hosts/${HOSTNAME}/hardware.nix"
+  echo "       Run nixos-generate-config to generate hardware-configuration.nix, then copy it"
 fi
 echo "     Check hosts/${HOSTNAME}.nix for any customizations"
 echo ""

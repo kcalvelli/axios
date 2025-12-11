@@ -19,7 +19,7 @@ Generated with [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS fra
 ├── hosts/
 │   ├── {{HOSTNAME}}.nix        # Host-specific configuration
 │   └── {{HOSTNAME}}/
-│       └── disks.nix      # Disk partitioning (disko)
+│       └── hardware.nix   # Hardware configuration (from nixos-generate-config)
 └── README.md              # This file
 ```
 
@@ -27,9 +27,10 @@ Generated with [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS fra
 
 ### 1. Review Configuration
 
-**Disk configuration** is in `hosts/{{HOSTNAME}}/disks.nix`
-- Device has been set automatically based on your selection
-- Review partition layout if needed
+**Hardware configuration** is in `hosts/{{HOSTNAME}}/hardware.nix`
+- Copied from `/etc/nixos/hardware-configuration.nix`
+- Includes boot modules, kernel modules, filesystems, and swap
+- Auto-detected by nixos-generate-config
 
 **Host configuration** is in `hosts/{{HOSTNAME}}.nix`
 - Review enabled modules
