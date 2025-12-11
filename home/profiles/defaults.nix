@@ -33,12 +33,15 @@ in
 
       flakePath = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
-        default = "\${HOME}/.config/nixos";
+        default = "\${HOME}/.config/nixos_config";
         description = ''
           Default path to NixOS flake configuration.
 
           Sets the FLAKE_PATH environment variable for convenience with
           rebuild scripts and aliases. Set to null to disable.
+
+          The axios init script creates configurations in ~/.config/nixos_config
+          by default.
         '';
       };
     };
@@ -66,6 +69,20 @@ in
     # Set FLAKE_PATH for convenience with rebuild scripts
     home.sessionVariables = lib.mkIf (cfg.flakePath != null) {
       FLAKE_PATH = lib.mkDefault cfg.flakePath;
+    };
+
+    # Create standard XDG user directories
+    xdg.userDirs = {
+      enable = true;
+      createDirectories = true;
+      desktop = "${config.home.homeDirectory}/Desktop";
+      documents = "${config.home.homeDirectory}/Documents";
+      download = "${config.home.homeDirectory}/Downloads";
+      music = "${config.home.homeDirectory}/Music";
+      pictures = "${config.home.homeDirectory}/Pictures";
+      videos = "${config.home.homeDirectory}/Videos";
+      templates = "${config.home.homeDirectory}/Templates";
+      publicShare = "${config.home.homeDirectory}/Public";
     };
   };
 }

@@ -55,6 +55,10 @@
     };
     
     # Disk configuration path
-    diskConfigPath = ./{{HOSTNAME}}/disks.nix;
+    # Uses hardware-configuration.nix on existing NixOS, disks.nix for fresh install
+    diskConfigPath =
+      if builtins.pathExists ./{{HOSTNAME}}/hardware-configuration.nix
+      then ./{{HOSTNAME}}/hardware-configuration.nix
+      else ./{{HOSTNAME}}/disks.nix;
   };
 }

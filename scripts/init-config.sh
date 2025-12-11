@@ -28,6 +28,8 @@ echo -e "${NC}"
 echo -e "${GREEN}Welcome to axiOS!${NC}"
 echo "This tool will help you create a personalized NixOS configuration."
 echo ""
+echo -e "${BLUE}Configuration will be created in: ${BOLD}~/.config/nixos_config${NC}"
+echo ""
 
 # Detect hardware and system settings if running on NixOS
 DETECTED_CPU=""
@@ -312,7 +314,7 @@ if [ "$ENABLE_VIRT" = "true" ]; then
   echo "    - containers: $ENABLE_CONTAINERS"
 fi
 echo ""
-echo -ne "${BLUE}Generate configuration in current directory?${NC} [Y/n]: " >&2
+echo -ne "${BLUE}Generate configuration in ~/.config/nixos_config?${NC} [Y/n]: " >&2
 read confirm
 confirm="${confirm:-y}"
 
@@ -321,16 +323,28 @@ if [[ ! "${confirm,,}" =~ ^(y|yes)$ ]]; then
   exit 0
 fi
 
-# Check if current directory is empty
-if [ "$(ls -A . 2>/dev/null | wc -l)" -gt 0 ]; then
-  echo -e "${YELLOW}Warning: Current directory is not empty.${NC}" >&2
-  echo -ne "Continue anyway? [y/N]: " >&2
-  read force
-  if [[ ! "${force,,}" =~ ^(y|yes)$ ]]; then
-    echo "Cancelled. Please run from an empty directory."
-    exit 1
+# Create and cd to ~/.config/nixos_config
+CONFIG_DIR="${HOME}/.config/nixos_config"
+if [ -d "${CONFIG_DIR}" ]; then
+  # Check if directory is empty
+  if [ "$(ls -A "${CONFIG_DIR}" 2>/dev/null | wc -l)" -gt 0 ]; then
+    echo -e "${YELLOW}Warning: ${CONFIG_DIR} is not empty.${NC}" >&2
+    echo -ne "Continue anyway? This may overwrite files. [y/N]: " >&2
+    read force
+    if [[ ! "${force,,}" =~ ^(y|yes)$ ]]; then
+      echo "Cancelled."
+      exit 1
+    fi
   fi
+else
+  mkdir -p "${CONFIG_DIR}"
+  echo "Created ${CONFIG_DIR}"
 fi
+
+cd "${CONFIG_DIR}" || {
+  echo -e "${RED}Failed to enter ${CONFIG_DIR}${NC}"
+  exit 1
+}
 
 echo ""
 echo -e "${GREEN}Generating configuration files...${NC}"
@@ -427,13 +441,18 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
   echo "  ✓ hosts/${HOSTNAME}.nix"
 fi
 
-# Generate disks.nix in host subdirectory
-if [ -f "${TEMPLATE_DIR}/disks.nix.template" ]; then
+# Generate disk configuration
+# On existing NixOS: Copy hardware-configuration.nix from /etc/nixos
+# On fresh install: Generate disko template
+if [ -f /etc/NIXOS ] && [ -f /etc/nixos/hardware-configuration.nix ]; then
+  cp /etc/nixos/hardware-configuration.nix "hosts/${HOSTNAME}/hardware-configuration.nix"
+  echo "  ✓ hosts/${HOSTNAME}/hardware-configuration.nix (copied from /etc/nixos)"
+elif [ -f "${TEMPLATE_DIR}/disks.nix.template" ]; then
   sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
       -e "s|{{DATE}}|${DATE}|g" \
       -e "s|{{DISK_DEVICE}}|${DISK_DEVICE}|g" \
       "${TEMPLATE_DIR}/disks.nix.template" > "hosts/${HOSTNAME}/disks.nix"
-  echo "  ✓ hosts/${HOSTNAME}/disks.nix"
+  echo "  ✓ hosts/${HOSTNAME}/disks.nix (disko template for fresh install)"
 fi
 
 # Create .gitignore
@@ -447,14 +466,15 @@ echo -e "${GREEN}${BOLD}✓ Configuration generated successfully!${NC}"
 echo ""
 echo -e "${BOLD}Next steps:${NC}"
 echo ""
-if [ -f /etc/NIXOS ]; then
+if [ -f /etc/NIXOS ] && [ -f /etc/nixos/hardware-configuration.nix ]; then
   echo -e "  ${YELLOW}1. Review configuration:${NC}"
+  echo "     ✓ Hardware configuration copied from /etc/nixos/hardware-configuration.nix"
   echo "     Check hosts/${HOSTNAME}.nix for any customizations"
-  echo "     Disk: ${DISK_DEVICE} (auto-detected)"
 else
   echo -e "  ${YELLOW}1. Review disk configuration:${NC}"
   echo "     Edit hosts/${HOSTNAME}/disks.nix and change ${DISK_DEVICE} to your disk device"
   echo "     Use 'lsblk' to find your disk"
+  echo "     Or manually create hosts/${HOSTNAME}/hardware-configuration.nix"
 fi
 echo ""
 echo -e "  ${YELLOW}2. Review host configuration:${NC}"
@@ -462,17 +482,18 @@ echo "     Edit hosts/${HOSTNAME}.nix to customize settings"
 echo "     See extraConfig section for additional options"
 echo ""
 echo -e "  ${YELLOW}3. Initialize git repository:${NC}"
+echo "     cd ~/.config/nixos_config"
 echo "     git init"
 echo "     git add ."
 echo "     git commit -m 'Initial axiOS configuration'"
 echo ""
-echo -e "  ${YELLOW}4. Install or rebuild:${NC}"
-echo "     # For fresh installation:"
-echo "     sudo nixos-install --flake .#${HOSTNAME}"
+echo -e "  ${YELLOW}4. Rebuild system:${NC}"
+echo "     sudo nixos-rebuild switch --flake ~/.config/nixos_config#${HOSTNAME}"
+echo "     # Or use the fish helper: rebuild-switch"
 echo ""
-echo "     # For existing system:"
-echo "     sudo nixos-rebuild switch --flake .#${HOSTNAME}"
+echo -e "${GREEN}Configuration location: ${BOLD}~/.config/nixos_config${NC}"
+echo -e "Helper commands available after rebuild: ${BOLD}rebuild-switch, rebuild-boot, update-flake, flake-cd${NC}"
 echo ""
-echo -e "See ${BOLD}README.md${NC} for complete documentation."
+echo -e "See ${BOLD}~/.config/nixos_config/README.md${NC} for complete documentation."
 echo ""
 echo -e "${BLUE}Welcome to axiOS! 🚀${NC}"
