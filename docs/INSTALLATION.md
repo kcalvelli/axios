@@ -2,153 +2,164 @@
 
 This guide shows you how to use axiOS as a library to build your NixOS configuration.
 
+**Important**: axiOS is designed to be installed **on top of an existing NixOS installation**. Install NixOS first using the standard installer, then use axiOS to configure it.
+
 ## What You'll Create
 
 A minimal configuration repository with just a few files:
 
 ```
-my-nixos-config/
-├── flake.nix       # ~40 lines - your system config
-├── user.nix        # Your user definition
-├── disks.nix       # Disk layout
-├── README.md       # Personalized instructions
-└── .gitignore      # Standard ignores
+~/.config/nixos_config/
+├── flake.nix              # Your system configuration (~40 lines)
+├── user.nix               # Your user account definition
+├── hosts/
+│   ├── hostname.nix       # Host-specific configuration
+│   └── hostname/
+│       └── disks.nix      # Disk/filesystem config (auto-generated)
+├── README.md              # Personalized instructions
+└── .gitignore             # Standard ignores
 ```
 
 That's it! All modules, packages, and home-manager configs come from axios.
+
+## Prerequisites
+
+**You must have NixOS already installed** using the standard installer. axiOS configures existing NixOS systems, it does not replace the NixOS installer.
+
+If you haven't installed NixOS yet:
+1. Download the [NixOS installer ISO](https://nixos.org/download)
+2. Boot from the ISO and follow the [NixOS installation guide](https://nixos.org/manual/nixos/stable/#sec-installation)
+3. Complete the installation and boot into your new NixOS system
+4. Then return here to install axiOS
 
 ## Quick Start (Recommended)
 
 ### Using the Interactive Generator
 
-The easiest way to get started:
+On your **existing NixOS system**, run:
 
 ```bash
-# Create your config directory
-mkdir ~/my-nixos-config
-cd ~/my-nixos-config
-
 # Run the interactive generator
 nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
 
 The generator will:
-1. **Ask you questions** about your system:
-   - Hostname, username, email
-   - Form factor (desktop/laptop)
-   - Hardware (CPU/GPU vendors)
-   - Optional modules (gaming, virtualization, services)
 
-2. **Generate files** tailored to your answers:
-   - `flake.nix` - Configured with your hardware
+1. **Ask you questions** about your system:
+   - Hostname, username, email, timezone
+   - Form factor (desktop/laptop/server)
+   - Hardware (CPU/GPU vendors)
+   - Optional modules (gaming, virtualization, AI, secrets)
+
+2. **Generate files** in `~/.config/nixos_config/`:
+   - `flake.nix` - Main flake configuration
    - `user.nix` - Your user account
-   - `disks.nix` - Disk template (you'll edit this)
+   - `hosts/HOSTNAME.nix` - Host configuration
+   - `hosts/HOSTNAME/disks.nix` - **Auto-extracted** from `/etc/nixos/hardware-configuration.nix`
    - `README.md` - Personalized next-steps guide
 
-3. **Show next steps** with clear instructions
+3. **Auto-extract disk configuration**:
+   - Reads `/etc/nixos/hardware-configuration.nix` (created during NixOS installation)
+   - Extracts filesystem mounts, boot config, and swap
+   - Creates clean `disks.nix` with only disk-related configuration
+   - **No manual copying required!**
 
 Then just:
-1. Edit `disks.nix` to set your disk device
-2. Initialize git repository
-3. Install or rebuild
+```bash
+cd ~/.config/nixos_config
+git init
+git add .
+git commit -m "Initial axiOS configuration"
+sudo nixos-rebuild switch --flake .#HOSTNAME
+```
 
-**That's it! Skip to "Installing NixOS" below.**
+**That's it!** Your system is now managed by axiOS.
+
+---
+
+## What Happens During Init
+
+The `nix run .#init` script:
+
+1. **Creates** `~/.config/nixos_config/` directory
+2. **Prompts** for system configuration (hostname, user, hardware, etc.)
+3. **Generates** configuration files from templates
+4. **Extracts** disk configuration from `/etc/nixos/hardware-configuration.nix`:
+   ```bash
+   # Automatically extracts these sections:
+   - boot.initrd.availableKernelModules
+   - boot.kernelModules
+   - fileSystems.* (all mount points)
+   - swapDevices
+   - hardware.cpu.*.updateMicrocode
+   ```
+5. **Creates** `hosts/HOSTNAME/disks.nix` with extracted config
+6. **Shows** next steps
+
+**No manual file editing required** - the disk configuration is automatically extracted from your existing NixOS installation.
+
+---
+
+## Applying Your Configuration
+
+After running the init script:
+
+```bash
+# Navigate to your configuration
+cd ~/.config/nixos_config
+
+# Initialize git (optional but recommended)
+git init
+git add .
+git commit -m "Initial axiOS configuration"
+
+# Apply the configuration
+sudo nixos-rebuild switch --flake .#HOSTNAME
+
+# Log out and back in to activate home-manager changes
+```
+
+Your system is now managed by axiOS! 🎉
+
+---
+
+## Using Fish Shell Helpers
+
+axiOS provides convenient fish functions for managing your system:
+
+```bash
+# Update flake inputs (axios and dependencies)
+update-flake
+
+# Rebuild and switch to new configuration
+rebuild-switch
+
+# Rebuild and activate on next boot
+rebuild-boot
+
+# Test new configuration without making it default
+rebuild-test
+
+# Navigate to your flake directory
+flake-cd
+```
+
+These commands automatically use your configuration at `~/.config/nixos_config` (set via `FLAKE_PATH` environment variable).
 
 ---
 
 ## Manual Setup (Alternative)
 
-If you prefer to create files manually:
+If you prefer to create files manually instead of using the generator:
 
-### Step 1: Create Your Repository
-
-```bash
-mkdir ~/my-nixos-config
-cd ~/my-nixos-config
-```
-
-### Step 2: Copy the Example
+### Step 1: Create Configuration Directory
 
 ```bash
-# Copy the minimal example from axios
-git clone https://github.com/kcalvelli/axios /tmp/axios
-cp -r /tmp/axios/examples/minimal-flake/* .
-rm -rf /tmp/axios
+mkdir -p ~/.config/nixos_config
+cd ~/.config/nixos_config
 ```
 
-Or use the interactive generator instead (see above).
-
-### Step 3: Customize for Your System
-
-Edit `flake.nix`:
-- Change `hostname` to your computer name
-- Set `cpu` and `gpu` to match your hardware ("amd" or "intel"/"nvidia")
-- Set `formFactor` to "laptop" or "desktop"
-- Enable/disable modules as needed
-
-Edit `user.nix`:
-- Change `username`, `fullName`, and `email`
-- Add/remove groups as needed
-
-Edit `disks.nix`:
-- Change `/dev/sda` to your actual disk device
-- Adjust partition sizes if needed
-
-### Step 4: Install or Rebuild
-
----
-
-## Installing NixOS
-
-Whether you used the generator or manual setup, you're ready to install:
-
-### Preparation
-
-1. **Review disk configuration:**
-   ```bash
-   # Find your disk device
-   lsblk
-   
-   # Edit disks.nix and change /dev/sda to your disk
-   vim disks.nix
-   ```
-
-2. **Initialize git repository:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial axiOS configuration"
-   ```
-
-### Installation
-
-**From NixOS installer:**
-
-**From NixOS installer:**
-```bash
-sudo nixos-install --flake .#myhost
-```
-
-**On existing NixOS system:**
-```bash
-sudo nixos-rebuild switch --flake .#myhost
-```
-
-### Step 5: Initialize Git
-
-```bash
-git init
-git add .
-git commit -m "Initial NixOS configuration"
-```
-
-Optional: Push to your own GitHub/GitLab repository.
-
-## Manual File Creation
-
-If you prefer to create files manually:
-
-### flake.nix
+### Step 2: Create flake.nix
 
 ```nix
 {
@@ -159,189 +170,221 @@ If you prefer to create files manually:
     nixpkgs.follows = "axios/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }: {
-    nixosConfigurations.myhost = axios.lib.mkSystem {
-      hostname = "myhost";
-      system = "x86_64-linux";
-      formFactor = "desktop";  # or "laptop"
-      
-      hardware = {
-        cpu = "amd";      # "amd" or "intel"
-        gpu = "amd";      # "amd", "nvidia", or "intel"
-        hasSSD = true;
-        isLaptop = false;
-      };
-      
-      modules = {
-        system = true;
-        desktop = true;
-        development = true;
-        graphics = true;
-        networking = true;
-        users = true;
-        virt = false;
-        gaming = false;
-        services = false;
-      };
-      
-      homeProfile = "workstation";  # or "laptop"
-      userModulePath = self.outPath + "/user.nix";
-      diskConfigPath = ./disks.nix;
-      
-      extraConfig = {
-        # Add any additional NixOS options here
+  outputs =
+    {
+      self,
+      axios,
+      nixpkgs,
+      ...
+    }:
+    {
+      nixosConfigurations.myhost = axios.lib.mkSystem {
+        hostConfig = {
+          hostname = "myhost";
+          system = "x86_64-linux";
+          formFactor = "desktop"; # or "laptop" or "server"
+
+          hardware = {
+            cpu = "amd"; # "amd" or "intel"
+            gpu = "amd"; # "amd", "nvidia", or "intel"
+            hasSSD = true;
+            isLaptop = false;
+          };
+
+          modules = {
+            system = true;
+            desktop = true;
+            development = true;
+            graphics = true;
+            networking = true;
+            users = true;
+            virt = false; # Enable for virtualization (libvirt/containers)
+            gaming = false; # Enable for Steam and gaming tools
+            ai = false; # Enable for AI tools (claude-code, copilot, etc.)
+            secrets = false; # Enable for agenix secrets management
+          };
+
+          homeProfile = "workstation"; # or "laptop"
+          userModulePath = self.outPath + "/user.nix";
+          diskConfigPath = ./hosts/myhost/disks.nix;
+
+          extraConfig = {
+            # System timezone (required)
+            axios.system.timeZone = "America/New_York";
+
+            # Add any additional NixOS configuration here
+            # environment.systemPackages = with pkgs; [ ... ];
+          };
+        };
       };
     };
-  };
 }
 ```
 
-### user.nix
+### Step 3: Create user.nix
 
 ```nix
-{ self, config, ... }:
+{
+  self,
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   username = "myuser";
   fullName = "My Full Name";
   email = "me@example.com";
 in
 {
-  users.users.${username} = {
-    isNormalUser = true;
-    description = fullName;
-    initialPassword = "changeme";  # Change on first login!
-    extraGroups = [
+  axios.user = {
+    username = username;
+    fullName = fullName;
+    email = email;
+    initialPassword = "changeme"; # Change on first login!
+
+    groups = [
       "networkmanager"
       "wheel"
       "video"
       "audio"
     ];
   };
-
-  home-manager.users.${username} = {
-    home = {
-      stateVersion = "24.05";
-      homeDirectory = "/home/${username}";
-      username = username;
-    };
-
-    nixpkgs.config.allowUnfree = true;
-
-    programs.git.settings = {
-      user = {
-        name = fullName;
-        email = email;
-      };
-    };
-  };
-
-  nix.settings.trusted-users = [ username ];
 }
 ```
 
-### disks.nix
+### Step 4: Extract Disk Configuration
+
+```bash
+# Create host directory
+mkdir -p hosts/myhost
+
+# Extract disk config from hardware-configuration.nix
+# Copy filesystem, boot, and swap sections to hosts/myhost/disks.nix
+```
+
+Or manually create `hosts/myhost/disks.nix`:
 
 ```nix
-{ lib, ... }:
+# Disk configuration extracted from hardware-configuration.nix
 {
-  disko.devices.disk.main = {
-    type = "disk";
-    device = "/dev/sda";  # Change to your disk!
-    content = {
-      type = "gpt";
-      partitions = {
-        ESP = {
-          size = "512M";
-          type = "EF00";
-          content = {
-            type = "filesystem";
-            format = "vfat";
-            mountpoint = "/boot";
-          };
-        };
-        root = {
-          size = "100%";
-          content = {
-            type = "filesystem";
-            format = "ext4";
-            mountpoint = "/";
-          };
-        };
-      };
+  config,
+  lib,
+  pkgs,
+  modulesPath,
+  ...
+}:
+
+{
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
+
+  boot.initrd.availableKernelModules = [
+    "xhci_pci"
+    "ahci"
+    "nvme"
+    "usb_storage"
+    "sd_mod"
+  ];
+  boot.initrd.kernelModules = [ ];
+  boot.kernelModules = [ "kvm-amd" ];
+  boot.extraModulePackages = [ ];
+
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+    fsType = "ext4";
+  };
+
+  fileSystems."/boot" = {
+    device = "/dev/disk/by-uuid/XXXX-XXXX";
+    fsType = "vfat";
+  };
+
+  swapDevices = [ ];
+
+  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+}
+```
+
+Find your actual UUIDs with:
+```bash
+lsblk -f
+# or
+blkid
+```
+
+### Step 5: Create hosts/myhost.nix
+
+```nix
+# Host: myhost (desktop)
+{ lib, userModulePath, ... }:
+{
+  hostConfig = {
+    hostname = "myhost";
+    system = "x86_64-linux";
+    formFactor = "desktop";
+
+    hardware = {
+      cpu = "amd";
+      gpu = "amd";
+      hasSSD = true;
+      isLaptop = false;
+    };
+
+    modules = {
+      system = true;
+      desktop = true;
+      development = true;
+      graphics = true;
+      networking = true;
+      users = true;
+      virt = false;
+      gaming = false;
+      ai = false;
+      secrets = false;
+    };
+
+    homeProfile = "workstation";
+    userModulePath = userModulePath;
+    diskConfigPath = ./myhost/disks.nix;
+
+    extraConfig = {
+      axios.system.timeZone = "America/New_York";
     };
   };
 }
 ```
 
-## Installing NixOS
+### Step 6: Apply Configuration
 
-### Prerequisites
+```bash
+cd ~/.config/nixos_config
+git init
+git add .
+git commit -m "Initial configuration"
+sudo nixos-rebuild switch --flake .#myhost
+```
 
-- Boot from NixOS installer ISO ([download](https://nixos.org/download))
-- Internet connection
-- Your configuration files ready
-
-### Installation Steps
-
-1. **Boot NixOS installer**
-
-2. **Connect to network:**
-   ```bash
-   # WiFi
-   nmtui
-   
-   # Verify connection
-   ping -c 3 nixos.org
-   ```
-
-3. **Clone your configuration:**
-   ```bash
-   git clone https://github.com/yourusername/my-nixos-config /mnt/etc/nixos
-   cd /mnt/etc/nixos
-   ```
-
-4. **Or create configuration on-the-fly:**
-   ```bash
-   mkdir -p /mnt/etc/nixos
-   cd /mnt/etc/nixos
-   # Create flake.nix, user.nix, disks.nix here
-   ```
-
-5. **Install:**
-   ```bash
-   sudo nixos-install --flake .#myhost
-   ```
-
-6. **Reboot:**
-   ```bash
-   reboot
-   ```
-
-7. **Login** with your username and initial password
-
-8. **Change password:**
-   ```bash
-   passwd
-   ```
-
-9. **Set up environment (optional but recommended):**
-   ```bash
-   # For fish shell (default in axiOS)
-   set -Ux FLAKE_PATH ~/my-nixos-config
-   
-   # For bash/zsh (add to ~/.bashrc or ~/.zshrc)
-   echo 'export FLAKE_PATH=~/my-nixos-config' >> ~/.bashrc
-   ```
-   
-   This enables convenient aliases like `rebuild-switch`, `flake-cd`, etc.
+---
 
 ## Updating Your System
 
 ### Update axiOS Framework
 
 ```bash
-cd ~/my-nixos-config  # Or wherever your config is
+cd ~/.config/nixos_config
 nix flake update
+sudo nixos-rebuild switch --flake .#myhost
+```
+
+Or use the fish helper:
+```bash
+update-flake && rebuild-switch
+```
+
+### Update Only axios (Keep Other Inputs Locked)
+
+```bash
+nix flake lock --update-input axios
 sudo nixos-rebuild switch --flake .#myhost
 ```
 
@@ -356,35 +399,44 @@ inputs.axios.url = "github:kcalvelli/axios/v1.0.0";  # Pin to tag
 inputs.axios.url = "github:kcalvelli/axios/<commit-sha>";  # Pin to commit
 ```
 
-## Managing Multiple Machines
-
-See [ADDING_HOSTS.md](ADDING_HOSTS.md) for managing multiple hosts in one configuration.
+---
 
 ## What You Get
 
 By using axios as a library, you automatically get:
 
 ✅ **Desktop Environment:**
-- Niri compositor with Material Shell
+- Niri compositor with DankMaterialShell
 - Ghostty terminal
-- Modern applications
+- Modern applications (Firefox, etc.)
+- Flatpak support via GNOME Software
 
 ✅ **Development Tools:**
-- VSCode, Neovim (LazyVim)
-- Compilers and build tools
-- Language servers
-- Git, development utilities
+- VSCode with extensions
+- Neovim (LazyVim)
+- Git and development utilities
+- Language-specific tooling
 
 ✅ **System Features:**
-- Hardware optimization for your CPU/GPU
+- Automatic hardware optimization for your CPU/GPU
 - Power management (laptops)
 - Secure boot support (Lanzaboote)
-- Networking with NetworkManager
+- Networking with NetworkManager + Tailscale
+- Fish shell with helpful aliases
 
 ✅ **Home Manager:**
+- Declarative user environment
 - Dotfile management
-- User environment configuration
 - Application settings
+- XDG user directories (optional)
+
+✅ **Optional Modules:**
+- **Gaming**: Steam, game launchers, performance tools
+- **Virtualization**: Libvirt/QEMU, Podman containers
+- **AI Tools**: claude-code, copilot-cli, MCP servers
+- **Secrets**: agenix for encrypted secrets management
+
+---
 
 ## Customization
 
@@ -393,23 +445,32 @@ By using axios as a library, you automatically get:
 Use `extraConfig` in your host configuration:
 
 ```nix
-axios.lib.mkSystem {
-  # ... your config ...
-  
-  extraConfig = {
-    # System timezone (required)
-    axios.system.timeZone = "America/New_York";
+extraConfig = {
+  # System timezone (required)
+  axios.system.timeZone = "America/New_York";
 
-    # Add extra packages
-    environment.systemPackages = with pkgs; [
-      htop
-      neofetch
-    ];
+  # Add extra packages
+  environment.systemPackages = with pkgs; [
+    htop
+    neofetch
+  ];
 
-    # Enable SSH
-    services.openssh.enable = true;
-  };
-}
+  # Enable SSH
+  services.openssh.enable = true;
+
+  # Override defaults
+  services.xserver.enable = false;
+};
+```
+
+### Enable Optional Features
+
+```nix
+# Enable XDG user directories (Documents, Downloads, etc.)
+axios.home.xdgUserDirs = true;
+
+# Set custom FLAKE_PATH (default: ~/.config/nixos_config)
+axios.home.flakePath = "/path/to/config";
 ```
 
 ### Add Your Own Modules
@@ -418,6 +479,7 @@ axios.lib.mkSystem {
 extraConfig = {
   imports = [
     ./my-custom-module.nix
+    ./services.nix
   ];
 };
 ```
@@ -429,11 +491,19 @@ modules = {
   system = true;
   desktop = true;
   development = true;
-  gaming = false;      # ✗ No gaming
-  virt = false;        # ✗ No virtualization
-  services = false;    # ✗ No extra services
+  gaming = false; # ✗ No gaming
+  virt = false; # ✗ No virtualization
+  ai = false; # ✗ No AI tools
 };
 ```
+
+---
+
+## Managing Multiple Machines
+
+See [ADDING_HOSTS.md](ADDING_HOSTS.md) for managing multiple hosts in one configuration.
+
+---
 
 ## Troubleshooting
 
@@ -454,29 +524,39 @@ Make sure flake inputs are updated:
 nix flake update
 ```
 
-### Network Issues During Install
+### Fish Helpers Not Working
 
+The helper functions (`rebuild-switch`, etc.) won't work until you:
+1. Log out and back in (to load new environment)
+2. Or restart your shell: `exec fish`
+
+### Missing /etc/nixos/hardware-configuration.nix
+
+This file is created during NixOS installation. If it's missing:
+1. You may not have NixOS installed yet (install it first!)
+2. Or run: `sudo nixos-generate-config` to generate it
+
+### Disk Configuration Issues
+
+Check your filesystem UUIDs:
 ```bash
-# Reconnect to WiFi
-nmtui
-
-# Test connection
-ping -c 3 1.1.1.1
+lsblk -f
+# or
+blkid
 ```
 
-### Disk Not Found
+Update `hosts/HOSTNAME/disks.nix` with correct UUIDs.
 
-Check your disk device:
-```bash
-lsblk
-# Update disks.nix with correct device
-```
+---
 
 ## More Information
 
 - [Library API Reference](LIBRARY_USAGE.md) - Complete documentation
 - [Adding Hosts](ADDING_HOSTS.md) - Multi-machine management
-- [Examples](../examples/minimal-flake/) - Working example
+- [Application Catalog](APPLICATIONS.md) - See what's included
+- [Examples](../examples/) - Working examples
+
+---
 
 ## Getting Help
 
