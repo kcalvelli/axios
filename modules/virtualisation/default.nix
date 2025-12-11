@@ -48,17 +48,20 @@ in
         enable = true;
         qemu = {
           package = pkgs.qemu_kvm;
-          runAsRoot = false;
+          runAsRoot = true;
           swtpm.enable = true;
-          # Configure QEMU security - allow access to user directories
-          verbatimConfig = ''
-            user = "root"
-            group = "root"
-            dynamic_ownership = 1
-          '';
+          ovmf = {
+            enable = true;
+            packages = [
+              (pkgs.OVMF.override {
+                secureBoot = true;
+                tpmSupport = true;
+              }).fd
+            ];
+          };
         };
         # Allow libvirt to access user files
-        # This fixes "Permission denied" errors when accessing ISOs in ~/Downloads
+        # This fixes "Permission denied" errors when accessing storage in user directories
         onBoot = "ignore";
         onShutdown = "shutdown";
       };
