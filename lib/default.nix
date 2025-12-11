@@ -249,7 +249,6 @@ let
 
       baseModules = [
         validationModule # Validate configuration first
-        inputs.disko.nixosModules.disko
         inputs.dankMaterialShell.nixosModules.dankMaterialShell
         inputs.dankMaterialShell.nixosModules.greeter
         inputs.home-manager.nixosModules.home-manager

@@ -8,7 +8,7 @@ This is a minimal example of using axiOS as a library to build your own NixOS co
 minimal-flake/
 ├── flake.nix       # Main flake with host configuration
 ├── user.nix        # User account definition
-├── disks.nix       # Disk layout (disko)
+├── disks.nix       # Disk/filesystem configuration
 └── README.md       # This file
 ```
 
@@ -48,8 +48,8 @@ Edit `user.nix`:
 - Modify groups as needed
 
 Edit `disks.nix`:
-- Change `/dev/sda` to your disk
-- Adjust partition sizes if needed
+- Replace UUIDs with your actual disk UUIDs (find with `lsblk -f` or `blkid`)
+- Or run `nixos-generate-config` and extract the filesystem configuration
 
 ### 3. Build and install
 

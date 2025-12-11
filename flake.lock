@@ -145,26 +145,6 @@
         "type": "github"
       }
     },
-    "disko": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1764627417,
-        "narHash": "sha256-D6xc3Rl8Ab6wucJWdvjNsGYGSxNjQHzRc2EZ6eeQ6l4=",
-        "owner": "nix-community",
-        "repo": "disko",
-        "rev": "5a88a6eceb8fd732b983e72b732f6f4b8269bef3",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nix-community",
-        "repo": "disko",
-        "type": "github"
-      }
-    },
     "dsearch": {
       "inputs": {
         "nixpkgs": [
@@ -896,7 +876,6 @@
         "agenix": "agenix",
         "dankMaterialShell": "dankMaterialShell",
         "devshell": "devshell",
-        "disko": "disko",
         "dsearch": "dsearch",
         "fenix": "fenix",
         "flake-parts": "flake-parts",

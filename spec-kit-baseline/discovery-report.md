@@ -18,7 +18,6 @@
 - **flake-parts**: [latest] - Flake organization framework (evidence: flake.nix:13-16)
 - **agenix**: [master] - Secrets management (evidence: flake.nix:27-30)
 - **lanzaboote**: [master] - Secure boot support (evidence: flake.nix:42-48)
-- **disko**: [master] - Declarative disk partitioning (evidence: flake.nix:50-53)
 - **DankMaterialShell**: [v0.6.2] - Niri-based Wayland shell (evidence: flake.nix:81-84)
 - **niri**: [latest] - Wayland compositor (evidence: flake.nix:91-94)
 - **ghostty**: [latest] - Terminal emulator (evidence: flake.nix:66-73)

@@ -42,7 +42,10 @@
     
     # User module path
     userModulePath = userModulePath;
-    
+
+    # Hardware configuration path (from existing NixOS installation)
+    diskConfigPath = ./{{HOSTNAME}}/hardware-configuration.nix;
+
     # Optional: Extra NixOS configuration
     extraConfig = {
       # System timezone (required)
@@ -57,12 +60,5 @@
       # services.openssh.enable = true;
 {{SECRETS_CONFIG}}
     };
-    
-    # Disk configuration path
-    # Uses hardware-configuration.nix on existing NixOS, disks.nix for fresh install
-    diskConfigPath =
-      if builtins.pathExists ./{{HOSTNAME}}/hardware-configuration.nix
-      then ./{{HOSTNAME}}/hardware-configuration.nix
-      else ./{{HOSTNAME}}/disks.nix;
   };
 }
