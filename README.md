@@ -24,6 +24,8 @@ You maintain just a few simple files (~30 lines), and axios provides everything 
 
 ## Quick Start
 
+**Prerequisites:** NixOS installed in UEFI mode (BIOS/MBR not supported)
+
 ### Use the Interactive Generator (Recommended) ⭐
 
 ```bash

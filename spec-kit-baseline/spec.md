@@ -310,10 +310,13 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Confidence**: [EXPLICIT]
 - **Use Case**: API keys (Brave, Tavily), credentials
 
-#### Secure Boot Support
-- **Purpose**: UEFI Secure Boot with Lanzaboote
-- **Implementation Evidence**: flake.nix:42-48
+#### Boot Configuration
+- **Purpose**: UEFI boot with systemd-boot and optional Secure Boot
+- **Implementation Evidence**: modules/system/boot.nix, flake.nix:42-48
 - **Confidence**: [EXPLICIT]
+- **Requirement**: UEFI boot mode only (BIOS/MBR not supported)
+- **Bootloader**: systemd-boot with EFI variable support
+- **Secure Boot**: Optional Lanzaboote integration (disabled by default)
 
 ### Gaming
 #### Gaming Configuration

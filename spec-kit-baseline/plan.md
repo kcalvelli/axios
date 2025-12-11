@@ -80,16 +80,22 @@ Modules are imported using one of three patterns:
 
 #### modules/system/
 - **Path**: `modules/system/`
-- **Purpose**: Core system configuration - locale, timezone, users
+- **Purpose**: Core system configuration - locale, timezone, users, boot
 - **Language**: Nix
 - **Dependencies**:
   - Internal: modules/users.nix
-  - External: nixpkgs
+  - External: nixpkgs, lanzaboote
 - **Exposed Interface**: `inputs.axios.nixosModules.system`
-- **Entry Points**: default.nix
+- **Entry Points**: default.nix, boot.nix
 - **Key Options**:
   - `axios.system.timeZone` (REQUIRED, no default)
   - `axios.system.locale` (default: en_US.UTF-8)
+  - `boot.lanzaboote.enableSecureBoot` (optional, default: false)
+- **Boot Configuration**:
+  - **Requirement**: UEFI boot mode only (BIOS/MBR not supported)
+  - **Bootloader**: systemd-boot with EFI variable support
+  - **Secure Boot**: Optional Lanzaboote integration for UEFI Secure Boot
+  - **Expected**: `/boot` partition with vfat filesystem (EFI System Partition)
 
 #### modules/desktop/
 - **Path**: `modules/desktop/`

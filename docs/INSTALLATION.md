@@ -26,11 +26,17 @@ That's it! All modules, packages, and home-manager configs come from axios.
 
 **You must have NixOS already installed** using the standard installer. axiOS configures existing NixOS systems, it does not replace the NixOS installer.
 
+**IMPORTANT: axiOS requires UEFI boot mode.** BIOS/MBR systems are not supported.
+
 If you haven't installed NixOS yet:
 1. Download the [NixOS installer ISO](https://nixos.org/download)
-2. Boot from the ISO and follow the [NixOS installation guide](https://nixos.org/manual/nixos/stable/#sec-installation)
-3. Complete the installation and boot into your new NixOS system
-4. Then return here to install axiOS
+2. **Boot in UEFI mode** (not BIOS/Legacy mode)
+   - For VMs: Enable UEFI in VM settings before installation
+   - For physical machines: Ensure UEFI boot is enabled in BIOS/firmware settings
+3. Follow the [NixOS installation guide](https://nixos.org/manual/nixos/stable/#sec-installation)
+   - The installer will create a `/boot` partition with vfat filesystem for EFI
+4. Complete the installation and boot into your new NixOS system
+5. Then return here to install axiOS
 
 ## Quick Start (Recommended)
 
@@ -560,6 +566,27 @@ blkid
 ```
 
 Update `hosts/HOSTNAME/disks.nix` with correct UUIDs.
+
+### BIOS/MBR Boot Mode (Not Supported)
+
+**Error**: "systemd-boot cannot be installed on this system" or similar boot errors
+
+**Cause**: axiOS requires UEFI boot mode and uses systemd-boot, which does not support BIOS/MBR systems.
+
+**Solution**: Reinstall NixOS in UEFI mode:
+1. For VMs: Enable UEFI/EFI in your VM settings (e.g., VMware: Firmware Type = EFI, VirtualBox: Enable EFI)
+2. For physical machines: Enable UEFI boot in BIOS/firmware settings, disable Legacy/CSM mode
+3. Reinstall NixOS ensuring UEFI boot
+4. Verify after install: `/boot` should be mounted as vfat filesystem
+
+Check boot mode:
+```bash
+# Should show files if UEFI
+ls /sys/firmware/efi
+
+# Should show vfat for /boot
+lsblk -f | grep /boot
+```
 
 ---
 
