@@ -43,8 +43,8 @@
     # User module path
     userModulePath = userModulePath;
 
-    # Hardware configuration path (from existing NixOS installation)
-    diskConfigPath = ./{{HOSTNAME}}/hardware-configuration.nix;
+    # Disk configuration path (extracted from hardware-configuration.nix)
+    diskConfigPath = ./{{HOSTNAME}}/disks.nix;
 
     # Optional: Extra NixOS configuration
     extraConfig = {

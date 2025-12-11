@@ -405,14 +405,40 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
   echo "  ✓ hosts/${HOSTNAME}.nix"
 fi
 
-# Copy hardware configuration from existing NixOS installation
+# Extract disk configuration from existing NixOS installation
 # axios is designed to be installed on top of existing NixOS
 if [ -f /etc/NIXOS ] && [ -f /etc/nixos/hardware-configuration.nix ]; then
-  cp /etc/nixos/hardware-configuration.nix "hosts/${HOSTNAME}/hardware-configuration.nix"
-  echo "  ✓ hosts/${HOSTNAME}/hardware-configuration.nix (copied from /etc/nixos)"
+  # Extract filesystem, boot, and swap configuration from hardware-configuration.nix
+  # This creates a minimal disks.nix with just the disk-related config
+
+  cat > "hosts/${HOSTNAME}/disks.nix" <<'DISKS_EOF'
+# Disk configuration extracted from hardware-configuration.nix
+# This contains filesystem mounts, boot configuration, and swap devices
+{ config, lib, pkgs, modulesPath, ... }:
+
+{
+  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
+
+DISKS_EOF
+
+  # Extract boot.initrd and boot.kernelModules lines
+  grep -E "^\s*(boot\.(initrd\.(availableKernelModules|kernelModules)|kernelModules|extraModulePackages)|hardware\.cpu\.(intel|amd)\.updateMicrocode)" /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
+
+  echo "" >> "hosts/${HOSTNAME}/disks.nix"
+
+  # Extract fileSystems and swapDevices sections
+  awk '/fileSystems\./,/;/' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
+  echo "" >> "hosts/${HOSTNAME}/disks.nix"
+  awk '/swapDevices/,/;/' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
+
+  # Close the nix expression
+  echo "}" >> "hosts/${HOSTNAME}/disks.nix"
+
+  echo "  ✓ hosts/${HOSTNAME}/disks.nix (extracted from /etc/nixos/hardware-configuration.nix)"
 else
   echo -e "  ${YELLOW}⚠ No /etc/nixos/hardware-configuration.nix found${NC}"
-  echo "  You'll need to create hosts/${HOSTNAME}/hardware-configuration.nix manually"
+  echo "  You'll need to create hosts/${HOSTNAME}/disks.nix manually"
+  echo "  Run: nixos-generate-config and extract filesystem/boot/swap sections"
 fi
 
 # Create .gitignore
@@ -427,11 +453,11 @@ echo ""
 echo -e "${BOLD}Next steps:${NC}"
 echo ""
 echo -e "  ${YELLOW}1. Review configuration:${NC}"
-if [ -f "hosts/${HOSTNAME}/hardware-configuration.nix" ]; then
-  echo "     ✓ Hardware configuration copied from /etc/nixos/hardware-configuration.nix"
+if [ -f "hosts/${HOSTNAME}/disks.nix" ]; then
+  echo "     ✓ Disk configuration extracted from /etc/nixos/hardware-configuration.nix"
 else
-  echo "     ⚠ Create hosts/${HOSTNAME}/hardware-configuration.nix"
-  echo "       You can copy it from /etc/nixos/hardware-configuration.nix if available"
+  echo "     ⚠ Create hosts/${HOSTNAME}/disks.nix"
+  echo "       Run nixos-generate-config and extract filesystem/boot/swap sections"
 fi
 echo "     Check hosts/${HOSTNAME}.nix for any customizations"
 echo ""
