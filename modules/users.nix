@@ -171,6 +171,25 @@ in
         # Email is passed through to home-manager for git config
         axios.user.email = lib.mkDefault userCfg.email;
       };
+
+      # Create standard XDG user directories on first boot
+      # Uses systemd-tmpfiles which is idempotent (won't fail if dirs exist)
+      systemd.tmpfiles.rules =
+        let
+          homeDir = config.users.users.${userCfg.name}.home;
+          uid = toString config.users.users.${userCfg.name}.uid;
+          gid = toString config.users.users.${userCfg.name}.group;
+        in
+        [
+          "d ${homeDir}/Desktop 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Documents 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Downloads 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Music 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Pictures 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Videos 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Public 0755 ${userCfg.name} ${gid} -"
+          "d ${homeDir}/Templates 0755 ${userCfg.name} ${gid} -"
+        ];
     })
   ];
 }
