@@ -13,7 +13,7 @@ in
 
           This automatically configures:
           - home.stateVersion: Set to a sensible default
-          - FLAKE_PATH environment variable: Points to ~/.config/nixos by default
+          - FLAKE_PATH environment variable: Points to ~/.config/nixos_config by default
 
           These defaults reduce boilerplate in user configurations while remaining
           overridable with lib.mkForce if needed.
