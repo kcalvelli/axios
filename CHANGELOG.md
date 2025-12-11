@@ -7,6 +7,42 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+## [2025-12-11] - VM Support & Hardware Configuration Fix
+
+### Added
+- **Hardware Configuration Support**
+  - Added `hardwareConfigPath` option for full hardware configuration
+  - Init script now copies complete `hardware-configuration.nix` instead of extracting parts
+  - Includes boot modules, kernel modules, filesystems, and swap in one file
+  - Fixes VM boot failures caused by missing VirtIO kernel modules
+  - Fixes boot issues on exotic hardware requiring specific kernel modules
+
+### Changed
+- **Init Script**
+  - Simplified hardware config generation by copying full file instead of filtering
+  - Renamed generated file from `disks.nix` to `hardware.nix` (clearer naming)
+  - Removed complex AWK extraction logic that missed critical boot configuration
+  - Updated templates to use `hardwareConfigPath` instead of `diskConfigPath`
+
+### Fixed
+- **VM Installation**
+  - Fixed emergency boot in VMs due to missing VirtIO kernel modules
+  - Fixed boot failures on hardware requiring specific initrd kernel modules
+  - Documentation previously claimed kernel modules were extracted, but they weren't
+
+### Documentation
+- **Migration Guide**
+  - Added comprehensive migration guide from `diskConfigPath` to `hardwareConfigPath`
+  - Documented backward compatibility (both options supported)
+  - Clarified UEFI-only requirement for axiOS (BIOS/MBR not supported)
+  - Updated all examples and templates to use new `hardwareConfigPath`
+
+### Backward Compatibility
+- **No Breaking Changes**
+  - `diskConfigPath` still works (legacy support maintained)
+  - Existing configurations continue to work unchanged
+  - Migration is optional but recommended
+
 ## [2025-12-04] - Idle Management & Comprehensive Documentation
 
 ### Added
