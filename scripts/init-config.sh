@@ -454,6 +454,12 @@ capture {
     # Close the nix expression
     echo "}" >> "hosts/${HOSTNAME}/disks.nix"
 
+    # Verify the extraction worked correctly
+    if grep -q "boot\." "hosts/${HOSTNAME}/disks.nix" || grep -q "imports" "hosts/${HOSTNAME}/disks.nix"; then
+      echo -e "  ${YELLOW}⚠ Warning: disks.nix contains boot/imports lines (extraction may have failed)${NC}"
+      echo "  This file should only contain fileSystems and swapDevices"
+    fi
+
     echo "  ✓ hosts/${HOSTNAME}/disks.nix (extracted from hardware-configuration.nix)"
   else
     echo -e "  ${YELLOW}⚠ Failed to generate hardware-configuration.nix${NC}"
