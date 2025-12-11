@@ -23,8 +23,10 @@ This is the main entry point for creating a new axiOS configuration:
 
 ```bash
 mkdir ~/my-nixos-config && cd ~/my-nixos-config
-nix run github:kcalvelli/axios#init
+nix run --refresh github:kcalvelli/axios#init
 ```
+
+> **Note:** The `--refresh` flag ensures you get the latest version of the init script.
 
 **What it does:**
 - Asks questions about your system (hostname, hardware, preferences)

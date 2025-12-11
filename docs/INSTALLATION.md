@@ -40,8 +40,10 @@ On your **existing NixOS system**, run:
 
 ```bash
 # Run the interactive generator
-nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
+nix run --refresh --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
+
+> **Note:** The `--refresh` flag ensures you get the latest version of axios. Without it, Nix may use a cached flake.
 
 The generator will:
 

@@ -28,8 +28,10 @@ You maintain just a few simple files (~30 lines), and axios provides everything 
 
 ```bash
 mkdir ~/my-nixos-config && cd ~/my-nixos-config
-nix run --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
+nix run --refresh --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
 ```
+
+> **Note:** The `--refresh` flag ensures you get the latest version. Without it, Nix may use a cached version.
 
 The generator creates a complete configuration tailored to your system in minutes.
 
