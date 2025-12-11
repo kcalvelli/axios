@@ -411,23 +411,16 @@ if [ -f /etc/NIXOS ]; then
   echo "  Running nixos-generate-config to detect hardware..."
   sudo nixos-generate-config --root /etc >/dev/null 2>&1 || true
 
-  # Extract filesystem, boot, and swap configuration from hardware-configuration.nix
-  # This creates a minimal disks.nix with just the disk-related config
+  # Extract filesystem and swap configuration from hardware-configuration.nix
+  # This creates a minimal disks.nix with only filesystem mounts and swap devices
   if [ -f /etc/nixos/hardware-configuration.nix ]; then
     cat > "hosts/${HOSTNAME}/disks.nix" <<'DISKS_EOF'
 # Disk configuration extracted from hardware-configuration.nix
-# This contains filesystem mounts, boot configuration, and swap devices
-{ config, lib, pkgs, modulesPath, ... }:
+# This contains only filesystem mounts and swap devices
+{ config, lib, pkgs, ... }:
 
 {
-  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
-
 DISKS_EOF
-
-    # Extract boot.initrd and boot.kernelModules lines
-    grep -E "^\s*(boot\.(initrd\.(availableKernelModules|kernelModules)|kernelModules|extraModulePackages)|hardware\.cpu\.(intel|amd)\.updateMicrocode)" /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
-
-    echo "" >> "hosts/${HOSTNAME}/disks.nix"
 
     # Extract fileSystems and swapDevices sections
     awk '/fileSystems\./,/;/' /etc/nixos/hardware-configuration.nix >> "hosts/${HOSTNAME}/disks.nix"
