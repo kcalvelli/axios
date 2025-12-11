@@ -44,6 +44,23 @@ in
           by default.
         '';
       };
+
+      xdgUserDirs = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = ''
+          Enable XDG user directories (Documents, Pictures, Downloads, etc).
+
+          When enabled, creates standard user directories and manages the
+          XDG configuration file (~/.config/user-dirs.dirs).
+
+          WARNING: This will fail if you already have ~/.config/user-dirs.dirs
+          created by another tool. Only enable this on fresh user accounts or
+          if you want home-manager to take over XDG directory management.
+
+          For new installations via 'nix run .#init', this should be safe to enable.
+        '';
+      };
     };
 
     user = {
@@ -71,8 +88,8 @@ in
       FLAKE_PATH = lib.mkDefault cfg.flakePath;
     };
 
-    # Create standard XDG user directories
-    xdg.userDirs = {
+    # Create standard XDG user directories (opt-in)
+    xdg.userDirs = lib.mkIf cfg.xdgUserDirs {
       enable = true;
       createDirectories = true;
       desktop = "${config.home.homeDirectory}/Desktop";

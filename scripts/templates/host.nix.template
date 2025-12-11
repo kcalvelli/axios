@@ -48,6 +48,10 @@
       # System timezone (required)
       axios.system.timeZone = "{{TIMEZONE}}";
 
+      # Enable XDG user directories (Documents, Pictures, Downloads, etc)
+      # Safe for new installations, disable if migrating existing user
+      axios.home.xdgUserDirs = true;
+
       # Add any additional NixOS configuration here
       # Examples:
       # services.openssh.enable = true;
