@@ -50,15 +50,7 @@ in
           package = pkgs.qemu_kvm;
           runAsRoot = true;
           swtpm.enable = true;
-          ovmf = {
-            enable = true;
-            packages = [
-              (pkgs.OVMF.override {
-                secureBoot = true;
-                tpmSupport = true;
-              }).fd
-            ];
-          };
+          # OVMF (UEFI firmware) is now included by default in newer NixOS
         };
         # Allow libvirt to access user files
         # This fixes "Permission denied" errors when accessing storage in user directories
