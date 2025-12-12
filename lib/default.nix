@@ -299,6 +299,7 @@ let
         { lib, ... }:
         let
           hwVendor = hostCfg.hardware.vendor or null;
+          hwGpu = hostCfg.hardware.gpu or null;
           profile = hostCfg.homeProfile or "workstation";
           extraCfg = hostCfg.extraConfig or { };
 
@@ -306,6 +307,10 @@ let
           dynamicConfig = lib.mkMerge [
             # Always include extraConfig first
             extraCfg
+            # Pass GPU type to graphics module (if graphics module is enabled)
+            (lib.optionalAttrs ((hostCfg.modules.graphics or false) && (hwGpu != null)) {
+              axios.hardware.gpuType = hwGpu;
+            })
             # Add virt config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.virt or false) && (hostCfg ? virt)) {
               virt = hostCfg.virt;
