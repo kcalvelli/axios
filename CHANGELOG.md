@@ -7,14 +7,36 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+### Added
+- **Gaming Module**
+  - Binary compatibility via nix-ld for native Linux games
+  - SDL2 family libraries (SDL2_image, SDL2_mixer, SDL2_ttf)
+  - Graphics APIs (libGL, vulkan-loader)
+  - Audio libraries (alsa-lib, openal, libpulseaudio)
+  - Fixes "library not found" errors for indie games, Unity, MonoGame
+- **Development Module**
+  - Inotify tuning for file watchers (fs.inotify.max_user_watches = 524288)
+  - Fixes "ENOSPC: System limit for number of file watchers reached"
+  - Critical for VS Code, Rider, WebStorm, hot-reload workflows
+- **Desktop Module**
+  - USB device permissions for game controllers (Sony, Microsoft, Nintendo, Valve)
+  - Normal users can access USB devices without root
+  - Also benefits Arduino, dev boards, USB peripherals
+- **Graphics Module**
+  - vulkan-tools (vulkaninfo, vkcube) for all GPU types
+  - Helps users verify GPU setup and debug graphics issues
+
 ### Fixed
 - **Graphics Module**
   - Fixed nvidia/intel GPU support (previously AMD-only despite accepting these values)
+  - Added missing `services.xserver.videoDrivers = ["nvidia"]` (critical for Nvidia to work!)
+  - Added hardware.nvidia.nvidiaSettings and nvidia-settings package
+  - Added power management defaults (disabled by default per NixOS wiki)
   - Graphics module now conditionally applies GPU-specific configuration
   - AMD: radeontop, corectrl, amdgpu_top, HIP_PLATFORM
-  - Nvidia: nvtopPackages.nvidia, hardware.nvidia.modesetting
+  - Nvidia: nvtopPackages.nvidia, nvidia-settings, proper driver loading
   - Intel: intel-gpu-tools, intel-media-driver
-  - Common packages (clinfo, wayland-utils) available for all GPU types
+  - Common packages (clinfo, wayland-utils, vulkan-tools) available for all GPU types
 
 ## [2025-12-11] - VM Support & Hardware Configuration Fix
 
