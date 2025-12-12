@@ -19,6 +19,39 @@
       protonup-ng
     ];
 
+    # === Binary Compatibility for Games ===
+    # Many games (especially indie, MonoGame, Unity) ship as native Linux binaries
+    # that expect system libraries. nix-ld provides FHS compatibility.
+    programs.nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        # SDL2 family (used by many indie games and game engines)
+        SDL2
+        SDL2_image
+        SDL2_mixer
+        SDL2_ttf
+        # Graphics APIs
+        libGL
+        vulkan-loader
+        # X11 (for older games and some engines)
+        xorg.libX11
+        xorg.libXi
+        xorg.libXrandr
+        # Audio subsystems
+        alsa-lib
+        openal
+        libpulseaudio
+        # Common runtime dependencies
+        stdenv.cc.cc
+        freetype
+        libvorbis
+        libogg
+        zlib
+        # Input devices
+        libusb1
+      ];
+    };
+
     # === Gaming Programs ===
     programs = {
       # Steam configuration

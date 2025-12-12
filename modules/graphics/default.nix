@@ -94,6 +94,7 @@ in
         # Common tools for all GPU types
         clinfo
         wayland-utils
+        vulkan-tools # vulkaninfo, vkcube - useful for verifying GPU setup
       ]
       ++ lib.optionals isAmd [
         # AMD GPU tools

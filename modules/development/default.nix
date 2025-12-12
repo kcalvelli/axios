@@ -10,6 +10,14 @@
   };
 
   config = lib.mkIf config.development.enable {
+    # === System Tuning for Development ===
+    # Increase file watchers for IDEs, hot-reload, and file monitoring tools
+    # Default Linux limit (8192) is too low for modern development workflows
+    boot.kernel.sysctl = {
+      "fs.inotify.max_user_watches" = lib.mkDefault 524288; # VS Code, Rider, WebStorm, etc.
+      "fs.inotify.max_user_instances" = lib.mkDefault 512; # Multiple projects/IDEs
+    };
+
     # === Development Packages ===
     environment.systemPackages = with pkgs; [
       # === Editors & IDEs ===
