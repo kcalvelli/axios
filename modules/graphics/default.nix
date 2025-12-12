@@ -44,7 +44,9 @@ in
             mesa # OpenGL + RADV Vulkan for AMD
           ]
           ++ lib.optionals isNvidia [
-            # Nvidia-specific packages (if needed)
+            # Nvidia proprietary driver packages
+            # Note: The driver itself is loaded via hardware.nvidia.package
+            # These are additional libraries for Vulkan, CUDA, etc.
           ]
           ++ lib.optionals isIntel [
             mesa # OpenGL + Intel Vulkan
@@ -61,8 +63,9 @@ in
       # Nvidia-specific hardware config
       nvidia = lib.mkIf isNvidia {
         modesetting.enable = true;
-        # Note: nvidia drivers are typically configured via nixos-hardware modules
-        # which are imported in lib/default.nix based on hardware.gpu setting
+        # Force proprietary driver (not nouveau)
+        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        open = false; # Use proprietary kernel module
       };
     };
 
