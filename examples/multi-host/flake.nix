@@ -42,7 +42,7 @@
 
         homeProfile = "workstation";
         userModulePath = ./users/desktop-user.nix;
-        diskConfigPath = ./hosts/desktop/disks.nix;
+        hardwareConfigPath = ./hosts/desktop/hardware.nix;
 
         extraConfig = {
           # Desktop-specific configuration
@@ -65,7 +65,7 @@
 
         homeProfile = "laptop";
         userModulePath = ./users/laptop-user.nix;
-        diskConfigPath = ./hosts/laptop/disks.nix;
+        hardwareConfigPath = ./hosts/laptop/hardware.nix;
 
         extraConfig = {
           # Laptop-specific configuration
@@ -101,7 +101,7 @@
 
         homeProfile = "workstation";
         userModulePath = ./users/server-user.nix;
-        diskConfigPath = ./hosts/server/disks.nix;
+        hardwareConfigPath = ./hosts/server/hardware.nix;
 
         extraConfig = {
           # Server-specific configuration

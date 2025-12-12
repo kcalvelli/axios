@@ -48,8 +48,8 @@
         # Path to your user module
         userModulePath = self.outPath + "/user.nix";
 
-        # Path to disk configuration
-        diskConfigPath = ./disks.nix;
+        # Path to hardware configuration (copied from /etc/nixos/hardware-configuration.nix)
+        hardwareConfigPath = ./hardware.nix;
 
         # Optional: Extra NixOS configuration
         extraConfig = {
