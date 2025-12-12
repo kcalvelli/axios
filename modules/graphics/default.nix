@@ -74,7 +74,9 @@ in
         modesetting.enable = true;
         # Force proprietary driver (not nouveau)
         package = config.boot.kernelPackages.nvidiaPackages.stable;
-        open = false; # Use proprietary kernel module (required for pre-Turing GPUs)
+        # Use open-source kernel module (recommended for RTX 20-series/Turing and newer)
+        # For pre-Turing GPUs (GTX 10-series and older), override with: hardware.nvidia.open = false;
+        open = lib.mkDefault true;
 
         # Enable nvidia-settings menu
         nvidiaSettings = true;
