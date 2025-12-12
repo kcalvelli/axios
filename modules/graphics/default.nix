@@ -5,26 +5,35 @@
   ...
 }:
 let
-  # Get GPU type from host configuration (passed through from lib/default.nix)
-  # This will be set by the host module in lib/default.nix based on hostCfg.hardware.gpu
+  # Get GPU type and form factor from host configuration (passed through from lib/default.nix)
   gpuType = config.axios.hardware.gpuType or null;
+  isLaptop = config.axios.hardware.isLaptop or false;
 
   isAmd = gpuType == "amd";
   isNvidia = gpuType == "nvidia";
   isIntel = gpuType == "intel";
+  isDesktop = !isLaptop;
 in
 {
-  # Option for GPU type (set by lib/default.nix hostModule)
-  options.axios.hardware.gpuType = lib.mkOption {
-    type = lib.types.nullOr (
-      lib.types.enum [
-        "amd"
-        "nvidia"
-        "intel"
-      ]
-    );
-    default = null;
-    description = "GPU type for hardware-specific configuration";
+  # Options for GPU type and form factor (set by lib/default.nix hostModule)
+  options.axios.hardware = {
+    gpuType = lib.mkOption {
+      type = lib.types.nullOr (
+        lib.types.enum [
+          "amd"
+          "nvidia"
+          "intel"
+        ]
+      );
+      default = null;
+      description = "GPU type for hardware-specific configuration";
+    };
+
+    isLaptop = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Whether this is a laptop (affects PRIME configuration for Nvidia)";
+    };
   };
 
   config = {
@@ -75,6 +84,15 @@ in
         powerManagement.enable = false;
         # Fine-grained power management (experimental, Turing+ only)
         powerManagement.finegrained = false;
+
+        # PRIME configuration (Optimus for laptops with hybrid graphics)
+        # Disable PRIME on desktops with single discrete GPU
+        # nixos-hardware.common-gpu-nvidia may enable PRIME by default, which breaks desktops
+        prime = lib.mkIf isDesktop {
+          offload.enable = lib.mkForce false;
+          sync.enable = lib.mkForce false;
+          reverseSync.enable = lib.mkForce false;
+        };
       };
     };
 

@@ -307,9 +307,10 @@ let
           dynamicConfig = lib.mkMerge [
             # Always include extraConfig first
             extraCfg
-            # Pass GPU type to graphics module (if graphics module is enabled)
+            # Pass GPU type and form factor to graphics module (if graphics module is enabled)
             (lib.optionalAttrs ((hostCfg.modules.graphics or false) && (hwGpu != null)) {
               axios.hardware.gpuType = hwGpu;
+              axios.hardware.isLaptop = hostCfg.hardware.isLaptop or false;
             })
             # Add virt config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.virt or false) && (hostCfg ? virt)) {
