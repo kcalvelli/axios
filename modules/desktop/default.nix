@@ -162,11 +162,14 @@ in
       # Allow normal users to access USB devices without root
       # Particularly useful for game controllers, dev boards, Arduino, etc.
       udev.extraRules = ''
-        # Game controllers
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="054c", MODE="0666", TAG+="uaccess" # Sony (PlayStation)
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="045e", MODE="0666", TAG+="uaccess" # Microsoft (Xbox)
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="057e", MODE="0666", TAG+="uaccess" # Nintendo
-        SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", MODE="0666", TAG+="uaccess" # Valve (Steam Controller)
+        # Game controllers - Sony (PlayStation)
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="054c", MODE="0666", TAG+="uaccess"
+        # Game controllers - Microsoft (Xbox)
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="045e", MODE="0666", TAG+="uaccess"
+        # Game controllers - Nintendo
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="057e", MODE="0666", TAG+="uaccess"
+        # Game controllers - Valve (Steam Controller)
+        SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", MODE="0666", TAG+="uaccess"
 
         # Input devices - give users in 'input' group access
         SUBSYSTEM=="input", GROUP="input", MODE="0660"
