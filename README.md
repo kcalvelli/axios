@@ -42,7 +42,7 @@ The generator creates a complete configuration tailored to your system in minute
 For manual setup, you'll create just 3 files:
 - `flake.nix` - Import axios and configure your system (~30 lines)
 - `user.nix` - Your user account settings (~15 lines)
-- `disks.nix` - Filesystem configuration (~10 lines)
+- `hardware.nix` - Hardware configuration from nixos-generate-config
 
 **See [docs/INSTALLATION.md](docs/INSTALLATION.md) for complete step-by-step instructions.**
 
@@ -123,7 +123,7 @@ formFactor = "desktop";  # or "laptop"
 hardware = { cpu = "amd"; gpu = "amd"; };
 modules = { desktop = true; development = true; };
 userModulePath = ./user.nix;
-diskConfigPath = ./disks.nix;
+hardwareConfigPath = ./hardware.nix;
 };
 ```
 

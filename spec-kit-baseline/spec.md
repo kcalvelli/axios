@@ -367,7 +367,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
    - flake.nix (from template)
    - user.nix (from template)
    - hosts/HOSTNAME.nix (from template)
-   - hosts/HOSTNAME/disks.nix (auto-extracted from /etc/nixos/hardware-configuration.nix)
+   - hosts/HOSTNAME/hardware.nix (copied from /etc/nixos/hardware-configuration.nix)
 4. User customizes generated files if needed
 5. User runs `sudo nixos-rebuild switch --flake .#<hostname>`
 6. System is configured according to selected modules

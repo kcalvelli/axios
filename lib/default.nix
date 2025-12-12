@@ -379,12 +379,9 @@ let
         ];
 
       # Hardware configuration module
-      # Supports both hardwareConfigPath (new) and diskConfigPath (legacy, for backward compatibility)
       hardwareModule =
         if hostCfg ? hardwareConfigPath then
           hostCfg.hardwareConfigPath
-        else if hostCfg ? diskConfigPath then
-          hostCfg.diskConfigPath # Backward compatibility: diskConfigPath is legacy but still supported
         else
           {
             # Default: No hardware configuration
