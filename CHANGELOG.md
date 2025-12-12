@@ -7,6 +7,15 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+### Fixed
+- **Graphics Module**
+  - Fixed nvidia/intel GPU support (previously AMD-only despite accepting these values)
+  - Graphics module now conditionally applies GPU-specific configuration
+  - AMD: radeontop, corectrl, amdgpu_top, HIP_PLATFORM
+  - Nvidia: nvtopPackages.nvidia, hardware.nvidia.modesetting
+  - Intel: intel-gpu-tools, intel-media-driver
+  - Common packages (clinfo, wayland-utils) available for all GPU types
+
 ## [2025-12-11] - VM Support & Hardware Configuration Fix
 
 ### Added
