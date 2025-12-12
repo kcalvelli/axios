@@ -65,9 +65,22 @@ in
         modesetting.enable = true;
         # Force proprietary driver (not nouveau)
         package = config.boot.kernelPackages.nvidiaPackages.stable;
-        open = false; # Use proprietary kernel module
+        open = false; # Use proprietary kernel module (required for pre-Turing GPUs)
+
+        # Enable nvidia-settings menu
+        nvidiaSettings = true;
+
+        # Power management (disabled by default to avoid suspend/resume issues)
+        # Enable only if experiencing corruption after sleep
+        powerManagement.enable = false;
+        # Fine-grained power management (experimental, Turing+ only)
+        powerManagement.finegrained = false;
       };
     };
+
+    # === Video Drivers ===
+    # Set the appropriate video driver for X11/Wayland
+    services.xserver.videoDrivers = lib.mkIf isNvidia [ "nvidia" ];
 
     # === Kernel Parameters ===
     boot.kernelParams = lib.optionals isAmd [
@@ -91,6 +104,7 @@ in
       ++ lib.optionals isNvidia [
         # Nvidia GPU tools
         nvtopPackages.nvidia
+        config.boot.kernelPackages.nvidiaPackages.stable # nvidia-settings and nvidia-smi
       ]
       ++ lib.optionals isIntel [
         # Intel GPU tools
