@@ -15,7 +15,7 @@
     # Default Linux limit (8192) is too low for modern development workflows
     boot.kernel.sysctl = {
       "fs.inotify.max_user_watches" = lib.mkDefault 524288; # VS Code, Rider, WebStorm, etc.
-      "fs.inotify.max_user_instances" = lib.mkDefault 512; # Multiple projects/IDEs
+      # Note: max_user_instances already set to 524288 by NixOS default (as of recent versions)
     };
 
     # === Development Packages ===
