@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   cfg = config.hardware.desktop;
+  cpuType = config.axios.hardware.cpuType or null;
 in
 {
   imports = [ ./common.nix ];
@@ -8,10 +9,10 @@ in
   options.hardware.desktop = {
     enable = lib.mkEnableOption "Desktop workstation hardware configuration";
 
-    enableMsiSensors = lib.mkOption {
+    enableLogitechSupport = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Enable MSI motherboard sensor support (nct6775)";
+      description = "Enable Logitech wireless peripheral support";
     };
   };
 
@@ -20,27 +21,12 @@ in
       # Create plugdev group for hardware device access
       users.groups.plugdev = { };
 
-      hardware = {
-        # Logitech Unifying receiver support (common for desktop peripherals)
-        logitech.wireless.enable = true;
-        logitech.wireless.enableGraphical = true;
-      };
-
-      # Additional udev rules for Logitech device access via plugdev group
-      services.udev.extraRules = ''
-        # Logitech Unifying receiver - ensure plugdev group has access
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="plugdev"
-        # Lenovo nano receiver
-        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="17ef", ATTRS{idProduct}=="6042", MODE="0660", GROUP="plugdev"
-      '';
-
       # Kernel modules for desktop workstations
       boot = {
-        kernelModules = [ "kvm-amd" ];
-
-        kernelParams = lib.optionals cfg.enableMsiSensors [
-          "acpi_enforce_resources=lax" # Required for nct6775 on many MSI boards
-        ];
+        kernelModules =
+          [ ]
+          ++ lib.optionals (cpuType == "amd") [ "kvm-amd" ]
+          ++ lib.optionals (cpuType == "intel") [ "kvm-intel" ];
 
         initrd.availableKernelModules = [
           "nvme"
@@ -68,11 +54,21 @@ in
       };
     })
 
-    # MSI-specific sensor module
-    (lib.mkIf (cfg.enable && cfg.enableMsiSensors) {
-      boot.kernelModules = [
-        "nct6775" # Super I/O sensors (fans/temps) for many MSI boards
-      ];
+    # Logitech peripheral support (opt-in)
+    (lib.mkIf (cfg.enable && cfg.enableLogitechSupport) {
+      hardware = {
+        # Logitech Unifying receiver support
+        logitech.wireless.enable = true;
+        logitech.wireless.enableGraphical = true;
+      };
+
+      # Additional udev rules for Logitech device access via plugdev group
+      services.udev.extraRules = ''
+        # Logitech Unifying receiver - ensure plugdev group has access
+        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="046d", MODE="0660", GROUP="plugdev"
+        # Lenovo nano receiver
+        SUBSYSTEM=="hidraw", ATTRS{idVendor}=="17ef", ATTRS{idProduct}=="6042", MODE="0660", GROUP="plugdev"
+      '';
     })
   ];
 }

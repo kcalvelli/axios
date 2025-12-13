@@ -80,23 +80,6 @@ let
               '';
             }
 
-            # Valid vendor
-            {
-              assertion =
-                vendor == null
-                || lib.elem vendor [
-                  "msi"
-                  "system76"
-                ];
-              message = ''
-                axiOS configuration error: Invalid hardware.vendor value: "${lib.generators.toPretty { } vendor}"
-
-                Valid options: "msi", "system76", or null (for generic hardware)
-
-                Note: Most users should use null unless you have specific MSI or System76 hardware.
-              '';
-            }
-
             # Valid form factor
             {
               assertion =
@@ -299,6 +282,7 @@ let
         { lib, ... }:
         let
           hwVendor = hostCfg.hardware.vendor or null;
+          hwCpu = hostCfg.hardware.cpu or null;
           hwGpu = hostCfg.hardware.gpu or null;
           profile = hostCfg.homeProfile or "workstation";
           extraCfg = hostCfg.extraConfig or { };
@@ -307,6 +291,10 @@ let
           dynamicConfig = lib.mkMerge [
             # Always include extraConfig first
             extraCfg
+            # Pass CPU type to hardware modules (if CPU type is specified)
+            (lib.optionalAttrs (hwCpu != null) {
+              axios.hardware.cpuType = hwCpu;
+            })
             # Pass GPU type and form factor to graphics module (if graphics module is enabled)
             (lib.optionalAttrs ((hostCfg.modules.graphics or false) && (hwGpu != null)) {
               axios.hardware.gpuType = hwGpu;
@@ -347,21 +335,6 @@ let
             # Add selfHosted config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? selfHosted)) {
               selfHosted = hostCfg.selfHosted;
-            })
-            # Enable desktop hardware module if vendor is msi
-            (lib.optionalAttrs (hwVendor == "msi") {
-              hardware.desktop = {
-                enable = true;
-                enableMsiSensors = true;
-              };
-            })
-            # Enable laptop hardware module if vendor is system76
-            (lib.optionalAttrs (hwVendor == "system76") {
-              hardware.laptop = {
-                enable = true;
-                enableSystem76 = true;
-                enablePangolinQuirks = true;
-              };
             })
           ];
         in
