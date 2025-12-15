@@ -178,8 +178,17 @@ in
     };
 
     # === Flatpak Configuration ===
-    # Note: Flathub remote is added per-user via home-manager activation script
-    # (see home/desktop/default.nix) to avoid network timing issues at boot
+    # Flathub remote setup:
+    # - System-level: Added via activation script (for GNOME Software compatibility)
+    # - User-level: Added via home-manager (see home/desktop/default.nix)
+    # Both use activation scripts to avoid network timing issues at boot
+    system.activationScripts.setupFlathubSystem = {
+      text = ''
+        # Add Flathub remote at system level (for GNOME Software)
+        ${pkgs.flatpak}/bin/flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
+      '';
+      deps = [ "etc" ]; # Run after /etc is set up
+    };
 
     # === XDG Portal Configuration ===
     xdg = {
