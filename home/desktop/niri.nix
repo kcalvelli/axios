@@ -396,14 +396,14 @@
         # Column/monitor focus (wheel + keyboard alternatives)
         "Mod+WheelScrollRight".action.focus-column-or-monitor-right = { };
         "Mod+WheelScrollLeft".action.focus-column-or-monitor-left = { };
-        "Mod+Period".action.focus-column-or-monitor-right = { };
-        "Mod+Comma".action.focus-column-or-monitor-left = { };
+        "Mod+Semicolon".action.focus-column-or-monitor-right = { };
+        "Mod+Apostrophe".action.focus-column-or-monitor-left = { };
 
         # Move column to monitor (wheel + keyboard alternatives)
         "Mod+Ctrl+WheelScrollRight".action.move-column-right-or-to-monitor-right = { };
         "Mod+Ctrl+WheelScrollLeft".action.move-column-left-or-to-monitor-left = { };
-        "Mod+Ctrl+Period".action.move-column-right-or-to-monitor-right = { };
-        "Mod+Ctrl+Comma".action.move-column-left-or-to-monitor-left = { };
+        "Mod+Ctrl+Semicolon".action.move-column-right-or-to-monitor-right = { };
+        "Mod+Ctrl+Apostrophe".action.move-column-left-or-to-monitor-left = { };
 
         # --- Tabbed display ---
         "Mod+T".action.toggle-column-tabbed-display = [ ];

@@ -56,10 +56,10 @@ let
     │ Mod + =           Increase column width (+10%)                 │
     │ Mod + \           Maximize column                              │
     │ Mod + T           Toggle column tabbed display                 │
-    │ Mod + ,           Focus column/monitor left                    │
-    │ Mod + .           Focus column/monitor right                   │
-    │ Mod + Ctrl + ,    Move column to monitor left                  │
-    │ Mod + Ctrl + .    Move column to monitor right                 │
+    │ Mod + '           Focus column/monitor left                    │
+    │ Mod + ;           Focus column/monitor right                   │
+    │ Mod + Ctrl + '    Move column to monitor left                  │
+    │ Mod + Ctrl + ;    Move column to monitor right                 │
     │ Mod + [           Consume/expel window left                    │
     │ Mod + ]           Consume/expel window right                   │
     │ Mod + Shift + ,   Consume window into column                   │
