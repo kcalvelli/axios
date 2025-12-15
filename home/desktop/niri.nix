@@ -273,6 +273,23 @@
           matches = [ { app-id = "^com\\.mitchellh\\.ghostty$"; } ];
           # no open-floating here, so they tile/maximize per your global rules
         }
+
+        # Niri keybinding help window: float, centered, comfortable reading size
+        {
+          matches = [ { app-id = "^niri-help$"; } ];
+
+          # Override global maximized rule
+          open-maximized = false;
+          open-floating = true; # Centers by default
+
+          # Comfortable size for reading keybindings (80 cols + margins ≈ 1000px wide)
+          default-column-width = {
+            fixed = 1000;
+          };
+          default-window-height = {
+            fixed = 800;
+          };
+        }
       ];
 
       # Keybindings
