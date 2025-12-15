@@ -252,7 +252,8 @@ Let axios handle the common cases:
 users.users.myuser = {
   isNormalUser = true;
   description = "My User";
-  hashedPassword = "..."; # Set your password hash here
+  # Set password with: sudo passwd myuser
+  # Or use: hashedPassword = "..."; (generate with mkpasswd)
 };
 ```
 

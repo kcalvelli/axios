@@ -10,7 +10,8 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = fullName;
-    hashedPassword = "..."; # Set via passwd or mkpasswd
+    # Set password with: sudo passwd ${username}
+    # Or use: hashedPassword = "..."; (generate with mkpasswd)
     extraGroups = [
       "networkmanager"
       "wheel" # sudo access
