@@ -1,4 +1,9 @@
-{ inputs, pkgs, ... }:
+{
+  inputs,
+  pkgs,
+  config,
+  ...
+}:
 
 {
   imports = [
@@ -55,4 +60,12 @@
     enable = true;
     indicator = true;
   };
+
+  # Flatpak Flathub setup
+  # Add Flathub remote for user-level flatpak installations
+  # Runs during home-manager activation when network is available
+  home.activation.setupFlathub = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    # Add Flathub remote for user flatpak (--if-not-exists makes it idempotent)
+    $DRY_RUN_CMD ${pkgs.flatpak}/bin/flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
+  '';
 }
