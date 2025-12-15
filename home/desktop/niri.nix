@@ -55,6 +55,10 @@
             "--quit-after-last-window-closed=false" # keep the process alive
           ];
         }
+        # Show keybinding guide on first login (helpful for new users)
+        {
+          command = [ "axios-help" ];
+        }
       ];
 
       layout = {
