@@ -23,7 +23,13 @@
       prefer-no-csd = true;
       #xwayland-satellite.path = "${lib.getExe pkgs.xwayland-satellite}";
       screenshot-path = "~/Pictures/Screenshots/Screenshot-from-%Y-%m-%d-%H-%M-%S.png";
-      hotkey-overlay.skip-at-startup = true;
+
+      # Hotkey overlay configuration
+      # Shows keybinding guide when pressing Mod+Shift+/ (Mod+?)
+      hotkey-overlay = {
+        skip-at-startup = true; # Don't show automatically at startup
+        # hide-not-bound = true; # Optional: hide actions without keybinds
+      };
 
       spawn-at-startup = [
         # Clipboard management: DMS enableClipboard requires enableSpawn=true
@@ -278,17 +284,41 @@
       # Keybindings
       binds = {
         # --- App launches ---
-        "Mod+B".action.spawn = [ "brave" ];
-        "Mod+E".action.spawn = [ "nautilus" ];
-        "Mod+Return".action.spawn = "ghostty";
-        "Mod+G".action.spawn = [
-          "brave"
-          "--app=https://messages.google.com/web"
-        ];
-        "Mod+C".action.spawn = [ "code" ];
-        "Mod+D".action.spawn = [ "discord" ];
-        "Mod+Shift+T".action.spawn = [ "gnome-text-editor" ];
-        "Mod+Shift+C".action.spawn = [ "qalculate-gtk" ];
+        "Mod+B" = {
+          action.spawn = [ "brave" ];
+          hotkey-overlay-title = "Launch Brave Browser";
+        };
+        "Mod+E" = {
+          action.spawn = [ "nautilus" ];
+          hotkey-overlay-title = "Launch File Manager";
+        };
+        "Mod+Return" = {
+          action.spawn = "ghostty";
+          hotkey-overlay-title = "Launch Terminal";
+        };
+        "Mod+G" = {
+          action.spawn = [
+            "brave"
+            "--app=https://messages.google.com/web"
+          ];
+          hotkey-overlay-title = "Launch Google Messages";
+        };
+        "Mod+C" = {
+          action.spawn = [ "code" ];
+          hotkey-overlay-title = "Launch VS Code";
+        };
+        "Mod+D" = {
+          action.spawn = [ "discord" ];
+          hotkey-overlay-title = "Launch Discord";
+        };
+        "Mod+Shift+T" = {
+          action.spawn = [ "gnome-text-editor" ];
+          hotkey-overlay-title = "Launch Text Editor";
+        };
+        "Mod+Shift+C" = {
+          action.spawn = [ "qalculate-gtk" ];
+          hotkey-overlay-title = "Launch Calculator";
+        };
 
         # --- Workspace: jump directly (1..8) ---
         "Mod+1".action."focus-workspace" = [ 1 ];
@@ -358,11 +388,20 @@
         "Mod+BracketRight".action.consume-or-expel-window-right = [ ];
 
         # --- Overview ---
-        "Mod+Tab".action."toggle-overview" = [ ];
+        "Mod+Tab" = {
+          action."toggle-overview" = [ ];
+          hotkey-overlay-title = "Toggle Workspace Overview";
+        };
 
         # --- Window management ---
-        "Mod+Q".action."close-window" = [ ];
-        "Mod+Shift+F".action."fullscreen-window" = [ ];
+        "Mod+Q" = {
+          action."close-window" = [ ];
+          hotkey-overlay-title = "Close Window";
+        };
+        "Mod+Shift+F" = {
+          action."fullscreen-window" = [ ];
+          hotkey-overlay-title = "Toggle Fullscreen";
+        };
 
         # --- Column management ---
         "Mod+backslash".action.maximize-column = [ ];
@@ -426,70 +465,91 @@
         # via enableKeybinds = true (handles both screen and keyboard backlight)
 
         # --- Quit compositor (clean exit) ---
-        "Mod+Shift+E".action."quit" = [ ];
+        "Mod+Shift+E" = {
+          action."quit" = [ ];
+          hotkey-overlay-title = "Exit Niri";
+        };
 
         # --- Screenshots (Niri native) ---
-        "Mod+Ctrl+S".action.screenshot-screen = {
-          write-to-disk = true;
+        "Mod+Ctrl+S" = {
+          action.screenshot-screen = {
+            write-to-disk = true;
+          };
+          hotkey-overlay-title = "Screenshot (Save to Disk)";
         };
-        "Mod+Alt+S".action.screenshot-screen = { };
-        "Mod+Shift+S".action.screenshot = { };
+        "Mod+Alt+S" = {
+          action.screenshot-screen = { };
+          hotkey-overlay-title = "Screenshot (Copy to Clipboard)";
+        };
+        "Mod+Shift+S" = {
+          action.screenshot = { };
+          hotkey-overlay-title = "Screenshot (Select Area)";
+        };
 
         # --- Screen Recording (wf-recorder) ---
         # Toggle recording (start/stop)
-        "Mod+Shift+R".action.spawn = [
-          "${pkgs.bash}/bin/bash"
-          "-c"
-          ''
-            if pgrep -x wf-recorder > /dev/null; then
-              pkill -INT wf-recorder
-              notify-send "Screen Recording" "Recording stopped" -i video-x-generic
-            else
-              mkdir -p ~/Videos
-              wf-recorder -f ~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4 &
-              notify-send "Screen Recording" "Recording started" -i media-record
-            fi
-          ''
-        ];
+        "Mod+Shift+R" = {
+          action.spawn = [
+            "${pkgs.bash}/bin/bash"
+            "-c"
+            ''
+              if pgrep -x wf-recorder > /dev/null; then
+                pkill -INT wf-recorder
+                notify-send "Screen Recording" "Recording stopped" -i video-x-generic
+              else
+                mkdir -p ~/Videos
+                wf-recorder -f ~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4 &
+                notify-send "Screen Recording" "Recording started" -i media-record
+              fi
+            ''
+          ];
+          hotkey-overlay-title = "Toggle Screen Recording";
+        };
 
         # Record with area selection
-        "Mod+Ctrl+R".action.spawn = [
-          "${pkgs.bash}/bin/bash"
-          "-c"
-          ''
-            mkdir -p ~/Videos
-            wf-recorder -g "$(slurp)" -f ~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4 &
-            notify-send "Screen Recording" "Area recording started" -i media-record
-          ''
-        ];
+        "Mod+Ctrl+R" = {
+          action.spawn = [
+            "${pkgs.bash}/bin/bash"
+            "-c"
+            ''
+              mkdir -p ~/Videos
+              wf-recorder -g "$(slurp)" -f ~/Videos/recording-$(date +%Y%m%d-%H%M%S).mp4 &
+              notify-send "Screen Recording" "Area recording started" -i media-record
+            ''
+          ];
+          hotkey-overlay-title = "Record Screen Area";
+        };
 
         # Quake style drop down terminal using ghostty
         # Toggle by closing window if focused, or spawning/focusing if not
-        "Mod+grave".action.spawn = [
-          "${pkgs.bash}/bin/bash"
-          "-c"
-          ''
-            # Get dropterm window ID if it exists
-            dropterm_id=$(niri msg windows | ${pkgs.gnugrep}/bin/grep -B2 'App ID: "com.kc.dropterm"' | ${pkgs.gnugrep}/bin/grep 'Window ID' | ${pkgs.gawk}/bin/awk '{print $3}' | ${pkgs.gnused}/bin/sed 's/://')
+        "Mod+grave" = {
+          action.spawn = [
+            "${pkgs.bash}/bin/bash"
+            "-c"
+            ''
+              # Get dropterm window ID if it exists
+              dropterm_id=$(niri msg windows | ${pkgs.gnugrep}/bin/grep -B2 'App ID: "com.kc.dropterm"' | ${pkgs.gnugrep}/bin/grep 'Window ID' | ${pkgs.gawk}/bin/awk '{print $3}' | ${pkgs.gnused}/bin/sed 's/://')
 
-            if [ -n "$dropterm_id" ]; then
-              # Check if it's focused
-              if niri msg windows | ${pkgs.gnugrep}/bin/grep -A1 "Window ID $dropterm_id:" | ${pkgs.gnugrep}/bin/grep -q "(focused)"; then
-                # Close if focused
-                niri msg action close-window
+              if [ -n "$dropterm_id" ]; then
+                # Check if it's focused
+                if niri msg windows | ${pkgs.gnugrep}/bin/grep -A1 "Window ID $dropterm_id:" | ${pkgs.gnugrep}/bin/grep -q "(focused)"; then
+                  # Close if focused
+                  niri msg action close-window
+                else
+                  # Focus if not focused
+                  niri msg action focus-window --id "$dropterm_id"
+                fi
               else
-                # Focus if not focused
-                niri msg action focus-window --id "$dropterm_id"
+                # Spawn new window using resident daemon (instant)
+                ${pkgs.ghostty}/bin/ghostty \
+                  --gtk-single-instance=true \
+                  --class=com.kc.dropterm \
+                  --window-decoration=none &
               fi
-            else
-              # Spawn new window using resident daemon (instant)
-              ${pkgs.ghostty}/bin/ghostty \
-                --gtk-single-instance=true \
-                --class=com.kc.dropterm \
-                --window-decoration=none &
-            fi
-          ''
-        ];
+            ''
+          ];
+          hotkey-overlay-title = "Toggle Drop-down Terminal";
+        };
       };
     };
   };
