@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-### Overall Library Compliance: 95/100 (up from 78/100 → 88/100 → 95/100)
+### Overall Library Compliance: 98/100 (up from 78/100 → 88/100 → 95/100 → 98/100)
 
-axiOS has successfully completed its transition from a personal configuration to a true vendor-agnostic library framework. **All 4 critical hardware issues resolved**, with vendor-specific configuration properly moved to downstream configs.
+axiOS has successfully completed its transition from a personal configuration to a true vendor-agnostic library framework. **All 4 critical hardware issues resolved**, **all 5 moderate issues resolved**, and **1 of 3 minor issues resolved** (install CD remnants removed).
 
 ### Compliance by Subsystem
 
@@ -190,12 +190,12 @@ Comments reference AMD-specific behavior, may not be optimal for Intel.
 
 ## Minor Issues
 
-### MINOR-1: Default Password "changeme"
+### MINOR-1: Default Password "changeme" ✅ FIXED
 
 **Location:** `modules/system/users.nix:166`
 **Severity:** 🟢 **MINOR** (Security concern)
 
-Initial password should use locked account instead.
+**FIXED:** Removed default password completely. This was an install CD remnant. Users now set password via `passwd` or `hashedPassword`.
 
 ---
 

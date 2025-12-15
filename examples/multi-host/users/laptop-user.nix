@@ -10,7 +10,7 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = fullName;
-    initialPassword = "changeme"; # Change on first login!
+    hashedPassword = "..."; # Set via passwd or mkpasswd
     extraGroups = [
       "networkmanager"
       "wheel" # sudo access

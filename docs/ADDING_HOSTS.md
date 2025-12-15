@@ -301,7 +301,7 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = "My User";
-    initialPassword = "changeme";
+    hashedPassword = "..."; # Set via passwd or hashedPassword
     extraGroups = [ "networkmanager" "wheel" ];
   };
 

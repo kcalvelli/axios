@@ -249,7 +249,6 @@ in
     username = username;
     fullName = fullName;
     email = email;
-    initialPassword = "changeme"; # Change on first login!
 
     groups = [
       "networkmanager"

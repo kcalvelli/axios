@@ -36,7 +36,6 @@ Groups are automatically assigned based on enabled modules:
 users.users.myuser = {
   isNormalUser = true;
   description = "My User";
-  initialPassword = "changeme";
   # extraGroups automatically includes: wheel, networkmanager, video, etc.
 };
 ```
@@ -133,7 +132,7 @@ When you set:
 - `axios.user.email = "user@example.com"` - Email address (used for git user.email)
 
 axios automatically configures:
-- User account (isNormalUser, initialPassword "changeme", extraGroups based on enabled modules)
+- User account (isNormalUser, extraGroups based on enabled modules)
 - Git user name and email
 - Home-manager stateVersion and FLAKE_PATH
 - Niri blur wallpaper for overview mode
@@ -253,7 +252,7 @@ Let axios handle the common cases:
 users.users.myuser = {
   isNormalUser = true;
   description = "My User";
-  initialPassword = "changeme";
+  hashedPassword = "..."; # Set your password hash here
 };
 ```
 

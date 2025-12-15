@@ -180,31 +180,19 @@ locale = lib.mkOption {
 
 ---
 
-### 5. Initial Password "changeme"
+### 5. Initial Password "changeme" ✅ FIXED
 **File:** `/home/keith/Projects/axios/modules/users.nix:166`
 **Issue:** New users get initial password "changeme" by default.
 
-```nix
-users.users.${userCfg.name} = {
-  isNormalUser = lib.mkDefault true;
-  description = lib.mkDefault userCfg.fullName;
-  initialPassword = lib.mkDefault "changeme";  # <- Hardcoded password
-  extraGroups = lib.mkDefault cfg.defaultExtraGroups;
-};
-```
+**Resolution:**
+- Removed `initialPassword = lib.mkDefault "changeme"` from modules/users.nix
+- Updated all documentation and examples to use `hashedPassword` or `passwd`
+- This was a remnant from install CD attempts - axiOS is installed after standard NixOS installation
+- Users now set password via `passwd` command or `hashedPassword` attribute
+- All example configs updated to reflect this change
 
-**Severity:** LOW
-**Rationale:**
-- Initial passwords are a necessary evil for NixOS declarative user management
-- This is wrapped in `lib.mkDefault` so it can be overridden
-- Alternative would be no password (locked account) or requiring user to set it
-- Security concern: predictable default password
-
-**Recommendation:**
-- **Option 1:** Change to `initialHashedPassword = null` (locked account, requires manual `passwd` or SSH key)
-- **Option 2:** Keep but add loud documentation warning
-- **Option 3:** Generate random password and display it during first boot (complex)
-- **Preferred:** Option 1 - safer default, users must explicitly set password
+**Severity:** LOW → RESOLVED
+**Status:** Install CD remnant removed
 
 ---
 

@@ -163,7 +163,6 @@ in
       users.users.${userCfg.name} = {
         isNormalUser = lib.mkDefault true;
         description = lib.mkDefault userCfg.fullName;
-        initialPassword = lib.mkDefault "changeme";
         extraGroups = lib.mkDefault cfg.defaultExtraGroups;
       };
 

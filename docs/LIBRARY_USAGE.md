@@ -90,7 +90,7 @@ in
   users.users.${username} = {
     isNormalUser = true;
     description = fullName;
-    initialPassword = "changeme";
+    hashedPassword = "..."; # Set via passwd or hashedPassword
     extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
   };
 
