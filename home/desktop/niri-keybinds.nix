@@ -95,9 +95,9 @@ let
   # Script to display keybindings in a notification
   showKeybindingsNotify = pkgs.writeShellScript "show-niri-keybindings-notify" ''
     # Display in a floating terminal window
+    # Note: Window rule matches by title since Ghostty doesn't allow custom app-id
     ${pkgs.ghostty}/bin/ghostty \
       --title="Niri Keybindings - axiOS" \
-      --class=niri-help \
       -e ${showKeybindings}
   '';
 in

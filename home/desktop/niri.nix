@@ -276,7 +276,12 @@
 
         # Niri keybinding help window: float, centered, comfortable reading size
         {
-          matches = [ { app-id = "^niri-help$"; } ];
+          matches = [
+            {
+              app-id = "^com\\.mitchellh\\.ghostty$";
+              title = "^Niri Keybindings - axiOS$";
+            }
+          ];
 
           # Override global maximized rule
           open-maximized = false;
