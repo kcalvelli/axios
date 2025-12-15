@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-### Overall Library Compliance: 98/100 (up from 78/100 → 88/100 → 95/100 → 98/100)
+### Overall Library Compliance: 99/100 (up from 78/100 → 88/100 → 95/100 → 98/100 → 99/100)
 
-axiOS has successfully completed its transition from a personal configuration to a true vendor-agnostic library framework. **All 4 critical hardware issues resolved**, **all 5 moderate issues resolved**, and **1 of 3 minor issues resolved** (install CD remnants removed).
+axiOS has successfully completed its transition from a personal configuration to a true vendor-agnostic library framework. **All 4 critical hardware issues resolved**, **all 5 moderate issues resolved**, and **2 of 3 minor issues resolved** (install CD remnants removed, CoreCtrl removed).
 
 ### Compliance by Subsystem
 
@@ -199,12 +199,12 @@ Comments reference AMD-specific behavior, may not be optimal for Intel.
 
 ---
 
-### MINOR-2: CoreCtrl Auto-Enable for AMD GPUs
+### MINOR-2: CoreCtrl Auto-Enable for AMD GPUs ✅ FIXED
 
-**Location:** `modules/graphics/default.nix:107`
-**Severity:** 🟢 **MINOR**
+**Location:** `modules/graphics/default.nix:145`
+**Severity:** 🟢 **MINOR** → ✅ **RESOLVED**
 
-Auto-enables GPU overclocking tool polkit permissions. Consider opt-in.
+**FIXED:** Removed CoreCtrl from default AMD configuration. Users who need GPU overclocking/tuning can add it in extraConfig.
 
 ---
 

@@ -177,62 +177,31 @@ boot.kernelParams = lib.optionals isAmd [
 
 ---
 
-### ⚠️ MINOR: AMD CoreCtrl Default Enable
+### ⚠️ MINOR: AMD CoreCtrl Default Enable ✅ FIXED
 
 **File:** `/home/keith/Projects/axios/modules/graphics/default.nix:145`
-**Severity:** 🟡 **LOW**
+**Severity:** 🟡 **LOW** → ✅ **RESOLVED**
 
-**Code:**
+**Resolution:**
+- Removed `programs.corectrl.enable = lib.mkIf isAmd true;` (line 145)
+- Removed `corectrl` from AMD systemPackages (line 122)
+- Users who need CoreCtrl can add it in their extraConfig
+
+**Rationale:**
+- CoreCtrl is an overclocking/tuning tool for power users, not a base requirement
+- Enabling it adds polkit permissions for GPU control (invasive)
+- Not all AMD users need manual fan/clock controls
+- Opt-in is more appropriate for a library/framework
+
+**For users who want CoreCtrl:**
 ```nix
-# === Programs ===
-# AMD: CoreCtrl for fan/clock controls
-programs.corectrl.enable = lib.mkIf isAmd true;
+extraConfig = {
+  programs.corectrl.enable = true;
+  environment.systemPackages = [ pkgs.corectrl ];
+};
 ```
 
-**Analysis:**
-
-**Is this a personal preference?**
-- ⚠️ **BORDERLINE** - CoreCtrl is a power user tool, not a base requirement
-- ✅ It's conditionally enabled (only when `isAmd`)
-- ⚠️ Unlike basic GPU drivers, this is an **overclocking/tuning tool**
-- ⚠️ Not all AMD users need manual fan/clock controls
-
-**Comparison to Other GPUs:**
-- Nvidia: `nvidiaSettings = true` (line 82) - provides driver control panel (similar)
-- Intel: No equivalent tool enabled
-
-**Context from Packages (lines 119-133):**
-- AMD tools: `radeontop`, `corectrl`, `amdgpu_top` (all installed)
-- Nvidia tools: `nvtopPackages.nvidia`, `nvidia-settings` (all installed)
-- Intel tools: `intel-gpu-tools` (installed)
-
-**Assessment:**
-- CoreCtrl is being **enabled as a service** (`programs.corectrl.enable`)
-- This adds a **polkit policy** and **system permissions**
-- More invasive than just installing the package (which is also done on line 122)
-
-**Verdict:** ⚠️ **MINOR CONCERN** - Consider making this opt-in rather than default
-
-**Recommendation:**
-- **Option 1 (Conservative):** Remove `programs.corectrl.enable = true` - keep package in environment.systemPackages (users can launch manually)
-- **Option 2 (Balanced):** Add a sub-option: `services.ai.local.enableGpuTuning` or `graphics.enableAdvancedControls`
-- **Option 3 (Document):** Add comment explaining why this is enabled by default
-
-**Suggested Change (Option 1):**
-```nix
-# Remove the programs.corectrl.enable line entirely
-# CoreCtrl package is already installed (line 122), users can launch it manually
-# For automatic polkit permissions, users can add: programs.corectrl.enable = true;
-```
-
-**Suggested Change (Option 2):**
-```nix
-# Add option to graphics module
-options.axios.graphics.enableAdvancedControls = lib.mkEnableOption "advanced GPU control tools (CoreCtrl for AMD, nvidia-settings for Nvidia)" // { default = false; };
-
-# Enable conditionally
-programs.corectrl.enable = lib.mkIf (isAmd && config.axios.graphics.enableAdvancedControls) true;
-```
+**Status:** FIXED - CoreCtrl removed from default AMD configuration
 
 ---
 

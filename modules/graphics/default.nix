@@ -119,7 +119,6 @@ in
       ++ lib.optionals isAmd [
         # AMD GPU tools
         radeontop
-        corectrl
         amdgpu_top
       ]
       ++ lib.optionals isNvidia [
@@ -139,9 +138,5 @@ in
       }
       (lib.mkIf isAmd { HIP_PLATFORM = "amd"; })
     ];
-
-    # === Programs ===
-    # AMD: CoreCtrl for fan/clock controls
-    programs.corectrl.enable = lib.mkIf isAmd true;
   };
 }
