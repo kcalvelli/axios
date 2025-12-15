@@ -179,14 +179,20 @@ in
 
     # === Flatpak Flathub Setup ===
     # Automatically add Flathub remote on system activation
-    systemd.services.flatpak-add-flathub = {
-      wantedBy = [ "multi-user.target" ];
-      wants = [ "network-online.target" ];
-      after = [ "network-online.target" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo";
+    # Note: Requires NetworkManager-wait-online to ensure network availability
+    systemd.services = {
+      # Enable network-online.target wait (overrides networking module's disable)
+      NetworkManager-wait-online.enable = true;
+
+      flatpak-add-flathub = {
+        wantedBy = [ "multi-user.target" ];
+        wants = [ "network-online.target" ];
+        after = [ "network-online.target" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = "${pkgs.flatpak}/bin/flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo";
+        };
       };
     };
 
