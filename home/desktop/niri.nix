@@ -388,10 +388,18 @@
 
         # --- Column management ---
         "Mod+backslash".action.maximize-column = [ ];
+
+        # Column/monitor focus (wheel + keyboard alternatives)
         "Mod+WheelScrollRight".action.focus-column-or-monitor-right = { };
         "Mod+WheelScrollLeft".action.focus-column-or-monitor-left = { };
+        "Mod+Period".action.focus-column-or-monitor-right = { };
+        "Mod+Comma".action.focus-column-or-monitor-left = { };
+
+        # Move column to monitor (wheel + keyboard alternatives)
         "Mod+Ctrl+WheelScrollRight".action.move-column-right-or-to-monitor-right = { };
         "Mod+Ctrl+WheelScrollLeft".action.move-column-left-or-to-monitor-left = { };
+        "Mod+Ctrl+Period".action.move-column-right-or-to-monitor-right = { };
+        "Mod+Ctrl+Comma".action.move-column-left-or-to-monitor-left = { };
 
         # --- Tabbed display ---
         "Mod+T".action.toggle-column-tabbed-display = [ ];
@@ -400,7 +408,7 @@
         "Mod+Shift+Z".action."toggle-window-floating" = [ ];
         "Mod+Z".action."switch-focus-between-floating-and-tiling" = [ ];
 
-        # Wheel scroll:
+        # Workspace navigation (wheel + keyboard alternatives)
         "Mod+WheelScrollDown" = {
           cooldown-ms = 150;
           action.focus-workspace-down = { };
@@ -409,6 +417,10 @@
           cooldown-ms = 150;
           action.focus-workspace-up = { };
         };
+        "Mod+Page_Down".action.focus-workspace-down = { };
+        "Mod+Page_Up".action.focus-workspace-up = { };
+
+        # Move column to workspace (wheel + keyboard alternatives)
         "Mod+Ctrl+WheelScrollDown" = {
           cooldown-ms = 150;
           action.move-column-to-workspace-down = { };
@@ -417,8 +429,11 @@
           cooldown-ms = 150;
           action.move-column-to-workspace-up = { };
         };
+        "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = { };
+        "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = { };
 
-        # --- Volume control with thumb wheel (DMS IPC) ---
+        # --- Volume control (DMS IPC) ---
+        # Wheel bindings
         "Mod+Shift+WheelScrollLeft".action.spawn = [
           "dms"
           "ipc"
@@ -428,6 +443,24 @@
           "3"
         ];
         "Mod+Shift+WheelScrollRight".action.spawn = [
+          "dms"
+          "ipc"
+          "call"
+          "audio"
+          "decrement"
+          "3"
+        ];
+
+        # Keyboard alternatives for volume
+        "Mod+Shift+Equal".action.spawn = [
+          "dms"
+          "ipc"
+          "call"
+          "audio"
+          "increment"
+          "3"
+        ];
+        "Mod+Shift+Minus".action.spawn = [
           "dms"
           "ipc"
           "call"

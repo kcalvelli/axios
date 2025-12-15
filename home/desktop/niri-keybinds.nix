@@ -22,6 +22,7 @@ let
     │ Mod + 1-8         Switch to workspace 1-8                      │
     │ Mod + Tab         Toggle workspace overview                    │
     │ Mod + Wheel ↑/↓   Focus workspace up/down                      │
+    │ Mod + Page Up/Dn  Focus workspace up/down (keyboard)           │
     └────────────────────────────────────────────────────────────────┘
 
     ┌─ WINDOW NAVIGATION ────────────────────────────────────────────┐
@@ -43,9 +44,10 @@ let
     └────────────────────────────────────────────────────────────────┘
 
     ┌─ MOVE TO WORKSPACE ────────────────────────────────────────────┐
-    │ Mod + Shift + 1-9      Move window to workspace 1-9            │
+    │ Mod + Shift + 1-9         Move window to workspace 1-9         │
     │ Mod + Ctrl + Shift + 1-9  Move column to workspace 1-9         │
     │ Mod + Ctrl + Wheel ↑/↓    Move column to workspace up/down     │
+    │ Mod + Ctrl + Page Up/Dn   Move column to workspace up/down     │
     └────────────────────────────────────────────────────────────────┘
 
     ┌─ COLUMN/LAYOUT MANAGEMENT ─────────────────────────────────────┐
@@ -54,6 +56,10 @@ let
     │ Mod + =           Increase column width (+10%)                 │
     │ Mod + \           Maximize column                              │
     │ Mod + T           Toggle column tabbed display                 │
+    │ Mod + ,           Focus column/monitor left                    │
+    │ Mod + .           Focus column/monitor right                   │
+    │ Mod + Ctrl + ,    Move column to monitor left                  │
+    │ Mod + Ctrl + .    Move column to monitor right                 │
     │ Mod + [           Consume/expel window left                    │
     │ Mod + ]           Consume/expel window right                   │
     │ Mod + Shift + ,   Consume window into column                   │
@@ -69,8 +75,10 @@ let
     └────────────────────────────────────────────────────────────────┘
 
     ┌─ AUDIO CONTROL (DMS) ──────────────────────────────────────────┐
-    │ Mod + Shift + Wheel ← Volume up (+3%)                          │
-    │ Mod + Shift + Wheel → Volume down (-3%)                        │
+    │ Mod + Shift + Wheel ← Volume up (+3%) (mouse)                  │
+    │ Mod + Shift + Wheel → Volume down (-3%) (mouse)                │
+    │ Mod + Shift + =       Volume up (+3%) (keyboard)               │
+    │ Mod + Shift + -       Volume down (-3%) (keyboard)             │
     │ Mod + Shift + M       Toggle mute                              │
     └────────────────────────────────────────────────────────────────┘
 
@@ -104,7 +112,7 @@ in
 {
   # Make the keybinding guide available as a command
   home.packages = [
-    (pkgs.writeShellScriptBin "niri-help" (builtins.readFile showKeybindingsNotify))
+    (pkgs.writeShellScriptBin "axios-help" (builtins.readFile showKeybindingsNotify))
   ];
 
   # Add keybinding to show the guide
