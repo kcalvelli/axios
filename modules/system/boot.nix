@@ -15,6 +15,26 @@
         Fresh installations should leave this disabled until keys are enrolled.
       '';
     };
+
+    axios.system.performance = {
+      swappiness = lib.mkOption {
+        type = lib.types.int;
+        default = 10;
+        description = "VM swappiness (0-100). Lower values prefer RAM over swap. Default: 10 for development workloads.";
+      };
+
+      zramPercent = lib.mkOption {
+        type = lib.types.int;
+        default = 25;
+        description = "Percentage of RAM to use for zram swap. Default: 25%";
+      };
+
+      enableNetworkOptimizations = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable BBR congestion control and optimized network buffers for desktop/development use";
+      };
+    };
   };
 
   config = {
@@ -34,6 +54,13 @@
 
       # Network & kernel tunables optimized for desktop/development
       kernel.sysctl = {
+        # Development workload optimizations
+        "fs.inotify.max_user_watches" = 524288; # For IDEs and dev tools
+        "vm.swappiness" = config.axios.system.performance.swappiness;
+        "vm.dirty_ratio" = 3; # Better for SSDs
+        "vm.dirty_background_ratio" = 2;
+      }
+      // lib.optionalAttrs config.axios.system.performance.enableNetworkOptimizations {
         # BBR congestion control (modern, efficient)
         "net.core.default_qdisc" = "fq";
         "net.ipv4.tcp_congestion_control" = "bbr";
@@ -47,12 +74,6 @@
 
         # TCP Fast Open
         "net.ipv4.tcp_fastopen" = 3;
-
-        # Development workload optimizations
-        "fs.inotify.max_user_watches" = 524288; # For IDEs and dev tools
-        "vm.swappiness" = 10; # Prefer RAM over swap for better dev performance
-        "vm.dirty_ratio" = 3; # Better for SSDs
-        "vm.dirty_background_ratio" = 2;
       };
 
       loader = {
@@ -86,7 +107,7 @@
     zramSwap = {
       enable = true;
       algorithm = "zstd";
-      memoryPercent = 25;
+      memoryPercent = config.axios.system.performance.zramPercent;
     };
   };
 }

@@ -8,6 +8,15 @@ in
 
   options.hardware.laptop = {
     enable = lib.mkEnableOption "Laptop hardware configuration";
+
+    cpuGovernor = lib.mkOption {
+      type = lib.types.str;
+      default = "powersave";
+      description = ''
+        CPU frequency governor for laptops.
+        Default: powersave for better battery life. Options: powersave, performance, ondemand, etc.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -21,6 +30,12 @@ in
         "nvme"
         "xhci_pci"
       ];
+    };
+
+    # Laptop power policy
+    powerManagement = {
+      enable = true;
+      cpuFreqGovernor = cfg.cpuGovernor;
     };
 
     # SSD TRIM for laptops

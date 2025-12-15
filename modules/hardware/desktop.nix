@@ -14,6 +14,16 @@ in
       default = false;
       description = "Enable Logitech wireless peripheral support";
     };
+
+    cpuGovernor = lib.mkOption {
+      type = lib.types.str;
+      default = "powersave";
+      description = ''
+        CPU frequency governor for desktops.
+        Modern AMD (amd-pstate-epp) and Intel drivers provide intelligent
+        frequency scaling with "powersave" governor. Options: powersave, performance, ondemand, etc.
+      '';
+    };
   };
 
   config = lib.mkMerge [
@@ -38,12 +48,10 @@ in
         ];
       };
 
-      # Desktop power policy - use powersave for universal compatibility
-      # Modern AMD (amd-pstate-epp) and Intel cpufreq drivers provide
-      # intelligent frequency scaling with the powersave governor
+      # Desktop power policy
       powerManagement = {
         enable = true;
-        cpuFreqGovernor = lib.mkDefault "powersave";
+        cpuFreqGovernor = cfg.cpuGovernor;
       };
 
       # Desktop services
