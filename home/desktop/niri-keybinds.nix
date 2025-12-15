@@ -100,24 +100,22 @@ let
     ${pkgs.bat}/bin/bat --plain --language txt ${keybindingGuide} || ${pkgs.coreutils}/bin/cat ${keybindingGuide}
   '';
 
-  # Script to display keybindings in a notification
-  showKeybindingsNotify = pkgs.writeShellScript "show-niri-keybindings-notify" ''
-    # Display in a floating terminal window
-    # Note: Window rule matches by title since Ghostty doesn't allow custom app-id
-    ${pkgs.ghostty}/bin/ghostty \
-      --title="Niri Keybindings - axiOS" \
-      -e ${showKeybindings}
-  '';
 in
 {
   # Make the keybinding guide available as a command
   home.packages = [
-    (pkgs.writeShellScriptBin "axios-help" (builtins.readFile showKeybindingsNotify))
+    (pkgs.writeShellScriptBin "axios-help" ''
+      # Display in a floating terminal window
+      # Note: Window rule matches by title since Ghostty doesn't allow custom app-id
+      ${pkgs.ghostty}/bin/ghostty \
+        --title="Niri Keybindings - axiOS" \
+        -e ${showKeybindings}
+    '')
   ];
 
   # Add keybinding to show the guide
   programs.niri.settings.binds."Mod+Shift+Slash" = {
-    action.spawn = [ "${showKeybindingsNotify}" ];
+    action.spawn = [ "axios-help" ];
   };
 
   # Also make the raw text file available
