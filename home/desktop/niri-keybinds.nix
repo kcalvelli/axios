@@ -1,0 +1,117 @@
+{ pkgs, ... }:
+let
+  # Keybinding reference for axios niri configuration
+  keybindingGuide = pkgs.writeText "niri-keybindings.txt" ''
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║              axiOS Niri Keybinding Reference                     ║
+    ╚══════════════════════════════════════════════════════════════════╝
+
+    ┌─ APPLICATION LAUNCHERS ────────────────────────────────────────┐
+    │ Mod + Return      Launch Terminal (Ghostty)                    │
+    │ Mod + B           Launch Brave Browser                         │
+    │ Mod + E           Launch File Manager (Nautilus)               │
+    │ Mod + C           Launch VS Code                               │
+    │ Mod + D           Launch Discord                               │
+    │ Mod + G           Launch Google Messages (PWA)                 │
+    │ Mod + `           Toggle Drop-down Terminal (Quake-style)      │
+    │ Mod + Shift + T   Launch Text Editor                           │
+    │ Mod + Shift + C   Launch Calculator (Qalculate)                │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ WORKSPACE NAVIGATION ─────────────────────────────────────────┐
+    │ Mod + 1-8         Switch to workspace 1-8                      │
+    │ Mod + Tab         Toggle workspace overview                    │
+    │ Mod + Wheel ↑/↓   Focus workspace up/down                      │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ WINDOW NAVIGATION ────────────────────────────────────────────┐
+    │ Mod + H/←         Focus column left                            │
+    │ Mod + J/↓         Focus window down                            │
+    │ Mod + K/↑         Focus window up                              │
+    │ Mod + L/→         Focus column right                           │
+    │ Mod + Z           Switch between floating/tiling               │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ WINDOW MANAGEMENT ────────────────────────────────────────────┐
+    │ Mod + Q           Close window                                 │
+    │ Mod + Shift + F   Toggle fullscreen                            │
+    │ Mod + Shift + Z   Toggle window floating                       │
+    │ Mod + Shift + H   Move column left                             │
+    │ Mod + Shift + J   Move window down                             │
+    │ Mod + Shift + K   Move window up                               │
+    │ Mod + Shift + L   Move column right                            │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ MOVE TO WORKSPACE ────────────────────────────────────────────┐
+    │ Mod + Shift + 1-9      Move window to workspace 1-9            │
+    │ Mod + Ctrl + Shift + 1-9  Move column to workspace 1-9         │
+    │ Mod + Ctrl + Wheel ↑/↓    Move column to workspace up/down     │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ COLUMN/LAYOUT MANAGEMENT ─────────────────────────────────────┐
+    │ Mod + W           Cycle preset column widths                   │
+    │ Mod + -           Decrease column width (-10%)                 │
+    │ Mod + =           Increase column width (+10%)                 │
+    │ Mod + \           Maximize column                              │
+    │ Mod + T           Toggle column tabbed display                 │
+    │ Mod + [           Consume/expel window left                    │
+    │ Mod + ]           Consume/expel window right                   │
+    │ Mod + Shift + ,   Consume window into column                   │
+    │ Mod + Shift + .   Expel window from column                     │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ SCREENSHOTS & RECORDING ──────────────────────────────────────┐
+    │ Mod + Shift + S   Screenshot with area selection               │
+    │ Mod + Ctrl + S    Screenshot screen (save to disk)             │
+    │ Mod + Alt + S     Screenshot screen (copy to clipboard)        │
+    │ Mod + Shift + R   Toggle screen recording (start/stop)         │
+    │ Mod + Ctrl + R    Record screen area (with selection)          │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ AUDIO CONTROL (DMS) ──────────────────────────────────────────┐
+    │ Mod + Shift + Wheel ← Volume up (+3%)                          │
+    │ Mod + Shift + Wheel → Volume down (-3%)                        │
+    │ Mod + Shift + M       Toggle mute                              │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ SYSTEM ───────────────────────────────────────────────────────┐
+    │ Mod + Shift + E   Exit Niri (clean exit)                       │
+    │ Mod + Shift + /   Show this keybinding guide                   │
+    └────────────────────────────────────────────────────────────────┘
+
+    ┌─ NOTES ────────────────────────────────────────────────────────┐
+    │ • Mod = Super (Windows key) when running on TTY                │
+    │ • Screenshots saved to: ~/Pictures/Screenshots/                │
+    │ • Screen recordings saved to: ~/Videos/                        │
+    │ • Brightness controls provided by DankMaterialShell             │
+    └────────────────────────────────────────────────────────────────┘
+  '';
+
+  # Script to display keybindings in a terminal
+  showKeybindings = pkgs.writeShellScript "show-niri-keybindings" ''
+    ${pkgs.bat}/bin/bat --plain --language txt ${keybindingGuide} || ${pkgs.coreutils}/bin/cat ${keybindingGuide}
+  '';
+
+  # Script to display keybindings in a notification
+  showKeybindingsNotify = pkgs.writeShellScript "show-niri-keybindings-notify" ''
+    # Display in a floating terminal window
+    ${pkgs.ghostty}/bin/ghostty \
+      --title="Niri Keybindings - axiOS" \
+      --class=niri-help \
+      -e ${showKeybindings}
+  '';
+in
+{
+  # Make the keybinding guide available as a command
+  home.packages = [
+    (pkgs.writeShellScriptBin "niri-help" (builtins.readFile showKeybindingsNotify))
+  ];
+
+  # Add keybinding to show the guide
+  programs.niri.settings.binds."Mod+Shift+Slash" = {
+    action.spawn = [ "${showKeybindingsNotify}" ];
+  };
+
+  # Also make the raw text file available
+  xdg.configFile."niri/keybindings.txt".source = keybindingGuide;
+}

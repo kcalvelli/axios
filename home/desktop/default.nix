@@ -10,6 +10,7 @@
     ./theming.nix
     ./wallpaper.nix
     ./niri.nix
+    ./niri-keybinds.nix
     ./gdrive-sync.nix
     ./pwa-apps.nix
     inputs.dankMaterialShell.homeModules.dankMaterialShell.default
