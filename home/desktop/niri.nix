@@ -291,12 +291,12 @@
           open-maximized = false;
           open-floating = true; # Centers by default
 
-          # Comfortable size for reading keybindings (80 cols + margins ≈ 1000px wide)
+          # Portrait orientation - taller than wide for better readability
           default-column-width = {
-            fixed = 1000;
+            fixed = 800;
           };
           default-window-height = {
-            fixed = 800;
+            fixed = 1100;
           };
         }
       ];
