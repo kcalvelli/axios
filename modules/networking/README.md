@@ -16,8 +16,11 @@ Provides network manager configuration, SSH, and optional network services like 
 
 ### Avahi (`avahi.nix`)
 Local network service discovery (mDNS/DNS-SD).
-- Enable with: `networking.avahi.enable = true`
-- Use for: Local network device discovery, `.local` domains
+- Enable with: `axios.networking.avahi.enable = true`
+- **Default behavior**: Auto-enabled when Samba is enabled, disabled otherwise
+- Use for: Local network device discovery, `.local` domains, Samba auto-discovery
+- **Note**: Disable explicitly to reduce network noise if you don't need auto-discovery
+- Samba works without Avahi (use direct connections: `smb://hostname/share`)
 
 ### Samba (`samba.nix`)
 File sharing with Windows and network devices.
@@ -46,12 +49,17 @@ VPN mesh network for secure remote access.
   networking = {
     hostName = "myhost";
     networkmanager.enable = true;  # Default
-    
+
     # Optional services
-    avahi.enable = true;
-    samba.enable = true;
+    samba.enable = true;           # Avahi auto-enables for discovery
     tailscale.enable = true;
   };
+
+  # To disable Avahi even with Samba:
+  axios.networking.avahi.enable = false;
+
+  # To enable Avahi without Samba:
+  axios.networking.avahi.enable = true;
 }
 ```
 
