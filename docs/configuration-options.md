@@ -145,6 +145,21 @@ extraConfig = {
 
 **Note**: These are automatically set from your `hardware.gpu` and `hardware.isLaptop` fields. You typically don't need to override them in extraConfig.
 
+#### GPU Recovery (AMD only)
+
+```nix
+extraConfig = {
+  axios.hardware.enableGPURecovery = false;
+};
+```
+
+**Default**: `false`
+**Type**: Boolean
+**GPU**: AMD only
+**Description**: Enable automatic GPU hang recovery for AMD GPUs. Adds kernel parameter `amdgpu.gpu_recovery=1`. Only enable if experiencing GPU hangs or stability issues.
+
+**Important**: This option only works when `gpuType` is `"amd"`. An assertion will fail the build if enabled with other GPU types.
+
 ### CPU Configuration
 
 ```nix

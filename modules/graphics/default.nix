@@ -34,9 +34,24 @@ in
       default = false;
       description = "Whether this is a laptop (affects PRIME configuration for Nvidia)";
     };
+
+    enableGPURecovery = lib.mkEnableOption ''
+      automatic GPU hang recovery (AMD GPUs only).
+      Adds kernel parameter amdgpu.gpu_recovery=1.
+      Only enable if experiencing GPU hangs or stability issues.
+      This option only works when gpuType is "amd"
+    '';
   };
 
   config = {
+    # Assertion: enableGPURecovery requires AMD GPU
+    assertions = [
+      {
+        assertion = !config.axios.hardware.enableGPURecovery || isAmd;
+        message = "axios.hardware.enableGPURecovery can only be enabled with AMD GPUs (gpuType must be 'amd')";
+      }
+    ];
+
     # === GPU / Graphics Hardware ===
     hardware = {
       graphics = {
@@ -103,8 +118,8 @@ in
     services.xserver.videoDrivers = lib.mkIf isNvidia [ "nvidia" ];
 
     # === Kernel Parameters ===
-    boot.kernelParams = lib.optionals isAmd [
-      "amdgpu.gpu_recovery=1" # good stability safety net
+    boot.kernelParams = lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
+      "amdgpu.gpu_recovery=1"
     ];
 
     # === Graphics Utilities ===

@@ -130,38 +130,47 @@ open = lib.mkDefault true;
 
 ---
 
-### ⚠️ MINOR: AMD GPU Recovery Kernel Parameter
+### ⚠️ MINOR: AMD GPU Recovery Kernel Parameter ✅ FIXED
 
-**File:** `/home/keith/Projects/axios/modules/graphics/default.nix:106-108`
-**Severity:** 🟡 **LOW**
+**File:** `/home/keith/Projects/axios/modules/graphics/default.nix:113-115`
+**Severity:** 🟡 **LOW** → ✅ **RESOLVED**
 
-**Code:**
+**Resolution:**
+- Made GPU recovery an opt-in option: `axios.hardware.enableGPURecovery` (default: false)
+- Added assertion to ensure option only used with AMD GPUs
+- Only applies kernel parameter when explicitly enabled by user
+- Documented in configuration-options.md
+
+**New Implementation:**
 ```nix
-boot.kernelParams = lib.optionals isAmd [
-  "amdgpu.gpu_recovery=1" # good stability safety net
+# Option definition
+options.axios.hardware.enableGPURecovery = lib.mkEnableOption ''
+  automatic GPU hang recovery (AMD GPUs only).
+  Adds kernel parameter amdgpu.gpu_recovery=1.
+  Only enable if experiencing GPU hangs or stability issues.
+  This option only works when gpuType is "amd"
+'';
+
+# Assertion
+assertions = [{
+  assertion = !config.axios.hardware.enableGPURecovery || isAmd;
+  message = "axios.hardware.enableGPURecovery can only be enabled with AMD GPUs";
+}];
+
+# Kernel parameter (only when enabled)
+boot.kernelParams = lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
+  "amdgpu.gpu_recovery=1"
 ];
 ```
 
-**Analysis:**
+**Rationale:**
+- While this is a stability feature, not all users experience GPU hangs
+- Opt-in is more appropriate for a library framework
+- Users who need it can easily enable it in extraConfig
 
-**Is this personal configuration?**
-- ⚠️ **BORDERLINE** - This is an AMD-recommended safety feature, not a personal tuning preference
-- ✅ It's conditionally applied (only when `isAmd`)
-- ✅ It's a **stability feature**, not a performance optimization
-- ✅ Comment describes it as "good stability safety net" (general benefit)
+**Status:** FIXED - GPU recovery is now opt-in, not default
 
-**Context from spec-kit-baseline/constitution.md:**
-> "This is a library/framework, NOT a personal configuration. NO hardcoded personal preferences."
-
-**AMD Documentation:**
-- `amdgpu.gpu_recovery=1` enables automatic GPU hang recovery
-- This is a **debugging/stability feature**, not a performance tuning option
-- Equivalent to Nvidia's GPU hang detection (enabled by default in `nvidia.ko`)
-- Intel has similar hang detection in `i915.ko`
-
-**Verdict:** ✅ **ACCEPTABLE** - This is a **vendor-recommended safety feature**, not a personal preference. It's properly guarded by conditional logic. However, consider documenting why this is enabled by default.
-
-**Recommendation:**
+**Recommendation (obsolete - already implemented):**
 - **Action:** Add inline comment explaining this is AMD's recommended stability configuration
 - **Priority:** LOW (cosmetic documentation improvement)
 

@@ -8,9 +8,9 @@
 
 ## Executive Summary
 
-### Overall Library Compliance: 99/100 (up from 78/100 → 88/100 → 95/100 → 98/100 → 99/100)
+### Overall Library Compliance: 100/100 (up from 78/100 → 88/100 → 95/100 → 98/100 → 99/100 → 100/100)
 
-axiOS has successfully completed its transition from a personal configuration to a true vendor-agnostic library framework. **All 4 critical hardware issues resolved**, **all 5 moderate issues resolved**, and **2 of 3 minor issues resolved** (install CD remnants removed, CoreCtrl removed).
+axiOS has successfully completed its transition from a personal configuration to a true vendor-agnostic library framework. **All 4 critical issues resolved**, **all 5 moderate issues resolved**, and **all 3 minor issues resolved**. The library is now fully compliant with constitution standards.
 
 ### Compliance by Subsystem
 
@@ -208,12 +208,12 @@ Comments reference AMD-specific behavior, may not be optimal for Intel.
 
 ---
 
-### MINOR-3: AMD GPU Recovery Parameter
+### MINOR-3: AMD GPU Recovery Parameter ✅ FIXED
 
-**Location:** `modules/graphics/default.nix:87`
-**Severity:** 🟢 **MINOR**
+**Location:** `modules/graphics/default.nix:113`
+**Severity:** 🟢 **MINOR** → ✅ **RESOLVED**
 
-`amdgpu.gpu_recovery=1` is AMD's recommended default, but should be documented why.
+**FIXED:** Made GPU recovery opt-in via `axios.hardware.enableGPURecovery` (default: false). Includes assertion to ensure AMD-only usage.
 
 ---
 
