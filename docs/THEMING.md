@@ -60,6 +60,50 @@ To activate the overview mode and see the blurred background:
 - The blurred wallpaper appears as the backdrop
 - All windows are shown in a grid layout
 
+## Neovim Theming
+
+Neovim uses a base16 colorscheme generated from system colors:
+
+### Setup
+- **Colorscheme**: `base16-dankshell`
+- **Auto-generated**: From matugen when wallpaper changes
+- **Fallback**: catppuccin (lazyvim default theme)
+- **Location**: `~/.config/nvim/colors/base16-dankshell.vim`
+
+### How It Works
+
+1. Matugen generates the colorscheme from wallpaper colors
+2. Template maps dank16 ANSI palette to base16 semantic colors
+3. Lazyvim automatically loads the colorscheme on startup
+4. Theme updates when you change wallpapers (via wallpaper hook)
+
+### Manual Reload
+
+To reload the colorscheme after changing wallpapers:
+
+```vim
+:colorscheme base16-dankshell
+```
+
+Or restart neovim.
+
+### Troubleshooting
+
+**Colorscheme not found:**
+1. Change wallpaper to trigger theme generation via DMS
+2. Check if colorscheme exists: `ls ~/.config/nvim/colors/base16-dankshell.vim`
+3. Verify template registration: `cat ~/.config/matugen/config.toml | grep base16-vim`
+4. Manually trigger generation: `matugen generate`
+
+**Colors look wrong:**
+- Verify DMS theme mode (Settings → Appearance)
+- Check that dynamic theming is enabled in DMS
+- Compare with terminal colors to ensure consistency
+
+**Fallback theme loading:**
+- Normal on first install - colorscheme generates after first wallpaper change
+- Won't affect functionality - catppuccin provides good defaults
+
 ## VSCode Theming
 
 VSCode automatically receives a dynamic theme that matches your system colors:
