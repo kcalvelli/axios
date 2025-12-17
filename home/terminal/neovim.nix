@@ -53,17 +53,7 @@
     enable = true;
 
     # Configure colorscheme with fallback handling
-    extraLuaConfig = ''
-      -- Load base16-dankshell colorscheme if available
-      -- Fall back to catppuccin if theme hasn't been generated yet
-      local ok, _ = pcall(vim.cmd, "colorscheme base16-dankshell")
-      if not ok then
-        vim.notify("base16-dankshell not found, using default theme", vim.log.levels.WARN)
-        vim.notify("Theme will generate on first wallpaper change", vim.log.levels.INFO)
-        -- Fall back to catppuccin (lazyvim default)
-        vim.cmd("colorscheme catppuccin")
-      end
-    '';
+    pluginsFile."colorscheme.lua".source = ./resources/colorscheme.lua;
 
     extras = {
       coding = {
