@@ -232,7 +232,7 @@ let
 
       baseModules = [
         validationModule # Validate configuration first
-        inputs.dankMaterialShell.nixosModules.dankMaterialShell
+        inputs.dankMaterialShell.nixosModules.dank-material-shell
         inputs.dankMaterialShell.nixosModules.greeter
         inputs.home-manager.nixosModules.home-manager
         inputs.lanzaboote.nixosModules.lanzaboote

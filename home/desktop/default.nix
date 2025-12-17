@@ -13,7 +13,7 @@
     ./niri-keybinds.nix
     ./gdrive-sync.nix
     ./pwa-apps.nix
-    inputs.dankMaterialShell.homeModules.dankMaterialShell.default
+    inputs.dankMaterialShell.homeModules.dank-material-shell
     inputs.dsearch.homeModules.default
   ];
 

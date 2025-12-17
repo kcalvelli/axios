@@ -8,7 +8,7 @@
 {
   imports = [
     inputs.niri.homeModules.niri
-    inputs.dankMaterialShell.homeModules.dankMaterialShell.niri
+    inputs.dankMaterialShell.homeModules.niri
   ];
 
   programs = {
