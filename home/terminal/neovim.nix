@@ -33,7 +33,7 @@
       # Append template registration to config.toml (creates file if it doesn't exist)
       echo "" >> "$MATUGEN_CONFIG"
       echo "# axiOS neovim base16 colorscheme" >> "$MATUGEN_CONFIG"
-      echo "[[templates]]" >> "$MATUGEN_CONFIG"
+      echo "[templates.base16-vim]" >> "$MATUGEN_CONFIG"
       echo "input_path = \"${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache\"" >> "$MATUGEN_CONFIG"
       echo "output_path = \"${config.home.homeDirectory}/.config/nvim/colors/base16-dankshell.vim\"" >> "$MATUGEN_CONFIG"
       echo "Registered base16-vim template with matugen"
