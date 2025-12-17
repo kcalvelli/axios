@@ -26,8 +26,8 @@
       hotkey-overlay.skip-at-startup = true;
 
       spawn-at-startup = [
-        # Clipboard management: DMS enableClipboard requires enableSpawn=true
-        # Since we use systemd service (enableSpawn=false), spawn manually
+        # Clipboard management: DMS clipboard is now built-in
+        # Manual spawn still needed since we use systemd service (enableSpawn=false)
         {
           command = [
             "wl-paste"

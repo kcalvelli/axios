@@ -33,14 +33,16 @@
 
     # Feature toggles (explicit configuration for clarity)
     enableSystemMonitoring = true; # System resource monitoring widgets
-    enableClipboard = true; # Clipboard history with cliphist
     enableVPN = true; # VPN status widget
-    enableBrightnessControl = true; # Screen/keyboard brightness controls
-    enableColorPicker = true; # Color picker tool (hyprpicker)
     enableDynamicTheming = true; # Dynamic theme generation (matugen)
     enableAudioWavelength = true; # Audio visualizer (cava)
     enableCalendarEvents = true; # Calendar integration (khal)
-    enableSystemSound = true; # System sound effects
+
+    # Note: The following options are now built-in to DMS and have been removed:
+    # - enableClipboard: Clipboard history built-in
+    # - enableBrightnessControl: Brightness controls built-in
+    # - enableColorPicker: Color picker (hyprpicker) built-in
+    # - enableSystemSound: System sounds now included in dms-shell package
   };
 
   programs.dsearch = {
