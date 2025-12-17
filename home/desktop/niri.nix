@@ -13,7 +13,7 @@
 
   programs = {
     niri.package = lib.mkForce pkgs.niri;
-    dankMaterialShell = {
+    dank-material-shell = {
       niri = {
         enableKeybinds = true;
         enableSpawn = false; # DMS runs via systemd service, not niri spawn

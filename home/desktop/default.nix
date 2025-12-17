@@ -21,7 +21,7 @@
   axios.pwa.enable = true;
 
   # DankMaterialShell configuration
-  programs.dankMaterialShell = {
+  programs.dank-material-shell = {
     enable = true;
     quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
