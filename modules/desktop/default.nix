@@ -103,11 +103,11 @@ in
     programs.dankMaterialShell = {
       enable = true; # Provides system packages (matugen, hyprpicker, cava, etc.)
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      greeter = lib.mkIf (userCfg.name != "") {
-        enable = true;
+      greeter = {
+        enable = userCfg.name != "";
         compositor.name = "niri";
         # Auto-detect configHome from axios.user.name (convention over configuration)
-        configHome = "/home/${userCfg.name}";
+        configHome = if userCfg.name != "" then "/home/${userCfg.name}" else null;
       };
     };
 
