@@ -8,42 +8,16 @@
 }:
 let
   userCfg = config.axios.user;
-
-  braveExtensionIds = [
-    "ghbmnnjooekpmoecnnnilnnbdlolhkhi" # Google Docs Offline
-    "nimfmkdcckklbkhjjkmbjfcpaiifgamg" # Brave Talk
-    "aomjjfmjlecjafonmbhlgochhaoplhmo" # 1Password
-    "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
-    "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree - GitHub code tree
-    "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
-    "jlmpjdjjbgclbocgajdjefcidcncaied" # daily.dev - developer news
-    "gppongmhjkpfnbhagpmjfkannfbllamg" # Wappalyzer - tech profiler
-    "kbfnbcaeplbcioakkpcpgfkobkghlhen" # Grammarly - writing assistant
-  ];
-
-  braveArgs = [
-    "--password-store=detect"
-    "--gtk-version=4"
-  ];
 in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
-  imports = [ inputs.brave-browser-previews.nixosModules.default ];
+  imports = [ ./browsers.nix ];
 
   options.desktop = {
     enable = lib.mkEnableOption "Desktop environment with applications and services";
   };
 
   config = lib.mkIf config.desktop.enable {
-    # === Brave Nightly Configuration ===
-    # Provided by brave-browser-previews NixOS module
-    programs.brave-nightly = {
-      enable = true;
-      extensions = braveExtensionIds;
-      # Inherit shared args
-      commandLineArgs = braveArgs;
-    };
-
     # === Wayland Packages ===
     environment.systemPackages = with pkgs; [
       # System desktop applications
@@ -235,23 +209,9 @@ in
     };
 
     # Enable home-manager desktop modules
-    home-manager.sharedModules = [
-      # Stable Brave Configuration (Home Manager)
-      (
-        { pkgs, ... }:
-        {
-          programs.brave = {
-            enable = true;
-            extensions = map (id: { inherit id; }) braveExtensionIds;
-            commandLineArgs = braveArgs;
-          };
-        }
-      )
-    ]
-    ++ (with homeModules; [
+    home-manager.sharedModules = with homeModules; [
       desktop
       calendar
-      # browser module removed (merged above)
-    ]);
+    ];
   };
 }
