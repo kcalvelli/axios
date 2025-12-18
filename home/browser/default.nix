@@ -1,4 +1,9 @@
-{ pkgs, inputs, ... }:
+{
+  pkgs,
+  inputs,
+  lib,
+  ...
+}:
 let
   braveExtensions = [
     { id = "ghbmnnjooekpmoecnnnilnnbdlolhkhi"; } # Google Docs Offline
@@ -16,6 +21,18 @@ let
     "--password-store=detect"
     "--gtk-version=4"
   ];
+
+  # Helper to convert extension list to policy format
+  # Brave/Chromium policy format: { "ExtensionSettings": { "<ID>": { "installation_mode": "normal_installed", "update_url": "..." } } }
+  extensionPolicy = lib.listToAttrs (
+    map (ext: {
+      name = ext.id;
+      value = {
+        installation_mode = "normal_installed";
+        update_url = "https://clients2.google.com/service/update2/crx";
+      };
+    }) braveExtensions
+  );
 in
 {
   programs.brave = {
@@ -24,9 +41,28 @@ in
     commandLineArgs = braveArgs;
   };
 
-  home.packages = [
-    # Nightly version for testing
-    # Note: Does not automatically inherit extensions/args from programs.brave wrapper
-    inputs.brave-browser-previews.packages.${pkgs.system}.brave-nightly
-  ];
+  # Configure policies for Nightly (extensions)
+  xdg.configFile."BraveSoftware/Brave-Browser-Nightly/policies/managed/default.json".text =
+    builtins.toJSON
+      {
+        ExtensionSettings = extensionPolicy;
+      };
+
+  home.packages =
+    let
+      nightly = inputs.brave-browser-previews.packages.${pkgs.system}.brave-nightly;
+    in
+    [
+      # Wrapped Nightly version with flags and Wayland support
+      (pkgs.symlinkJoin {
+        name = "brave-nightly";
+        paths = [ nightly ];
+        buildInputs = [ pkgs.makeWrapper ];
+        postBuild = ''
+          wrapProgram $out/bin/brave-nightly \
+            --add-flags "${builtins.concatStringsSep " " braveArgs}" \
+            --add-flags "--enable-features=UseOzonePlatform --ozone-platform=wayland"
+        '';
+      })
+    ];
 }
