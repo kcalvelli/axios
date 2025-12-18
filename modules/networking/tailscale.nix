@@ -35,7 +35,6 @@
     };
     environment = {
       systemPackages = with pkgs; [trayscale];
-      etc."xdg/autostart/tail-tray.desktop".source = "${pkgs.trayscale}/share/applications/trayscale.desktop";
     };
   };
 }
