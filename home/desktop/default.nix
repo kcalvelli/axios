@@ -2,6 +2,8 @@
   inputs,
   pkgs,
   config,
+  lib,
+  osConfig,
   ...
 }:
 
@@ -62,6 +64,23 @@
   services.kdeconnect = {
     enable = true;
     indicator = true;
+  };
+
+  # Trayscale (Tailscale system tray) - autostart if Tailscale is enabled
+  systemd.user.services.trayscale = lib.mkIf (osConfig.services.tailscale.enable or false) {
+    Unit = {
+      Description = "Trayscale - Tailscale system tray";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.trayscale}/bin/trayscale --hide-window";
+      Restart = "on-failure";
+      RestartSec = 3;
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
   };
 
   # Flatpak Flathub setup
