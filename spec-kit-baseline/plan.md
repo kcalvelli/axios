@@ -140,13 +140,24 @@ Modules are imported using one of three patterns:
 
 #### modules/graphics/
 - **Path**: `modules/graphics/`
-- **Purpose**: GPU driver configuration (NVIDIA, AMD, Intel)
+- **Purpose**: GPU driver configuration (NVIDIA, AMD, Intel) with Wayland optimizations
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: nixpkgs, nixos-hardware (assumed)
+  - External: nixpkgs (nvidia drivers, mesa, vulkan-tools, renderdoc)
 - **Exposed Interface**: `inputs.axios.nixosModules.graphics`
 - **Entry Points**: default.nix
+- **Key Options**:
+  - `axios.hardware.gpuType`: GPU type ("nvidia", "amd", "intel")
+  - `axios.hardware.isLaptop`: Laptop detection (affects PRIME)
+  - `axios.hardware.nvidiaDriver`: Nvidia driver version ("stable", "beta", "production")
+  - `axios.hardware.enableGPURecovery`: AMD GPU hang recovery (AMD only)
+- **Features**:
+  - Automatic driver selection based on GPU type
+  - Nvidia: Driver version choice, open kernel modules, Wayland support, PRIME management
+  - Kernel parameters: `nvidia_drm.modeset=1`, `nvidia_drm.fbdev=1` (Wayland framebuffer)
+  - GPU utilities: nvtop, radeontop, intel-gpu-tools, renderdoc
+  - Hardware acceleration: VA-API, Vulkan
 
 #### modules/networking/
 - **Path**: `modules/networking/`
@@ -176,13 +187,26 @@ Modules are imported using one of three patterns:
 
 #### modules/gaming/
 - **Path**: `modules/gaming/`
-- **Purpose**: Gaming configuration and optimizations
+- **Purpose**: Gaming configuration, optimizations, and VR support
 - **Language**: Nix
 - **Dependencies**:
-  - Internal: None
-  - External: nixpkgs
+  - Internal: modules/graphics (GPU type detection for VR CUDA support)
+  - External: nixpkgs (steam, gamemode, wivrn, alvr)
 - **Exposed Interface**: `inputs.axios.nixosModules.gaming`
-- **Entry Points**: default.nix
+- **Entry Points**:
+  - default.nix (base gaming: Steam, GameMode, nix-ld)
+  - vr.nix (VR gaming: wireless VR, Steam hardware, overlays)
+- **Key Options**:
+  - `gaming.enable`: Enable gaming support
+  - `gaming.vr.enable`: Enable VR gaming
+  - `gaming.vr.wireless.enable`: Enable wireless VR streaming
+  - `gaming.vr.wireless.backend`: Choose "wivrn", "alvr", or "both"
+  - `gaming.vr.overlays`: Enable VR overlay applications
+- **Features**:
+  - Steam with Proton GE, remote play, gamescope session
+  - GameMode with CPU/GPU optimizations
+  - nix-ld for binary game compatibility
+  - Optional VR: WiVRn (CUDA for nvidia), ALVR, Steam hardware, OpenXR
 
 #### modules/virtualisation/
 - **Path**: `modules/virtualisation/`
@@ -714,13 +738,11 @@ N/A (library project, not microservices)
 - N/A (desktop-focused, not a service)
 
 ## Unknowns
-- [TBD] Complete devshell package inventories
 - [TBD] Immich database configuration details
 - [TBD] Complete list of systemd services per module
 - [TBD] Secrets rotation procedures
 - [TBD] Disaster recovery procedures
-- [TBD] Full gaming module package list
-- [TBD] Virtualization module specifics (Podman? Docker?)
+- [TBD] Virtualization module container runtime details (Podman confirmed, Docker alternative)
 - [TBD] Security module capabilities
 - [TBD] Browser module Firefox/Chrome configuration details
 - [TBD] Performance benchmarks or metrics

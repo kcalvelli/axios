@@ -151,13 +151,18 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 ### Development Tools
 #### Development Shells
 - **Purpose**: Project-specific development environments with complete toolchains
-- **Implementation Evidence**: devshells/rust.nix, devshells/zig.nix, devshells/qml.nix
+- **Implementation Evidence**: devshells/*.nix, devshells.nix
 - **Confidence**: [EXPLICIT]
 - **Environments**:
-  - **Rust**: Fenix toolchain with cargo, rustc, rust-analyzer (devshells/rust.nix)
-  - **Zig**: Latest Zig compiler (devshells/zig.nix)
-  - **QML**: Qt6 development with QML tools (devshells/qml.nix)
-- **Access**: `nix develop .#<shell-name>`
+  - **Rust**: Fenix stable toolchain with cargo, rustc, rust-analyzer, cargo-watch (devshells/rust.nix)
+  - **Zig**: Latest Zig compiler with ZLS language server (devshells/zig.nix)
+  - **QML**: Qt6 development with QML tools, CMake, Ninja for Quickshell/Qt projects (devshells/qml.nix)
+  - **.NET**: .NET SDK 9, Mono runtime, Avalonia tools, ILSpy decompiler (devshells/dotnet.nix)
+- **Features**:
+  - Helpful commands for each environment (build, run, test, etc.)
+  - Shell-specific environment variables (e.g., `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1`)
+  - Runtime dependencies included (libraries, development tools)
+- **Access**: `nix develop .#<shell-name>` or `nix develop github:kcalvelli/axios#<shell-name>`
 
 #### Terminal Configuration
 - **Purpose**: Comprehensive terminal experience with modern tools
@@ -278,10 +283,32 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 ### Hardware & Graphics
 #### Graphics Driver Support
 - **Purpose**: Automatic GPU driver configuration
-- **Implementation Evidence**: modules/graphics/
+- **Implementation Evidence**: modules/graphics/default.nix
 - **Confidence**: [EXPLICIT]
-- **Supported**: NVIDIA, AMD, Intel
-- **Features**: Hardware acceleration, Wayland support
+- **Supported GPUs**: NVIDIA, AMD, Intel
+- **Options**:
+  - `axios.hardware.gpuType`: GPU type ("nvidia", "amd", "intel")
+  - `axios.hardware.isLaptop`: Whether this is a laptop (affects PRIME)
+  - `axios.hardware.nvidiaDriver`: Nvidia driver version ("stable", "beta", "production")
+  - `axios.hardware.enableGPURecovery`: AMD GPU hang recovery (AMD only)
+- **Features**:
+  - Hardware acceleration (VA-API, Vulkan)
+  - 32-bit library support for gaming
+  - GPU-specific utilities (nvtop, radeontop, intel-gpu-tools)
+  - Graphics debugging (renderdoc)
+  - Wayland support with proper kernel parameters
+- **Nvidia-specific**:
+  - Driver version selection (stable for reliability, beta for RTX 50-series/Blackwell)
+  - Open kernel module by default (RTX 20+/Turing and newer)
+  - Framebuffer device support for Wayland (`nvidia_drm.fbdev=1`)
+  - PRIME disabled on desktops (single GPU optimization)
+  - Power management disabled by default (avoids suspend/resume issues)
+- **AMD-specific**:
+  - AMDGPU kernel module in initrd
+  - Optional GPU recovery for stability issues
+- **Intel-specific**:
+  - Mesa with Intel Vulkan driver
+  - Intel media driver for VA-API
 
 #### Hardware Profiles
 - **Purpose**: Optimized configurations for different hardware types
@@ -321,9 +348,32 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 ### Gaming
 #### Gaming Configuration
 - **Purpose**: Gaming-optimized system configuration
-- **Implementation Evidence**: modules/gaming/
+- **Implementation Evidence**: modules/gaming/default.nix
 - **Confidence**: [EXPLICIT]
-- **Expected**: Steam, gamemode, performance optimizations
+- **Features**:
+  - Steam with Proton GE, protontricks, remote play
+  - GameMode with CPU/GPU optimizations
+  - MangoHud performance overlay
+  - Gamescope compositor
+  - nix-ld for binary compatibility (indie games, Unity, MonoGame)
+  - VR gaming support (optional, see below)
+
+#### VR Gaming Support
+- **Purpose**: Virtual reality gaming with Steam VR and wireless VR streaming
+- **Implementation Evidence**: modules/gaming/vr.nix
+- **Confidence**: [EXPLICIT]
+- **Options**:
+  - `gaming.vr.enable`: Enable VR support with Steam hardware and OpenXR
+  - `gaming.vr.wireless.enable`: Enable wireless VR streaming
+  - `gaming.vr.wireless.backend`: Choose "wivrn", "alvr", or "both"
+  - `gaming.vr.wireless.wivrn.*`: WiVRn-specific options (firewall, runtime, autostart)
+  - `gaming.vr.overlays`: Enable VR overlay applications (wlx-overlay-s, wayvr-dashboard)
+- **Features**:
+  - Steam hardware support for VR controllers/headsets
+  - WiVRn wireless VR with hardware encoding (CUDA for Nvidia)
+  - ALVR alternative wireless VR backend
+  - OpenComposite OpenXR compatibility layer
+  - Wayland-native VR overlays
 
 ### Configuration Management
 #### Interactive Configuration Generator
@@ -469,9 +519,10 @@ Evidence: home/default.nix:6-14
 
 #### DevShells
 Accessible via `nix develop .#<shell>`:
-- `rust`: Rust development environment
-- `zig`: Zig development environment
-- `qml`: Qt/QML development environment
+- `rust`: Rust development environment (Fenix stable toolchain)
+- `zig`: Zig development environment (latest Zig)
+- `qml`: Qt/QML development environment (Qt6, CMake, Ninja)
+- `dotnet`: .NET development environment (.NET SDK 9, Mono, Avalonia)
 
 Evidence: devshells.nix, devshells/*.nix
 
@@ -632,8 +683,7 @@ No traditional feature flags - module enable options serve this purpose:
 
 ## Unknowns
 - [TBD] Complete list of packages in each module
-- [TBD] Specific gaming module features and packages
-- [TBD] Virtualization module container runtime (Podman/Docker?)
+- [TBD] Virtualization module container runtime details (Podman confirmed, Docker alternative documented)
 - [TBD] Browser module capabilities
 - [TBD] Calendar module integration details
 - [TBD] Security module specific features

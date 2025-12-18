@@ -68,6 +68,9 @@ nix develop .#zig
 # QML development
 nix develop .#qml
 
+# .NET development
+nix develop .#dotnet
+
 # Default devshell
 nix develop
 ```
@@ -347,6 +350,99 @@ perSystem = { config, self', inputs', pkgs, system, lib, ... }: {
 ```
 
 ## Desktop Environment Configuration
+
+### Hardware & Graphics Configuration
+
+#### Nvidia Driver Selection
+
+axios supports multiple nvidia driver versions to accommodate different GPU generations:
+
+```nix
+# For most users (default, no configuration needed)
+axios.hardware.nvidiaDriver = "stable";  # Conservative, tested
+
+# For RTX 50-series (Blackwell) or newest features
+axios.hardware.nvidiaDriver = "beta";
+
+# For latest stable release
+axios.hardware.nvidiaDriver = "production";
+```
+
+**When to use beta drivers**:
+- RTX 50-series GPUs (Blackwell architecture) require beta drivers
+- You need cutting-edge features not yet in stable
+- You're willing to accept potential stability issues
+
+#### Dual-GPU Desktop Configuration (PRIME Sync)
+
+For desktops with both integrated and discrete GPUs (e.g., AMD iGPU + Nvidia dGPU), use PRIME sync mode to eliminate lag:
+
+**1. Detect GPU Bus IDs**:
+```bash
+lspci | grep -E 'VGA|3D'
+# Example output:
+# 03:00.0 VGA compatible controller: NVIDIA Corporation ...
+# 0e:00.0 VGA compatible controller: AMD/ATI ...
+```
+
+**2. Convert to PCI Bus ID format**:
+- Hex `03:00.0` → `PCI:3:0:0` (Nvidia)
+- Hex `0e:00.0` → `PCI:14:0:0` (AMD, 0xe = 14 in decimal)
+
+**3. Configure in extraConfig**:
+```nix
+extraConfig = {
+  hardware.nvidia.prime = {
+    sync.enable = true;              # Force Nvidia as primary (zero-lag)
+    nvidiaBusId = "PCI:3:0:0";       # YOUR Nvidia GPU bus ID
+    amdgpuBusId = "PCI:14:0:0";      # YOUR AMD iGPU bus ID
+  };
+};
+```
+
+**Note**: axios automatically disables PRIME on single-GPU desktops. Only configure this for dual-GPU setups.
+
+#### VR Gaming Configuration
+
+Enable VR gaming support with wireless streaming:
+
+```nix
+# Basic VR support
+gaming.vr.enable = true;  # Enables Steam hardware support and OpenXR
+
+# Wireless VR for Meta Quest
+gaming.vr.wireless = {
+  enable = true;
+  backend = "wivrn";  # or "alvr" or "both"
+
+  # WiVRn-specific options
+  wivrn = {
+    openFirewall = true;   # Required for wireless streaming
+    defaultRuntime = true; # Set as default OpenXR runtime
+    autoStart = false;     # Start service on boot (optional)
+  };
+};
+
+# VR overlays (optional)
+gaming.vr.overlays = true;  # wlx-overlay-s, wayvr-dashboard
+```
+
+**Features**:
+- WiVRn automatically uses CUDA encoding on Nvidia GPUs for better performance
+- ALVR available as alternative wireless VR backend
+- Steam hardware support for VR controllers and headsets
+
+#### Docker Alternative to Podman
+
+axios uses podman by default (rootless, more secure). To use Docker instead:
+
+```nix
+extraConfig = {
+  virtualisation.docker.enable = true;
+};
+```
+
+**Note**: Podman is recommended for security and modern best practices. Only use Docker if you have specific compatibility requirements.
 
 ## User Operations
 

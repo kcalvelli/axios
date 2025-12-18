@@ -35,6 +35,21 @@ in
       description = "Whether this is a laptop (affects PRIME configuration for Nvidia)";
     };
 
+    nvidiaDriver = lib.mkOption {
+      type = lib.types.enum [
+        "stable"
+        "beta"
+        "production"
+      ];
+      default = "stable";
+      description = ''
+        Nvidia driver version to use.
+        - stable: Conservative choice, tested and reliable
+        - beta: Required for RTX 50-series (Blackwell) and newest features
+        - production: Latest stable release (newer than stable branch)
+      '';
+    };
+
     enableGPURecovery = lib.mkEnableOption ''
       automatic GPU hang recovery (AMD GPUs only).
       Adds kernel parameter amdgpu.gpu_recovery=1.
@@ -87,8 +102,18 @@ in
       # Nvidia-specific hardware config
       nvidia = lib.mkIf isNvidia {
         modesetting.enable = true;
-        # Force proprietary driver (not nouveau)
-        package = config.boot.kernelPackages.nvidiaPackages.stable;
+        # Driver package selection based on axios.hardware.nvidiaDriver option
+        package =
+          let
+            nvidiaPackages = config.boot.kernelPackages.nvidiaPackages;
+          in
+          {
+            stable = nvidiaPackages.stable;
+            beta = nvidiaPackages.beta;
+            production = nvidiaPackages.production;
+          }
+          .${config.axios.hardware.nvidiaDriver};
+
         # Use open-source kernel module (recommended for RTX 20-series/Turing and newer)
         # For pre-Turing GPUs (GTX 10-series and older), override with: hardware.nvidia.open = false;
         open = lib.mkDefault true;
@@ -118,9 +143,14 @@ in
     services.xserver.videoDrivers = lib.mkIf isNvidia [ "nvidia" ];
 
     # === Kernel Parameters ===
-    boot.kernelParams = lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
-      "amdgpu.gpu_recovery=1"
-    ];
+    boot.kernelParams =
+      lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
+        "amdgpu.gpu_recovery=1"
+      ]
+      ++ lib.optionals isNvidia [
+        "nvidia_drm.modeset=1" # Enable modesetting (required for Wayland)
+        "nvidia_drm.fbdev=1" # Enable framebuffer device support (improves Wayland compatibility)
+      ];
 
     # === Graphics Utilities ===
     environment.systemPackages =
@@ -130,6 +160,7 @@ in
         clinfo
         wayland-utils
         vulkan-tools # vulkaninfo, vkcube - useful for verifying GPU setup
+        renderdoc # Graphics debugging and frame capture
       ]
       ++ lib.optionals isAmd [
         # AMD GPU tools

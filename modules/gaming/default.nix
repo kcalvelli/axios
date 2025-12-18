@@ -5,6 +5,10 @@
   ...
 }:
 {
+  imports = [
+    ./vr.nix
+  ];
+
   options.gaming = {
     enable = lib.mkEnableOption "Gaming support with Steam, GameMode, and performance tools";
   };
