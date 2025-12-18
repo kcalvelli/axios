@@ -35,7 +35,7 @@ if command -v nvim &> /dev/null; then
   for NVIM_ADDR in /tmp/nvim.*.0; do
     if [ -S "$NVIM_ADDR" ]; then
       echo "[$(date '+%Y-%m-%d %H:%M:%S')] Reloading nvim colorscheme at $NVIM_ADDR"
-      nvim --server "$NVIM_ADDR" --remote-send ':colorscheme base16-dankshell<CR>' 2>/dev/null || true
+      nvim --server "$NVIM_ADDR" --remote-send ':colorscheme dankshell<CR>' 2>/dev/null || true
     fi
   done
 fi

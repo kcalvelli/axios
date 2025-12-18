@@ -34,25 +34,25 @@
       echo "" >> "$MATUGEN_CONFIG"
       echo "# axiOS neovim base16 colorscheme" >> "$MATUGEN_CONFIG"
       echo "[config]" >> "$MATUGEN_CONFIG"
-      echo "[templates.base16-vim]" >> "$MATUGEN_CONFIG"
+      echo "[templates.dankshell-vim]" >> "$MATUGEN_CONFIG"
       echo "input_path = \"${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache\"" >> "$MATUGEN_CONFIG"
-      echo "output_path = \"${config.home.homeDirectory}/.config/nvim/colors/base16-dankshell.vim\"" >> "$MATUGEN_CONFIG"
+      echo "output_path = \"${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim\"" >> "$MATUGEN_CONFIG"
       echo "Registered base16-vim template with matugen"
     fi
   '';
 
   # Generate initial theme if needed
   home.activation.generateInitialTheme = config.lib.dag.entryAfter [ "registerMatugenTemplate" ] ''
-    THEME_FILE="${config.home.homeDirectory}/.config/nvim/colors/base16-dankshell.vim"
+    THEME_FILE="${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim"
 
     if [ ! -f "$THEME_FILE" ]; then
-      echo "base16-dankshell colorscheme not found, attempting initial generation..."
+      echo "dankshell colorscheme not found, attempting initial generation..."
       # Try to generate theme if matugen is available and a wallpaper is set
       if command -v matugen &> /dev/null; then
         # Attempt to generate theme (will use current wallpaper if set)
-        matugen generate 2>/dev/null || echo "Note: base16-dankshell will generate on first wallpaper change"
+        matugen generate 2>/dev/null || echo "Note: dankshell will generate on first wallpaper change"
       else
-        echo "Note: base16-dankshell will generate when DMS/matugen runs"
+        echo "Note: dankshell will generate when DMS/matugen runs"
       fi
     fi
   '';
