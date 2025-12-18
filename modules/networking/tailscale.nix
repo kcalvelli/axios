@@ -34,7 +34,7 @@
     };
     environment = {
       systemPackages = with pkgs; [tail-tray];
-      etc."xdg/autostart/tail-tray.desktop".source = "${pkgs/tail-tray}/share/applications/tail-tray.desktop";
+      etc."xdg/autostart/tail-tray.desktop".source = "${pkgs.tail-tray}/share/applications/tail-tray.desktop";
     };
   };
 }
