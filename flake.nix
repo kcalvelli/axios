@@ -97,6 +97,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Brave browser previews (nightly/beta)
+    brave-browser-previews = {
+      url = "github:kcalvelli/brave-browser-previews";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Code formatting
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";

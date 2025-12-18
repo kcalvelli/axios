@@ -85,6 +85,18 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Manual Lock**: Super+Alt+L (DMS lock screen keybind)
 - **Rationale**: Idle management delegated to user preference; swayidle had unreliable wake-up behavior
 
+#### Web Browser
+- **Purpose**: Privacy-focused web browsing with development tools
+- **Implementation Evidence**: home/browser/default.nix
+- **Confidence**: [EXPLICIT]
+- **Browsers**:
+  - **Brave Stable**: Primary browser (default)
+  - **Brave Nightly**: Bleeding-edge version for testing
+- **Configuration**:
+  - Shared extensions (Password managers, AI tools, Dev tools)
+  - Shared command line arguments (Password store detection, GTK4)
+  - Managed via Home Manager `programs.brave` and custom wrappers
+
 #### Desktop Applications
 - **Purpose**: Curated set of desktop applications for productivity and media
 - **Implementation Evidence**: modules/desktop/default.nix:21-90
@@ -684,7 +696,6 @@ No traditional feature flags - module enable options serve this purpose:
 ## Unknowns
 - [TBD] Complete list of packages in each module
 - [TBD] Virtualization module container runtime details (Podman confirmed, Docker alternative documented)
-- [TBD] Browser module capabilities
 - [TBD] Calendar module integration details
 - [TBD] Security module specific features
 - [TBD] Full hardware module capabilities
