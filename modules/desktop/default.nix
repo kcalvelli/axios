@@ -11,12 +11,35 @@ let
 in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
+  imports = [ inputs.brave-browser-previews.nixosModules.default ];
 
   options.desktop = {
     enable = lib.mkEnableOption "Desktop environment with applications and services";
   };
 
   config = lib.mkIf config.desktop.enable {
+    # === Brave Nightly Configuration ===
+    # Provided by brave-browser-previews NixOS module
+    programs.brave-nightly = {
+      enable = true;
+      extensions = [
+        "ghbmnnjooekpmoecnnnilnnbdlolhkhi" # Google Docs Offline
+        "nimfmkdcckklbkhjjkmbjfcpaiifgamg" # Brave Talk
+        "aomjjfmjlecjafonmbhlgochhaoplhmo" # 1Password
+        "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
+        "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree
+        "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
+        "jlmpjdjjbgclbocgajdjefcidcncaied" # daily.dev
+        "gppongmhjkpfnbhagpmjfkannfbllamg" # Wappalyzer
+        "kbfnbcaeplbcioakkpcpgfkobkghlhen" # Grammarly
+      ];
+      # Inherit shared args
+      commandLineArgs = [
+        "--password-store=detect"
+        "--gtk-version=4"
+      ];
+    };
+
     # === Wayland Packages ===
     environment.systemPackages = with pkgs; [
       # System desktop applications
