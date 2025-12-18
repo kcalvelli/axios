@@ -95,9 +95,15 @@ let
     └──────────────────────────────────────────────────────────────────┘
   '';
 
-  # Script to display keybindings in a terminal
+  # Script to display keybindings in a terminal with proper scrolling
   showKeybindings = pkgs.writeShellScript "show-niri-keybindings" ''
-    ${pkgs.bat}/bin/bat --plain --language txt ${keybindingGuide} || ${pkgs.coreutils}/bin/cat ${keybindingGuide}
+    # Use less for scrolling support on all screen sizes
+    # -R: handle ANSI colors (from bat)
+    # -F: quit if content fits on one screen
+    # -X: don't clear screen on exit
+    # -S: chop long lines (no wrap, use arrow keys to scroll horizontally)
+    ${pkgs.bat}/bin/bat --plain --language txt ${keybindingGuide} 2>/dev/null | ${pkgs.less}/bin/less -RFX || \
+    ${pkgs.less}/bin/less -RFX ${keybindingGuide}
   '';
 
 in
@@ -105,10 +111,12 @@ in
   # Make the keybinding guide available as a command
   home.packages = [
     (pkgs.writeShellScriptBin "axios-help" ''
-      # Display in a floating terminal window
+      # Display in a floating terminal window sized for readability on all screens
       # Note: Window rule matches by title since Ghostty doesn't allow custom app-id
       ${pkgs.ghostty}/bin/ghostty \
         --title="Niri Keybindings - axiOS" \
+        --window-width=80 \
+        --window-height=40 \
         -e ${showKeybindings}
     '')
   ];
@@ -117,6 +125,18 @@ in
   programs.niri.settings.binds."Mod+Shift+Slash" = {
     action.spawn = [ "axios-help" ];
   };
+
+  # Window rule for the keybinding reference window
+  # Make it float and center on screen, sized appropriately for small displays
+  programs.niri.settings.window-rules = [
+    {
+      matches = [
+        { title = "Niri Keybindings - axiOS"; }
+      ];
+      default-column-width = { };
+      open-floating = true;
+    }
+  ];
 
   # Also make the raw text file available
   xdg.configFile."niri/keybindings.txt".source = keybindingGuide;
