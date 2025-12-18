@@ -43,6 +43,22 @@
       echo "" >> "$MATUGEN_CONFIG"
       echo "Registered dankshell vim template with matugen"
     fi
+
+    # Workaround: DMS built-in ghostty template is broken, add as user template
+    # TODO: Remove this when DMS fixes runDmsMatugenTemplates functionality
+    if ! grep -q "config-dankcolors" "$MATUGEN_CONFIG" 2>/dev/null; then
+      # Find DMS ghostty template in nix store
+      DMS_STORE_PATH=$(dirname $(dirname $(readlink -f $(which dms))))
+      GHOSTTY_TEMPLATE="$DMS_STORE_PATH/share/quickshell/dms/matugen/templates/ghostty.conf"
+
+      if [ -f "$GHOSTTY_TEMPLATE" ]; then
+        echo "[templates.ghostty]" >> "$MATUGEN_CONFIG"
+        echo "input_path = '$GHOSTTY_TEMPLATE'" >> "$MATUGEN_CONFIG"
+        echo "output_path = '${config.home.homeDirectory}/.config/ghostty/config-dankcolors'" >> "$MATUGEN_CONFIG"
+        echo "" >> "$MATUGEN_CONFIG"
+        echo "Registered ghostty template with matugen (workaround for broken DMS built-in)"
+      fi
+    fi
   '';
 
   # Note about initial theme generation
