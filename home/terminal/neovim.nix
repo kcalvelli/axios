@@ -26,18 +26,22 @@
     # Create config directory if it doesn't exist
     $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
 
-    # Check if template is already registered
-    if [ -f "$MATUGEN_CONFIG" ] && grep -q "base16-vim.mustache" "$MATUGEN_CONFIG" 2>/dev/null; then
-      echo "base16-vim template already registered in matugen"
+    # Check if template is already registered with correct output path
+    if [ -f "$MATUGEN_CONFIG" ] && grep -q "dankshell.vim" "$MATUGEN_CONFIG" 2>/dev/null; then
+      echo "dankshell vim template already registered in matugen"
     else
-      # Append template registration to config.toml (creates file if it doesn't exist)
-      echo "" >> "$MATUGEN_CONFIG"
-      echo "# axiOS neovim base16 colorscheme" >> "$MATUGEN_CONFIG"
-      echo "[config]" >> "$MATUGEN_CONFIG"
+      # Ensure [config] section exists
+      if ! grep -q "^\[config\]" "$MATUGEN_CONFIG" 2>/dev/null; then
+        echo "[config]" >> "$MATUGEN_CONFIG"
+        echo "" >> "$MATUGEN_CONFIG"
+      fi
+
+      # Append template registration using matugen 3.1.0 format
       echo "[templates.dankshell-vim]" >> "$MATUGEN_CONFIG"
-      echo "input_path = \"${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache\"" >> "$MATUGEN_CONFIG"
-      echo "output_path = \"${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim\"" >> "$MATUGEN_CONFIG"
-      echo "Registered base16-vim template with matugen"
+      echo "input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'" >> "$MATUGEN_CONFIG"
+      echo "output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'" >> "$MATUGEN_CONFIG"
+      echo "" >> "$MATUGEN_CONFIG"
+      echo "Registered dankshell vim template with matugen"
     fi
   '';
 
