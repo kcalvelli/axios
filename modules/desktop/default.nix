@@ -8,6 +8,23 @@
 }:
 let
   userCfg = config.axios.user;
+
+  braveExtensionIds = [
+    "ghbmnnjooekpmoecnnnilnnbdlolhkhi" # Google Docs Offline
+    "nimfmkdcckklbkhjjkmbjfcpaiifgamg" # Brave Talk
+    "aomjjfmjlecjafonmbhlgochhaoplhmo" # 1Password
+    "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
+    "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree - GitHub code tree
+    "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
+    "jlmpjdjjbgclbocgajdjefcidcncaied" # daily.dev - developer news
+    "gppongmhjkpfnbhagpmjfkannfbllamg" # Wappalyzer - tech profiler
+    "kbfnbcaeplbcioakkpcpgfkobkghlhen" # Grammarly - writing assistant
+  ];
+
+  braveArgs = [
+    "--password-store=detect"
+    "--gtk-version=4"
+  ];
 in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
@@ -22,22 +39,9 @@ in
     # Provided by brave-browser-previews NixOS module
     programs.brave-nightly = {
       enable = true;
-      extensions = [
-        "ghbmnnjooekpmoecnnnilnnbdlolhkhi" # Google Docs Offline
-        "nimfmkdcckklbkhjjkmbjfcpaiifgamg" # Brave Talk
-        "aomjjfmjlecjafonmbhlgochhaoplhmo" # 1Password
-        "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
-        "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree
-        "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
-        "jlmpjdjjbgclbocgajdjefcidcncaied" # daily.dev
-        "gppongmhjkpfnbhagpmjfkannfbllamg" # Wappalyzer
-        "kbfnbcaeplbcioakkpcpgfkobkghlhen" # Grammarly
-      ];
+      extensions = braveExtensionIds;
       # Inherit shared args
-      commandLineArgs = [
-        "--password-store=detect"
-        "--gtk-version=4"
-      ];
+      commandLineArgs = braveArgs;
     };
 
     # === Wayland Packages ===
@@ -231,10 +235,23 @@ in
     };
 
     # Enable home-manager desktop modules
-    home-manager.sharedModules = with homeModules; [
+    home-manager.sharedModules = [
+      # Stable Brave Configuration (Home Manager)
+      (
+        { pkgs, ... }:
+        {
+          programs.brave = {
+            enable = true;
+            extensions = map (id: { inherit id; }) braveExtensionIds;
+            commandLineArgs = braveArgs;
+          };
+        }
+      )
+    ]
+    ++ (with homeModules; [
       desktop
-      browser
       calendar
-    ];
+      # browser module removed (merged above)
+    ]);
   };
 }
