@@ -27,14 +27,15 @@
       tailscale = {
         enable = true; # Enable Tailscale service
         openFirewall = true;
+        extraSetFlags = [ "--operator=wheel" ];
         useRoutingFeatures = "both"; # Enable both inbound and outbound routing features
         # Note: Caddy integration (permitCertUid) is configured in services/caddy.nix
         # This allows Tailscale to work independently without requiring Caddy
       };
     };
     environment = {
-      systemPackages = with pkgs; [tail-tray];
-      etc."xdg/autostart/tail-tray.desktop".source = "${pkgs.tail-tray}/share/applications/tail-tray.desktop";
+      systemPackages = with pkgs; [trayscale];
+      etc."xdg/autostart/tail-tray.desktop".source = "${pkgs.trayscale}/share/applications/trayscale.desktop";
     };
   };
 }
