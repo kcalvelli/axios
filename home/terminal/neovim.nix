@@ -45,19 +45,13 @@
     fi
   '';
 
-  # Generate initial theme if needed
-  home.activation.generateInitialTheme = config.lib.dag.entryAfter [ "registerMatugenTemplate" ] ''
+  # Note about initial theme generation
+  home.activation.noteInitialTheme = config.lib.dag.entryAfter [ "registerMatugenTemplate" ] ''
     THEME_FILE="${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim"
 
     if [ ! -f "$THEME_FILE" ]; then
-      echo "dankshell colorscheme not found, attempting initial generation..."
-      # Try to generate theme if matugen is available and a wallpaper is set
-      if command -v matugen &> /dev/null; then
-        # Attempt to generate theme (will use current wallpaper if set)
-        matugen generate 2>/dev/null || echo "Note: dankshell will generate on first wallpaper change"
-      else
-        echo "Note: dankshell will generate when DMS/matugen runs"
-      fi
+      echo "Note: dankshell colorscheme will generate on first wallpaper change via DMS"
+      echo "      Neovim will use catppuccin fallback until then"
     fi
   '';
 
