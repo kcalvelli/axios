@@ -30,11 +30,11 @@ in
 
   config = lib.mkIf config.desktop.enable {
     # === Brave Nightly Configuration (System) ===
-    #programs.brave-nightly = {
-    #  enable = true;
-    #  extensions = braveExtensionIds;
-    #  commandLineArgs = braveArgs;
-    #};
+    programs.brave-nightly = {
+      enable = true;
+      extensions = braveExtensionIds;
+      commandLineArgs = braveArgs;
+    };
 
     # === Brave Stable Configuration (Home Manager) ===
     home-manager.sharedModules = [
