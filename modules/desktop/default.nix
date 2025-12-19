@@ -70,6 +70,7 @@ in
       colloid-icon-theme # Icon theme
       adwaita-icon-theme # GNOME icon theme
       papirus-icon-theme # Papirus icon theme
+      hicolor-icon-theme # Base icon theme (fallback for apps like solaar)
       adw-gtk3 # Adwaita GTK3 theme
 
       # === Calendar Sync ===
