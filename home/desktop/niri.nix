@@ -304,7 +304,10 @@
       # Keybindings
       binds = {
         # --- App launches ---
-        "Mod+B".action.spawn = [ "brave" ];
+        "Mod+B".action.spawn = [
+          "brave"
+          "--class=brave-browser"
+        ];
         "Mod+E".action.spawn = [ "nautilus" ];
         "Mod+Return".action.spawn = "ghostty";
         "Mod+G".action.spawn = [
