@@ -14,15 +14,24 @@ let
   baseIconPath = ../../home/resources/pwa-icons;
 
   # Helper to convert URL to Brave's app-id format for WM_CLASS matching
-  # Brave's format: brave-{domain}{path}-Default where path uses __ for /
+  # Brave's format: brave-{domain}{path}-Default
+  # Path conversion: first slash → __, subsequent slashes → _
   urlToAppId =
     url:
     let
       withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
-      # Replace slashes with double underscores (including trailing slash)
-      withUnderscores = lib.replaceStrings [ "/" ] [ "__" ] withoutProtocol;
+      # Split into domain and path at first slash
+      parts = lib.splitString "/" withoutProtocol;
+      domain = lib.head parts;
+      pathParts = lib.tail parts;
+      # Join path parts: first slash (after domain) → __, rest → _
+      path =
+        if pathParts == [ ] then
+          ""
+        else
+          "__" + (lib.concatStringsSep "_" pathParts);
     in
-    "brave-${withUnderscores}-Default";
+    "brave-${domain}${path}-Default";
 
   # Helper to generate a PWA launcher script
   makePWALauncher = pwaId: pwa: ''
