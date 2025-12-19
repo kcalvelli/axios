@@ -58,14 +58,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ghostty = {
-      url = "github:ghostty-org/ghostty";
-      inputs = {
-        #flake-compat.follows = "flake-compat";
-        flake-utils.follows = "flake-utils";
-        nixpkgs.follows = "nixpkgs";
-      };
-    };
+    ghostty.url = "github:ghostty-org/ghostty";
 
     # Niri with DMS Shell
     quickshell = {
