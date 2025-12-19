@@ -310,7 +310,7 @@
 
   sonos = {
     name = "Sonos";
-    url = "https://play.sonos.com/en-us/web-app";
+    url = "https://play.sonos.com/en-us/web-app/";
     icon = "sonos";
     categories = [
       "AudioVideo"
