@@ -71,24 +71,79 @@ in
     filesystems=xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro
   '';
 
+  # Register matugen templates for dynamic theming
+  # This handles both neovim and ghostty template registration with matugen
+  home.activation.registerMatugenTemplates = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
+
+    # Create config directory if it doesn't exist
+    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
+
+    # Ensure [config] section exists
+    if ! grep -q "^\[config\]" "$MATUGEN_CONFIG" 2>/dev/null; then
+      echo "[config]" >> "$MATUGEN_CONFIG"
+      echo "" >> "$MATUGEN_CONFIG"
+    fi
+
+    # Register neovim dankshell vim template
+    if [ -f "$MATUGEN_CONFIG" ] && grep -q "dankshell.vim" "$MATUGEN_CONFIG" 2>/dev/null; then
+      echo "Neovim dankshell template already registered in matugen"
+    else
+      echo "[templates.dankshell-vim]" >> "$MATUGEN_CONFIG"
+      echo "input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'" >> "$MATUGEN_CONFIG"
+      echo "output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'" >> "$MATUGEN_CONFIG"
+      echo "" >> "$MATUGEN_CONFIG"
+      echo "Registered neovim dankshell template with matugen"
+    fi
+
+    # Register ghostty template with current DMS path
+    # Find current DMS store path
+    DMS_BIN=$(which dms 2>/dev/null || echo "")
+    if [ -n "$DMS_BIN" ]; then
+      DMS_PATH=$(readlink -f "$DMS_BIN" | xargs dirname | xargs dirname)
+      GHOSTTY_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf"
+
+      if [ -f "$GHOSTTY_TEMPLATE" ]; then
+        # Remove any existing ghostty template entries (may point to old DMS paths)
+        if grep -q "\[templates\.ghostty\]" "$MATUGEN_CONFIG" 2>/dev/null; then
+          # Create temp file without ghostty section
+          awk '/\[templates\.ghostty\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
+          mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
+          echo "Removed outdated ghostty template registration"
+        fi
+
+        # Add ghostty template with current DMS path
+        echo "[templates.ghostty]" >> "$MATUGEN_CONFIG"
+        echo "input_path = '$GHOSTTY_TEMPLATE'" >> "$MATUGEN_CONFIG"
+        echo "output_path = '${config.home.homeDirectory}/.config/ghostty/config-dankcolors'" >> "$MATUGEN_CONFIG"
+        echo "" >> "$MATUGEN_CONFIG"
+        echo "Registered ghostty template with matugen (DMS path: $DMS_PATH)"
+      else
+        echo "Warning: DMS ghostty template not found at $GHOSTTY_TEMPLATE"
+      fi
+    else
+      echo "Warning: dms command not found, skipping ghostty template registration"
+    fi
+  '';
+
   # Register base16 VSCode extension so VSCode can detect it
   home.activation.registerVSCodeExtension = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     if [ -d "${base16ExtDir}" ]; then
       $DRY_RUN_CMD chmod -R u+rwX "${base16ExtDir}" 2>/dev/null || true
-      
+
       extJson="${codeExtDir}/extensions.json"
       extId="local.dynamic-base16-dankshell"
-      
+
       # Ensure extensions.json exists
       if [ ! -f "$extJson" ]; then
         $DRY_RUN_CMD mkdir -p "${codeExtDir}"
         echo '[]' > "$extJson"
       fi
-      
+
       # Only register if not already in extensions.json
       if ! grep -q "$extId" "$extJson" 2>/dev/null; then
         timestamp=$(date +%s)000
-        
+
         # Add extension entry to extensions.json
         $DRY_RUN_CMD ${pkgs.jq}/bin/jq '. += [{
           "identifier": {"id": "'"$extId"'"},
