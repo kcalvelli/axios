@@ -155,7 +155,8 @@ Modules are imported using one of three patterns:
 - **Features**:
   - Automatic driver selection based on GPU type
   - Nvidia: Driver version choice, open kernel modules, Wayland support, PRIME management
-  - Kernel parameters: `nvidia_drm.modeset=1`, `nvidia_drm.fbdev=1` (Wayland framebuffer)
+  - Kernel parameters: `nvidia_drm.modeset=1` (Wayland modesetting)
+  - PRIME defaults to disabled on desktops (user-configurable for dual-GPU setups)
   - GPU utilities: nvtop, radeontop, intel-gpu-tools, renderdoc
   - Hardware acceleration: VA-API, Vulkan
 

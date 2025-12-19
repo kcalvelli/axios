@@ -312,8 +312,8 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Nvidia-specific**:
   - Driver version selection (stable for reliability, beta for RTX 50-series/Blackwell)
   - Open kernel module by default (RTX 20+/Turing and newer)
-  - Framebuffer device support for Wayland (`nvidia_drm.fbdev=1`)
-  - PRIME disabled on desktops (single GPU optimization)
+  - Wayland modesetting support (`nvidia_drm.modeset=1`)
+  - PRIME defaults to disabled on desktops (configurable for dual-GPU setups)
   - Power management disabled by default (avoids suspend/resume issues)
 - **AMD-specific**:
   - AMDGPU kernel module in initrd
