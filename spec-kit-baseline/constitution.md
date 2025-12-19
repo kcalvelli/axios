@@ -147,6 +147,23 @@ All PRs must pass:
 - **Rationale**: Decouples services, enables automatic route ordering, prevents path conflicts
 - **Confidence**: [EXPLICIT]
 
+#### ADR-008: Single nixpkgs Version Constraint
+- **Pattern**: ALL flake inputs MUST follow the main nixpkgs input
+- **Evidence**: Issue discovered 2025-12-19 - ghostty using separate nixpkgs (25.11) caused widespread store path corruption
+- **Constraints**:
+  - ALWAYS use `inputs.nixpkgs.follows = "nixpkgs"` for all flake inputs
+  - NEVER allow flake inputs to use different nixpkgs versions
+  - If a package requires a different nixpkgs, use `pkgs.<package>` from main nixpkgs instead
+  - Prefer nixpkgs-unstable packages over external flake inputs when available
+- **Rationale**:
+  - Different nixpkgs versions create incompatible dependency graphs
+  - Causes store path corruption and build failures
+  - Increases closure size with duplicate packages
+  - Makes debugging extremely difficult
+- **Example Violation**: `ghostty.url = "github:ghostty-org/ghostty"` (pulled in nixpkgs 25.11 + zig-overlay)
+- **Example Fix**: Remove ghostty input, use `pkgs.ghostty` from nixpkgs-unstable
+- **Confidence**: [EXPLICIT]
+
 ### Module Boundaries
 - **Independence**: Modules are independently importable (no inter-module dependencies)
 - **Composition**: Users compose modules in their own flake configurations

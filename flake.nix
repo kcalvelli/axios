@@ -47,11 +47,20 @@
       };
     };
 
-    vscode-server.url = "github:nix-community/nixos-vscode-server";
+    vscode-server = {
+      url = "github:nix-community/nixos-vscode-server";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # For dev shells
-    "zig-overlay".url = "github:mitchellh/zig-overlay";
-    fenix.url = "github:nix-community/fenix";
+    "zig-overlay" = {
+      url = "github:mitchellh/zig-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     lazyvim = {
       url = "github:matadaniel/LazyVim-module";
@@ -80,9 +89,18 @@
     };
 
     # Fun with "AI"
-    nix-ai-tools.url = "github:numtide/nix-ai-tools";
-    mcp-journal.url = "github:kcalvelli/mcp-journal";
-    nix-devshell-mcp.url = "github:kcalvelli/nix-devshell-mcp";
+    nix-ai-tools = {
+      url = "github:numtide/nix-ai-tools";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    mcp-journal = {
+      url = "github:kcalvelli/mcp-journal";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-devshell-mcp = {
+      url = "github:kcalvelli/nix-devshell-mcp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     mcp-servers-nix = {
       url = "github:natsukium/mcp-servers-nix";
       inputs.nixpkgs.follows = "nixpkgs";
