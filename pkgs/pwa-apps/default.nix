@@ -25,11 +25,7 @@ let
       domain = lib.head parts;
       pathParts = lib.tail parts;
       # Join path parts: first slash (after domain) → __, rest → _
-      path =
-        if pathParts == [ ] then
-          ""
-        else
-          "__" + (lib.concatStringsSep "_" pathParts);
+      path = if pathParts == [ ] then "" else "__" + (lib.concatStringsSep "_" pathParts);
     in
     "brave-${domain}${path}-Default";
 

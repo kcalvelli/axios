@@ -27,10 +27,11 @@
     enable = true;
     quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-    # Systemd integration
+    # Systemd integration - DISABLED to use Niri spawn-at-startup instead
+    # This eliminates race conditions with PipeWire/Wayland at boot
     systemd = {
-      enable = true; # Enable systemd user service
-      restartIfChanged = true; # Auto-restart DMS on config changes
+      enable = false; # Use Niri spawn instead (see niri.nix)
+      restartIfChanged = false;
     };
 
     # Feature toggles (explicit configuration for clarity)
