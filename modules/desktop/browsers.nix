@@ -14,7 +14,6 @@ let
     "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
     "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree - GitHub code tree
     "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
-    "jlmpjdjjbgclbocgajdjefcidcncaied" # daily.dev - developer news
     "gppongmhjkpfnbhagpmjfkannfbllamg" # Wappalyzer - tech profiler
     "kbfnbcaeplbcioakkpcpgfkobkghlhen" # Grammarly - writing assistant
   ];
