@@ -14,8 +14,6 @@ let
     "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
     "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree - GitHub code tree
     "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
-    "gppongmhjkpfnbhagpmjfkannfbllamg" # Wappalyzer - tech profiler
-    "kbfnbcaeplbcioakkpcpgfkobkghlhen" # Grammarly - writing assistant
   ];
 
   braveArgs = [
