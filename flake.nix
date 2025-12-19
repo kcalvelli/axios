@@ -58,8 +58,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    ghostty.url = "github:ghostty-org/ghostty";
-
     # Niri with DMS Shell
     quickshell = {
       url = "github:quickshell-mirror/quickshell";
