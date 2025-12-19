@@ -128,12 +128,15 @@ in
         powerManagement.finegrained = false;
 
         # PRIME configuration (Optimus for laptops with hybrid graphics)
-        # Disable PRIME on desktops with single discrete GPU
-        # nixos-hardware.common-gpu-nvidia may enable PRIME by default, which breaks desktops
+        # Default to disabled on desktops with single discrete GPU
+        # For dual-GPU desktops (e.g., nvidia dGPU + AMD/Intel iGPU), configure manually:
+        #   hardware.nvidia.prime.sync.enable = true;
+        #   hardware.nvidia.prime.nvidiaBusId = "PCI:X:Y:Z";
+        #   hardware.nvidia.prime.amdgpuBusId = "PCI:A:B:C";  # or intelBusId
         prime = lib.mkIf isDesktop {
-          offload.enable = lib.mkForce false;
-          sync.enable = lib.mkForce false;
-          reverseSync.enable = lib.mkForce false;
+          offload.enable = lib.mkDefault false;
+          sync.enable = lib.mkDefault false;
+          reverseSync.enable = lib.mkDefault false;
         };
       };
     };
@@ -149,7 +152,6 @@ in
       ]
       ++ lib.optionals isNvidia [
         "nvidia_drm.modeset=1" # Enable modesetting (required for Wayland)
-        "nvidia_drm.fbdev=1" # Enable framebuffer device support (improves Wayland compatibility)
       ];
 
     # === Graphics Utilities ===
