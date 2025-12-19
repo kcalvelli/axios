@@ -287,6 +287,12 @@ let
           profile = hostCfg.homeProfile or "workstation";
           extraCfg = hostCfg.extraConfig or { };
 
+          # Determine if hardware modules should be auto-enabled (matches conditionalHwModules logic)
+          enableDesktopHardware =
+            (hwVendor == "msi") || ((hwVendor == null) && (hostCfg.formFactor or "" == "desktop"));
+          enableLaptopHardware =
+            (hwVendor == "system76") || ((hwVendor == null) && (hostCfg.formFactor or "" == "laptop"));
+
           # Build dynamic config based on what's defined in hostCfg
           dynamicConfig = lib.mkMerge [
             # Always include extraConfig first
@@ -299,6 +305,14 @@ let
             (lib.optionalAttrs ((hostCfg.modules.graphics or false) && (hwGpu != null)) {
               axios.hardware.gpuType = hwGpu;
               axios.hardware.isLaptop = hostCfg.hardware.isLaptop or false;
+            })
+            # Auto-enable desktop hardware module when conditionally imported
+            (lib.optionalAttrs enableDesktopHardware {
+              hardware.desktop.enable = true;
+            })
+            # Auto-enable laptop hardware module when conditionally imported
+            (lib.optionalAttrs enableLaptopHardware {
+              hardware.laptop.enable = true;
             })
             # Add virt config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.virt or false) && (hostCfg ? virt)) {
