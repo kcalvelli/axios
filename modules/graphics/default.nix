@@ -86,6 +86,7 @@ in
             # Nvidia proprietary driver packages
             # Note: The driver itself is loaded via hardware.nvidia.package
             # These are additional libraries for Vulkan, CUDA, etc.
+            nvidia-vaapi-driver # VA-API support for NVIDIA (for browser video acceleration)
           ]
           ++ lib.optionals isIntel [
             mesa # OpenGL + Intel Vulkan
@@ -185,6 +186,12 @@ in
         GSK_RENDERER = "ngl"; # force GTK4 to OpenGL path (stable on wlroots)
       }
       (lib.mkIf isAmd { HIP_PLATFORM = "amd"; })
+      (lib.mkIf isNvidia {
+        # Backend for nvidia-vaapi-driver (direct = faster, egl = more compatible)
+        NVD_BACKEND = "direct";
+        # Workaround for Chromium/Electron apps to use correct VA-API driver
+        LIBVA_DRIVER_NAME = "nvidia";
+      })
     ];
   };
 }
