@@ -63,7 +63,11 @@ For manual setup, you'll create just 3 files:
 - **Wallpaper blur effects** - Automatic blur for overview mode
 - **Ghostty terminal** - Modern GPU-accelerated terminal with dropdown mode
 - **LazyVim** - Pre-configured Neovim with LSP support
-- **Hardware acceleration** - Optimized for AMD/Intel/Nvidia graphics
+- **GPU Hardware Acceleration** - Automatic browser acceleration based on GPU type:
+  - AMD: VA-API video decode/encode with modern Chrome 131+ flags
+  - NVIDIA: VA-API via nvidia-vaapi-driver with optimized environment variables
+  - Accelerates: Video playback, WebGL, Canvas rendering, GPU rasterization
+  - Works automatically in Brave and Brave Nightly (no manual configuration)
 - **Google Drive sync** - Automatic rclone-based sync with safety features (run `setup-gdrive-sync`)
 
 ### Development
@@ -138,7 +142,7 @@ Check out these example configurations:
 
 ## What's Included
 
-- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell with widgets, Ghostty terminal, idle management, Google Drive sync
+- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell with widgets, Ghostty terminal, GPU-accelerated browsers (AMD/NVIDIA), idle management, Google Drive sync
 - **Development**: Rust, Zig, Python, Node.js toolchains with LSP support
 - **Applications**: 80+ apps including productivity, media, and utilities - see [Application Catalog](docs/APPLICATIONS.md)
 - **PWAs**: Progressive Web Apps integrated as native applications
