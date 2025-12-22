@@ -196,8 +196,8 @@ in
 
     # Copy kdeglobals template if it doesn't exist or is outdated
     $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
-    if [ ! -f "$KDEGLOBALS_TEMPLATE" ] || ! cmp -s "${./resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE" 2>/dev/null; then
-      $DRY_RUN_CMD cp "${./resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE"
+    if [ ! -f "$KDEGLOBALS_TEMPLATE" ] || ! cmp -s "${../resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE" 2>/dev/null; then
+      $DRY_RUN_CMD cp "${../resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE"
       echo "Copied kdeglobals template to matugen templates directory"
     fi
 
