@@ -126,21 +126,19 @@ in
     if [ -n "$DMS_BIN" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
       KDEGLOBALS_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors"
 
-      # Remove any existing kdeglobals template entries (may point to old custom template)
+      # Remove any existing kdeglobals template entries (may point to old path)
       if grep -q "\[templates\.kdeglobals\]" "$MATUGEN_CONFIG" 2>/dev/null; then
         awk '/\[templates\.kdeglobals\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
         mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
-        echo "Removed outdated kdeglobals template registration"
+        echo "Removed old kdeglobals template registration"
       fi
 
-      # Register kdeglobals template with matugen using DMS's kcolorscheme template
-      if ! grep -q "kdeglobals" "$MATUGEN_CONFIG" 2>/dev/null; then
-        echo "[templates.kdeglobals]" >> "$MATUGEN_CONFIG"
-        echo "input_path = '$KDEGLOBALS_TEMPLATE'" >> "$MATUGEN_CONFIG"
-        echo "output_path = '${config.home.homeDirectory}/.config/kdeglobals'" >> "$MATUGEN_CONFIG"
-        echo "" >> "$MATUGEN_CONFIG"
-        echo "Registered kdeglobals template with matugen (using DMS kcolorscheme template)"
-      fi
+      # Always register kdeglobals template with current DMS path
+      echo "[templates.kdeglobals]" >> "$MATUGEN_CONFIG"
+      echo "input_path = '$KDEGLOBALS_TEMPLATE'" >> "$MATUGEN_CONFIG"
+      echo "output_path = '${config.home.homeDirectory}/.config/kdeglobals'" >> "$MATUGEN_CONFIG"
+      echo "" >> "$MATUGEN_CONFIG"
+      echo "Registered kdeglobals template with matugen (using DMS kcolorscheme.colors)"
     else
       echo "Warning: DMS kcolorscheme template not found, skipping kdeglobals template registration"
     fi
