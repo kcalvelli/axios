@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  inputs,
+  config,
+  pkgs,
+  ...
+}:
 
 let
   codeExtDir = "${config.home.homeDirectory}/.vscode/extensions";
@@ -93,10 +98,9 @@ in
     fi
 
     # Register ghostty template with current DMS path
-    # Find current DMS store path
-    DMS_BIN=$(which dms 2>/dev/null || echo "")
-    if [ -n "$DMS_BIN" ]; then
-      DMS_PATH=$(readlink -f "$DMS_BIN" | xargs dirname | xargs dirname)
+    # Use direct reference to DMS package from inputs (PATH not available during activation)
+    DMS_PATH="${inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default}"
+    if [ -n "$DMS_PATH" ]; then
       GHOSTTY_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf"
 
       if [ -f "$GHOSTTY_TEMPLATE" ]; then
@@ -118,12 +122,12 @@ in
         echo "Warning: DMS ghostty template not found at $GHOSTTY_TEMPLATE"
       fi
     else
-      echo "Warning: dms command not found, skipping ghostty template registration"
+      echo "Warning: DMS package not available, skipping ghostty template registration"
     fi
 
     # Register kdeglobals template for KDE Connect and other KDE apps
     # Use DMS's kcolorscheme.colors template which is already well-tested
-    if [ -n "$DMS_BIN" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
+    if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
       KDEGLOBALS_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors"
 
       # Remove any existing kdeglobals template entries (may point to old path)
