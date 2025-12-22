@@ -25,36 +25,36 @@ in
       xwayland-satellite
 
       # File manager
-      nautilus
-      file-roller # Archive manager
+      kdePackages.dolphin # File manager (split-pane, superior plugin ecosystem)
+      kdePackages.ark # Archive manager (integrates with Dolphin)
 
       # === Productivity Applications ===
       obsidian # Note-taking and knowledge management
       discord # Communication platform
-      typora # Markdown editor
-      libreoffice-fresh # Office suite
+      kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
+      libreoffice-qt6-fresh # Office suite with Qt6 backend for consistent theming
       bitwarden-desktop # Password manager and secure digital vault
 
       # === Media Creation & Editing ===
-      pitivi # Video editor
-      pinta # Image editor
+      kdePackages.kdenlive # Video editor (professional-grade, industry standard)
+      kdePackages.krita # Digital art studio (professional raster graphics)
       inkscape # Vector graphics editor
 
       # === Media Viewing & Playback ===
-      shotwell # Photo manager
-      loupe # Image viewer
-      celluloid # Video player
-      amberol # Music player
+      kdePackages.digikam # Photo manager (professional asset management)
+      loupe # Image viewer (fast, clean UI, great touchpad gestures)
+      kdePackages.haruna # Video player (excellent MPV frontend)
+      amberol # Music player (simple, focused on music playback)
 
       # === System Utilities ===
-      baobab # Disk usage analyzer
-      swappy # Screenshot annotation
-      qalculate-gtk # Calculator
+      kdePackages.filelight # Disk usage analyzer (superior radial visualization)
+      swappy # Screenshot annotation (fits tiling WM workflow)
+      libsForQt5.qalculate-qt # Calculator (Qt port, better theming)
       swaybg # Wallpaper setter
       imagemagick # Image processing
       libnotify # Desktop notifications
-      gnome-software # Software center
-      gnome-text-editor # Text editor
+      gnome-software # Software center (better Flatpak handling in non-Plasma)
+      kdePackages.kate # Text editor (LSP, minimap, plugins, dev-tier features)
 
       # === Wayland Tools ===
       fuzzel # Application launcher
@@ -126,11 +126,10 @@ in
       niri.enable = true;
       xwayland.enable = true;
       dconf.enable = true;
-      nautilus-open-any-terminal.enable = true;
-      nautilus-open-any-terminal.terminal = "ghostty";
-      evince.enable = true;
-      gnome-disks.enable = true;
-      seahorse.enable = true;
+      # Note: Dolphin has built-in terminal integration via F4 (no plugin needed)
+      okular.enable = true; # PDF reader (best-in-class annotations, format support)
+      gnome-disks.enable = true; # Disk utility (cleaner UX for ISO writing/benchmarking)
+      kleopatra.enable = true; # GPG/Certificate manager (better visibility than Seahorse)
       corectrl.enable = true;
       kdeconnect.enable = true;
       localsend = {

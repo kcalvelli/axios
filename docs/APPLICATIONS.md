@@ -17,49 +17,69 @@ This document provides a comprehensive list of all applications included in axiO
 
 **Module:** `desktop` (must be enabled)
 
+**Selection Philosophy:** Applications chosen for functionality and user experience, not desktop environment affiliation. Both GTK and Qt applications receive Material You theming equally via kdeglobals and dank-colors.css integration.
+
+### File Management
+
+| Application | Description | Why This App? |
+|-------------|-------------|---------------|
+| **Dolphin** (KDE) | Feature-rich file manager | Superior split-pane functionality and extensive plugin ecosystem |
+| **Ark** (KDE) | Archive manager | Excellent Dolphin integration and comprehensive format support |
+| **Filelight** (KDE) | Disk usage analyzer | Radial visualization makes disk usage immediately intuitive |
+
 ### Productivity
 
-| Application | Description | Category |
-|-------------|-------------|----------|
-| **Obsidian** | Note-taking and knowledge management with markdown support | Knowledge Base |
-| **Discord** | Communication platform for voice, video, and text chat | Communication |
-| **Typora** | Clean markdown editor with live preview | Writing |
-| **LibreOffice Fresh** | Full office suite (Writer, Calc, Impress, Draw) | Office |
-| **Nautilus** | GNOME file manager with thumbnail preview | File Manager |
-| **File Roller** | Archive manager for compressed files | Utilities |
-| **GNOME Text Editor** | Simple text editor for quick edits | Text Editor |
+| Application | Description | Why This App? |
+|-------------|-------------|---------------|
+| **Obsidian** | Note-taking and knowledge management with markdown support | Best-in-class knowledge base with local-first philosophy |
+| **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
+| **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
+| **LibreOffice** (Qt6 backend) | Full office suite (Writer, Calc, Impress, Draw) | Qt6 backend ensures consistent theming with desktop |
+| **Kate** (KDE) | Advanced text editor | Developer-tier features (LSP, minimap, plugins) in a fast editor |
+| **Bitwarden** | Password manager and secure digital vault | Open-source password management with cloud sync |
 
 ### Media Creation & Editing
 
-| Application | Description | Category |
-|-------------|-------------|----------|
-| **Pitivi** | Video editor with timeline and effects | Video Editing |
-| **Pinta** | Image editor similar to Paint.NET | Image Editing |
-| **Inkscape** | Professional vector graphics editor | Vector Graphics |
-| **OBS Studio** | Screen recording and live streaming software | Streaming |
+| Application | Description | Why This App? |
+|-------------|-------------|---------------|
+| **Kdenlive** (KDE) | Professional video editor | Industry-standard open-source video editor with stability |
+| **Krita** (KDE) | Digital art studio | Professional-grade raster graphics for digital artists |
+| **Inkscape** | Professional vector graphics editor | Best open-source vector editor, cross-platform standard |
+| **OBS Studio** | Screen recording and live streaming software | Industry standard for streaming and recording |
 
 ### Media Viewing & Playback
 
-| Application | Description | Category |
-|-------------|-------------|----------|
-| **Shotwell** | Photo manager and organizer | Photo Management |
-| **Loupe** | Fast and lightweight image viewer | Image Viewer |
-| **Celluloid** | Modern video player (MPV frontend) | Video Player |
-| **Amberol** | Minimalist music player | Audio Player |
+| Application | Description | Why This App? |
+|-------------|-------------|---------------|
+| **DigiKam** (KDE) | Professional photo manager | Asset management far beyond basic organization |
+| **Loupe** (GNOME) | Fast and lightweight image viewer | Superior speed and touchpad gestures, clean UI |
+| **Haruna** (KDE) | Video player (MPV frontend) | Excellent MPV frontend with built-in youtube-dl support |
+| **Amberol** (GNOME) | Minimalist music player | Focuses purely on music playback with great UI |
 
 ### System Utilities
 
-| Application | Description | Category |
-|-------------|-------------|----------|
-| **Baobab** | Disk usage analyzer with visual tree map | Disk Analysis |
-| **Swappy** | Screenshot annotation and editing tool | Screenshots |
-| **Qalculate!** | Advanced calculator with unit conversion | Calculator |
-| **Evince** | PDF and document viewer | Document Viewer |
-| **GNOME Disks** | Disk management and partitioning tool | Disk Management |
-| **Seahorse** | Password and encryption key manager | Security |
-| **CoreCtrl** | Hardware control and monitoring (GPU/CPU) | Hardware Control |
-| **KDE Connect** | Sync and control your phone from desktop | Device Sync |
-| **LocalSend** | Local network file sharing (AirDrop alternative) | File Sharing |
+| Application | Description | Why This App? |
+|-------------|-------------|---------------|
+| **Okular** (KDE) | PDF and document viewer | Best-in-class annotations and format support |
+| **Kleopatra** (KDE) | GPG and certificate manager | Better visibility than Seahorse for key management |
+| **GNOME Disks** | Disk management and partitioning tool | Cleaner UX for quick ISO writing and benchmarking |
+| **Swappy** | Screenshot annotation and editing tool | Fits tiling WM workflow (grim → slurp → edit) |
+| **Qalculate!** (Qt) | Advanced calculator with unit conversion | Modern Qt port with better theming than GTK version |
+| **CoreCtrl** | Hardware control and monitoring (GPU/CPU) | Essential for GPU overclocking and fan control |
+| **KDE Connect** | Sync and control your phone from desktop | Best Linux-phone integration available |
+| **LocalSend** | Local network file sharing (AirDrop alternative) | Cross-platform local file sharing without cloud |
+| **GNOME Software** | Software center for Flatpak apps | Better Flatpak handling in non-Plasma environments |
+
+### Communication & PIM
+
+| Application | Description | Why This App? |
+|-------------|-------------|---------------|
+| **Evolution** | Email client with Exchange/EWS support | Industry standard for Exchange stability, avoids Akonadi |
+| **GNOME Calendar** | Calendar application | Simpler and more reliable than Merkuro (no Akonadi backend) |
+| **GNOME Contacts** | Contact management | More reliable than KAddressBook (no Akonadi backend) |
+| **GNOME Online Accounts** | Unified account management | One-time configuration for Gmail, Outlook, CalDAV, CardDAV |
+
+**Note on KDE-PIM:** KDE's PIM suite (Merkuro, KAddressBook, KMail/Kontact) requires the Akonadi backend which has known reliability issues. Evolution and GNOME PIM apps provide better stability for email, calendar, and contacts.
 
 ### Wayland Tools
 

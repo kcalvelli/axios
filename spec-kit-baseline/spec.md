@@ -98,17 +98,27 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - Managed via Home Manager `programs.brave` and custom wrappers
 
 #### Desktop Applications
-- **Purpose**: Curated set of desktop applications for productivity and media
-- **Implementation Evidence**: modules/desktop/default.nix:21-90
+- **Purpose**: Best-in-class application suite selected for functionality and user experience
+- **Implementation Evidence**: modules/desktop/default.nix:21-93
 - **Confidence**: [EXPLICIT]
+- **Selection Criteria**: Applications chosen based on merit, not toolkit (GTK vs Qt)
+- **Theming**: Both GTK and Qt applications receive Material You theming equally via kdeglobals and dank-colors.css
 - **Categories**:
-  - Productivity: Obsidian, Discord, Typora, LibreOffice, Bitwarden
-  - Media Creation: Pitivi, Pinta, Inkscape
-  - Media Viewing: Shotwell, Loupe, Celluloid, Amberol
-  - System Utilities: Baobab, Swappy, Qalculate
-  - Communication: Evolution (email client)
-  - PIM: GNOME Calendar, GNOME Contacts
-  - Streaming: OBS Studio
+  - **File Management**: Dolphin (KDE), Ark (KDE), Filelight (KDE)
+  - **Productivity**: Obsidian, Discord, Ghostwriter (KDE), LibreOffice (Qt6 backend), Bitwarden, Kate (KDE)
+  - **Media Creation**: Kdenlive (KDE), Krita (KDE), Inkscape
+  - **Media Viewing**: DigiKam (KDE), Loupe (GNOME), Haruna (KDE), Amberol (GNOME)
+  - **System Utilities**: GNOME Disks, Swappy, Qalculate (Qt), Fuzzel, GNOME Software
+  - **Document Viewers**: Okular (KDE - best-in-class PDF annotations)
+  - **Security**: Kleopatra (KDE - GPG/certificate management)
+  - **Communication**: Evolution (email client with Exchange/EWS support)
+  - **PIM**: GNOME Calendar, GNOME Contacts (Evolution Data Server backend)
+  - **Streaming**: OBS Studio
+- **Application Choices Rationale**:
+  - **KDE Apps**: Dolphin (split-pane, plugins), Kdenlive (industry standard), Krita (professional), DigiKam (asset management), Kate (LSP support), Okular (annotations), Filelight (radial visualization), Haruna (MPV frontend)
+  - **GNOME Apps**: Loupe (speed, gestures), Amberol (simplicity), GNOME Disks (UX), Evolution/Calendar/Contacts (reliability over KDE-PIM's Akonadi)
+  - **Qt Apps**: LibreOffice Qt6 (consistent theming), Qalculate-qt (modern port)
+  - **Avoided**: KDE-PIM suite (Merkuro, KAddressBook, KMail) due to Akonadi backend reliability issues
 
 #### GNOME Online Accounts Integration
 - **Purpose**: Unified account management for email, calendar, and contacts without full GNOME desktop
