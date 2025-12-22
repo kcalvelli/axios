@@ -122,24 +122,27 @@ in
     fi
 
     # Register kdeglobals template for KDE Connect and other KDE apps
-    KDEGLOBALS_TEMPLATE="${config.home.homeDirectory}/.config/matugen/templates/kdeglobals.mustache"
+    # Use DMS's kcolorscheme.colors template which is already well-tested
+    if [ -n "$DMS_BIN" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
+      KDEGLOBALS_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors"
 
-    # Copy kdeglobals template if it doesn't exist or is outdated
-    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
-    if [ ! -f "$KDEGLOBALS_TEMPLATE" ] || ! cmp -s "${../resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE" 2>/dev/null; then
-      $DRY_RUN_CMD cp "${../resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE"
-      echo "Copied kdeglobals template to matugen templates directory"
-    fi
+      # Remove any existing kdeglobals template entries (may point to old custom template)
+      if grep -q "\[templates\.kdeglobals\]" "$MATUGEN_CONFIG" 2>/dev/null; then
+        awk '/\[templates\.kdeglobals\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
+        mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
+        echo "Removed outdated kdeglobals template registration"
+      fi
 
-    # Register kdeglobals template with matugen
-    if grep -q "kdeglobals" "$MATUGEN_CONFIG" 2>/dev/null; then
-      echo "kdeglobals template already registered in matugen"
+      # Register kdeglobals template with matugen using DMS's kcolorscheme template
+      if ! grep -q "kdeglobals" "$MATUGEN_CONFIG" 2>/dev/null; then
+        echo "[templates.kdeglobals]" >> "$MATUGEN_CONFIG"
+        echo "input_path = '$KDEGLOBALS_TEMPLATE'" >> "$MATUGEN_CONFIG"
+        echo "output_path = '${config.home.homeDirectory}/.config/kdeglobals'" >> "$MATUGEN_CONFIG"
+        echo "" >> "$MATUGEN_CONFIG"
+        echo "Registered kdeglobals template with matugen (using DMS kcolorscheme template)"
+      fi
     else
-      echo "[templates.kdeglobals]" >> "$MATUGEN_CONFIG"
-      echo "input_path = '$KDEGLOBALS_TEMPLATE'" >> "$MATUGEN_CONFIG"
-      echo "output_path = '${config.home.homeDirectory}/.config/kdeglobals'" >> "$MATUGEN_CONFIG"
-      echo "" >> "$MATUGEN_CONFIG"
-      echo "Registered kdeglobals template with matugen"
+      echo "Warning: DMS kcolorscheme template not found, skipping kdeglobals template registration"
     fi
   '';
 
