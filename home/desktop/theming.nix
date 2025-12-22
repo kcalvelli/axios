@@ -107,7 +107,7 @@ in
         # Remove any existing ghostty template entries (may point to old DMS paths)
         if grep -q "\[templates\.ghostty\]" "$MATUGEN_CONFIG" 2>/dev/null; then
           # Create temp file without ghostty section
-          awk '/\[templates\.ghostty\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
+          ${pkgs.gawk}/bin/awk '/\[templates\.ghostty\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
           mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
           echo "Removed outdated ghostty template registration"
         fi
@@ -132,7 +132,7 @@ in
 
       # Remove any existing kdeglobals template entries (may point to old path)
       if grep -q "\[templates\.kdeglobals\]" "$MATUGEN_CONFIG" 2>/dev/null; then
-        awk '/\[templates\.kdeglobals\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
+        ${pkgs.gawk}/bin/awk '/\[templates\.kdeglobals\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
         mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
         echo "Removed old kdeglobals template registration"
       fi
