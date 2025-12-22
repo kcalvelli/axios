@@ -55,71 +55,9 @@ in
     force = true;
   };
 
-  # Qt6ct configuration for icon theme and matugen colors
-  xdg.configFile."qt6ct/qt6ct.conf".text = ''
-    [Appearance]
-    color_scheme_path=${config.home.homeDirectory}/.config/qt6ct/colors/matugen.conf
-    custom_palette=true
-    icon_theme=Papirus-Dark
-    standard_dialogs=xdgdesktopportal
-    style=Fusion
-
-    [Fonts]
-    fixed="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
-    general="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
-
-    [Interface]
-    activate_item_on_single_click=1
-    buttonbox_layout=0
-    cursor_flash_time=1000
-    dialog_buttons_have_icons=1
-    double_click_interval=400
-    gui_effects=@Invalid()
-    keyboard_scheme=2
-    menus_have_icons=true
-    show_shortcuts_in_context_menus=true
-    stylesheets=@Invalid()
-    toolbutton_style=4
-    underline_shortcut=1
-    wheel_scroll_lines=3
-
-    [Troubleshooting]
-    force_raster_widgets=1
-    ignored_applications=@Invalid()
-  '';
-
-  # Qt5ct configuration for icon theme and matugen colors
-  xdg.configFile."qt5ct/qt5ct.conf".text = ''
-    [Appearance]
-    color_scheme_path=${config.home.homeDirectory}/.config/qt5ct/colors/matugen.conf
-    custom_palette=true
-    icon_theme=Papirus-Dark
-    standard_dialogs=xdgdesktopportal
-    style=Fusion
-
-    [Fonts]
-    fixed="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
-    general="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
-
-    [Interface]
-    activate_item_on_single_click=1
-    buttonbox_layout=0
-    cursor_flash_time=1000
-    dialog_buttons_have_icons=1
-    double_click_interval=400
-    gui_effects=@Invalid()
-    keyboard_scheme=2
-    menus_have_icons=true
-    show_shortcuts_in_context_menus=true
-    stylesheets=@Invalid()
-    toolbutton_style=4
-    underline_shortcut=1
-    wheel_scroll_lines=3
-
-    [Troubleshooting]
-    force_raster_widgets=1
-    ignored_applications=@Invalid()
-  '';
+  # Note: qt5ct/qt6ct configuration files are managed by the user via qt5ct/qt6ct GUI tools
+  # The packages are installed in modules/desktop/default.nix
+  # Users can configure icon themes (recommend Papirus-Dark) and color schemes via the GUI
 
   # Flatpak Theming
   dconf = {
