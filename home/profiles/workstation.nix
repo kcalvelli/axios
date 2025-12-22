@@ -14,7 +14,7 @@
       [Desktop Entry]
       Name=Solaar
       Comment=Logitech Unifying Receiver peripherals manager
-      Exec=solaar --window=hide
+      Exec=solaar --window=hide --battery-icons=solaar
       Icon=solaar
       StartupNotify=true
       Terminal=false
