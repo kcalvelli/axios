@@ -22,17 +22,9 @@ in
     dotIcons.enable = true;
   };
 
-  gtk = {
-    enable = true;
-    iconTheme = {
-      package = pkgs.papirus-icon-theme;
-      name = "Papirus-Dark";
-    };
-    theme = {
-      package = pkgs.adw-gtk3;
-      name = "adw-gtk3";
-    };
-  };
+  # Note: GTK and Qt theming managed manually by user to avoid clobbering existing configs
+  # Theming packages (papirus-icon-theme, adw-gtk3, qt5ct, qt6ct) installed in modules/desktop
+  # Dynamic colors handled via dank-colors.css (GTK) and kdeglobals template (KDE/Qt apps)
 
   qt = {
     enable = true;
