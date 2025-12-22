@@ -72,6 +72,8 @@ in
       papirus-icon-theme # Papirus icon theme
       hicolor-icon-theme # Base icon theme (fallback for apps like solaar)
       adw-gtk3 # Adwaita GTK3 theme
+      libsForQt5.qt5ct # Qt5 theme configuration tool
+      kdePackages.qt6ct # Qt6 theme configuration tool
 
       # === Calendar Sync ===
       # Note: khal provided by DMS, fonts provided by DMS greeter

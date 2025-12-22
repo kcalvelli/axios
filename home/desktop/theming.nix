@@ -55,6 +55,72 @@ in
     force = true;
   };
 
+  # Qt6ct configuration for icon theme and matugen colors
+  xdg.configFile."qt6ct/qt6ct.conf".text = ''
+    [Appearance]
+    color_scheme_path=${config.home.homeDirectory}/.config/qt6ct/colors/matugen.conf
+    custom_palette=true
+    icon_theme=Papirus-Dark
+    standard_dialogs=xdgdesktopportal
+    style=Fusion
+
+    [Fonts]
+    fixed="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+    general="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+
+    [Interface]
+    activate_item_on_single_click=1
+    buttonbox_layout=0
+    cursor_flash_time=1000
+    dialog_buttons_have_icons=1
+    double_click_interval=400
+    gui_effects=@Invalid()
+    keyboard_scheme=2
+    menus_have_icons=true
+    show_shortcuts_in_context_menus=true
+    stylesheets=@Invalid()
+    toolbutton_style=4
+    underline_shortcut=1
+    wheel_scroll_lines=3
+
+    [Troubleshooting]
+    force_raster_widgets=1
+    ignored_applications=@Invalid()
+  '';
+
+  # Qt5ct configuration for icon theme and matugen colors
+  xdg.configFile."qt5ct/qt5ct.conf".text = ''
+    [Appearance]
+    color_scheme_path=${config.home.homeDirectory}/.config/qt5ct/colors/matugen.conf
+    custom_palette=true
+    icon_theme=Papirus-Dark
+    standard_dialogs=xdgdesktopportal
+    style=Fusion
+
+    [Fonts]
+    fixed="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+    general="DejaVu Sans,12,-1,5,400,0,0,0,0,0,0,0,0,0,0,1"
+
+    [Interface]
+    activate_item_on_single_click=1
+    buttonbox_layout=0
+    cursor_flash_time=1000
+    dialog_buttons_have_icons=1
+    double_click_interval=400
+    gui_effects=@Invalid()
+    keyboard_scheme=2
+    menus_have_icons=true
+    show_shortcuts_in_context_menus=true
+    stylesheets=@Invalid()
+    toolbutton_style=4
+    underline_shortcut=1
+    wheel_scroll_lines=3
+
+    [Troubleshooting]
+    force_raster_widgets=1
+    ignored_applications=@Invalid()
+  '';
+
   # Flatpak Theming
   dconf = {
     enable = true;
@@ -123,6 +189,27 @@ in
       fi
     else
       echo "Warning: dms command not found, skipping ghostty template registration"
+    fi
+
+    # Register kdeglobals template for KDE Connect and other KDE apps
+    KDEGLOBALS_TEMPLATE="${config.home.homeDirectory}/.config/matugen/templates/kdeglobals.mustache"
+
+    # Copy kdeglobals template if it doesn't exist or is outdated
+    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
+    if [ ! -f "$KDEGLOBALS_TEMPLATE" ] || ! cmp -s "${./resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE" 2>/dev/null; then
+      $DRY_RUN_CMD cp "${./resources/templates/kdeglobals.mustache}" "$KDEGLOBALS_TEMPLATE"
+      echo "Copied kdeglobals template to matugen templates directory"
+    fi
+
+    # Register kdeglobals template with matugen
+    if grep -q "kdeglobals" "$MATUGEN_CONFIG" 2>/dev/null; then
+      echo "kdeglobals template already registered in matugen"
+    else
+      echo "[templates.kdeglobals]" >> "$MATUGEN_CONFIG"
+      echo "input_path = '$KDEGLOBALS_TEMPLATE'" >> "$MATUGEN_CONFIG"
+      echo "output_path = '${config.home.homeDirectory}/.config/kdeglobals'" >> "$MATUGEN_CONFIG"
+      echo "" >> "$MATUGEN_CONFIG"
+      echo "Registered kdeglobals template with matugen"
     fi
   '';
 
