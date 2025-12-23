@@ -49,7 +49,7 @@ in
       # === System Utilities ===
       kdePackages.filelight # Disk usage analyzer (superior radial visualization)
       swappy # Screenshot annotation (fits tiling WM workflow)
-      libsForQt5.qalculate-qt # Calculator (Qt port, better theming)
+      qalculate-qt # Calculator (Qt port, better theming)
       kdePackages.okular # PDF reader (best-in-class annotations, format support)
       swaybg # Wallpaper setter
       imagemagick # Image processing
