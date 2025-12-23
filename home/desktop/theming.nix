@@ -72,6 +72,16 @@ in
     filesystems=xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro
   '';
 
+  # Deploy Kate theme template to matugen templates directory
+  xdg.configFile."matugen/templates/kate-dankshell.mustache" = {
+    source = ../terminal/resources/kate-dankshell.mustache;
+  };
+
+  # Ensure Kate themes directory exists
+  home.activation.createKateThemesDir = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.local/share/org.kde.syntax-highlighting/themes
+  '';
+
   # Register matugen templates for dynamic theming
   # This generates a clean config file each time to avoid corruption
   home.activation.registerMatugenTemplates = config.lib.dag.entryAfter [ "writeBoundary" ] ''
@@ -91,6 +101,10 @@ in
 [templates.dankshell-vim]
 input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'
 output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'
+
+[templates.kate-dankshell]
+input_path = '${config.home.homeDirectory}/.config/matugen/templates/kate-dankshell.mustache'
+output_path = '${config.home.homeDirectory}/.local/share/org.kde.syntax-highlighting/themes/DankShell.theme'
 MATUGEN_EOF
 
     # Add ghostty template if available
@@ -115,7 +129,7 @@ MATUGEN_EOF
       echo "Registered kdeglobals template with matugen"
     fi
 
-    echo "Matugen config generated successfully"
+    echo "Matugen config generated successfully (vim, kate, ghostty, kdeglobals)"
   '';
 
   # Register base16 VSCode extension so VSCode can detect it
