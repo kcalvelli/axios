@@ -50,6 +50,7 @@ in
       kdePackages.filelight # Disk usage analyzer (superior radial visualization)
       swappy # Screenshot annotation (fits tiling WM workflow)
       libsForQt5.qalculate-qt # Calculator (Qt port, better theming)
+      kdePackages.okular # PDF reader (best-in-class annotations, format support)
       swaybg # Wallpaper setter
       imagemagick # Image processing
       libnotify # Desktop notifications
@@ -127,7 +128,6 @@ in
       xwayland.enable = true;
       dconf.enable = true;
       # Note: Dolphin has built-in terminal integration via F4 (no plugin needed)
-      okular.enable = true; # PDF reader (best-in-class annotations, format support)
       gnome-disks.enable = true; # Disk utility (cleaner UX for ISO writing/benchmarking)
       seahorse.enable = true; # Password and encryption key manager (GNOME Keyring integration)
       corectrl.enable = true;
