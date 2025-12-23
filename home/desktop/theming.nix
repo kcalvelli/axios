@@ -85,51 +85,51 @@ in
   # Register matugen templates for dynamic theming
   # This generates a clean config file each time to avoid corruption
   home.activation.registerMatugenTemplates = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
+        MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
 
-    # Create config directory if it doesn't exist
-    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
-    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
+        # Create config directory if it doesn't exist
+        $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
+        $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
 
-    # Get DMS path for templates
-    DMS_PATH="${inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default}"
+        # Get DMS path for templates
+        DMS_PATH="${inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default}"
 
-    # Generate clean matugen config file
-    cat > "$MATUGEN_CONFIG" << 'MATUGEN_EOF'
-[config]
+        # Generate clean matugen config file
+        cat > "$MATUGEN_CONFIG" << 'MATUGEN_EOF'
+    [config]
 
-[templates.dankshell-vim]
-input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'
-output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'
+    [templates.dankshell-vim]
+    input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'
+    output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'
 
-[templates.kate-dankshell]
-input_path = '${config.home.homeDirectory}/.config/matugen/templates/kate-dankshell.mustache'
-output_path = '${config.home.homeDirectory}/.local/share/org.kde.syntax-highlighting/themes/DankShell.theme'
-MATUGEN_EOF
+    [templates.kate-dankshell]
+    input_path = '${config.home.homeDirectory}/.config/matugen/templates/kate-dankshell.mustache'
+    output_path = '${config.home.homeDirectory}/.local/share/org.kde.syntax-highlighting/themes/DankShell.theme'
+    MATUGEN_EOF
 
-    # Add ghostty template if available
-    if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf" ]; then
-      cat >> "$MATUGEN_CONFIG" << MATUGEN_EOF
+        # Add ghostty template if available
+        if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf" ]; then
+          cat >> "$MATUGEN_CONFIG" << MATUGEN_EOF
 
-[templates.ghostty]
-input_path = '$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf'
-output_path = '${config.home.homeDirectory}/.config/ghostty/config-dankcolors'
-MATUGEN_EOF
-      echo "Registered ghostty template with matugen"
-    fi
+    [templates.ghostty]
+    input_path = '$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf'
+    output_path = '${config.home.homeDirectory}/.config/ghostty/config-dankcolors'
+    MATUGEN_EOF
+          echo "Registered ghostty template with matugen"
+        fi
 
-    # Add kdeglobals template if available
-    if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
-      cat >> "$MATUGEN_CONFIG" << MATUGEN_EOF
+        # Add kdeglobals template if available
+        if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
+          cat >> "$MATUGEN_CONFIG" << MATUGEN_EOF
 
-[templates.kdeglobals]
-input_path = '$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors'
-output_path = '${config.home.homeDirectory}/.config/kdeglobals'
-MATUGEN_EOF
-      echo "Registered kdeglobals template with matugen"
-    fi
+    [templates.kdeglobals]
+    input_path = '$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors'
+    output_path = '${config.home.homeDirectory}/.config/kdeglobals'
+    MATUGEN_EOF
+          echo "Registered kdeglobals template with matugen"
+        fi
 
-    echo "Matugen config generated successfully (vim, kate, ghostty, kdeglobals)"
+        echo "Matugen config generated successfully (vim, kate, ghostty, kdeglobals)"
   '';
 
   # Register base16 VSCode extension so VSCode can detect it

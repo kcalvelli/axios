@@ -90,7 +90,7 @@ in
       gnome-calendar
       gnome-contacts
       evolution-ews
-    
+
       # === Implements freedesktops's Desktop Menu Specification
       gnome-menus
       kdePackages.kservice
@@ -106,7 +106,7 @@ in
       GNOME_SOFTWARE_REPOS_ENABLED = "flathub";
       GNOME_SOFTWARE_USE_FLATPAK_ONLY = "1";
 
-      # === Use gnome-menus 
+      # === Use gnome-menus
       XDG_MENU_PREFIX = "gnome-";
     };
 

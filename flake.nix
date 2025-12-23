@@ -187,7 +187,7 @@
           };
 
         imports = [
-          inputs.treefmt-nix.flakeModule
+          #inputs.treefmt-nix.flakeModule
           ./pkgs
           ./modules
           ./home

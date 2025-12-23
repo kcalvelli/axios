@@ -54,25 +54,25 @@
 
   # Helper scripts
   home.packages = [
-  (pkgs.writeShellScriptBin "focus-or-spawn-qalculate" ''
-    # robust-focus.sh
-    
-    # 1. Define the App ID explicitly
-    MATCH_APP="io.github.Qalculate.qalculate-qt"
-    
-    # 2. Use jq to parse the JSON array
-    # -j: Output raw string (no quotes around the ID)
-    # select: Filter the list for windows matching the app_id
-    # .id: Extract only the window ID
-    # head -n 1: In case multiple windows exist, pick the first one
-    WINDOW_ID=$(niri msg -j windows | jq -r ".[] | select(.app_id == \"$MATCH_APP\") | .id" | head -n 1)
-  
-    if [ -n "$WINDOW_ID" ]; then
-        niri msg action focus-window --id "$WINDOW_ID"
-    else
-        qalculate-qt &
-    fi
-  '')
+    (pkgs.writeShellScriptBin "focus-or-spawn-qalculate" ''
+      # robust-focus.sh
+
+      # 1. Define the App ID explicitly
+      MATCH_APP="io.github.Qalculate.qalculate-qt"
+
+      # 2. Use jq to parse the JSON array
+      # -j: Output raw string (no quotes around the ID)
+      # select: Filter the list for windows matching the app_id
+      # .id: Extract only the window ID
+      # head -n 1: In case multiple windows exist, pick the first one
+      WINDOW_ID=$(niri msg -j windows | jq -r ".[] | select(.app_id == \"$MATCH_APP\") | .id" | head -n 1)
+
+      if [ -n "$WINDOW_ID" ]; then
+          niri msg action focus-window --id "$WINDOW_ID"
+      else
+          qalculate-qt &
+      fi
+    '')
   ];
 
   # Desktop services
