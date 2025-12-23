@@ -167,10 +167,17 @@
             relative-to = "top-left";
           };
         }
+        # Dolphin file manager — ensure it opens maximized (tiling)
+        {
+          matches = [
+            { app-id = "^org\\.kde\\.dolphin$"; }
+          ];
+          open-maximized = true;
+        }
         # Qalculate — float, centered, small calculator size
         {
           matches = [
-            { app-id = "^qalculate-qt$"; }
+            { app-id = "^io\\.github\\.Qalculate\\.qalculate-qt$"; }
           ];
 
           # Explicitly override the global rule:
