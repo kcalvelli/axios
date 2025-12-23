@@ -90,6 +90,9 @@ in
       gnome-calendar
       gnome-contacts
       evolution-ews
+    
+      # === Implements freedesktops's Desktop Menu Specification
+      gnome-menus
     ];
 
     # === Wayland Environment Variables ===
@@ -101,6 +104,9 @@ in
       # == Use Flathub as the only repo in GNOME Software ==
       GNOME_SOFTWARE_REPOS_ENABLED = "flathub";
       GNOME_SOFTWARE_USE_FLATPAK_ONLY = "1";
+
+      # === Use gnome-menus 
+      XDG_MENU_PREFIX = "gnome-";
     };
 
     # Enable DankMaterialShell with greeter
