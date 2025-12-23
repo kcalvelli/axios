@@ -110,7 +110,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **Media Viewing**: DigiKam (KDE), Loupe (GNOME), Haruna (KDE), Amberol (GNOME)
   - **System Utilities**: GNOME Disks, Swappy, Qalculate (Qt), Fuzzel, GNOME Software
   - **Document Viewers**: Okular (KDE - best-in-class PDF annotations)
-  - **Security**: Kleopatra (KDE - GPG/certificate management)
+  - **Security**: Seahorse (GNOME - password and encryption key manager)
   - **Communication**: Evolution (email client with Exchange/EWS support)
   - **PIM**: GNOME Calendar, GNOME Contacts (Evolution Data Server backend)
   - **Streaming**: OBS Studio

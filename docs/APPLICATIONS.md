@@ -61,7 +61,7 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Okular** (KDE) | PDF and document viewer | Best-in-class annotations and format support |
-| **Kleopatra** (KDE) | GPG and certificate manager | Better visibility than Seahorse for key management |
+| **Seahorse** (GNOME) | Password and encryption key manager | Integrates with GNOME Keyring backend for credential management |
 | **GNOME Disks** | Disk management and partitioning tool | Cleaner UX for quick ISO writing and benchmarking |
 | **Swappy** | Screenshot annotation and editing tool | Fits tiling WM workflow (grim → slurp → edit) |
 | **Qalculate!** (Qt) | Advanced calculator with unit conversion | Modern Qt port with better theming than GTK version |

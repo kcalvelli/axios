@@ -129,7 +129,7 @@ in
       # Note: Dolphin has built-in terminal integration via F4 (no plugin needed)
       okular.enable = true; # PDF reader (best-in-class annotations, format support)
       gnome-disks.enable = true; # Disk utility (cleaner UX for ISO writing/benchmarking)
-      kleopatra.enable = true; # GPG/Certificate manager (better visibility than Seahorse)
+      seahorse.enable = true; # Password and encryption key manager (GNOME Keyring integration)
       corectrl.enable = true;
       kdeconnect.enable = true;
       localsend = {
