@@ -167,17 +167,33 @@
             relative-to = "top-left";
           };
         }
-        # Dolphin file manager — override global maximize rule (tiling, not maximized)
+        # Dolphin file manager — float, centered, comfortable size for file tasks
         {
           matches = [
-            { app-id = "^org\\.kde\\.dolphin$"; }
+            # Match Dolphin app-id (dots are literal, not regex metacharacters in Niri)
+            { app-id = "^org.kde.dolphin$"; }
           ];
+
+          # Override the global maximized rule
           open-maximized = false;
+          open-floating = true; # centers by default
+
+          # A comfortable size for quick file tasks
+          default-column-width = {
+            fixed = 1200;
+          };
+          default-window-height = {
+            fixed = 900;
+          };
+
+          # Optional: pin a corner instead of center
+          # default-floating-position = { x = 0; y = 0; relative-to = "top-right"; };
         }
         # Qalculate — float, centered, small calculator size
         {
           matches = [
-            { app-id = "^io\\.github\\.Qalculate\\.qalculate-qt$"; }
+            # Match Qalculate app-id (dots are literal, not regex metacharacters in Niri)
+            { app-id = "^io.github.Qalculate.qalculate-qt$"; }
           ];
 
           # Explicitly override the global rule:
