@@ -93,6 +93,7 @@ in
     
       # === Implements freedesktops's Desktop Menu Specification
       gnome-menus
+      kdePackages.kservice
     ];
 
     # === Wayland Environment Variables ===
