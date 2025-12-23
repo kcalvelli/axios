@@ -43,7 +43,7 @@ in
       # === Media Viewing & Playback ===
       digikam # Photo manager (professional asset management)
       loupe # Image viewer (fast, clean UI, great touchpad gestures)
-      kdePackages.haruna # Video player (excellent MPV frontend)
+      haruna # Video player (excellent MPV frontend)
       amberol # Music player (simple, focused on music playback)
 
       # === System Utilities ===
