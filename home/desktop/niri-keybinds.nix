@@ -139,9 +139,7 @@ in
     "Mod+C".action.spawn = [ "code" ];
     "Mod+D".action.spawn = [ "discord" ];
     "Mod+Shift+T".action.spawn = [ "kate" ];
-    "Mod+Shift+C".action = {
-      focus-or-spawn = [ "qalculate-qt" ];
-    };
+    "Mod+Shift+C".action.spawn = [ "focus-or-spawn-qalculate" ];
 
     # --- Workspace: jump directly (1..8) ---
     "Mod+1".action."focus-workspace" = [ 1 ];

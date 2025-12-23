@@ -52,6 +52,24 @@
     enable = true;
   };
 
+  # Helper scripts
+  home.packages = [
+    (pkgs.writeShellScriptBin "focus-or-spawn-qalculate" ''
+      # Focus existing Qalculate window or spawn new instance
+
+      # Get the window ID of qalculate if it's running
+      WINDOW_ID=$(niri msg windows | grep -B 5 'App ID: "io.github.Qalculate.qalculate-qt"' | grep "Window ID:" | awk '{print $3}' | tr -d ':')
+
+      if [ -n "$WINDOW_ID" ]; then
+          # Window exists, focus it
+          niri msg action focus-window --id "$WINDOW_ID"
+      else
+          # Not running, spawn it
+          qalculate-qt &
+      fi
+    '')
+  ];
+
   # Desktop services
   services.gnome-keyring = {
     enable = true;
