@@ -93,6 +93,10 @@
     };
   };
 
+  systemd.user.services.kdeconnect = {
+    Service.Environment = [ "XDG_MENU_PREFIX=gnome-" ];
+  };
+
   # Trayscale (Tailscale system tray) - autostart if Tailscale is enabled
   systemd.user.services.trayscale = lib.mkIf (osConfig.services.tailscale.enable or false) {
     Unit = {
