@@ -73,79 +73,49 @@ in
   '';
 
   # Register matugen templates for dynamic theming
-  # This handles both neovim and ghostty template registration with matugen
+  # This generates a clean config file each time to avoid corruption
   home.activation.registerMatugenTemplates = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
 
     # Create config directory if it doesn't exist
     $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
+    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
 
-    # Ensure [config] section exists
-    if ! grep -q "^\[config\]" "$MATUGEN_CONFIG" 2>/dev/null; then
-      echo "[config]" >> "$MATUGEN_CONFIG"
-      echo "" >> "$MATUGEN_CONFIG"
-    fi
-
-    # Register neovim dankshell vim template
-    if [ -f "$MATUGEN_CONFIG" ] && grep -q "dankshell.vim" "$MATUGEN_CONFIG" 2>/dev/null; then
-      echo "Neovim dankshell template already registered in matugen"
-    else
-      echo "[templates.dankshell-vim]" >> "$MATUGEN_CONFIG"
-      echo "input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'" >> "$MATUGEN_CONFIG"
-      echo "output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'" >> "$MATUGEN_CONFIG"
-      echo "" >> "$MATUGEN_CONFIG"
-      echo "Registered neovim dankshell template with matugen"
-    fi
-
-    # Register ghostty template with current DMS path
-    # Use direct reference to DMS package from inputs (PATH not available during activation)
+    # Get DMS path for templates
     DMS_PATH="${inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default}"
-    if [ -n "$DMS_PATH" ]; then
-      GHOSTTY_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf"
 
-      if [ -f "$GHOSTTY_TEMPLATE" ]; then
-        # Remove any existing ghostty template entries (may point to old DMS paths)
-        if grep -q "\[templates\.ghostty\]" "$MATUGEN_CONFIG" 2>/dev/null; then
-          # Create temp file without ghostty section
-          ${pkgs.gawk}/bin/awk '/\[templates\.ghostty\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
-          mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
-          echo "Removed outdated ghostty template registration"
-        fi
+    # Generate clean matugen config file
+    cat > "$MATUGEN_CONFIG" << 'MATUGEN_EOF'
+[config]
 
-        # Add ghostty template with current DMS path
-        echo "[templates.ghostty]" >> "$MATUGEN_CONFIG"
-        echo "input_path = '$GHOSTTY_TEMPLATE'" >> "$MATUGEN_CONFIG"
-        echo "output_path = '${config.home.homeDirectory}/.config/ghostty/config-dankcolors'" >> "$MATUGEN_CONFIG"
-        echo "" >> "$MATUGEN_CONFIG"
-        echo "Registered ghostty template with matugen (DMS path: $DMS_PATH)"
-      else
-        echo "Warning: DMS ghostty template not found at $GHOSTTY_TEMPLATE"
-      fi
-    else
-      echo "Warning: DMS package not available, skipping ghostty template registration"
+[templates.dankshell-vim]
+input_path = '${config.home.homeDirectory}/.config/matugen/templates/base16-vim.mustache'
+output_path = '${config.home.homeDirectory}/.config/nvim/colors/dankshell.vim'
+MATUGEN_EOF
+
+    # Add ghostty template if available
+    if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf" ]; then
+      cat >> "$MATUGEN_CONFIG" << MATUGEN_EOF
+
+[templates.ghostty]
+input_path = '$DMS_PATH/share/quickshell/dms/matugen/templates/ghostty.conf'
+output_path = '${config.home.homeDirectory}/.config/ghostty/config-dankcolors'
+MATUGEN_EOF
+      echo "Registered ghostty template with matugen"
     fi
 
-    # Register kdeglobals template for KDE Connect and other KDE apps
-    # Use DMS's kcolorscheme.colors template which is already well-tested
+    # Add kdeglobals template if available
     if [ -n "$DMS_PATH" ] && [ -f "$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors" ]; then
-      KDEGLOBALS_TEMPLATE="$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors"
+      cat >> "$MATUGEN_CONFIG" << MATUGEN_EOF
 
-      # Remove any existing kdeglobals template entries (may point to old path)
-      if grep -q "\[templates\.kdeglobals\]" "$MATUGEN_CONFIG" 2>/dev/null; then
-        ${pkgs.gawk}/bin/awk '/\[templates\.kdeglobals\]/,/^$/ {next} {print}' "$MATUGEN_CONFIG" > "$MATUGEN_CONFIG.tmp"
-        mv "$MATUGEN_CONFIG.tmp" "$MATUGEN_CONFIG"
-        echo "Removed old kdeglobals template registration"
-      fi
-
-      # Always register kdeglobals template with current DMS path
-      echo "[templates.kdeglobals]" >> "$MATUGEN_CONFIG"
-      echo "input_path = '$KDEGLOBALS_TEMPLATE'" >> "$MATUGEN_CONFIG"
-      echo "output_path = '${config.home.homeDirectory}/.config/kdeglobals'" >> "$MATUGEN_CONFIG"
-      echo "" >> "$MATUGEN_CONFIG"
-      echo "Registered kdeglobals template with matugen (using DMS kcolorscheme.colors)"
-    else
-      echo "Warning: DMS kcolorscheme template not found, skipping kdeglobals template registration"
+[templates.kdeglobals]
+input_path = '$DMS_PATH/share/quickshell/dms/matugen/templates/kcolorscheme.colors'
+output_path = '${config.home.homeDirectory}/.config/kdeglobals'
+MATUGEN_EOF
+      echo "Registered kdeglobals template with matugen"
     fi
+
+    echo "Matugen config generated successfully"
   '';
 
   # Register base16 VSCode extension so VSCode can detect it
