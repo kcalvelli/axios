@@ -85,6 +85,14 @@
     indicator = true;
   };
 
+  # Required to allow kdeconnect to show dolphin when browse device is selected
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      "x-scheme-handler/kdeconnect" = "org.kde.dolphin.desktop";
+    };
+  };
+
   # Trayscale (Tailscale system tray) - autostart if Tailscale is enabled
   systemd.user.services.trayscale = lib.mkIf (osConfig.services.tailscale.enable or false) {
     Unit = {
