@@ -167,12 +167,12 @@
             relative-to = "top-left";
           };
         }
-        # Dolphin file manager — ensure it opens maximized (tiling)
+        # Dolphin file manager — override global maximize rule (tiling, not maximized)
         {
           matches = [
             { app-id = "^org\\.kde\\.dolphin$"; }
           ];
-          open-maximized = true;
+          open-maximized = false;
         }
         # Qalculate — float, centered, small calculator size
         {
