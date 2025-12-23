@@ -88,7 +88,7 @@ For manual setup, you'll create just 3 files:
 
 ### Workspace Overview with Blur Effect
 ![Workspace Overview](docs/screenshots/workspace-overview.png)
-*Niri's scrollable workspace view showing multiple contexts (Discord, VS Code, Nautilus) with automatic wallpaper blur*
+*Niri's scrollable workspace view showing multiple contexts (VS Code, Dolphin, terminals) with automatic wallpaper blur and built-in keybinding reference*
 
 ### Dropdown Terminal (Super+`)
 ![Dropdown Terminal](docs/screenshots/dropdown-terminal.png)
@@ -96,7 +96,7 @@ For manual setup, you'll create just 3 files:
 
 ### Strategic Floating Windows
 ![Floating Utilities](docs/screenshots/floating-utilities.png)
-*Supporting tools that don't disrupt focus: Google Fi messaging (top-left), GitHub in Brave, Nautilus file manager, and QCalculate*
+*Supporting tools that don't disrupt focus: Qalculate calculator (floating), Dolphin file manager, and split-screen tiling with Brave browser and VS Code*
 
 ### DMS Material Design Shell
 ![DMS Settings and Monitor](docs/screenshots/dms-settings-monitor.png)
@@ -228,8 +228,8 @@ axiOS is built around a **focused, distraction-free workflow** optimized for sin
 
 **Strategic Floating Windows**
 - **Utility apps** that support your work open floating:
-  - QCalculate (quick calculations during work)
-  - Nautilus file manager (1200×900, for quick file operations)
+  - Qalculate (quick calculations during work)
+  - Dolphin file manager (1200×900, for quick file operations)
   - Google Messages PWA (500×700, pinned top-left for quick replies)
   - DankMaterialShell settings (configuration without disruption)
   - Brave Picture-in-Picture (for background media)
