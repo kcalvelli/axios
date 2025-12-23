@@ -36,7 +36,7 @@ This document provides a comprehensive list of all applications included in axiO
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
 | **LibreOffice** (Qt6 backend) | Full office suite (Writer, Calc, Impress, Draw) | Qt6 backend ensures consistent theming with desktop |
 | **Kate** (KDE) | Advanced text editor | Developer-tier features (LSP, minimap, plugins) in a fast editor |
-| **Bitwarden** | Password manager and secure digital vault | Open-source password management with cloud sync |
+| **1Password** | Password manager and secure digital vault 
 
 ### Media Creation & Editing
 

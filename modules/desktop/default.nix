@@ -33,7 +33,6 @@ in
       discord # Communication platform
       kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
       libreoffice-qt6-fresh # Office suite with Qt6 backend for consistent theming
-      bitwarden-desktop # Password manager and secure digital vault
 
       # === Media Creation & Editing ===
       kdePackages.kdenlive # Video editor (professional-grade, industry standard)
