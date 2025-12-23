@@ -41,7 +41,7 @@ in
       inkscape # Vector graphics editor
 
       # === Media Viewing & Playback ===
-      kdePackages.digikam # Photo manager (professional asset management)
+      digikam # Photo manager (professional asset management)
       loupe # Image viewer (fast, clean UI, great touchpad gestures)
       kdePackages.haruna # Video player (excellent MPV frontend)
       amberol # Music player (simple, focused on music playback)
