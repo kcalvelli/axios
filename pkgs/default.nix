@@ -19,6 +19,10 @@ let
   packageNames = packageDirs;
 in
 {
+  # Note: perSystem receives 'system' parameter from flake-parts
+  # The deprecation warning "'system' has been renamed to 'stdenv.hostPlatform.system'"
+  # refers to passing system around unnecessarily, but here we need it to import nixpkgs
+  # with our overlays. Using pkgs.stdenv.hostPlatform.system would create circular dependency.
   perSystem =
     { system, pkgs, ... }:
     {
@@ -32,6 +36,9 @@ in
         };
         overlays = [
           self.overlays.default
+          # mcp-servers-nix overlay provides pre-built MCP servers
+          # Warning about "github-mcp-server has been removed" is informational:
+          # The package was removed from mcp-servers-nix because it's now in nixpkgs 25.11
           inputs.mcp-servers-nix.overlays.default
         ];
       };

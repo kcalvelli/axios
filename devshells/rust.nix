@@ -3,7 +3,6 @@
 {
   pkgs,
   inputs,
-  system,
 }:
 let
   mkShell = inputs.devshell.legacyPackages.${pkgs.stdenv.hostPlatform.system}.mkShell;
