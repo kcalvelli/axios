@@ -37,7 +37,7 @@ in
 
       # === Media Creation & Editing ===
       kdePackages.kdenlive # Video editor (professional-grade, industry standard)
-      kdePackages.krita # Digital art studio (professional raster graphics)
+      krita # Digital art studio (professional raster graphics)
       inkscape # Vector graphics editor
 
       # === Media Viewing & Playback ===
