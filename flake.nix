@@ -78,6 +78,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    axios-monitor = {
+      url = "github:kcalvelli/axios-monitor";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     dsearch = {
       url = "github:AvengeMedia/danksearch";
       inputs.nixpkgs.follows = "nixpkgs";

@@ -15,6 +15,7 @@
     ./niri-keybinds.nix
     ./gdrive-sync.nix
     ./pwa-apps.nix
+    ./axios-monitor.nix
     inputs.dankMaterialShell.homeModules.dank-material-shell
     inputs.dsearch.homeModules.default
   ];
