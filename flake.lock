@@ -23,6 +23,21 @@
         "type": "github"
       }
     },
+    "axios-monitor": {
+      "locked": {
+        "lastModified": 1766603289,
+        "narHash": "sha256-wxQmAbSdRPLKgnIIJFMgbPClUCbqeNHSQr6bDRajvlg=",
+        "owner": "kcalvelli",
+        "repo": "axios-monitor",
+        "rev": "e2c4e980b5183ddf13d9c6556587c10a3e9b87fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kcalvelli",
+        "repo": "axios-monitor",
+        "type": "github"
+      }
+    },
     "blueprint": {
       "inputs": {
         "nixpkgs": [
@@ -772,6 +787,7 @@
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "axios-monitor": "axios-monitor",
         "brave-browser-previews": "brave-browser-previews",
         "dankMaterialShell": "dankMaterialShell",
         "devshell": "devshell",
