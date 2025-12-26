@@ -356,17 +356,28 @@ let
           {
             networking.hostName = hostCfg.hostname;
 
-            home-manager.sharedModules =
-              (
-                if profile == "workstation" then
-                  [ self.homeModules.workstation ]
-                else if profile == "laptop" then
-                  [ self.homeModules.laptop ]
-                else
-                  [ ]
-              )
-              ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
-              ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai;
+            # Home-Manager integration
+            home-manager = {
+              # Use system nixpkgs instead of separate channel
+              useGlobalPkgs = true;
+              # Install packages to /etc/profiles instead of ~/.nix-profile
+              useUserPackages = true;
+              # Backup files that would be overwritten
+              backupFileExtension = "hm-backup";
+
+              # Add shared modules based on profile
+              sharedModules =
+                (
+                  if profile == "workstation" then
+                    [ self.homeModules.workstation ]
+                  else if profile == "laptop" then
+                    [ self.homeModules.laptop ]
+                  else
+                    [ ]
+                )
+                ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
+                ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai;
+            };
           }
           dynamicConfig
         ];
