@@ -14,12 +14,13 @@
       enable = true;
 
       # Rebuild commands matching fish functions (rebuild-switch and rebuild-boot)
+      # Uses pkexec instead of sudo to show GUI password prompt
       rebuildCommand = [
         "bash"
         "-c"
         ''
           FLAKE_PATH=''${FLAKE_PATH:-~/.config/nixos_config}
-          sudo nixos-rebuild switch --flake "$FLAKE_PATH#$(hostname)" 2>&1
+          pkexec nixos-rebuild switch --flake "$FLAKE_PATH#$(hostname)" 2>&1
         ''
       ];
 
@@ -28,7 +29,17 @@
         "-c"
         ''
           FLAKE_PATH=''${FLAKE_PATH:-~/.config/nixos_config}
-          sudo nixos-rebuild boot --flake "$FLAKE_PATH#$(hostname)" 2>&1
+          pkexec nixos-rebuild boot --flake "$FLAKE_PATH#$(hostname)" 2>&1
+        ''
+      ];
+
+      # Update flake.lock command (matching update-flake fish function)
+      updateFlakeCommand = [
+        "bash"
+        "-c"
+        ''
+          FLAKE_PATH=''${FLAKE_PATH:-~/.config/nixos_config}
+          nix flake update --flake "$FLAKE_PATH" 2>&1
         ''
       ];
 
