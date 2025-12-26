@@ -3,6 +3,7 @@
   # Laptop profile: mobile-optimized base configuration
   imports = [
     ./base.nix
+    ../desktop
   ];
 
   # Laptop-specific configuration
