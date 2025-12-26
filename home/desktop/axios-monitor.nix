@@ -9,7 +9,7 @@
 {
   imports = [ inputs.axios-monitor.homeManagerModules.default ];
 
-  config = lib.mkIf (osConfig.modules.desktop or false) {
+  config = lib.mkIf (osConfig.desktop.enable or false) {
     programs.axios-monitor = {
       enable = true;
 
