@@ -15,13 +15,16 @@
     ./niri-keybinds.nix
     ./gdrive-sync.nix
     ./pwa-apps.nix
-    ./axios-monitor.nix
+    inputs.axios-monitor.homeManagerModules.default
     inputs.dankMaterialShell.homeModules.dank-material-shell
     inputs.dsearch.homeModules.default
   ];
 
   # Enable PWA apps by default for desktop users
   axios.pwa.enable = true;
+
+  # Enable axiOS Monitor widget by default for desktop users
+  programs.axios-monitor.enable = lib.mkDefault (osConfig.desktop.enable or false);
 
   # DankMaterialShell configuration
   programs.dank-material-shell = {
