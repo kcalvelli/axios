@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
@@ -94,7 +95,9 @@ in
                 random_wallpaper="''${wallpapers[$random_index]}"
 
                 # Set wallpaper using dms
-                $DRY_RUN_CMD ${pkgs.dankMaterialShell}/bin/dms ipc call wallpaper set "$random_wallpaper" || true
+                $DRY_RUN_CMD ${
+                  inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default
+                }/bin/dms ipc call wallpaper set "$random_wallpaper" || true
 
                 # Save the new hash
                 $DRY_RUN_CMD mkdir -p "$(dirname "$HASH_FILE")"
