@@ -75,7 +75,7 @@
 
       nix_shell = {
         symbol = " ";
-        format = " [$${symbol}$name]($style)";
+        format = " [${symbol}$name]($style)";
         style = "bold $palette.magenta";
       };
       rust = {
