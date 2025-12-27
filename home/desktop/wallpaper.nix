@@ -15,7 +15,7 @@ let
   wallpaperChangedScript = ../../scripts/wallpaper-changed.sh;
 
   # Directory containing curated wallpapers
-  wallpapersDir = ../../resources/wallpapers;
+  wallpapersDir = ../resources/wallpapers;
 
   # Get list of wallpaper files
   wallpaperFiles = builtins.filter (
