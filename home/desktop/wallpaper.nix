@@ -94,17 +94,23 @@ in
                 random_index=$((RANDOM % ''${#wallpapers[@]}))
                 random_wallpaper="''${wallpapers[$random_index]}"
 
-                # Set wallpaper using dms
-                $DRY_RUN_CMD ${
+                # Set wallpaper using dms (may fail during activation if DMS isn't fully initialized)
+                if $DRY_RUN_CMD ${
                   inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default
-                }/bin/dms ipc call wallpaper set "$random_wallpaper" || true
+                }/bin/dms ipc call wallpaper set "$random_wallpaper" 2>/dev/null; then
+                  # Only save hash if wallpaper was successfully set
+                  $DRY_RUN_CMD mkdir -p "$(dirname "$HASH_FILE")"
+                  $DRY_RUN_CMD echo "$CURRENT_HASH" > "$HASH_FILE"
 
-                # Save the new hash
-                $DRY_RUN_CMD mkdir -p "$(dirname "$HASH_FILE")"
-                $DRY_RUN_CMD echo "$CURRENT_HASH" > "$HASH_FILE"
-
-                if [ -n "$VERBOSE" ]; then
-                  echo "axiOS: Wallpaper collection changed, set new random wallpaper: $random_wallpaper"
+                  if [ -n "''${VERBOSE:-}" ]; then
+                    echo "axiOS: Wallpaper collection changed, set new random wallpaper: $random_wallpaper"
+                  fi
+                else
+                  # DMS not ready during activation, will try again on next rebuild
+                  if [ -n "''${VERBOSE:-}" ]; then
+                    echo "axiOS: Wallpaper collection ready at $WALLPAPER_DIR, but DMS not available during activation"
+                    echo "axiOS: Wallpaper will be set on next login or rebuild"
+                  fi
                 fi
               fi
             fi
