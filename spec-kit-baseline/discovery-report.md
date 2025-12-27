@@ -103,6 +103,7 @@
 - `home/calendar/`: Calendar integration
 - `home/secrets/`: Home-level secrets
 - `home/security/`: Security tools
+- `home/resources/`: Static resources (pwa-icons/, wallpapers/)
 
 ### Custom Packages (`pkgs/`)
 - `pkgs/pwa-apps/`: Progressive Web App package builder

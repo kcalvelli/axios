@@ -326,10 +326,12 @@ Modules are imported using one of three patterns:
 - **Entry Points**: default.nix
 - **Aspect Files**:
   - niri.nix: Niri compositor configuration
-  - wallpaper.nix: Wallpaper management with blur
+  - wallpaper.nix: Wallpaper management with blur and curated collection
   - theming.nix: Theme coordination
   - pwa-apps.nix: Progressive web apps
   - gdrive-sync.nix: Google Drive rclone sync
+- **Resources**:
+  - `home/resources/wallpapers/`: Curated wallpaper collection (deployed to ~/Pictures/Wallpapers)
 
 **DankMaterialShell Configuration**:
 - Configured in default.nix with explicit feature toggles

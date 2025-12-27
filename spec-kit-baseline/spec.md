@@ -138,10 +138,20 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Rationale**: Evolution Data Server is a lightweight background service that provides data backends, not the full Evolution email client
 
 #### Wallpaper & Theming
-- **Purpose**: Automatic wallpaper management with blur effects
-- **Implementation Evidence**: home/desktop/wallpaper.nix, home/desktop/theming.nix
+- **Purpose**: Automatic wallpaper management with blur effects and curated wallpaper collection
+- **Implementation Evidence**: home/desktop/wallpaper.nix, home/desktop/theming.nix, home/resources/wallpapers/
 - **Confidence**: [EXPLICIT]
-- **Features**: Dynamic blur, theme coordination
+- **Features**:
+  - **Dynamic Blur**: Wallpaper blur effects for Niri compositor
+  - **Theme Coordination**: Material You color extraction via matugen
+  - **Wallpaper Collection**: Curated wallpapers deployed to `~/Pictures/Wallpapers`
+    - Enabled via `axios.wallpapers.enable = true`
+    - Auto-deploys wallpapers from `home/resources/wallpapers/`
+    - Auto-detects collection changes via SHA256 hash of wallpaper filenames
+    - Sets random wallpaper when collection changes (controlled by `axios.wallpapers.autoUpdate`, default: true)
+    - Collection updates automatically when user rebuilds after axios flake update
+    - Hash tracking via `~/.cache/axios-wallpaper-collection-hash`
+    - Supports PNG, JPG, JPEG formats
 
 #### Progressive Web Apps (PWA)
 - **Purpose**: Extensible PWA support for custom web applications
