@@ -1,97 +1,157 @@
 { pkgs, ... }:
 let
   # Keybinding reference for axios niri configuration
+  # Union of Niri defaults + DMS features + axios customizations
   keybindingGuide = pkgs.writeText "niri-keybindings.txt" ''
     ╔══════════════════════════════════════════════════════════════════╗
     ║              axiOS Niri Keybinding Reference                     ║
+    ║         Niri Defaults + DMS Features + axios Apps                ║
     ╚══════════════════════════════════════════════════════════════════╝
 
-    ┌─ APPLICATION LAUNCHERS ──────────────────────────────────────────┐
-    │ Mod + Return      Launch Terminal (Ghostty)                      │
-    │ Mod + B           Launch Brave Browser                           │
-    │ Mod + E           Launch File Manager (Dolphin)                  │
-    │ Mod + C           Launch VS Code                                 │
-    │ Mod + D           Launch Discord                                 │
-    │ Mod + G           Launch Google Messages (PWA)                   │
-    │ Mod + `           Toggle Drop-down Terminal (Quake-style)        │
-    │ Mod + Shift + T   Launch Text Editor (Kate)                      │
-    │ Mod + Shift + C   Launch Calculator (Qalculate)                  │
+    ┌─ CORE ACTIONS ───────────────────────────────────────────────────┐
+    │ Mod + T           Launch Terminal (Ghostty) [Niri default]       │
+    │ Mod + Return      Launch Terminal (alternative)                  │
+    │ Mod + Space       Application Launcher (DMS Spotlight)           │
+    │ Mod + Q           Close focused window                           │
+    │ Mod + Shift + E   Exit Niri                                      │
+    │ Mod + Shift + /   Show this keybinding guide                     │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ WORKSPACE NAVIGATION ───────────────────────────────────────────┐
-    │ Mod + 1-8         Switch to workspace 1-8                        │
-    │ Mod + Tab         Toggle workspace overview                      │
-    │ Mod + Wheel ↑/↓   Focus workspace up/down                        │
-    │ Mod + Page Up/Dn  Focus workspace up/down (keyboard)             │
+    ┌─ APPLICATION LAUNCHERS (axios) ──────────────────────────────────┐
+    │ Mod + B           Launch Brave Browser                           │
+    │ Mod + D           Launch Discord                                 │
+    │ Mod + E           Launch File Manager (Dolphin)                  │
+    │ Mod + G           Launch Google Messages (PWA)                   │
+    │ Mod + Shift + V   Launch VS Code                                 │
+    │ Mod + Shift + T   Launch Text Editor (Kate)                      │
+    │ Mod + Shift + C   Launch Calculator (Qalculate)                  │
+    │ Mod + `           Toggle Drop-down Terminal (Quake-style)        │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ DMS FEATURES ───────────────────────────────────────────────────┐
+    │ Mod + N           Notification Center                            │
+    │ Mod + Comma       Settings Panel                                 │
+    │ Mod + P           Notepad                                        │
+    │ Mod + V           Clipboard Manager                              │
+    │ Mod + X           Power Menu                                     │
+    │ Mod + M           Process List (System Monitor)                  │
+    │ Mod + Alt + N     Toggle Night Mode                              │
+    │ Super + Alt + L   Lock Screen                                    │
     └──────────────────────────────────────────────────────────────────┘
 
     ┌─ WINDOW NAVIGATION ──────────────────────────────────────────────┐
     │ Mod + H/←         Focus column left                              │
-    │ Mod + J/↓         Focus window down                              │
-    │ Mod + K/↑         Focus window up                                │
+    │ Mod + J/↓         Focus window down (in column)                  │
+    │ Mod + K/↑         Focus window up (in column)                    │
     │ Mod + L/→         Focus column right                             │
-    │ Mod + Z           Switch between floating/tiling                 │
+    │ Mod + Home        Focus first column                             │
+    │ Mod + End         Focus last column                              │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ WINDOW MANAGEMENT ──────────────────────────────────────────────┐
-    │ Mod + Q           Close window                                   │
-    │ Mod + Shift + F   Toggle fullscreen                              │
-    │ Mod + Shift + Z   Toggle window floating                         │
-    │ Mod + Shift + H   Move column left                               │
-    │ Mod + Shift + J   Move window down                               │
-    │ Mod + Shift + K   Move window up                                 │
-    │ Mod + Shift + L   Move column right                              │
+    ┌─ WINDOW & COLUMN MOVEMENT ───────────────────────────────────────┐
+    │ Mod + Ctrl + H/←  Move column left                               │
+    │ Mod + Ctrl + J/↓  Move window down (in column)                   │
+    │ Mod + Ctrl + K/↑  Move window up (in column)                     │
+    │ Mod + Ctrl + L/→  Move column right                              │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ MOVE TO WORKSPACE ──────────────────────────────────────────────┐
-    │ Mod + Shift + 1-9         Move window to workspace 1-9           │
-    │ Mod + Ctrl + Shift + 1-9  Move column to workspace 1-9           │
-    │ Mod + Ctrl + Wheel ↑/↓    Move column to workspace up/down       │
-    │ Mod + Ctrl + Page Up/Dn   Move column to workspace up/down       │
+    ┌─ MONITOR MANAGEMENT ─────────────────────────────────────────────┐
+    │ Mod + Shift + H   Focus monitor left                             │
+    │ Mod + Shift + J   Focus monitor down                             │
+    │ Mod + Shift + K   Focus monitor up                               │
+    │ Mod + Shift + L   Focus monitor right                            │
+    │ Mod+Ctrl+Shift+H  Move column to monitor left                    │
+    │ Mod+Ctrl+Shift+J  Move column to monitor down                    │
+    │ Mod+Ctrl+Shift+K  Move column to monitor up                      │
+    │ Mod+Ctrl+Shift+L  Move column to monitor right                   │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ COLUMN/LAYOUT MANAGEMENT ───────────────────────────────────────┐
-    │ Mod + W           Cycle preset column widths                     │
+    ┌─ WORKSPACE NAVIGATION ───────────────────────────────────────────┐
+    │ Mod + 1-9         Switch to workspace 1-9                        │
+    │ Mod + Tab         Toggle workspace overview                      │
+    │ Mod + U           Focus workspace down                           │
+    │ Mod + I           Focus workspace up                             │
+    │ Mod + Page Dn/Up  Focus workspace down/up (alternative)          │
+    │ Mod + Wheel ↑/↓   Focus workspace up/down (mouse)                │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ MOVE WINDOW TO WORKSPACE ───────────────────────────────────────┐
+    │ Mod + Shift + 1-9 Move focused window to workspace 1-9           │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ MOVE COLUMN TO WORKSPACE ───────────────────────────────────────┐
+    │ Mod + Ctrl + 1-9         Move column to workspace 1-9            │
+    │ Mod + Ctrl + U           Move column to workspace down           │
+    │ Mod + Ctrl + I           Move column to workspace up             │
+    │ Mod + Ctrl + Page Dn/Up  Move column to workspace down/up        │
+    │ Mod + Ctrl + Wheel ↑/↓   Move column to workspace up/down        │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ LAYOUT & SIZING ────────────────────────────────────────────────┐
+    │ Mod + F           Maximize column                                │
+    │ Mod + Shift + F   Fullscreen focused window                      │
+    │ Mod + C           Center focused column                          │
+    │ Mod + R           Cycle preset column widths                     │
+    │ Mod + Shift + R   Cycle preset window heights                    │
     │ Mod + -           Decrease column width (-10%)                   │
     │ Mod + =           Increase column width (+10%)                   │
-    │ Mod + \           Maximize column                                │
-    │ Mod + T           Toggle column tabbed display                   │
-    │ Mod + '           Focus column/monitor left                      │
-    │ Mod + ;           Focus column/monitor right                     │
-    │ Mod + Ctrl + '    Move column to monitor left                    │
-    │ Mod + Ctrl + ;    Move column to monitor right                   │
-    │ Mod + [           Consume/expel window left                      │
-    │ Mod + ]           Consume/expel window right                     │
-    │ Mod + Shift + ,   Consume window into column                     │
-    │ Mod + Shift + .   Expel window from column                       │
+    │ Mod + Shift + -   Decrease window height (-10%)                  │
+    │ Mod + Shift + =   Increase window height (+10%)                  │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ SCREENSHOTS & RECORDING ────────────────────────────────────────┐
-    │ Mod + Shift + S   Screenshot with area selection                 │
-    │ Mod + Ctrl + S    Screenshot screen (save to disk)               │
-    │ Mod + Alt + S     Screenshot screen (copy to clipboard)          │
-    │ Mod + Shift + R   Toggle screen recording (start/stop)           │
+    ┌─ COLUMN WINDOW MANAGEMENT ───────────────────────────────────────┐
+    │ Mod + Shift + ,   Consume window into column (from right)        │
+    │ Mod + Shift + .   Expel window from column (to right)            │
+    │ Mod + Period      Expel window from column (Niri default)        │
+    │ Mod + [           Consume/expel window to the left               │
+    │ Mod + ]           Consume/expel window to the right              │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ FLOATING WINDOWS ───────────────────────────────────────────────┐
+    │ Mod + Shift + Z   Toggle window floating mode                    │
+    │ Mod + Z           Switch focus between floating and tiling       │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ SCREENSHOTS ────────────────────────────────────────────────────┐
+    │ Print             Interactive area selection [Niri default]      │
+    │ Alt + Print       Screenshot focused window [Niri default]       │
+    │ Ctrl + Print      Screenshot focused monitor [Niri default]      │
+    │ Mod + Shift + S   Screenshot with area selection (alternative)   │
+    │ Mod + Ctrl + S    Screenshot screen to disk (alternative)        │
+    │ Mod + Alt + S     Screenshot screen to clipboard (alternative)   │
+    └──────────────────────────────────────────────────────────────────┘
+
+    ┌─ SCREEN RECORDING ───────────────────────────────────────────────┐
+    │ Mod + Alt + R     Toggle screen recording (start/stop)           │
     │ Mod + Ctrl + R    Record screen area (with selection)            │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ AUDIO CONTROL (DMS) ────────────────────────────────────────────┐
-    │ Mod + Shift + Wheel ← Volume up (+3%) (mouse)                    │
-    │ Mod + Shift + Wheel → Volume down (-3%) (mouse)                  │
-    │ Mod + Shift + =       Volume up (+3%) (keyboard)                 │
-    │ Mod + Shift + -       Volume down (-3%) (keyboard)               │
-    │ Mod + Shift + M       Toggle mute                                │
+    ┌─ AUDIO CONTROL ──────────────────────────────────────────────────┐
+    │ XF86AudioRaiseVolume    Volume up (media key) [DMS]             │
+    │ XF86AudioLowerVolume    Volume down (media key) [DMS]           │
+    │ XF86AudioMute           Toggle mute (media key) [DMS]           │
+    │ XF86AudioMicMute        Toggle mic mute (media key) [DMS]       │
+    │ Mod + Shift + Wheel ←   Volume up (+3%) (mouse)                 │
+    │ Mod + Shift + Wheel →   Volume down (-3%) (mouse)               │
+    │ Mod + Shift + M         Toggle mute                             │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ SYSTEM ─────────────────────────────────────────────────────────┐
-    │ Mod + Shift + E   Exit Niri (clean exit)                         │
-    │ Mod + Shift + /   Show this keybinding guide                     │
+    ┌─ BRIGHTNESS CONTROL ─────────────────────────────────────────────┐
+    │ XF86MonBrightnessUp     Brightness up (media key) [DMS]         │
+    │ XF86MonBrightnessDown   Brightness down (media key) [DMS]       │
     └──────────────────────────────────────────────────────────────────┘
 
     ┌─ NOTES ──────────────────────────────────────────────────────────┐
-    │ • Mod = Super (Windows key) when running on TTY                  │
+    │ • Mod = Super (Windows key)                                      │
+    │ • [Niri default] = Standard Niri compositor keybinding           │
+    │ • [DMS] = DankMaterialShell feature                              │
     │ • Screenshots saved to: ~/Pictures/Screenshots/                  │
     │ • Screen recordings saved to: ~/Videos/                          │
-    │ • Brightness controls provided by DankMaterialShell               │
+    │                                                                  │
+    │ This configuration provides the union of:                        │
+    │   - Niri default keybindings (no conflicts)                      │
+    │   - DMS system integration features                              │
+    │   - axios custom application launchers                           │
     └──────────────────────────────────────────────────────────────────┘
   '';
 
@@ -125,23 +185,28 @@ in
   programs.niri.settings.binds = {
     "Mod+Shift+Slash".action.spawn = [ "axios-help" ];
 
-    # --- App launches ---
+    # --- NIRI DEFAULTS: Core Actions ---
+    "Mod+T".action.spawn = "ghostty"; # Niri default terminal
+    "Mod+Q".action."close-window" = [ ];
+    "Mod+Shift+E".action."quit" = [ ];
+
+    # --- AXIOS: App launches (non-conflicting keys) ---
     "Mod+B".action.spawn = [
       "brave"
       "--class=brave-browser"
     ];
+    "Mod+D".action.spawn = [ "discord" ]; # OK - DMS uses Mod+Space for launcher
     "Mod+E".action.spawn = [ "dolphin" ];
-    "Mod+Return".action.spawn = "ghostty";
+    "Mod+Return".action.spawn = "ghostty"; # Alternative terminal binding
     "Mod+G".action.spawn = [
       "brave"
       "--app=https://messages.google.com/web"
     ];
-    "Mod+C".action.spawn = [ "code" ];
-    "Mod+D".action.spawn = [ "discord" ];
+    "Mod+Shift+V".action.spawn = [ "code" ]; # MOVED from Mod+C (was conflicting)
     "Mod+Shift+T".action.spawn = [ "kate" ];
     "Mod+Shift+C".action.spawn = [ "focus-or-spawn-qalculate" ];
 
-    # --- Workspace: jump directly (1..8) ---
+    # --- NIRI DEFAULTS: Workspace jump directly (1..9) ---
     "Mod+1".action."focus-workspace" = [ 1 ];
     "Mod+2".action."focus-workspace" = [ 2 ];
     "Mod+3".action."focus-workspace" = [ 3 ];
@@ -150,8 +215,9 @@ in
     "Mod+6".action."focus-workspace" = [ 6 ];
     "Mod+7".action."focus-workspace" = [ 7 ];
     "Mod+8".action."focus-workspace" = [ 8 ];
+    "Mod+9".action."focus-workspace" = [ 9 ]; # Extended to 9
 
-    # --- Navigation ---
+    # --- NIRI DEFAULTS: Window/Column Navigation ---
     "Mod+H".action.focus-column-left = [ ];
     "Mod+J".action.focus-window-down = [ ];
     "Mod+K".action.focus-window-up = [ ];
@@ -162,17 +228,35 @@ in
     "Mod+Up".action.focus-window-up = [ ];
     "Mod+Right".action.focus-column-right = [ ];
 
+    # RESTORED: Focus first/last column
+    "Mod+Home".action.focus-column-first = [ ];
+    "Mod+End".action.focus-column-last = [ ];
+
+    # --- NIRI DEFAULTS: Window/Column Movement ---
+    "Mod+Ctrl+H".action.move-column-left = [ ];
+    "Mod+Ctrl+J".action.move-window-down = [ ];
+    "Mod+Ctrl+K".action.move-window-up = [ ];
+    "Mod+Ctrl+L".action.move-column-right = [ ];
+
     "Mod+Ctrl+Left".action.move-column-left = [ ];
     "Mod+Ctrl+Down".action.move-window-down = [ ];
     "Mod+Ctrl+Up".action.move-window-up = [ ];
     "Mod+Ctrl+Right".action.move-column-right = [ ];
-    "Mod+Shift+H".action.move-column-left = [ ];
-    "Mod+Shift+J".action.move-window-down = [ ];
-    "Mod+Shift+K".action.move-window-up = [ ];
-    "Mod+Shift+L".action.move-column-right = [ ];
 
-    # --- Move focused window to workspace N ---
-    "Mod+Shift+0".action."move-window-to-workspace" = [ 0 ];
+    # --- NIRI DEFAULTS: Monitor Management ---
+    # RESTORED: Focus monitor in direction
+    "Mod+Shift+H".action.focus-monitor-left = [ ];
+    "Mod+Shift+J".action.focus-monitor-down = [ ];
+    "Mod+Shift+K".action.focus-monitor-up = [ ];
+    "Mod+Shift+L".action.focus-monitor-right = [ ];
+
+    # ADDED: Move column to monitor
+    "Mod+Ctrl+Shift+H".action.move-column-to-monitor-left = [ ];
+    "Mod+Ctrl+Shift+J".action.move-column-to-monitor-down = [ ];
+    "Mod+Ctrl+Shift+K".action.move-column-to-monitor-up = [ ];
+    "Mod+Ctrl+Shift+L".action.move-column-to-monitor-right = [ ];
+
+    # --- NIRI DEFAULTS: Move focused window to workspace N ---
     "Mod+Shift+1".action."move-window-to-workspace" = [ 1 ];
     "Mod+Shift+2".action."move-window-to-workspace" = [ 2 ];
     "Mod+Shift+3".action."move-window-to-workspace" = [ 3 ];
@@ -183,61 +267,69 @@ in
     "Mod+Shift+8".action."move-window-to-workspace" = [ 8 ];
     "Mod+Shift+9".action."move-window-to-workspace" = [ 9 ];
 
-    # --- Move focused column to workspace N ---
-    "Mod+Ctrl+Shift+0".action.move-column-to-workspace = "0";
-    "Mod+Ctrl+Shift+1".action.move-column-to-workspace = "1";
-    "Mod+Ctrl+Shift+2".action.move-column-to-workspace = "2";
-    "Mod+Ctrl+Shift+3".action.move-column-to-workspace = "3";
-    "Mod+Ctrl+Shift+4".action.move-column-to-workspace = "4";
-    "Mod+Ctrl+Shift+5".action.move-column-to-workspace = "5";
-    "Mod+Ctrl+Shift+6".action.move-column-to-workspace = "6";
-    "Mod+Ctrl+Shift+7".action.move-column-to-workspace = "7";
-    "Mod+Ctrl+Shift+8".action.move-column-to-workspace = "8";
-    "Mod+Ctrl+Shift+9".action.move-column-to-workspace = "9";
+    # --- NIRI DEFAULTS: Move focused column to workspace N ---
+    # CHANGED from Mod+Ctrl+Shift to Mod+Ctrl (Niri default)
+    "Mod+Ctrl+1".action.move-column-to-workspace = "1";
+    "Mod+Ctrl+2".action.move-column-to-workspace = "2";
+    "Mod+Ctrl+3".action.move-column-to-workspace = "3";
+    "Mod+Ctrl+4".action.move-column-to-workspace = "4";
+    "Mod+Ctrl+5".action.move-column-to-workspace = "5";
+    "Mod+Ctrl+6".action.move-column-to-workspace = "6";
+    "Mod+Ctrl+7".action.move-column-to-workspace = "7";
+    "Mod+Ctrl+8".action.move-column-to-workspace = "8";
+    "Mod+Ctrl+9".action.move-column-to-workspace = "9";
 
-    # --- Column width adjustment ---
+    # --- NIRI DEFAULTS: Layout & Sizing ---
+    # RESTORED: Maximize column
+    "Mod+F".action.maximize-column = [ ];
+
+    "Mod+Shift+F".action."fullscreen-window" = [ ];
+
+    # RESTORED: Center column (was conflicting with VS Code)
+    "Mod+C".action.center-column = [ ];
+
+    # Column width adjustment
     "Mod+Minus".action.set-column-width = "-10%";
     "Mod+Equal".action.set-column-width = "+10%";
-    "Mod+W".action.switch-preset-column-width = [ ];
 
-    # --- Window consume/expel within columns ---
+    # RESTORED: Niri default for cycling column widths (was Mod+W)
+    "Mod+R".action.switch-preset-column-width = [ ];
+
+    # RESTORED: Cycle window heights (was screen recording)
+    "Mod+Shift+R".action.switch-preset-window-height = [ ];
+
+    # RESTORED: Window height adjustment (was volume control)
+    "Mod+Shift+Minus".action.set-window-height = "-10%";
+    "Mod+Shift+Equal".action.set-window-height = "+10%";
+
+    # --- NIRI DEFAULTS: Window consume/expel ---
     "Mod+Shift+Comma".action.consume-window-into-column = { };
     "Mod+Shift+Period".action.expel-window-from-column = { };
 
-    # --- Consume/expel window left/right ---
+    # ADDED: Niri default expel
+    "Mod+Period".action.expel-window-from-column = { };
+
+    # Consume/expel window left/right
     "Mod+BracketLeft".action.consume-or-expel-window-left = [ ];
     "Mod+BracketRight".action.consume-or-expel-window-right = [ ];
 
-    # --- Overview ---
+    # --- AXIOS: Overview ---
     "Mod+Tab".action."toggle-overview" = [ ];
 
-    # --- Window management ---
-    "Mod+Q".action."close-window" = [ ];
-    "Mod+Shift+F".action."fullscreen-window" = [ ];
-
-    # --- Column management ---
-    "Mod+backslash".action.maximize-column = [ ];
-
-    # Column/monitor focus (wheel + keyboard alternatives)
-    "Mod+WheelScrollRight".action.focus-column-or-monitor-right = { };
-    "Mod+WheelScrollLeft".action.focus-column-or-monitor-left = { };
-    "Mod+Semicolon".action.focus-column-or-monitor-right = { };
-    "Mod+Apostrophe".action.focus-column-or-monitor-left = { };
-
-    # Move column to monitor (wheel + keyboard alternatives)
-    "Mod+Ctrl+WheelScrollRight".action.move-column-right-or-to-monitor-right = { };
-    "Mod+Ctrl+WheelScrollLeft".action.move-column-left-or-to-monitor-left = { };
-    "Mod+Ctrl+Semicolon".action.move-column-right-or-to-monitor-right = { };
-    "Mod+Ctrl+Apostrophe".action.move-column-left-or-to-monitor-left = { };
-
-    # --- Tabbed display ---
-    "Mod+T".action.toggle-column-tabbed-display = [ ];
-
-    # --- Floating ---
+    # --- NIRI DEFAULTS: Floating ---
     "Mod+Shift+Z".action."toggle-window-floating" = [ ];
     "Mod+Z".action."switch-focus-between-floating-and-tiling" = [ ];
 
-    # Workspace navigation (wheel + keyboard alternatives)
+    # --- NIRI DEFAULTS: Workspace navigation ---
+    # ADDED: U/I for workspace navigation (Niri default)
+    "Mod+U".action.focus-workspace-down = { };
+    "Mod+I".action.focus-workspace-up = { };
+
+    # Keep Page_Up/Down as alternatives
+    "Mod+Page_Down".action.focus-workspace-down = { };
+    "Mod+Page_Up".action.focus-workspace-up = { };
+
+    # AXIOS: Wheel scroll variants
     "Mod+WheelScrollDown" = {
       cooldown-ms = 150;
       action.focus-workspace-down = { };
@@ -246,10 +338,17 @@ in
       cooldown-ms = 150;
       action.focus-workspace-up = { };
     };
-    "Mod+Page_Down".action.focus-workspace-down = { };
-    "Mod+Page_Up".action.focus-workspace-up = { };
 
-    # Move column to workspace (wheel + keyboard alternatives)
+    # --- NIRI DEFAULTS: Move column to workspace ---
+    # ADDED: U/I for moving column (Niri default)
+    "Mod+Ctrl+U".action.move-column-to-workspace-down = { };
+    "Mod+Ctrl+I".action.move-column-to-workspace-up = { };
+
+    # Keep Page_Up/Down as alternatives
+    "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = { };
+    "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = { };
+
+    # AXIOS: Wheel scroll variants
     "Mod+Ctrl+WheelScrollDown" = {
       cooldown-ms = 150;
       action.move-column-to-workspace-down = { };
@@ -258,10 +357,8 @@ in
       cooldown-ms = 150;
       action.move-column-to-workspace-up = { };
     };
-    "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = { };
-    "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = { };
 
-    # --- Volume control (DMS IPC) ---
+    # --- AXIOS: Volume control (wheel only, removed keyboard) ---
     # Wheel bindings
     "Mod+Shift+WheelScrollLeft".action.spawn = [
       "dms"
@@ -280,23 +377,7 @@ in
       "3"
     ];
 
-    # Keyboard alternatives for volume
-    "Mod+Shift+Equal".action.spawn = [
-      "dms"
-      "ipc"
-      "call"
-      "audio"
-      "increment"
-      "3"
-    ];
-    "Mod+Shift+Minus".action.spawn = [
-      "dms"
-      "ipc"
-      "call"
-      "audio"
-      "decrement"
-      "3"
-    ];
+    # Mute toggle
     "Mod+Shift+M".action.spawn = [
       "dms"
       "ipc"
@@ -305,23 +386,24 @@ in
       "mute"
     ];
 
-    # --- Brightness control (DMS IPC) ---
-    # Note: Brightness keybinds are provided by DankMaterialShell
-    # via enableKeybinds = true (handles both screen and keyboard backlight)
+    # --- NIRI DEFAULTS: Screenshots ---
+    # Standard Print key variants
+    "Print".action.screenshot = { };
+    "Alt+Print".action.screenshot-window = { };
+    "Ctrl+Print".action.screenshot-screen = {
+      write-to-disk = true;
+    };
 
-    # --- Quit compositor (clean exit) ---
-    "Mod+Shift+E".action."quit" = [ ];
-
-    # --- Screenshots (Niri native) ---
+    # AXIOS: Alternative screenshot bindings (keep for compatibility)
+    "Mod+Shift+S".action.screenshot = { };
     "Mod+Ctrl+S".action.screenshot-screen = {
       write-to-disk = true;
     };
     "Mod+Alt+S".action.screenshot-screen = { };
-    "Mod+Shift+S".action.screenshot = { };
 
-    # --- Screen Recording (wf-recorder) ---
-    # Toggle recording (start/stop)
-    "Mod+Shift+R".action.spawn = [
+    # --- AXIOS: Screen Recording ---
+    # MOVED from Mod+Shift+R to Mod+Alt+R (was conflicting)
+    "Mod+Alt+R".action.spawn = [
       "${pkgs.bash}/bin/bash"
       "-c"
       ''
@@ -347,8 +429,7 @@ in
       ''
     ];
 
-    # Quake style drop down terminal using ghostty
-    # Toggle by closing window if focused, or spawning/focusing if not
+    # --- AXIOS: Quake style drop down terminal ---
     "Mod+grave".action.spawn = [
       "${pkgs.bash}/bin/bash"
       "-c"
