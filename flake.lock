@@ -30,11 +30,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1766800611,
-        "narHash": "sha256-nJMVc7h8YjMYFJEju+G+EUGSy92195mk5g7KxN67MSM=",
+        "lastModified": 1766809011,
+        "narHash": "sha256-Kt2mrfnEJpmDchKTKMwa7uulo/9jwsOYK2Bo4vuk/Ms=",
         "owner": "kcalvelli",
         "repo": "axios-monitor",
-        "rev": "8022beaa5adb4c73f71087e92f089b5886e56943",
+        "rev": "0ef82d02f66338e609fb125fb065fa3d4e7f91d8",
         "type": "github"
       },
       "original": {
