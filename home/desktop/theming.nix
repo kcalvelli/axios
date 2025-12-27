@@ -164,37 +164,30 @@ in
       ''
     else
       # DEFAULT MODE: DMS manages templates via control panel
-      # axios only provides Kate syntax highlighting (not redundant with DMS)
+      # axios does NOT touch matugen config.toml to avoid overwriting DMS's template registration
       ''
-        MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
-
         # Create config directory if it doesn't exist
         $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
         $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
 
         echo "Using DMS-managed templates (default mode)"
+        echo ""
         echo "Templates managed by DMS control panel checkboxes:"
-        echo "  - neovim (requires lazy plugin manager)"
+        echo "  - neovim (requires RRethy/base16-nvim plugin)"
         echo "  - VS Code"
         echo "  - KColorScheme (KDE color schemes)"
         echo "  - Ghostty, kitty, foot, alacritty, wezterm"
         echo "  - GTK, niri, qt5ct, qt6ct"
         echo "  - Firefox, pywalfox, vesktop"
         echo ""
-        echo "axios only provides Kate syntax highlighting theme:"
-
-        # Generate minimal matugen config - only Kate syntax highlighting
-        cat > "$MATUGEN_CONFIG" << 'MATUGEN_EOF'
-    [config]
-
-    [templates.kate-dankshell]
-    input_path = '${config.home.homeDirectory}/.config/matugen/templates/kate-dankshell.mustache'
-    output_path = '${config.home.homeDirectory}/.local/share/org.kde.syntax-highlighting/themes/DankShell.theme'
-    MATUGEN_EOF
-
-        echo "  ✓ Kate syntax highlighting (code editor text styles)"
+        echo "DMS manages ~/.config/matugen/config.toml based on checkbox settings."
+        echo "axios provides Kate syntax highlighting template but does NOT register it"
+        echo "automatically to avoid overwriting DMS's config."
         echo ""
-        echo "To revert to axios-managed templates, set axios.theming.useAxiosTemplates = true in your config"
+        echo "To enable Kate syntax highlighting, either:"
+        echo "  1. Wait for DMS to add Kate support, or"
+        echo "  2. Manually add to DMS config.toml, or"
+        echo "  3. Set axios.theming.useAxiosTemplates = true (legacy mode)"
       ''
   );
 

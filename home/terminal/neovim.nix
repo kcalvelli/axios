@@ -2,6 +2,7 @@
   inputs,
   config,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -29,6 +30,7 @@
   programs.neovim = {
     enable = true;
     # Aliases removed - keeping vim separate from nvim
+    plugins = [ pkgs.vimPlugins.base16-nvim ];
   };
 
   programs.lazyvim = {
