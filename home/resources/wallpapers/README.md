@@ -1,4 +1,7 @@
-# Wallpaper Collection
+# Wallpaper Collection (Maintainer Guide)
+
+> **Note**: This document is for axiOS maintainers managing the wallpaper collection.
+> **Users**: See the main [README.md](../../../README.md) for user-facing documentation.
 
 This directory contains curated wallpapers that will be deployed to `~/Pictures/Wallpapers` on systems with wallpaper collection enabled.
 
@@ -13,29 +16,27 @@ This directory contains curated wallpapers that will be deployed to `~/Pictures/
 - The system automatically detects changes via SHA256 hash of wallpaper filenames
 - By default, a new random wallpaper will be set when the collection changes
 
-## Usage
+## How It Works (For Maintainers)
 
-### Basic Configuration
+When users enable `axios.wallpapers.enable = true`:
+1. All wallpapers in this directory are deployed to `~/Pictures/Wallpapers`
+2. Collection changes are detected via SHA256 hash of filenames
+3. Hash stored in `~/.cache/axios-wallpaper-collection-hash`
+4. Random wallpaper set when hash changes (controlled by `autoUpdate` option)
 
-```nix
-# In your home-manager configuration
-axios.wallpapers.enable = true;
+## Testing Changes
+
+After adding/removing wallpapers:
+
+```bash
+# Format and validate
+nix fmt .
+nix flake check
+
+# Commit and push
+git add home/resources/wallpapers/
+git commit -m "feat(wallpapers): Add/update wallpaper collection"
+git push
 ```
 
-### Advanced Configuration
-
-```nix
-# Enable wallpapers but don't auto-randomize on collection changes
-axios.wallpapers = {
-  enable = true;
-  autoUpdate = false;  # Files still update, but active wallpaper doesn't change
-};
-```
-
-## Behavior
-
-When enabled, axiOS will:
-- Copy all wallpapers to `~/Pictures/Wallpapers` (updates automatically on rebuild)
-- Detect collection changes via hash tracking (`~/.cache/axios-wallpaper-collection-hash`)
-- Set a random wallpaper when collection changes (if `autoUpdate = true`, default)
-- Allow manual wallpaper selection via DMS
+Users will receive the updated collection on their next `nix flake update` and rebuild.

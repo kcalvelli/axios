@@ -60,6 +60,10 @@ For manual setup, you'll create just 3 files:
   - Calendar integration (khal)
   - Built-in polkit agent
 - **Idle management** - Automatic screen power-off after 30 minutes (configurable)
+- **Curated wallpaper collection** - 18 high-quality wallpapers auto-deployed to `~/Pictures/Wallpapers`
+  - Automatic updates when collection changes
+  - Random wallpaper selection on first run and collection updates
+  - Control via `axios.wallpapers.enable = true` and `axios.wallpapers.autoUpdate`
 - **Wallpaper blur effects** - Automatic blur for overview mode
 - **Ghostty terminal** - Modern GPU-accelerated terminal with dropdown mode
 - **LazyVim** - Pre-configured Neovim with LSP support
