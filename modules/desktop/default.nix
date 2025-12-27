@@ -47,6 +47,7 @@ in
 
       # === System Utilities ===
       kdePackages.filelight # Disk usage analyzer (superior radial visualization)
+      kdePackages.ksshaskpass # GUI password prompt for sudo -A
       swappy # Screenshot annotation (fits tiling WM workflow)
       qalculate-qt # Calculator (Qt port, better theming)
       kdePackages.okular # PDF reader (best-in-class annotations, format support)

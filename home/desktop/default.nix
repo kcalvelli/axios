@@ -26,6 +26,11 @@
   # Enable axiOS Monitor widget by default for desktop users
   programs.axios-monitor.enable = lib.mkDefault (osConfig.desktop.enable or false);
 
+  # Configure sudo to use GUI password prompt
+  home.sessionVariables = {
+    SUDO_ASKPASS = "${pkgs.kdePackages.ksshaskpass}/bin/ksshaskpass";
+  };
+
   # DankMaterialShell configuration
   programs.dank-material-shell = {
     enable = true;
