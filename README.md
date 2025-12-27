@@ -63,7 +63,8 @@ For manual setup, you'll create just 3 files:
 - **Curated wallpaper collection** - 18 high-quality wallpapers auto-deployed to `~/Pictures/Wallpapers`
   - Automatic updates when collection changes
   - Random wallpaper selection on first run and collection updates
-  - Control via `axios.wallpapers.enable = true` and `axios.wallpapers.autoUpdate`
+  - Enable in your `user.nix`: add `axios.wallpapers.enable = true;` under `home-manager.users.${username}`
+  - Optional: Set `axios.wallpapers.autoUpdate = false;` to disable auto-randomization
 - **Wallpaper blur effects** - Automatic blur for overview mode
 - **Ghostty terminal** - Modern GPU-accelerated terminal with dropdown mode
 - **LazyVim** - Pre-configured Neovim with LSP support

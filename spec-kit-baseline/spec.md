@@ -145,13 +145,14 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **Dynamic Blur**: Wallpaper blur effects for Niri compositor
   - **Theme Coordination**: Material You color extraction via matugen
   - **Wallpaper Collection**: Curated wallpapers deployed to `~/Pictures/Wallpapers`
-    - Enabled via `axios.wallpapers.enable = true`
+    - Enabled in user.nix via `axios.wallpapers.enable = true` (home-manager option)
     - Auto-deploys wallpapers from `home/resources/wallpapers/`
     - Auto-detects collection changes via SHA256 hash of wallpaper filenames
     - Sets random wallpaper when collection changes (controlled by `axios.wallpapers.autoUpdate`, default: true)
     - Collection updates automatically when user rebuilds after axios flake update
     - Hash tracking via `~/.cache/axios-wallpaper-collection-hash`
     - Supports PNG, JPG, JPEG formats
+    - Configuration location: `home-manager.users.${username}.axios.wallpapers` in user.nix
 
 #### Progressive Web Apps (PWA)
 - **Purpose**: Extensible PWA support for custom web applications

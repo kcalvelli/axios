@@ -16,9 +16,21 @@ This directory contains curated wallpapers that will be deployed to `~/Pictures/
 - The system automatically detects changes via SHA256 hash of wallpaper filenames
 - By default, a new random wallpaper will be set when the collection changes
 
+## How Users Enable This
+
+Users add to their `user.nix` file under `home-manager.users.${username}`:
+
+```nix
+home-manager.users.myuser = {
+  # ... existing config ...
+
+  axios.wallpapers.enable = true;  # Enable curated wallpaper collection
+};
+```
+
 ## How It Works (For Maintainers)
 
-When users enable `axios.wallpapers.enable = true`:
+When users enable the option above:
 1. All wallpapers in this directory are deployed to `~/Pictures/Wallpapers`
 2. Collection changes are detected via SHA256 hash of filenames
 3. Hash stored in `~/.cache/axios-wallpaper-collection-hash`
