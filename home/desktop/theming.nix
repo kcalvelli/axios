@@ -1,11 +1,14 @@
 {
   inputs,
   config,
+  lib,
   pkgs,
   ...
 }:
 
 let
+  cfg = config.axios.theming;
+
   codeExtDir = "${config.home.homeDirectory}/.vscode/extensions";
   themeProjectDir = "${config.home.homeDirectory}/.config/material-code-theme";
 
@@ -17,6 +20,23 @@ let
   base16ExtDir = "${codeExtDir}/local.dynamic-base16-dankshell-0.0.1";
 in
 {
+  options.axios.theming = {
+    useAxiosTemplates = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = ''
+        Use axios custom templates instead of DMS-managed templates.
+
+        When false (default): DMS manages all application themes via control panel checkboxes.
+        axios only provides Kate syntax highlighting theme.
+
+        When true (legacy mode): axios manages template registration for neovim, ghostty,
+        and KDE color schemes. Use this if DMS template management fails.
+
+        Note: Requires uncommenting custom template lines in home/terminal/neovim.nix.
+      '';
+    };
+  };
   # Basic theming for all WMs
   home.pointerCursor = {
     package = pkgs.bibata-cursors;
@@ -72,7 +92,9 @@ in
     filesystems=xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro
   '';
 
-  # Deploy Kate theme template to matugen templates directory
+  # Deploy Kate syntax highlighting theme template
+  # Note: This is NOT redundant with DMS - DMS provides KDE color schemes (.colors files)
+  # but NOT Kate syntax highlighting themes (.theme files for code editor text styles)
   xdg.configFile."matugen/templates/kate-dankshell.mustache" = {
     source = ../terminal/resources/kate-dankshell.mustache;
   };
@@ -83,8 +105,13 @@ in
   '';
 
   # Register matugen templates for dynamic theming
-  # This generates a clean config file each time to avoid corruption
-  home.activation.registerMatugenTemplates = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+  # By default, DMS manages templates via its control panel checkboxes
+  # Set axios.theming.useAxiosTemplates = true to revert to axios-managed templates
+  home.activation.registerMatugenTemplates = config.lib.dag.entryAfter [ "writeBoundary" ] (
+    if cfg.useAxiosTemplates then
+      # LEGACY MODE: axios manages all templates
+      # This is the old behavior - kept for easy rollback if DMS templates fail
+      ''
         MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
 
         # Create config directory if it doesn't exist
@@ -93,6 +120,8 @@ in
 
         # Get DMS path for templates
         DMS_PATH="${inputs.dankMaterialShell.packages.${pkgs.stdenv.hostPlatform.system}.default}"
+
+        echo "Using axios-managed templates (legacy mode)"
 
         # Generate clean matugen config file
         cat > "$MATUGEN_CONFIG" << 'MATUGEN_EOF'
@@ -130,7 +159,42 @@ in
         fi
 
         echo "Matugen config generated successfully (vim, kate, ghostty, kdeglobals)"
-  '';
+      ''
+    else
+      # DEFAULT MODE: DMS manages templates via control panel
+      # axios only provides Kate syntax highlighting (not redundant with DMS)
+      ''
+        MATUGEN_CONFIG="${config.home.homeDirectory}/.config/matugen/config.toml"
+
+        # Create config directory if it doesn't exist
+        $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen
+        $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.config/matugen/templates
+
+        echo "Using DMS-managed templates (default mode)"
+        echo "Templates managed by DMS control panel checkboxes:"
+        echo "  - neovim (requires lazy plugin manager)"
+        echo "  - VS Code"
+        echo "  - KColorScheme (KDE color schemes)"
+        echo "  - Ghostty, kitty, foot, alacritty, wezterm"
+        echo "  - GTK, niri, qt5ct, qt6ct"
+        echo "  - Firefox, pywalfox, vesktop"
+        echo ""
+        echo "axios only provides Kate syntax highlighting theme:"
+
+        # Generate minimal matugen config - only Kate syntax highlighting
+        cat > "$MATUGEN_CONFIG" << 'MATUGEN_EOF'
+    [config]
+
+    [templates.kate-dankshell]
+    input_path = '${config.home.homeDirectory}/.config/matugen/templates/kate-dankshell.mustache'
+    output_path = '${config.home.homeDirectory}/.local/share/org.kde.syntax-highlighting/themes/DankShell.theme'
+    MATUGEN_EOF
+
+        echo "  ✓ Kate syntax highlighting (code editor text styles)"
+        echo ""
+        echo "To revert to axios-managed templates, set axios.theming.useAxiosTemplates = true in your config"
+      ''
+  );
 
   # Register base16 VSCode extension so VSCode can detect it
   home.activation.registerVSCodeExtension = config.lib.dag.entryAfter [ "writeBoundary" ] ''
