@@ -161,10 +161,12 @@
           { pkgs, ... }:
           {
             # Formatter for `nix fmt`
-            formatter = (inputs.treefmt-nix.lib.mkWrapper pkgs {
-              projectRootFile = "flake.nix";
-              programs.nixfmt.enable = true;
-            });
+            formatter = (
+              inputs.treefmt-nix.lib.mkWrapper pkgs {
+                projectRootFile = "flake.nix";
+                programs.nixfmt.enable = true;
+              }
+            );
 
             # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
             apps = {
