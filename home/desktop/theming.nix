@@ -94,12 +94,27 @@ in
     filesystems=xdg-config/gtk-3.0:ro;xdg-config/gtk-4.0:ro
   '';
 
+  # Deploy VSCode extension skeleton
+  # DMS generates theme JSON files in themes/ directory, but needs the extension manifest
+  home.file.".vscode/extensions/local.dynamic-base16-dankshell-0.0.1/package.json" = {
+    source = ./resources/vscode-extension/package.json;
+  };
+
+  home.file.".vscode/extensions/local.dynamic-base16-dankshell-0.0.1/.vsixmanifest" = {
+    source = ./resources/vscode-extension/.vsixmanifest;
+  };
+
   # Deploy Kate syntax highlighting theme template
   # Note: This is NOT redundant with DMS - DMS provides KDE color schemes (.colors files)
   # but NOT Kate syntax highlighting themes (.theme files for code editor text styles)
   xdg.configFile."matugen/templates/kate-dankshell.mustache" = {
     source = ../terminal/resources/kate-dankshell.mustache;
   };
+
+  # Ensure VSCode extension themes directory exists (DMS will populate it)
+  home.activation.createVSCodeThemesDir = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.vscode/extensions/local.dynamic-base16-dankshell-0.0.1/themes
+  '';
 
   # Ensure Kate themes directory exists
   home.activation.createKateThemesDir = config.lib.dag.entryAfter [ "writeBoundary" ] ''
