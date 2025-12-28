@@ -64,8 +64,8 @@ in
 
     # Wallpaper collection (conditional)
     (lib.mkIf cfg.enable {
-      # Ensure wallpapers directory exists
-      home.activation.createWallpapersDir = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+      # Ensure wallpapers directory exists (before linkGeneration processes home.file entries)
+      home.activation.createWallpapersDir = config.lib.dag.entryBefore [ "linkGeneration" ] ''
         $DRY_RUN_CMD mkdir -p $HOME/Pictures/Wallpapers
       '';
 
