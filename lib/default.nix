@@ -293,10 +293,17 @@ let
           enableLaptopHardware =
             (hwVendor == "system76") || ((hwVendor == null) && (hostCfg.formFactor or "" == "laptop"));
 
+          # Check if extraConfig should be treated as a separate module
+          # (when it's a function or contains imports/options)
+          extraCfgIsModule =
+            (lib.isFunction extraCfg) ||
+            (lib.isAttrs extraCfg && (extraCfg ? imports || extraCfg ? options));
+
           # Build dynamic config based on what's defined in hostCfg
           dynamicConfig = lib.mkMerge [
-            # Always include extraConfig first
-            extraCfg
+            # Only merge extraConfig if it's not a module
+            # (modules will be added separately to preserve imports/options)
+            (if extraCfgIsModule then { } else extraCfg)
             # Pass CPU type to hardware modules (if CPU type is specified)
             (lib.optionalAttrs (hwCpu != null) {
               axios.hardware.cpuType = hwCpu;
@@ -393,6 +400,12 @@ let
           };
 
       userModule = if hostCfg ? userModulePath then hostCfg.userModulePath else { imports = [ ]; };
+
+      # Extract extraCfg and check if it's a module
+      extraCfg = hostCfg.extraConfig or { };
+      extraCfgIsModule =
+        (lib.isFunction extraCfg) ||
+        (lib.isAttrs extraCfg && (extraCfg ? imports || extraCfg ? options));
     in
     baseModules
     ++ hwModules
@@ -401,7 +414,9 @@ let
       hostModule
       hardwareModule
       userModule
-    ];
+    ]
+    # Add extraConfig as a module if it contains imports/options or is a function
+    ++ lib.optional extraCfgIsModule extraCfg;
 
   # Main function to create a NixOS system configuration
   # Usage: mkSystem { hostConfig attrs }
