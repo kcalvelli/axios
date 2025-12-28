@@ -296,8 +296,7 @@ let
           # Check if extraConfig should be treated as a separate module
           # (when it's a function or contains imports/options)
           extraCfgIsModule =
-            (lib.isFunction extraCfg) ||
-            (lib.isAttrs extraCfg && (extraCfg ? imports || extraCfg ? options));
+            (lib.isFunction extraCfg) || (lib.isAttrs extraCfg && (extraCfg ? imports || extraCfg ? options));
 
           # Build dynamic config based on what's defined in hostCfg
           dynamicConfig = lib.mkMerge [
@@ -404,8 +403,7 @@ let
       # Extract extraCfg and check if it's a module
       extraCfg = hostCfg.extraConfig or { };
       extraCfgIsModule =
-        (lib.isFunction extraCfg) ||
-        (lib.isAttrs extraCfg && (extraCfg ? imports || extraCfg ? options));
+        (lib.isFunction extraCfg) || (lib.isAttrs extraCfg && (extraCfg ? imports || extraCfg ? options));
     in
     baseModules
     ++ hwModules

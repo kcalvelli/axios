@@ -64,6 +64,11 @@ in
 
     # Wallpaper collection (conditional)
     (lib.mkIf cfg.enable {
+      # Ensure wallpapers directory exists
+      home.activation.createWallpapersDir = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+        $DRY_RUN_CMD mkdir -p $HOME/Pictures/Wallpapers
+      '';
+
       # Deploy curated wallpapers to ~/Pictures/Wallpapers
       home.file = wallpaperFileEntries;
 
