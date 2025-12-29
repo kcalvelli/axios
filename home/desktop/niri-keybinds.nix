@@ -46,6 +46,7 @@ let
     │ Mod + L/→         Focus column right                             │
     │ Mod + Home        Focus first column                             │
     │ Mod + End         Focus last column                              │
+    │ Mod + Wheel ←/→   Focus column left/right (mouse)                │
     └──────────────────────────────────────────────────────────────────┘
 
     ┌─ WINDOW & COLUMN MOVEMENT ───────────────────────────────────────┐
@@ -231,6 +232,16 @@ in
     # RESTORED: Focus first/last column
     "Mod+Home".action.focus-column-first = [ ];
     "Mod+End".action.focus-column-last = [ ];
+
+    # AXIOS: Mouse wheel focus column left/right
+    "Mod+WheelScrollLeft" = {
+      cooldown-ms = 150;
+      action.focus-column-left = [ ];
+    };
+    "Mod+WheelScrollRight" = {
+      cooldown-ms = 150;
+      action.focus-column-right = [ ];
+    };
 
     # --- NIRI DEFAULTS: Window/Column Movement ---
     "Mod+Ctrl+H".action.move-column-left = [ ];
