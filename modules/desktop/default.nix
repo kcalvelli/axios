@@ -84,7 +84,15 @@ in
       # This allows users to add custom PWAs with their own URLs and icons
 
       # === Streaming ===
-      obs-studio
+      # OBS with full GStreamer + VA-API support for camera format conversion
+      # Fixes: Green screen/crashes with NV12 format on high-resolution webcams
+      (wrapOBS {
+        plugins = with obs-studio-plugins; [
+          obs-vaapi # VA-API hardware encoding support
+          obs-vkcapture # Vulkan/OpenGL game capture
+        ];
+      })
+      v4l-utils # Camera debugging (v4l2-ctl --list-formats-ext)
 
       # === Gnome  PIM (Evolution added in programs below) without Gnome ===
       gnome-online-accounts-gtk
