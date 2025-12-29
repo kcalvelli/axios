@@ -86,12 +86,27 @@ in
       # === Streaming ===
       # OBS with full GStreamer + VA-API support for camera format conversion
       # Fixes: Green screen/crashes with NV12 format on high-resolution webcams
-      (wrapOBS {
-        plugins = with obs-studio-plugins; [
-          obs-vaapi # VA-API hardware encoding support
-          obs-vkcapture # Vulkan/OpenGL game capture
-        ];
-      })
+      # Wrapped with gamemoderun to always launch in gamemode for optimal performance
+      (
+        let
+          obs-wrapped = wrapOBS {
+            plugins = with obs-studio-plugins; [
+              obs-vaapi # VA-API hardware encoding support
+              obs-vkcapture # Vulkan/OpenGL game capture
+            ];
+          };
+        in
+        pkgs.symlinkJoin {
+          name = "obs-studio-gamemode";
+          paths = [ obs-wrapped ];
+          buildInputs = [ pkgs.makeWrapper ];
+          postBuild = ''
+            wrapProgram $out/bin/obs \
+              --prefix PATH : ${lib.makeBinPath [ pkgs.gamemode ]} \
+              --run 'exec ${pkgs.gamemode}/bin/gamemoderun ${obs-wrapped}/bin/obs "$@"'
+          '';
+        }
+      )
       v4l-utils # Camera debugging (v4l2-ctl --list-formats-ext)
 
       # === Gnome  PIM (Evolution added in programs below) without Gnome ===
