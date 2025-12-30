@@ -118,6 +118,9 @@ in
       # === Implements freedesktops's Desktop Menu Specification
       gnome-menus
       kdePackages.kservice
+
+      # === BBS Access 
+      syncterm
     ];
 
     # === Wayland Environment Variables ===
