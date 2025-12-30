@@ -106,6 +106,10 @@
       url = "github:kcalvelli/nix-devshell-mcp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    ultimate64-mcp = {
+      url = "github:kcalvelli/Ultimate64MCP";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     mcp-servers-nix = {
       url = "github:natsukium/mcp-servers-nix";
       inputs.nixpkgs.follows = "nixpkgs";

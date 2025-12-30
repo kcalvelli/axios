@@ -49,6 +49,14 @@ let
         }/bin/nix-devshell-mcp";
       };
 
+      ultimate64 = {
+        command = "${
+          inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+        }/bin/mcp-ultimate";
+        # Note: Users must set C64_HOST in their local config:
+        #   programs.claude-code.mcpServers.ultimate64.env.C64_HOST = "your-c64-ip";
+      };
+
       mcp-nixos = {
         command = "${pkgs.nix}/bin/nix";
         args = [
@@ -149,6 +157,7 @@ in
   home.packages = [
     inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # Claude Code MCP configuration (declarative)
