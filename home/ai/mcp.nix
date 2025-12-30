@@ -20,8 +20,21 @@ let
     # Use mcp-servers-nix modules for built-in servers
     programs = {
       git.enable = true;
+      # NOTE: github-mcp-server removed from mcp-servers-nix (now in nixpkgs 25.11)
+      # Configured manually in settings.servers below
+      time.enable = true;
+    };
+
+    # Custom and third-party servers
+    settings.servers = {
+      # GitHub MCP server (from nixpkgs 25.11+)
+      # Previously provided by mcp-servers-nix, now in nixpkgs
       github = {
-        enable = true;
+        command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
+        args = [ "stdio" ];
+        env = {
+          GITHUB_PERSONAL_ACCESS_TOKEN = ''''${GITHUB_PERSONAL_ACCESS_TOKEN}'';
+        };
         passwordCommand = {
           GITHUB_PERSONAL_ACCESS_TOKEN = [
             (lib.getExe config.programs.gh.package)
@@ -29,13 +42,8 @@ let
             "token"
           ];
         };
-        type = "stdio";
       };
-      time.enable = true;
-    };
 
-    # Custom and third-party servers
-    settings.servers = {
       # axios custom MCP servers
       journal = {
         command = "${
@@ -53,8 +61,10 @@ let
         command = "${
           inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/mcp-ultimate";
-        # Note: Users must set C64_HOST in their local config:
+        args = [ "--stdio" ];
+        # Note: Users can optionally set C64_HOST in their local config:
         #   programs.claude-code.mcpServers.ultimate64.env.C64_HOST = "your-c64-ip";
+        # If not set, use the 'ultimate_set_connection' tool to configure at runtime
       };
 
       mcp-nixos = {
