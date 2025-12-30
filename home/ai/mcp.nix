@@ -161,11 +161,11 @@ in
   ];
 
   # Claude Code MCP configuration (declarative)
-  # This replaces the imperative activation script approach
-  programs.claude-code = {
-    enable = true;
-    mcpServers =
-      (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+  # Generate MCP server configuration file for Claude Code CLI
+  # Claude Code reads ~/.mcp.json for global MCP server definitions
+  # Note: Do NOT overwrite ~/.claude.json as it contains user state and preferences
+  home.file.".mcp.json".text = builtins.toJSON {
+    mcpServers = (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
   };
 
   # Note: Future AI tools can be added here by defining additional server configs
