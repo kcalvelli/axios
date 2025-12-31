@@ -98,8 +98,10 @@ let
 
       # Ultimate64 C64 emulator control
       # REQUIRES: Ultimate64 hardware on local network
-      # Provides: Remote control of Ultimate64 emulator
-      # OPTIONAL: Set C64_HOST environment variable or use 'ultimate_set_connection' tool
+      # Provides: Remote control, file management, video streaming
+      # OPTIONAL: Configure C64_HOST in your downstream config:
+      #   programs.claude-code.mcpServers.ultimate64.env.C64_HOST = "192.168.x.x";
+      #   Or use 'ultimate_set_connection' tool at runtime
       ultimate64 = {
         command = "${
           inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default

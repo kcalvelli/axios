@@ -43,6 +43,8 @@ in
       digikam # Photo manager (professional asset management)
       loupe # Image viewer (fast, clean UI, great touchpad gestures)
       haruna # Video player (excellent MPV frontend)
+      mpv # Media player (CLI, UDP streaming, hardware acceleration)
+      ffmpeg # Video/audio processing, conversion, streaming
       amberol # Music player (simple, focused on music playback)
 
       # === System Utilities ===
