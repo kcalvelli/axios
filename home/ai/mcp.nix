@@ -40,14 +40,6 @@ let
   #        age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
   #     Secret path: /run/user/$UID/agenix/brave-api-key
   #
-  #   - tavily: Requires Tavily API key
-  #     1. Get API key: https://tavily.com/
-  #     2. Create encrypted secret:
-  #        echo "your-api-key" | agenix -e secrets/tavily-api-key.age
-  #     3. Add to your NixOS config:
-  #        age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
-  #     Secret path: /run/user/$UID/agenix/tavily-api-key
-  #
   # DISABLING MCP SERVERS:
   #   Set services.ai.mcp.enable = false; in your NixOS configuration
 
@@ -183,30 +175,6 @@ let
         };
       };
 
-      # Tavily Search API integration
-      # REQUIRES: Tavily API key
-      # Setup:
-      #   1. Get API key: https://tavily.com/
-      #   2. Create secret: echo "key" | agenix -e secrets/tavily-api-key.age
-      #   3. Configure: age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
-      # Provides: AI-optimized search, research mode
-      tavily = {
-        command = "${pkgs.nodejs}/bin/npx";
-        args = [
-          "-y"
-          "tavily-mcp"
-        ];
-        env = {
-          TAVILY_API_KEY = ''''${TAVILY_API_KEY}'';
-        };
-        passwordCommand = {
-          TAVILY_API_KEY = [
-            "${pkgs.bash}/bin/bash"
-            "-c"
-            "${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/tavily-api-key | ${pkgs.coreutils}/bin/tr -d '\\n'"
-          ];
-        };
-      };
     };
   };
 in

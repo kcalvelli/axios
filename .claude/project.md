@@ -428,43 +428,38 @@ The `services.ai.enable` module provides:
 
 1. **Core Tools** (no setup required): git, github†, filesystem, time, journal, nix-devshell-mcp, ultimate64‡
 2. **AI Enhancement** (no setup required): sequential-thinking, context7
-3. **Search** (require API keys): brave-search, tavily
+3. **Search** (requires API key): brave-search
 
 **†** github requires `gh auth login` first
 **‡** ultimate64 requires Ultimate64 hardware on local network
 
-### Configuring API Keys for Search Servers
+### Configuring API Key for Brave Search
 
-Search MCP servers (brave-search, tavily) require API keys. Configure them in your downstream config using agenix:
+The brave-search MCP server requires a Brave Search API key. Configure it in your downstream config using agenix:
 
-**1. Create encrypted secret files** (in your config repo, e.g., `~/.config/nixos_config`):
+**1. Create encrypted secret file** (in your config repo, e.g., `~/.config/nixos_config`):
 ```bash
 # Create secrets directory
 mkdir -p secrets
 
-# Encrypt your API keys (requires your SSH key in age.identityPaths)
+# Encrypt your API key (requires your SSH key in age.identityPaths)
 echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
-echo "your-tavily-api-key" | agenix -e secrets/tavily-api-key.age
 ```
 
-**2. Configure secrets in your home-manager config**:
+**2. Configure secret in your home-manager config**:
 ```nix
 {
   # Enable secrets
   secrets.enable = true;
 
-  # Register API key secrets
+  # Register API key secret
   age.secrets.brave-api-key = {
     file = ./secrets/brave-api-key.age;
-  };
-
-  age.secrets.tavily-api-key = {
-    file = ./secrets/tavily-api-key.age;
   };
 }
 ```
 
-axios will automatically use `passwordCommand` to securely load these secrets. If secrets aren't configured, it falls back to environment variables (`$BRAVE_API_KEY`, `$TAVILY_API_KEY`).
+axios will automatically use `passwordCommand` to securely load this secret. If the secret isn't configured, it falls back to the environment variable `$BRAVE_API_KEY`.
 
 ## Common Patterns
 
