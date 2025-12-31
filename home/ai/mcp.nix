@@ -117,15 +117,13 @@ let
           "-y"
           "@modelcontextprotocol/server-brave-search"
         ];
-        passwordCommand = lib.mkIf ((config.age or null) != null && (config.age.secrets ? brave-api-key)) {
+        # Read from NixOS agenix secret (configured in downstream NixOS config)
+        # Path: /run/user/$UID/agenix/brave-api-key
+        passwordCommand = {
           BRAVE_API_KEY = [
             "${pkgs.coreutils}/bin/cat"
-            config.age.secrets.brave-api-key.path
+            "/run/user/\${UID}/agenix/brave-api-key"
           ];
-        };
-        # Fallback to environment variable if secret not configured
-        env = lib.mkIf ((config.age or null) == null || !(config.age.secrets ? brave-api-key)) {
-          BRAVE_API_KEY = ''''${BRAVE_API_KEY}'';
         };
       };
 
@@ -135,15 +133,13 @@ let
           "-y"
           "tavily-mcp"
         ];
-        passwordCommand = lib.mkIf ((config.age or null) != null && (config.age.secrets ? tavily-api-key)) {
+        # Read from NixOS agenix secret (configured in downstream NixOS config)
+        # Path: /run/user/$UID/agenix/tavily-api-key
+        passwordCommand = {
           TAVILY_API_KEY = [
             "${pkgs.coreutils}/bin/cat"
-            config.age.secrets.tavily-api-key.path
+            "/run/user/\${UID}/agenix/tavily-api-key"
           ];
-        };
-        # Fallback to environment variable if secret not configured
-        env = lib.mkIf ((config.age or null) == null || !(config.age.secrets ? tavily-api-key)) {
-          TAVILY_API_KEY = ''''${TAVILY_API_KEY}'';
         };
       };
     };
