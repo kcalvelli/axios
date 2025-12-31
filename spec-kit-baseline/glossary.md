@@ -237,16 +237,6 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Evidence**: flake.nix:42-48
 
-### LazyVim
-**Definition**: Pre-configured Neovim distribution with LSP support
-
-**Usage**: Terminal text editor configuration
-- Config: home/terminal/neovim.nix
-- Features: LSP, treesitter, plugins
-
-**Related Terms**: Neovim, Text Editor, LSP
-
-**Evidence**: flake.nix:61-64, home/terminal/neovim.nix
 
 ### PWA
 **Definition**: Progressive Web App - Web application that can be installed and run standalone
@@ -405,17 +395,6 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 - CD: N/A (library project)
 
 **Evidence**: .github/workflows/
-
-### LSP
-**Expansion**: Language Server Protocol
-
-**Definition**: Protocol for editor-language integration
-
-**Usage**: Neovim language support
-- Servers: rust-analyzer, typescript-language-server
-- Config: LazyVim
-
-**Evidence**: home/terminal/neovim.nix
 
 ### TLS
 **Expansion**: Transport Layer Security

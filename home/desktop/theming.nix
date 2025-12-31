@@ -30,10 +30,8 @@ in
         When false (default): DMS manages all application themes via control panel checkboxes.
         axios only provides Kate syntax highlighting theme.
 
-        When true (legacy mode): axios manages template registration for neovim, ghostty,
+        When true (legacy mode): axios manages template registration for ghostty,
         and KDE color schemes. Use this if DMS template management fails.
-
-        Note: Requires uncommenting custom template lines in home/terminal/neovim.nix.
       '';
     };
   };
@@ -188,7 +186,6 @@ in
           echo "Using DMS-managed templates (default mode)"
           echo ""
           echo "Templates managed by DMS control panel checkboxes:"
-          echo "  - neovim (requires RRethy/base16-nvim plugin)"
           echo "  - VS Code"
           echo "  - KColorScheme (KDE color schemes)"
           echo "  - Ghostty, kitty, foot, alacritty, wezterm"

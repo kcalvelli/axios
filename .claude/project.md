@@ -418,7 +418,7 @@ The `services.ai.enable` module provides:
 **Architecture**:
 - **Declarative**: MCP servers configured in `home/ai/mcp.nix`
 - **Library-based**: Uses `inputs.mcp-servers-nix.lib.evalModule` to generate tool-specific configs
-- **Multi-tool ready**: Can generate configs for Claude Code, Neovim (mcphub), Cursor, and other MCP clients
+- **Multi-tool ready**: Can generate configs for Claude Code
 - **Pre-packaged servers**: MCP servers from `mcp-servers-nix` overlay (no runtime downloads)
 - **Security**: Supports `passwordCommand` for secrets (e.g., GitHub token via `gh auth token`)
 

@@ -296,7 +296,7 @@ Enable only the modules you need:
 - Fonts and themes
 
 **Development:**
-- Code editors (VSCode, Neovim)
+- Code editors (VSCode)
 - Compilers and build tools
 - Language servers
 - Version control tools

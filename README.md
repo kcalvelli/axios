@@ -67,7 +67,6 @@ For manual setup, you'll create just 3 files:
   - Optional: Set `axios.wallpapers.autoUpdate = false;` to disable auto-randomization
 - **Wallpaper blur effects** - Automatic blur for overview mode
 - **Ghostty terminal** - Modern GPU-accelerated terminal with dropdown mode
-- **LazyVim** - Pre-configured Neovim with LSP support
 - **GPU Hardware Acceleration** - Automatic browser acceleration based on GPU type:
   - AMD: VA-API video decode/encode with modern Chrome 131+ flags
   - NVIDIA: VA-API via nvidia-vaapi-driver with optimized environment variables

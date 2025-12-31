@@ -420,7 +420,6 @@ By using axios as a library, you automatically get:
 
 ✅ **Development Tools:**
 - VSCode with extensions
-- Neovim (LazyVim)
 - Git and development utilities
 - Language-specific tooling
 

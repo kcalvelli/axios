@@ -389,13 +389,11 @@ Modules are imported using one of three patterns:
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: home-manager, ghostty, lazyvim
 - **Exposed Interface**: Imported by home/profiles/base.nix
 - **Entry Points**: default.nix
 - **Aspect Files**:
   - fish.nix: Fish shell configuration
   - git.nix: Git settings and aliases
-  - neovim.nix: LazyVim configuration
   - ghostty.nix: Terminal emulator settings
   - starship.nix: Prompt configuration
   - tools.nix: CLI utility tools
@@ -686,11 +684,10 @@ Modules are imported using one of three patterns:
 7. **lanzaboote**: Secure boot - [MEDIUM] (optional)
 8. **nix-ai-tools**: AI CLI tools - [MEDIUM] (ai module)
 9. **mcp-servers-nix**: MCP configuration - [MEDIUM] (ai module)
-10. **lazyvim**: Neovim config - [MEDIUM] (terminal)
-11. **flake-parts**: Flake organization - [HIGH] (build system)
-12. **devshell**: Development environments - [LOW] (devshells only)
-13. **fenix**: Rust toolchain - [LOW] (rust devshell)
-14. **zig-overlay**: Zig toolchain - [LOW] (zig devshell)
+10. **flake-parts**: Flake organization - [HIGH] (build system)
+11. **devshell**: Development environments - [LOW] (devshells only)
+12. **fenix**: Rust toolchain - [LOW] (rust devshell)
+13. **zig-overlay**: Zig toolchain - [LOW] (zig devshell)
 
 ### Dependency Management
 - **Lock Files**: flake.lock (Nix flake lock file)

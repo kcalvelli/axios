@@ -104,7 +104,6 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Features |
 |-------------|-------------|----------|
 | **Visual Studio Code** | Feature-rich code editor | Extensions, IntelliSense, debugging |
-| **Neovim (LazyVim)** | Modal text editor with pre-configured LSP | Fast editing, LSP support, plugin ecosystem |
 | **Vim** | Classic modal text editor | Lightweight, ubiquitous |
 
 ### Version Control

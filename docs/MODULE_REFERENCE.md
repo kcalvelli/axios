@@ -169,7 +169,7 @@ services.swayidle.timeouts = [
 **What it does:** Programming tools and development environments.
 
 **Includes:**
-- **Editors:** VS Code, Neovim (LazyVim preconfigured)
+- **Editors:** VS Code
 - **Version control:** Git, GitHub CLI
 - **Compilers:** GCC, Clang, Rust, Zig toolchains
 - **Build tools:** Make, CMake, Meson

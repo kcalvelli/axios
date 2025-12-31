@@ -35,7 +35,6 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] Wallpaper blur updated"
 # Reload Ghostty config with keys
 wtype -M ctrl -M shift , -m shift -m ctrl
 
-#echo "[$(date '+%Y-%m-%d %H:%M:%S')] Neovim theme reload attempted"
 END_TIME=$(date +%s%N)
 TOTAL_TIME=$(( (END_TIME - START_TIME) / 1000000 ))
 echo "[$(date '+%Y-%m-%d %H:%M:%S')] Wallpaper change handling complete (total: ${TOTAL_TIME}ms)"

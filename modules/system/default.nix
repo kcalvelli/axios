@@ -31,7 +31,7 @@
     home-manager.useGlobalPkgs = true;
     home-manager.useUserPackages = true;
 
-    # NOTE: External home-manager modules (dankMaterialShell, niri, lazyvim) may set
+    # NOTE: External home-manager modules (dankMaterialShell, niri) may set
     # nixpkgs.config or nixpkgs.overlays, which triggers a deprecation warning when
     # useGlobalPkgs = true. This is a known issue and will be fixed in future versions
     # of those modules. The warning is harmless and can be safely ignored.

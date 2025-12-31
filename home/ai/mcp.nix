@@ -210,10 +210,5 @@ in
       mcpServers =
         (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
     };
-
-    # Note: Future AI tools can be added here by defining additional server configs
-    # Example for Neovim with mcphub:
-    #   home.file."${config.xdg.configHome}/mcphub/servers.json".source =
-    #     inputs.mcp-servers-nix.lib.mkConfig pkgs mcphub-servers;
   };
 }

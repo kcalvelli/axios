@@ -206,7 +206,6 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **Fish shell**: Modern shell with completions (home/terminal/fish.nix)
   - **Starship**: Customizable prompt (home/terminal/starship.nix)
   - **Git**: Git configuration and aliases (home/terminal/git.nix)
-  - **Neovim**: LazyVim configuration with LSP (home/terminal/neovim.nix)
   - **CLI Tools**: Modern replacements (bat, eza, fd, ripgrep, etc.) (home/terminal/tools.nix)
 
 ### AI & Development Assistance

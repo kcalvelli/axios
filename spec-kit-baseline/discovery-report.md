@@ -28,7 +28,6 @@
 - **mcp-servers-nix**: [latest] - MCP server configuration library (evidence: flake.nix:100-103)
 - **mcp-journal**: [latest] - System journal MCP server (evidence: flake.nix:98)
 - **nix-devshell-mcp**: [latest] - Nix devshell MCP server (evidence: flake.nix:99)
-- **lazyvim**: [latest] - Neovim configuration (evidence: flake.nix:61-64)
 
 ### Build & Development Tools
 - **devshell**: [latest] - Development environment framework (evidence: flake.nix:32-35)
@@ -98,7 +97,7 @@
 - `home/desktop/`: Desktop home configuration (niri.nix, wallpaper.nix, theming.nix, pwa-apps.nix, gdrive-sync.nix)
 - `home/profiles/`: User profiles (base.nix, workstation.nix, laptop.nix)
 - `home/ai/`: AI tools home configuration (default.nix, mcp.nix)
-- `home/terminal/`: Terminal configuration (fish.nix, git.nix, neovim.nix, ghostty.nix, starship.nix, tools.nix)
+- `home/terminal/`: Terminal configuration (fish.nix, git.nix, ghostty.nix, starship.nix, tools.nix)
 - `home/browser/`: Browser configuration
 - `home/calendar/`: Calendar integration
 - `home/secrets/`: Home-level secrets
