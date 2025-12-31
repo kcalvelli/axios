@@ -254,7 +254,6 @@ inputs.something.packages.${system}.package-name
 inputs = {
   nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   home-manager;
-  nix-ai-tools;      # AI tools (claude-code, copilot-cli)
   mcp-servers-nix;   # MCP server configuration library and packages
   dankMaterialShell; # DMS/Niri shell
   mcp-journal;       # MCP server for journal access
@@ -488,11 +487,17 @@ flake.nixosModules = {
 };
 ```
 
-### Using nix-ai-tools packages
+### Using AI tools from nixpkgs
 
 ```nix
-environment.systemPackages = [
-  inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.claude-code
+environment.systemPackages = with pkgs; [
+  claude-code
+  claude-code-acp
+  claude-code-router
+  copilot-cli
+  gemini-cli-bin
+  spec-kit
+  opencode  # For local LLM integration
 ];
 ```
 

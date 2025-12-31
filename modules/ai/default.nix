@@ -109,35 +109,27 @@ in
       };
 
       # AI tools and packages
-      environment.systemPackages =
-        with pkgs;
-        [
-          # AI assistant tools
-          whisper-cpp # Speech-to-text
-          nodejs # For npx MCP servers
-          claude-monitor # Real-time Claude Code usage monitoring
-        ]
-        ++ (
-          let
-            ai-tools = inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system};
-          in
-          [
-            # CLI Coding Agents (3 distinct AI ecosystems)
-            ai-tools.claude-code # Anthropic - MCP support, deep integration
-            #Co-pilot cli is not currently building
-            #ai-tools.copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
-            pkgs.gemini-cli-bin # Google - Multimodal, free tier (binary from nixpkgs)
+      environment.systemPackages = with pkgs; [
+        # AI assistant tools
+        whisper-cpp # Speech-to-text
+        nodejs # For npx MCP servers
+        claude-monitor # Real-time Claude Code usage monitoring
 
-            # Workflow & Support Tools
-            ai-tools.spec-kit # Spec-driven development framework
-            ai-tools.backlog-md # Project management for human-AI collaboration
+        # CLI Coding Agents (3 distinct AI ecosystems)
+        claude-code # Anthropic - MCP support, deep integration
+        claude-code-acp # Claude Code Agent Communication Protocol
+        claude-code-router # Claude Code request router
+        copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
+        gemini-cli-bin # Google - Multimodal, free tier
 
-            # VSCode extension compatibility: claude-code symlink
-            (pkgs.writeShellScriptBin "claude-code" ''
-              exec ${ai-tools.claude-code}/bin/claude "$@"
-            '')
-          ]
-        );
+        # Workflow & Support Tools
+        spec-kit # Spec-driven development framework
+
+        # VSCode extension compatibility: claude-code symlink
+        (writeShellScriptBin "claude-code" ''
+          exec ${claude-code}/bin/claude "$@"
+        '')
+      ];
     })
 
     # Local LLM configuration (conditional on services.ai.local.enable)
@@ -168,9 +160,7 @@ in
           python3
           uv # Python package manager for uvx
         ]
-        ++ lib.optional cfg.local.cli (
-          inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.opencode
-        );
+        ++ lib.optional cfg.local.cli pkgs.opencode;
     })
 
     # Ollama reverse proxy configuration (conditional on ollamaReverseProxy.enable)

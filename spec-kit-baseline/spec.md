@@ -213,13 +213,14 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Purpose**: Opinionated AI assistant integration with 3 distinct AI ecosystems
 - **Implementation Evidence**: modules/ai/default.nix:109-138, home/ai/, flake.nix:97-103
 - **Confidence**: [EXPLICIT]
-- **CLI Coding Agents** (3 distinct AI providers):
+- **CLI Coding Agents** (5 from nixpkgs):
   - **claude-code**: Anthropic's CLI agent with MCP support and deep integration
+  - **claude-code-acp**: Claude Code Agent Communication Protocol
+  - **claude-code-router**: Claude Code request router
   - **copilot-cli**: GitHub/OpenAI CLI agent with GitHub ecosystem integration
-  - **gemini-cli**: Google's multimodal CLI agent with free tier
+  - **gemini-cli-bin**: Google's multimodal CLI agent with free tier
 - **Workflow & Support Tools**:
   - **spec-kit**: Spec-driven development framework (used by axiOS spec-kit-baseline/)
-  - **backlog-md**: Project management for human-AI collaboration
   - **claude-monitor**: Resource monitoring for AI sessions
   - **whisper-cpp**: Speech-to-text tool
 

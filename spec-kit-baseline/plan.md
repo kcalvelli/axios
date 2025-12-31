@@ -225,7 +225,7 @@ Modules are imported using one of three patterns:
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama)
+  - External: mcp-journal, nix-devshell-mcp, nixpkgs (claude-code, copilot-cli, gemini-cli-bin, spec-kit, ollama, opencode)
 - **Exposed Interface**: `inputs.axios.nixosModules.ai`
 - **Entry Points**: default.nix
 - **Key Options**:
@@ -239,18 +239,19 @@ Modules are imported using one of three patterns:
   - `services.ai.local.ollamaReverseProxy.domain`: Domain override for Ollama
 - **Architecture**:
   - **Two-tier config**: Base AI tools always enabled, local LLM optional via mkMerge
-  - **AI Tools Philosophy**: Opinionated selection of 3 distinct AI ecosystems
-    - **CLI Coding Agents** (3):
+  - **AI Tools Philosophy**: Opinionated selection of 3 distinct AI ecosystems (all from nixpkgs)
+    - **CLI Coding Agents** (5):
       - **claude-code**: Anthropic ecosystem with MCP support
+      - **claude-code-acp**: Claude Code Agent Communication Protocol
+      - **claude-code-router**: Claude Code request router
       - **copilot-cli**: GitHub/OpenAI ecosystem with enterprise features
-      - **gemini-cli**: Google ecosystem with multimodal capabilities
-    - **Workflow Tools** (4):
+      - **gemini-cli-bin**: Google ecosystem with multimodal capabilities
+    - **Workflow Tools** (3):
       - **spec-kit**: Spec-driven development (used by axiOS spec-kit-baseline/)
-      - **backlog-md**: Human-AI project management
       - **claude-monitor**: AI session resource monitoring
       - **whisper-cpp**: Speech-to-text
-    - **Removed redundant agents**: goose-cli, codex, opencode, forge, crush, catnip, claude-code-router, jules wrapper
-    - **Rationale**: Avoid functional overlap, minimize build times (goose-cli was slow source build)
+    - **Removed tools**: nix-ai-tools dependency (moved to nixpkgs), backlog-md
+    - **Rationale**: All tools now from stable nixpkgs, avoiding upstream build failures
   - **ROCm Integration**: Ollama configured with AMD GPU acceleration
     - Ollama: `acceleration = "rocm"` for AMD GPU support
     - `rocmOverrideGfx = "10.3.0"` for gfx1031 GPUs (RX 5500/5600/5700 series)

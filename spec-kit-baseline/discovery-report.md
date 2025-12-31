@@ -24,7 +24,7 @@
 - **quickshell**: [latest] - Shell widget framework (evidence: flake.nix:76-79)
 
 ### AI & Development Tools
-- **nix-ai-tools**: [latest] - AI assistant tools (claude-code, copilot-cli) (evidence: flake.nix:97)
+- **AI CLI tools**: All from nixpkgs (claude-code, claude-code-acp, claude-code-router, copilot-cli, gemini-cli-bin, spec-kit, opencode)
 - **mcp-servers-nix**: [latest] - MCP server configuration library (evidence: flake.nix:100-103)
 - **mcp-journal**: [latest] - System journal MCP server (evidence: flake.nix:98)
 - **nix-devshell-mcp**: [latest] - Nix devshell MCP server (evidence: flake.nix:99)

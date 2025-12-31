@@ -89,10 +89,6 @@
     };
 
     # Fun with "AI"
-    nix-ai-tools = {
-      url = "github:numtide/nix-ai-tools";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     mcp-journal = {
       url = "github:kcalvelli/mcp-journal";
       inputs.nixpkgs.follows = "nixpkgs";

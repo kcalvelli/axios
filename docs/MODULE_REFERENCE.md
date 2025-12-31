@@ -237,11 +237,12 @@ virt = {
 1. **Base AI Tools** (always included when `services.ai.enable = true`):
    - **CLI Coding Agents** (3 distinct AI ecosystems):
      - **claude-code** - Anthropic's CLI agent with MCP support
+     - **claude-code-acp** - Claude Code Agent Communication Protocol
+     - **claude-code-router** - Claude Code request router
      - **copilot-cli** - GitHub/OpenAI CLI agent with GitHub integration
      - **gemini-cli** - Google's multimodal CLI agent with free tier
    - **Workflow & Support Tools**:
      - **spec-kit** - Spec-driven development framework
-     - **backlog-md** - Project management for human-AI collaboration
      - **claude-monitor** - Real-time AI session resource monitoring
      - **whisper-cpp** - Local speech-to-text transcription
 

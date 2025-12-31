@@ -236,6 +236,8 @@ Included when `services.ai.enable = true`:
 | Tool | Provider | Description |
 |------|----------|-------------|
 | **claude-code** | Anthropic | CLI agent with MCP support and deep integration |
+| **claude-code-acp** | Anthropic | Claude Code Agent Communication Protocol |
+| **claude-code-router** | Anthropic | Claude Code request router |
 | **copilot-cli** | GitHub/OpenAI | CLI agent with GitHub ecosystem integration |
 | **gemini-cli** | Google | Multimodal CLI agent with free tier |
 
@@ -244,7 +246,6 @@ Included when `services.ai.enable = true`:
 | Tool | Description |
 |------|-------------|
 | **spec-kit** | Spec-driven development framework (used by axiOS) |
-| **backlog-md** | Project management for human-AI collaboration |
 | **claude-monitor** | Real-time AI session resource monitoring |
 | **whisper-cpp** | Local speech-to-text transcription |
 
