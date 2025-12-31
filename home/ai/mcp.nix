@@ -118,11 +118,12 @@ let
           "@modelcontextprotocol/server-brave-search"
         ];
         # Read from NixOS agenix secret (configured in downstream NixOS config)
-        # Path: /run/user/$UID/agenix/brave-api-key
+        # Path is derived from XDG_RUNTIME_DIR which is /run/user/$UID
         passwordCommand = {
           BRAVE_API_KEY = [
-            "${pkgs.coreutils}/bin/cat"
-            "/run/user/\${UID}/agenix/brave-api-key"
+            "${pkgs.bash}/bin/bash"
+            "-c"
+            "${pkgs.coreutils}/bin/cat $XDG_RUNTIME_DIR/agenix/brave-api-key"
           ];
         };
       };
@@ -134,11 +135,12 @@ let
           "tavily-mcp"
         ];
         # Read from NixOS agenix secret (configured in downstream NixOS config)
-        # Path: /run/user/$UID/agenix/tavily-api-key
+        # Path is derived from XDG_RUNTIME_DIR which is /run/user/$UID
         passwordCommand = {
           TAVILY_API_KEY = [
-            "${pkgs.coreutils}/bin/cat"
-            "/run/user/\${UID}/agenix/tavily-api-key"
+            "${pkgs.bash}/bin/bash"
+            "-c"
+            "${pkgs.coreutils}/bin/cat $XDG_RUNTIME_DIR/agenix/tavily-api-key"
           ];
         };
       };
