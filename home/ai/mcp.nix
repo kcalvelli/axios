@@ -207,7 +207,8 @@ in
     # Claude Code reads ~/.mcp.json for global MCP server definitions
     # Note: Do NOT overwrite ~/.claude.json as it contains user state and preferences
     home.file.".mcp.json".text = builtins.toJSON {
-      mcpServers = (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+      mcpServers =
+        (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
     };
 
     # Note: Future AI tools can be added here by defining additional server configs

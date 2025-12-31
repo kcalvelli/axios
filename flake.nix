@@ -110,6 +110,10 @@
       url = "github:kcalvelli/Ultimate64MCP";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    c64-stream-viewer = {
+      url = "github:kcalvelli/c64-stream-viewer";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     mcp-servers-nix = {
       url = "github:natsukium/mcp-servers-nix";
       inputs.nixpkgs.follows = "nixpkgs";
