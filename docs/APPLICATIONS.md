@@ -255,7 +255,6 @@ Included when `services.ai.local.enable = true`:
 | Component | Description | Purpose |
 |-----------|-------------|---------|
 | **Ollama** | Local LLM inference backend | Run models locally with ROCm GPU acceleration |
-| **Alpaca** | Native GUI for local models | GTK/libadwaita visual interface |
 | **OpenCode** | Agentic CLI for coding tasks | Full file editing with MCP integration |
 
 **Default Models** (Ollama):

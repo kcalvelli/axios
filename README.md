@@ -106,10 +106,6 @@ For manual setup, you'll create just 3 files:
 ![DMS Settings and Monitor](docs/screenshots/dms-settings-monitor.png)
 *DankMaterialShell with system monitor, settings panel, and Material Design widgets — showing user profile, network status, and performance graphs*
 
-### Local AI Integration
-![Alpaca Local LLM](docs/screenshots/ai-alpaca.png)
-*Alpaca GUI with local LLM inference (Ollama backend) — part of the optional AI module with ROCm GPU acceleration*
-
 ## Documentation
 
 **📖 [Complete Documentation Hub](docs/README.md)** - Start here for comprehensive guides
@@ -154,7 +150,7 @@ Check out these example configurations:
 - **Gaming**: Steam, GameMode, Proton (optional)
 - **AI Services** (optional):
   - Cloud AI: 3 CLI coding agents (claude-code, copilot-cli, gemini-cli) + workflow tools
-  - Local LLM: Ollama + Alpaca + OpenCode with ROCm acceleration
+  - Local LLM: Ollama + OpenCode with ROCm acceleration
   - 32K context window for agentic coding
   - Full MCP server integration
 - **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)

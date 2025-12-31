@@ -247,7 +247,6 @@ virt = {
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
    - **Ollama** - Local inference backend with ROCm GPU acceleration
-   - **Alpaca** - Native GTK/libadwaita GUI for local models
    - **OpenCode** - Agentic CLI for coding tasks with full file editing
 
 **When to use:**
@@ -267,7 +266,7 @@ virt = {
 
 ```nix
 services.ai.local = {
-  enable = true;  # Enables Ollama + Alpaca + OpenCode
+  enable = true;  # Enables Ollama + OpenCode
 
   # Model management
   models = [
@@ -281,7 +280,6 @@ services.ai.local = {
   rocmOverrideGfx = "10.3.0";  # For RX 5500/5600/5700 series
 
   # Optional components
-  gui = true;  # Alpaca (default: true)
   cli = true;  # OpenCode (default: true)
 
   # Optional: Caddy reverse proxy for remote access
@@ -304,9 +302,6 @@ services.ai.local = {
 ```bash
 # Ollama CLI
 ollama run qwen3-coder:30b "Write a function to..."
-
-# Alpaca GUI
-# Launch from application menu
 
 # OpenCode CLI
 opencode "implement feature X with tests"

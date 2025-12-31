@@ -74,10 +74,6 @@ in
           };
         };
 
-        gui = lib.mkEnableOption "Alpaca native GUI for local models" // {
-          default = true;
-        };
-
         cli = lib.mkEnableOption "OpenCode agentic CLI" // {
           default = true;
         };
@@ -172,7 +168,6 @@ in
           python3
           uv # Python package manager for uvx
         ]
-        ++ lib.optional cfg.local.gui alpaca
         ++ lib.optional cfg.local.cli (
           inputs.nix-ai-tools.packages.${pkgs.stdenv.hostPlatform.system}.opencode
         );

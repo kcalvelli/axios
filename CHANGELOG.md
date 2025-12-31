@@ -98,7 +98,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
   - Prevented duplicate DMS spawning with systemd service configuration
 - **Documentation Overhaul**
   - Rewrote AI module documentation with two-tier architecture
-  - Documented local LLM stack (Ollama, Alpaca, OpenCode)
+  - Documented local LLM stack (Ollama, OpenCode)
   - Added ROCm acceleration details and 32K context window information
   - Expanded DankMaterialShell features (10+ specific features listed)
   - Added library philosophy section explaining design principles

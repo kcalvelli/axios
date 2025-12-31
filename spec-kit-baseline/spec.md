@@ -236,8 +236,6 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
     - Optional Caddy reverse proxy with path-based routing
       - Path-based routing on shared domain (e.g., edge.ts.net/ollama)
       - Compatible with other services using explicit handle blocks
-  - **Alpaca**: Native GUI for local models (GTK/libadwaita)
-    - Connects to Ollama backend
   - **OpenCode**: Agentic CLI for coding tasks
     - Full file editing and shell command execution
     - MCP server integration
@@ -252,7 +250,6 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - `services.ai.local.enable`: Enable local LLM stack
   - `services.ai.local.models`: List of Ollama models to preload
   - `services.ai.local.rocmOverrideGfx`: GPU architecture override (default: "10.3.0")
-  - `services.ai.local.gui`: Enable Alpaca (default: true)
   - `services.ai.local.cli`: Enable OpenCode (default: true)
   - `services.ai.local.ollamaReverseProxy.enable`: Enable Caddy reverse proxy for Ollama (default: false)
   - `services.ai.local.ollamaReverseProxy.path`: Path prefix for Ollama proxy (default: "/ollama")

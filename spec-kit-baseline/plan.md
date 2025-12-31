@@ -225,15 +225,14 @@ Modules are imported using one of three patterns:
 - **Language**: Nix
 - **Dependencies**:
   - Internal: None
-  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama, alpaca)
+  - External: nix-ai-tools, mcp-journal, nix-devshell-mcp, nixpkgs (ollama)
 - **Exposed Interface**: `inputs.axios.nixosModules.ai`
 - **Entry Points**: default.nix
 - **Key Options**:
   - `services.ai.enable`: Enable AI tools (3 CLI agents + workflow tools)
-  - `services.ai.local.enable`: Enable local LLM stack (Ollama, Alpaca, OpenCode)
+  - `services.ai.local.enable`: Enable local LLM stack (Ollama, OpenCode)
   - `services.ai.local.models`: Ollama models to preload
   - `services.ai.local.rocmOverrideGfx`: GPU architecture override for ROCm
-  - `services.ai.local.gui`: Enable Alpaca GUI
   - `services.ai.local.cli`: Enable OpenCode CLI
   - `services.ai.local.ollamaReverseProxy.enable`: Enable Caddy reverse proxy for Ollama
   - `services.ai.local.ollamaReverseProxy.path`: Path prefix for Ollama (default: "/ollama")
