@@ -15,6 +15,12 @@ in
     services.ai = {
       enable = lib.mkEnableOption "AI tools and services (copilot-cli, claude-code)";
 
+      mcp = {
+        enable = lib.mkEnableOption "Model Context Protocol (MCP) server integration" // {
+          default = true;
+        };
+      };
+
       local = {
         enable = lib.mkEnableOption "local LLM inference stack (Ollama, OpenCode)";
 

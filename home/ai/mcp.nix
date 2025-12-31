@@ -10,9 +10,46 @@
 let
   # MCP server definitions using mcp-servers-nix library
   # Define servers once, generate configs for multiple AI tools
-
-  # Note: Server paths are resolved by mcp-servers-nix.lib.evalModule
-  # No need to pre-resolve paths here
+  #
+  # MCP (Model Context Protocol) enables AI assistants to access external tools and data.
+  # Documentation: https://docs.claude.com/en/docs/claude-code/mcp
+  #
+  # REQUIREMENTS BY SERVER:
+  #
+  # ✓ NO SETUP REQUIRED:
+  #   - git: Uses system git (always available)
+  #   - time: Provides date/time utilities
+  #   - journal: Reads systemd journal logs
+  #   - nix-devshell-mcp: Nix development environment management
+  #   - ultimate64: Ultimate64 C64 emulator control (requires Ultimate64 hardware)
+  #   - sequential-thinking: Enhanced reasoning for complex problems
+  #   - context7: Up-to-date documentation search
+  #   - filesystem: File access (restricted to /tmp and ~/Projects)
+  #
+  # ⚙️  REQUIRES LOCAL CONFIGURATION:
+  #   - github: Requires 'gh auth login' to authenticate GitHub CLI
+  #     Run: gh auth login
+  #     Verify: gh auth status
+  #
+  # 🔑 REQUIRES API KEYS (via agenix secrets):
+  #   - brave-search: Requires Brave Search API key
+  #     1. Get API key: https://brave.com/search/api/
+  #     2. Create encrypted secret:
+  #        echo "your-api-key" | agenix -e secrets/brave-api-key.age
+  #     3. Add to your NixOS config:
+  #        age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
+  #     Secret path: /run/user/$UID/agenix/brave-api-key
+  #
+  #   - tavily: Requires Tavily API key
+  #     1. Get API key: https://tavily.com/
+  #     2. Create encrypted secret:
+  #        echo "your-api-key" | agenix -e secrets/tavily-api-key.age
+  #     3. Add to your NixOS config:
+  #        age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
+  #     Secret path: /run/user/$UID/agenix/tavily-api-key
+  #
+  # DISABLING MCP SERVERS:
+  #   Set services.ai.mcp.enable = false; in your NixOS configuration
 
   # Claude Code server configuration
   # Syntax follows: https://docs.claude.com/en/docs/claude-code/mcp
@@ -27,8 +64,13 @@ let
 
     # Custom and third-party servers
     settings.servers = {
-      # GitHub MCP server (from nixpkgs 25.11+)
-      # Previously provided by mcp-servers-nix, now in nixpkgs
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # CORE TOOLS (No setup required)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      # GitHub integration
+      # REQUIRES: gh auth login (GitHub CLI authentication)
+      # Provides: Repository management, issues, PRs, code search
       github = {
         command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
         args = [ "stdio" ];
@@ -44,42 +86,42 @@ let
         };
       };
 
-      # axios custom MCP servers
+      # Systemd journal access
+      # REQUIRES: No setup (automatic for systemd-journal group members)
+      # Provides: System log reading and analysis
       journal = {
         command = "${
           inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/mcp-journal";
       };
 
+      # Nix development environment management
+      # REQUIRES: No setup
+      # Provides: devShell inspection and management
       nix-devshell-mcp = {
         command = "${
           inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/nix-devshell-mcp";
       };
 
+      # Ultimate64 C64 emulator control
+      # REQUIRES: Ultimate64 hardware on local network
+      # Provides: Remote control of Ultimate64 emulator
+      # OPTIONAL: Set C64_HOST environment variable or use 'ultimate_set_connection' tool
       ultimate64 = {
         command = "${
           inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/mcp-ultimate";
         args = [ "--stdio" ];
-        # Note: Users can optionally set C64_HOST in their local config:
-        #   programs.claude-code.mcpServers.ultimate64.env.C64_HOST = "your-c64-ip";
-        # If not set, use the 'ultimate_set_connection' tool to configure at runtime
       };
 
-      mcp-nixos = {
-        command = "${pkgs.nix}/bin/nix";
-        args = [
-          "run"
-          "github:utensils/mcp-nixos"
-          "--"
-        ];
-        env = {
-          MCP_NIXOS_CLEANUP_ORPHANS = "true";
-        };
-      };
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # AI ENHANCEMENT SERVERS (No setup required)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-      # AI enhancement servers
+      # Sequential thinking for complex reasoning
+      # REQUIRES: No setup
+      # Provides: Step-by-step problem solving, chain-of-thought reasoning
       sequential-thinking = {
         command = "${pkgs.nodejs}/bin/npx";
         args = [
@@ -88,6 +130,9 @@ let
         ];
       };
 
+      # Context7 - Up-to-date library documentation
+      # REQUIRES: No setup
+      # Provides: Current documentation for programming libraries and frameworks
       context7 = {
         command = "${pkgs.nodejs}/bin/npx";
         args = [
@@ -96,7 +141,9 @@ let
         ];
       };
 
-      # Filesystem access (restricted to /tmp and ~/Projects)
+      # Filesystem access (restricted paths)
+      # REQUIRES: No setup
+      # Provides: Read/write access to /tmp and ~/Projects only
       filesystem = {
         command = "${pkgs.nodejs}/bin/npx";
         args = [
@@ -107,19 +154,23 @@ let
         ];
       };
 
-      # Search tools (require API keys)
-      # Users should configure secrets in their downstream config:
-      #   age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
-      #   age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # SEARCH SERVERS (Require API keys via agenix)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      # Brave Search API integration
+      # REQUIRES: Brave Search API key
+      # Setup:
+      #   1. Get API key: https://brave.com/search/api/
+      #   2. Create secret: echo "key" | agenix -e secrets/brave-api-key.age
+      #   3. Configure: age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
+      # Provides: Web search, news, image search
       brave-search = {
         command = "${pkgs.nodejs}/bin/npx";
         args = [
           "-y"
           "@modelcontextprotocol/server-brave-search"
         ];
-        # Read from NixOS agenix secret (configured in downstream NixOS config)
-        # Uses command substitution $(id -u) to get current user ID dynamically
-        # tr -d removes trailing newline from secret file
         env = {
           BRAVE_API_KEY = ''''${BRAVE_API_KEY}'';
         };
@@ -132,15 +183,19 @@ let
         };
       };
 
+      # Tavily Search API integration
+      # REQUIRES: Tavily API key
+      # Setup:
+      #   1. Get API key: https://tavily.com/
+      #   2. Create secret: echo "key" | agenix -e secrets/tavily-api-key.age
+      #   3. Configure: age.secrets.tavily-api-key.file = ./secrets/tavily-api-key.age;
+      # Provides: AI-optimized search, research mode
       tavily = {
         command = "${pkgs.nodejs}/bin/npx";
         args = [
           "-y"
           "tavily-mcp"
         ];
-        # Read from NixOS agenix secret (configured in downstream NixOS config)
-        # Uses command substitution $(id -u) to get current user ID dynamically
-        # tr -d removes trailing newline from secret file
         env = {
           TAVILY_API_KEY = ''''${TAVILY_API_KEY}'';
         };
@@ -156,36 +211,38 @@ let
   };
 in
 {
-  # Shell aliases for AI tools
-  programs.bash.shellAliases = {
-    cm = "claude-monitor";
-    cmonitor = "claude-monitor";
-    ccm = "claude-monitor";
+  config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
+    # Shell aliases for AI tools
+    programs.bash.shellAliases = {
+      cm = "claude-monitor";
+      cmonitor = "claude-monitor";
+      ccm = "claude-monitor";
+    };
+
+    programs.zsh.shellAliases = {
+      cm = "claude-monitor";
+      cmonitor = "claude-monitor";
+      ccm = "claude-monitor";
+    };
+
+    # Install MCP server packages
+    home.packages = [
+      inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
+      inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+      inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+    ];
+
+    # Claude Code MCP configuration (declarative)
+    # Generate MCP server configuration file for Claude Code CLI
+    # Claude Code reads ~/.mcp.json for global MCP server definitions
+    # Note: Do NOT overwrite ~/.claude.json as it contains user state and preferences
+    home.file.".mcp.json".text = builtins.toJSON {
+      mcpServers = (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+    };
+
+    # Note: Future AI tools can be added here by defining additional server configs
+    # Example for Neovim with mcphub:
+    #   home.file."${config.xdg.configHome}/mcphub/servers.json".source =
+    #     inputs.mcp-servers-nix.lib.mkConfig pkgs mcphub-servers;
   };
-
-  programs.zsh.shellAliases = {
-    cm = "claude-monitor";
-    cmonitor = "claude-monitor";
-    ccm = "claude-monitor";
-  };
-
-  # Install MCP server packages
-  home.packages = [
-    inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-  ];
-
-  # Claude Code MCP configuration (declarative)
-  # Generate MCP server configuration file for Claude Code CLI
-  # Claude Code reads ~/.mcp.json for global MCP server definitions
-  # Note: Do NOT overwrite ~/.claude.json as it contains user state and preferences
-  home.file.".mcp.json".text = builtins.toJSON {
-    mcpServers = (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
-  };
-
-  # Note: Future AI tools can be added here by defining additional server configs
-  # Example for Neovim with mcphub:
-  #   home.file."${config.xdg.configHome}/mcphub/servers.json".source =
-  #     inputs.mcp-servers-nix.lib.mkConfig pkgs mcphub-servers;
 }

@@ -401,13 +401,22 @@ All workflows use:
 ## AI Module Specifics
 
 The `services.ai.enable` module provides:
-- **Tools**: claude-code, copilot-cli, claude-monitor, and other AI assistants
-- **MCP Servers**: journal, mcp-nixos, sequential-thinking, context7, filesystem, git, github, brave-search, tavily
+- **Tools**: claude-code, copilot-cli, claude-monitor, gemini-cli, and other AI assistants
+- **MCP Servers** (optional): Enable with `services.ai.mcp.enable = true` (default: true)
 - **Architecture**: Uses `mcp-servers-nix` library for declarative MCP server configuration
 
 ### MCP Configuration
 
-- **Declarative**: MCP servers configured via `programs.claude-code.mcpServers` in home-manager
+**Enable/Disable**: MCP servers are enabled by default when `services.ai.enable = true`. To disable:
+```nix
+{
+  services.ai.enable = true;
+  services.ai.mcp.enable = false;  # Disable MCP servers
+}
+```
+
+**Architecture**:
+- **Declarative**: MCP servers configured in `home/ai/mcp.nix`
 - **Library-based**: Uses `inputs.mcp-servers-nix.lib.evalModule` to generate tool-specific configs
 - **Multi-tool ready**: Can generate configs for Claude Code, Neovim (mcphub), Cursor, and other MCP clients
 - **Pre-packaged servers**: MCP servers from `mcp-servers-nix` overlay (no runtime downloads)
@@ -415,10 +424,14 @@ The `services.ai.enable` module provides:
 
 ### MCP Server Categories
 
-1. **Core Tools**: git, github, filesystem, time
-2. **NixOS Integration**: journal (system logs), mcp-nixos (packages/options)
-3. **AI Enhancement**: sequential-thinking, context7
-4. **Search**: brave-search, tavily (require API keys)
+**All MCP server requirements are documented in `home/ai/mcp.nix`**
+
+1. **Core Tools** (no setup required): git, github†, filesystem, time, journal, nix-devshell-mcp, ultimate64‡
+2. **AI Enhancement** (no setup required): sequential-thinking, context7
+3. **Search** (require API keys): brave-search, tavily
+
+**†** github requires `gh auth login` first
+**‡** ultimate64 requires Ultimate64 hardware on local network
 
 ### Configuring API Keys for Search Servers
 
@@ -458,8 +471,14 @@ axios will automatically use `passwordCommand` to securely load these secrets. I
 ### Checking if AI module is enabled (in home-manager)
 
 ```nix
+# Check if AI tools are enabled
 config = lib.mkIf (osConfig.services.ai.enable or false) {
-  # home configuration
+  # home configuration for AI tools
+};
+
+# Check if MCP servers are enabled
+config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
+  # home configuration for MCP servers
 };
 ```
 
