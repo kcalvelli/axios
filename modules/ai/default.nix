@@ -128,7 +128,8 @@ in
           [
             # CLI Coding Agents (3 distinct AI ecosystems)
             ai-tools.claude-code # Anthropic - MCP support, deep integration
-            ai-tools.copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
+            #Co-pilot cli is not currently building  
+            #ai-tools.copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
             ai-tools.gemini-cli # Google - Multimodal, free tier
 
             # Workflow & Support Tools
