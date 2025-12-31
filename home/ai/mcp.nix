@@ -119,11 +119,12 @@ let
         ];
         # Read from NixOS agenix secret (configured in downstream NixOS config)
         # Uses command substitution $(id -u) to get current user ID dynamically
+        # tr -d removes trailing newline from secret file
         passwordCommand = {
           BRAVE_API_KEY = [
             "${pkgs.bash}/bin/bash"
             "-c"
-            "${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/brave-api-key"
+            "${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/brave-api-key | ${pkgs.coreutils}/bin/tr -d '\\n'"
           ];
         };
       };
@@ -136,11 +137,12 @@ let
         ];
         # Read from NixOS agenix secret (configured in downstream NixOS config)
         # Uses command substitution $(id -u) to get current user ID dynamically
+        # tr -d removes trailing newline from secret file
         passwordCommand = {
           TAVILY_API_KEY = [
             "${pkgs.bash}/bin/bash"
             "-c"
-            "${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/tavily-api-key"
+            "${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/tavily-api-key | ${pkgs.coreutils}/bin/tr -d '\\n'"
           ];
         };
       };
