@@ -617,6 +617,12 @@ EOM
                 rm "$TEMP_CONF"
                 print_success "Configuration updated successfully!"
                 
+                # Try to format the file if nix fmt is available
+                if command -v nix &> /dev/null; then
+                     print_info "Formatting configuration..."
+                     nix fmt "$CONFIG_FILE" >/dev/null 2>&1 || true
+                fi
+                
                 # Check if we are in a git repo and the file is untracked
                 if git -C "$(dirname "$CONFIG_FILE")" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
                     echo ""
