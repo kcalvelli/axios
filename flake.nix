@@ -205,6 +205,7 @@
                         pkgs.coreutils
                         pkgs.gnugrep
                         pkgs.gnused
+                        pkgs.file
                       ]
                     }:$PATH"
                     export FETCH_SCRIPT="${./scripts/fetch-pwa-icon.sh}"
@@ -227,6 +228,7 @@
                         pkgs.coreutils
                         pkgs.gnugrep
                         pkgs.gnused
+                        pkgs.file
                       ]
                     }:$PATH"
                     exec ${pkgs.bash}/bin/bash ${./scripts/fetch-pwa-icon.sh} "$@"

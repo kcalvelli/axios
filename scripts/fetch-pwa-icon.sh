@@ -74,6 +74,9 @@ download_icon() {
             return 0
         else
             echo "  ⚠️  ImageMagick conversion failed"
+            echo "  🔎 Debug: First 100 bytes of file:"
+            head -c 100 "$temp_icon"
+            echo "..."
             return 1
         fi
     else
