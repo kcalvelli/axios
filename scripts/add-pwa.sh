@@ -539,13 +539,18 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     HAS_HM_BLOCK=$(grep -q "home-manager.users\." "$CONFIG_FILE" && echo "yes" || echo "no")
     
     TARGET_LINE=""
-    if [ "$HAS_HM_BLOCK" = "yes" ]; then
-        TARGET_LINE=$(grep -n "};
-" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+    if [ "$HAS_PWA_BLOCK" = "yes" ]; then
+        # Sibling Insertion Strategy:
+        # If axios.pwa exists, insert right after the last occurrence of it.
+        # This guarantees we are in the correct scope/block.
+        LAST_PWA_LINE=$(grep -n "axios\.pwa" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+        TARGET_LINE=$((LAST_PWA_LINE + 1))
+        INSERT_DESC="after existing axios.pwa configuration (line $LAST_PWA_LINE)"
+    elif [ "$HAS_HM_BLOCK" = "yes" ]; then
+        TARGET_LINE=$(grep -n "};" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
         INSERT_DESC="before the closing of your home-manager block (line $TARGET_LINE)"
     else
-        TARGET_LINE=$(grep -n "}
-" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+        TARGET_LINE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
         INSERT_DESC="before the last closing brace (line $TARGET_LINE)"
     fi
 
