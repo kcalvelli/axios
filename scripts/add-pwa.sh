@@ -325,7 +325,7 @@ if [ -n "$MANIFEST_SHORTCUTS" ]; then
     read -p "[Y/n]: " USE_SHORTCUTS
     if [[ ! "$USE_SHORTCUTS" =~ ^[Nn]$ ]]; then
         # Parse shortcuts from manifest
-        ACTIONS_CODE="        actions = {"
+        ACTIONS_CODE="    actions = {"
         SHORTCUTS_JSON=$(jq -c '.shortcuts // []' "$MANIFEST_FILE" 2>/dev/null)
 
         while IFS= read -r shortcut; do
@@ -364,10 +364,10 @@ if [ -z "$ACTIONS_CODE" ]; then
         echo "Desktop actions allow right-click menu entries."
         echo "Example: 'Compose' action opens Gmail compose window"
         echo ""
-        read -p "Number of actions to add: " NUM_ACTIONS
-
-        ACTIONS_CODE="        actions = {"
-        for ((i=1; i<=NUM_ACTIONS; i++)); do
+                read -p "Number of actions to add: " NUM_ACTIONS
+        
+                ACTIONS_CODE="    actions = {"
+                for ((i=1; i<=NUM_ACTIONS; i++)); do
             echo ""
             echo "Action $i:"
             read -p "  Action ID (e.g., 'compose'): " ACTION_ID
@@ -456,15 +456,15 @@ Add this configuration:
         name = "${PWA_NAME}";
         url = "${PWA_URL}";
         icon = "${PWA_ID}";
-        categories = ${CATEGORIES};${ACTIONS_CODE}
+        categories = ${CATEGORIES};
+${ACTIONS_CODE}
       };
     };
   };
 }
 
 ${BLUE}Option 2: Create modular pwa.nix file${NC}
-${YELLOW}Create: 
-${CONFIG_DIR:-.}/pwa.nix${NC}
+${YELLOW}Create: ${CONFIG_DIR:-.}/pwa.nix${NC}
 
 {
   axios.pwa = {
@@ -475,7 +475,8 @@ ${CONFIG_DIR:-.}/pwa.nix${NC}
         name = "${PWA_NAME}";
         url = "${PWA_URL}";
         icon = "${PWA_ID}";
-        categories = ${CATEGORIES};${ACTIONS_CODE}
+        categories = ${CATEGORIES};
+${ACTIONS_CODE}
       };
     };
   };
@@ -535,7 +536,7 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     echo ""
 
     # Detect insertion point early for preview
-    HAS_PWA_BLOCK=$(grep -q "axios.pwa =" "$CONFIG_FILE" && echo "yes" || echo "no")
+    HAS_PWA_BLOCK=$(grep -q "axios\.pwa" "$CONFIG_FILE" && echo "yes" || echo "no")
     HAS_HM_BLOCK=$(grep -q "home-manager.users\." "$CONFIG_FILE" && echo "yes" || echo "no")
     
     TARGET_LINE=""
@@ -595,7 +596,8 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     name = "${PWA_NAME}";
     url = "${PWA_URL}";
     icon = "${PWA_ID}";
-    categories = ${CATEGORIES};${ACTIONS_CODE}
+    categories = ${CATEGORIES};
+${ACTIONS_CODE}
   };
 EOM
             else
@@ -608,7 +610,8 @@ EOM
     name = "${PWA_NAME}";
     url = "${PWA_URL}";
     icon = "${PWA_ID}";
-    categories = ${CATEGORIES};${ACTIONS_CODE}
+    categories = ${CATEGORIES};
+${ACTIONS_CODE}
   };
 EOM
             fi
