@@ -284,9 +284,49 @@ fi
 echo ""
 if [ -n "$MANIFEST_CATEGORIES" ]; then
     echo "Categories from manifest: $MANIFEST_CATEGORIES"
-    CATEGORIES_ARRAY=$(echo "$MANIFEST_CATEGORIES" | sed 's/\([^ ]*\)/"\1"/g')
+    
+    # Sanitize and map categories to standard Freedesktop values
+    MAPPED_CATS=""
+    HAS_MAIN_CAT="no"
+    
+    for cat in $MANIFEST_CATEGORIES; do
+        # Convert to lowercase for matching
+        lcat=$(echo "$cat" | tr '[:upper:]' '[:lower:]')
+        scat=""
+        
+        case "$lcat" in
+            # Mapping common manifest categories to standard ones
+            social|communication|chat) scat="Network;InstantMessaging"; HAS_MAIN_CAT="yes" ;;
+            news|magazines) scat="News" ;;
+            productivity|office|writing) scat="Office"; HAS_MAIN_CAT="yes" ;;
+            video|movies|tv) scat="Video"; HAS_MAIN_CAT="yes" ;;
+            audio|music|podcasts) scat="Audio"; HAS_MAIN_CAT="yes" ;;
+            graphics|design|photo|photography) scat="Graphics"; HAS_MAIN_CAT="yes" ;;
+            development|programming|code) scat="Development"; HAS_MAIN_CAT="yes" ;;
+            education|learning|books) scat="Education"; HAS_MAIN_CAT="yes" ;;
+            games) scat="Game"; HAS_MAIN_CAT="yes" ;;
+            utilities|tools) scat="Utility"; HAS_MAIN_CAT="yes" ;;
+            # Capitalize others as fallback (but they might still be invalid)
+            *) scat="$(echo "${cat:0:1}" | tr '[:lower:]' '[:upper:]')${cat:1}" ;;
+        esac
+        
+        if [ -n "$scat" ]; then
+            if [ -n "$MAPPED_CATS" ]; then MAPPED_CATS="$MAPPED_CATS $scat"; else MAPPED_CATS="$scat"; fi
+        fi
+    done
+    
+    # Split by semicolon and spaces, unique them, and wrap in quotes
+    FINAL_CATS=$(echo "$MAPPED_CATS" | tr ';' ' ' | tr ' ' '\n' | sort -u | tr '\n' ' ' | sed 's/ $//')
+    
+    # Ensure at least one main category (Network is a safe default for PWAs)
+    if [ "$HAS_MAIN_CAT" = "no" ]; then
+        FINAL_CATS="Network $FINAL_CATS"
+    fi
+    
+    CATEGORIES_ARRAY=$(echo "$FINAL_CATS" | sed 's/\([^ ]*\)/"\1"/g')
     CATEGORIES="[ $CATEGORIES_ARRAY ]"
-    read -p "Press Enter to use these categories or 'c' to customize: " CUSTOM_CHOICE
+    
+    read -p "Press Enter to use standard categories $CATEGORIES or 'c' to customize: " CUSTOM_CHOICE
     if [[ "$CUSTOM_CHOICE" =~ ^[Cc]$ ]]; then
         MANIFEST_CATEGORIES=""  # Fall through to manual selection
     fi
