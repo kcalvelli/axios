@@ -625,7 +625,11 @@ EOM
                 # Try to format the file if nix fmt is available
                 if command -v nix &> /dev/null; then
                      print_info "Formatting configuration..."
-                     nix fmt "$CONFIG_FILE" >/dev/null 2>&1 || true
+                     if ! nix fmt "$CONFIG_FILE" >/dev/null 2>&1; then
+                         # Fallback: Use standard nixfmt from nixpkgs
+                         print_info "Local formatter not found, using nixpkgs#nixfmt-rfc-style..."
+                         nix run nixpkgs#nixfmt-rfc-style -- "$CONFIG_FILE" >/dev/null 2>&1 || true
+                     fi
                 fi
                 
                 # Check if we are in a git repo and the file is untracked
