@@ -79,6 +79,7 @@ if [ -z "${OUTPUT_DIR:-}" ]; then
         if [ -n "$EXISTING_PATH" ]; then
             DETECTED_DIR="$(dirname "$CONFIG_FILE")/$EXISTING_PATH"
             print_info "Detected existing iconPath in config: $EXISTING_PATH"
+            SKIP_DIR_PROMPT="yes"
         fi
     fi
 
@@ -94,13 +95,18 @@ echo "  3. Show you how to add it to your config"
 echo ""
 
 # Prompt for directory confirmation
-echo -e "Icons will be saved to: ${BLUE}$OUTPUT_DIR${NC}"
-read -p "Press Enter to confirm, or type a different path: " CUSTOM_DIR
-if [ -n "$CUSTOM_DIR" ]; then
-    OUTPUT_DIR="$CUSTOM_DIR"
-    echo -e "Using custom path: ${BLUE}$OUTPUT_DIR${NC}"
+if [ "${SKIP_DIR_PROMPT:-no}" = "yes" ]; then
+    echo -e "Icons will be saved to: ${BLUE}$OUTPUT_DIR${NC} (from config)"
+    echo ""
+else
+    echo -e "Icons will be saved to: ${BLUE}$OUTPUT_DIR${NC}"
+    read -p "Press Enter to confirm, or type a different path: " CUSTOM_DIR
+    if [ -n "$CUSTOM_DIR" ]; then
+        OUTPUT_DIR="$CUSTOM_DIR"
+        echo -e "Using custom path: ${BLUE}$OUTPUT_DIR${NC}"
+    fi
+    echo ""
 fi
-echo ""
 
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
