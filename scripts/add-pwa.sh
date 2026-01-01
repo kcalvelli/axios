@@ -496,3 +496,63 @@ if [ -n "$CONFIG_FILE" ]; then
     echo "Config: $CONFIG_FILE"
 fi
 echo ""
+
+# --- Auto-Update Feature ---
+if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}Automatic Configuration Update${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    echo -e "I can attempt to automatically add this PWA to your config."
+    echo -e "File: ${BLUE}$CONFIG_FILE${NC}"
+    echo ""
+    read -p "Would you like to update this file? [y/N]: " AUTO_UPDATE
+
+    if [[ "$AUTO_UPDATE" =~ ^[Yy]$ ]]; then
+        # Check if already exists
+        if grep -q "extraApps.${PWA_ID}" "$CONFIG_FILE" || grep -q "\"${PWA_ID}\" =" "$CONFIG_FILE"; then
+            print_info "PWA '${PWA_ID}' seems to already exist in the config. Skipping auto-update."
+        else
+            print_info "Updating configuration..."
+            
+            # Prepare the block
+            # We use a sub-attribute syntax which is valid at the top level or inside a config block
+            UPDATE_BLOCK="
+  # Generated PWA: ${PWA_NAME}
+  axios.pwa.enable = lib.mkDefault true;
+  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
+  axios.pwa.extraApps.${PWA_ID} = {
+    name = \"${PWA_NAME}\";
+    url = \"${PWA_URL}\";
+    icon = \"${PWA_ID}\";
+    categories = ${CATEGORIES};${ACTIONS_CODE}
+  };"
+
+            # Safe Append Strategy: Find the last closing brace and insert before it
+            # This works for almost all standard Nix home-manager/NixOS configs
+            if sed -i "$|i \\${UPDATE_BLOCK}" "$CONFIG_FILE" 2>/dev/null; then
+                # Check if we need to fix the insertion point (sed $i inserts before last line)
+                # If the last line is just '}', we are good.
+                print_success "Configuration updated successfully!"
+                print_info "Don't forget to rebuild: ${BLUE}sudo nixos-rebuild switch --flake .${NC}"
+            else
+                # Fallback for some sed versions
+                TEMP_CONF=$(mktemp)
+                # Find line number of last '}'
+                LAST_BRACE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+                if [ -n "$LAST_BRACE" ]; then
+                    head -n $((LAST_BRACE - 1)) "$CONFIG_FILE" > "$TEMP_CONF"
+                    echo "$UPDATE_BLOCK" >> "$TEMP_CONF"
+                    tail -n +$LAST_BRACE "$CONFIG_FILE" >> "$TEMP_CONF"
+                    cp "$TEMP_CONF" "$CONFIG_FILE"
+                    rm "$TEMP_CONF"
+                    print_success "Configuration updated successfully!"
+                else
+                    print_error "Could not find a suitable insertion point in the file."
+                fi
+            fi
+        fi
+    fi
+    echo ""
+fi
+# --- End Auto-Update ---
