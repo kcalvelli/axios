@@ -179,8 +179,22 @@ echo "PWA Configuration"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
+# Generate default ID from manifest
+DEFAULT_ID=""
+if [ -n "$MANIFEST_SHORT_NAME" ]; then
+    DEFAULT_ID=$(echo "$MANIFEST_SHORT_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\+/-/g' | sed 's/^-//;s/-$//')
+elif [ -n "$MANIFEST_NAME" ]; then
+    DEFAULT_ID=$(echo "$MANIFEST_NAME" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/-\+/-/g' | sed 's/^-//;s/-$//')
+fi
+
 # PWA ID
-read -p "PWA identifier (lowercase, dashes only, e.g., 'github'): " PWA_ID
+if [ -n "$DEFAULT_ID" ]; then
+    read -p "PWA identifier [${DEFAULT_ID}]: " PWA_ID_INPUT
+    PWA_ID="${PWA_ID_INPUT:-$DEFAULT_ID}"
+else
+    read -p "PWA identifier (lowercase, dashes only, e.g., 'github'): " PWA_ID
+fi
+
 # Validate PWA ID
 if [[ ! "$PWA_ID" =~ ^[a-z0-9-]+$ ]]; then
     print_error "Invalid PWA ID. Use only lowercase letters, numbers, and dashes."
