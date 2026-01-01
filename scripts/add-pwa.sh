@@ -82,9 +82,9 @@ if [ -n "$DETECTED_ROOT" ]; then
     
     # Strategy 1: Parse flake.nix for userModule definition
     if [ -f "$FLAKE_FILE" ]; then
-        USER_MODULE=$(grep -oP 'userModule\s*=\s*self.outPath\s*\+\s*"\K[^"\n]+' "$FLAKE_FILE" | head -1)
+        USER_MODULE=$(grep -oP 'userModule\s*=\s*self.outPath\s*\+\s*"\K[^"\n]+' "$FLAKE_FILE" | head -1 || true)
         if [ -z "$USER_MODULE" ]; then
-            USER_MODULE=$(grep -oP 'userModule\s*=\s*\.\/\K[^;\n]+' "$FLAKE_FILE" | head -1 | tr -d ' "')
+            USER_MODULE=$(grep -oP 'userModule\s*=\s*\.\/\K[^;\n]+' "$FLAKE_FILE" | head -1 | tr -d ' "' || true)
         fi
 
         if [ -n "$USER_MODULE" ]; then
@@ -119,7 +119,7 @@ if [ -n "$ARG_OUTPUT_DIR" ]; then
 
 # Priority 2: Extract from Config File
 elif [ -n "$CONFIG_FILE" ]; then
-    EXISTING_PATH=$(grep -oP 'iconPath\s*=\s*\.\/\K[^;\n]+' "$CONFIG_FILE" | head -1 | tr -d ' "')
+    EXISTING_PATH=$(grep -oP 'iconPath\s*=\s*\.\/\K[^;\n]+' "$CONFIG_FILE" | head -1 | tr -d ' "' || true)
     if [ -n "$EXISTING_PATH" ]; then
         OUTPUT_DIR="$(dirname "$CONFIG_FILE")/$EXISTING_PATH"
         print_info "Detected existing iconPath in config: $EXISTING_PATH"
