@@ -34,56 +34,106 @@ print_info() {
     echo -e "${YELLOW}ℹ️  $1${NC}"
 }
 
-# Determine output directory
-DETECTED_DIR=""
+# --- 1. Parse Arguments ---
 PWA_URL_PRESET=""
+ARG_OUTPUT_DIR=""
 
 if [ $# -gt 0 ]; then
     if [[ "$1" =~ ^https?:// ]]; then
         PWA_URL_PRESET="$1"
         if [ $# -gt 1 ]; then
-            OUTPUT_DIR="$2"
+            ARG_OUTPUT_DIR="$2"
         fi
     else
-        OUTPUT_DIR="$1"
+        ARG_OUTPUT_DIR="$1"
     fi
 fi
 
-if [ -z "${OUTPUT_DIR:-}" ]; then
-    # Strategy 1: Check FLAKE_PATH environment variable
-    if [ -n "${FLAKE_PATH:-}" ] && [ -d "$FLAKE_PATH" ]; then
-        DETECTED_DIR="$FLAKE_PATH/pwa-icons"
-    # Strategy 2: Find git root with flake.nix
-    elif git rev-parse --git-dir > /dev/null 2>&1; then
-        GIT_ROOT=$(git rev-parse --show-toplevel)
-        if [ -f "$GIT_ROOT/flake.nix" ]; then
-            DETECTED_DIR="$GIT_ROOT/pwa-icons"
+# --- 2. Detect Config File (Pre-scan) ---
+# We need to find the config file early to check for existing iconPath
+CONFIG_FILE=""
+DETECTED_ROOT=""
+
+# Check FLAKE_PATH environment variable
+if [ -n "${FLAKE_PATH:-}" ] && [ -d "$FLAKE_PATH" ]; then
+    DETECTED_ROOT="$FLAKE_PATH"
+# Find git root with flake.nix
+elif git rev-parse --git-dir > /dev/null 2>&1; then
+    GIT_ROOT=$(git rev-parse --show-toplevel)
+    if [ -f "$GIT_ROOT/flake.nix" ]; then
+        DETECTED_ROOT="$GIT_ROOT"
+    fi
+fi
+
+# Fallback to common locations
+if [ -z "$DETECTED_ROOT" ]; then
+    if [ -d "$HOME/.config/nixos_config" ]; then
+        DETECTED_ROOT="$HOME/.config/nixos_config"
+    elif [ -d "$HOME/.dotfiles" ]; then
+        DETECTED_ROOT="$HOME/.dotfiles"
+    else
+        DETECTED_ROOT="."
+    fi
+fi
+
+# Try to find the specific config file (user.nix, home.nix, etc.)
+if [ -n "$DETECTED_ROOT" ]; then
+    FLAKE_FILE="$DETECTED_ROOT/flake.nix"
+    
+    # Strategy 1: Parse flake.nix for userModule definition
+    if [ -f "$FLAKE_FILE" ]; then
+        USER_MODULE=$(grep -oP 'userModule\s*=\s*self.outPath\s*\+\s*"\K[^"\n]+' "$FLAKE_FILE" | head -1)
+        if [ -z "$USER_MODULE" ]; then
+            USER_MODULE=$(grep -oP 'userModule\s*=\s*\.\/\K[^;\n]+' "$FLAKE_FILE" | head -1 | tr -d ' "')
+        fi
+
+        if [ -n "$USER_MODULE" ]; then
+            USER_MODULE_FILE="${USER_MODULE#/}"
+            if [ -f "$DETECTED_ROOT/$USER_MODULE_FILE" ]; then
+                CONFIG_FILE="$DETECTED_ROOT/$USER_MODULE_FILE"
+            fi
         fi
     fi
 
-    # Strategy 3: Common config locations
-    if [ -z "$DETECTED_DIR" ]; then
-        if [ -d "$HOME/.config/nixos_config" ]; then
-            DETECTED_DIR="$HOME/.config/nixos_config/pwa-icons"
-        elif [ -d "$HOME/.dotfiles" ]; then
-            DETECTED_DIR="$HOME/.dotfiles/pwa-icons"
-        else
-            DETECTED_DIR="./pwa-icons"
+    # Strategy 2: Common naming patterns
+    if [ -z "$CONFIG_FILE" ]; then
+        if [ -f "$DETECTED_ROOT/home.nix" ]; then
+            CONFIG_FILE="$DETECTED_ROOT/home.nix"
+        elif [ -f "$DETECTED_ROOT/user.nix" ]; then
+            CONFIG_FILE="$DETECTED_ROOT/user.nix"
+        elif [ -f "$DETECTED_ROOT/${USER}.nix" ]; then
+            CONFIG_FILE="$DETECTED_ROOT/${USER}.nix"
+        elif [ -f "$DETECTED_ROOT/home-manager.nix" ]; then
+            CONFIG_FILE="$DETECTED_ROOT/home-manager.nix"
         fi
     fi
+fi
 
-    # Strategy 4: Try to extract iconPath from existing config
-    # We look for axios.pwa.iconPath = ./some-path; or iconPath = ./some-path;
-    if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
-        EXISTING_PATH=$(grep -oP 'iconPath\s*=\s*\./\K[^;]+' "$CONFIG_FILE" | head -1 | tr -d ' "')
-        if [ -n "$EXISTING_PATH" ]; then
-            DETECTED_DIR="$(dirname "$CONFIG_FILE")/$EXISTING_PATH"
-            print_info "Detected existing iconPath in config: $EXISTING_PATH"
-            SKIP_DIR_PROMPT="yes"
-        fi
+# --- 3. Determine Output Directory ---
+OUTPUT_DIR=""
+SKIP_DIR_PROMPT="no"
+
+# Priority 1: Command line argument
+if [ -n "$ARG_OUTPUT_DIR" ]; then
+    OUTPUT_DIR="$ARG_OUTPUT_DIR"
+
+# Priority 2: Extract from Config File
+elif [ -n "$CONFIG_FILE" ]; then
+    EXISTING_PATH=$(grep -oP 'iconPath\s*=\s*\.\/\K[^;\n]+' "$CONFIG_FILE" | head -1 | tr -d ' "')
+    if [ -n "$EXISTING_PATH" ]; then
+        OUTPUT_DIR="$(dirname "$CONFIG_FILE")/$EXISTING_PATH"
+        print_info "Detected existing iconPath in config: $EXISTING_PATH"
+        SKIP_DIR_PROMPT="yes"
     fi
+fi
 
-    OUTPUT_DIR="$DETECTED_DIR"
+# Priority 3: Fallback based on DETECTED_ROOT
+if [ -z "$OUTPUT_DIR" ]; then
+    if [ -n "$DETECTED_ROOT" ]; then
+        OUTPUT_DIR="$DETECTED_ROOT/pwa-icons"
+    else
+        OUTPUT_DIR="./pwa-icons"
+    fi
 fi
 
 print_header
@@ -95,7 +145,7 @@ echo "  3. Show you how to add it to your config"
 echo ""
 
 # Prompt for directory confirmation
-if [ "${SKIP_DIR_PROMPT:-no}" = "yes" ]; then
+if [ "$SKIP_DIR_PROMPT" = "yes" ]; then
     echo -e "Icons will be saved to: ${BLUE}$OUTPUT_DIR${NC} (from config)"
     echo ""
 else
@@ -152,7 +202,7 @@ if ! curl -sL -A "Mozilla/5.0" "$PWA_URL" > "$HTML_FILE"; then
 fi
 
 # Extract manifest URL
-MANIFEST_URL=$(grep -oP 'rel=["\x27]manifest["\x27]\s+href=["\x27]\K[^"'\'']+' "$HTML_FILE" | head -1 || true)
+MANIFEST_URL=$(grep -oP 'rel=[\"\x27]manifest[\"\x27]\s+href=[\"\x27]\K[^"\'\x27]+' "$HTML_FILE" | head -1 || true)
 
 MANIFEST_NAME=""
 MANIFEST_SHORT_NAME=""
@@ -261,7 +311,7 @@ if [ -z "$MANIFEST_CATEGORIES" ]; then
         6)
             read -p "Enter categories (space-separated, e.g., 'Network InstantMessaging'): " CUSTOM_CATS
             CATEGORIES="[ $(echo "$CUSTOM_CATS" | sed 's/\([^ ]*\)/"\1"/g' | sed 's/ / /g') ]"
-            ;;
+            ;; 
         *) CATEGORIES='[ "Network" ]' ;;
     esac
 fi
@@ -368,52 +418,11 @@ echo "Configuration"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-# Detect config file location
-CONFIG_FILE=""
-CONFIG_DIR=$(dirname "$OUTPUT_DIR")
-FLAKE_FILE="$CONFIG_DIR/flake.nix"
-
-# Strategy 1: Parse flake.nix for userModule definition (most reliable)
-if [ -f "$FLAKE_FILE" ]; then
-    # Pattern 1: userModule = self.outPath + "/keith.nix";
-    USER_MODULE=$(grep -oP 'userModule\s*=\s*self\.outPath\s*\+\s*"\K[^"]+' "$FLAKE_FILE" | head -1)
-
-    # Pattern 2: userModule = ./keith.nix;
-    if [ -z "$USER_MODULE" ]; then
-        USER_MODULE=$(grep -oP 'userModule\s*=\s*\./\K[^;]+' "$FLAKE_FILE" | head -1 | tr -d ' "')
-    fi
-
-    if [ -n "$USER_MODULE" ]; then
-        # Remove leading slash if present
-        USER_MODULE_FILE="${USER_MODULE#/}"
-        CONFIG_FILE="$CONFIG_DIR/$USER_MODULE_FILE"
-
-        # Verify the file exists
-        if [ ! -f "$CONFIG_FILE" ]; then
-            print_info "Detected userModule=$USER_MODULE_FILE in flake.nix but file doesn't exist"
-            CONFIG_FILE=""
-        fi
-    fi
-fi
-
-# Strategy 2: Fallback to common naming patterns
-if [ -z "$CONFIG_FILE" ]; then
-    if [ -f "$CONFIG_DIR/home.nix" ]; then
-        CONFIG_FILE="$CONFIG_DIR/home.nix"
-    elif [ -f "$CONFIG_DIR/user.nix" ]; then
-        CONFIG_FILE="$CONFIG_DIR/user.nix"
-    elif [ -f "$CONFIG_DIR/${USER}.nix" ]; then
-        CONFIG_FILE="$CONFIG_DIR/${USER}.nix"
-    elif [ -f "$CONFIG_DIR/home-manager.nix" ]; then
-        CONFIG_FILE="$CONFIG_DIR/home-manager.nix"
-    fi
-fi
-
 # Get relative path from config directory to icon directory
 if [ -n "$CONFIG_FILE" ]; then
-    REL_ICON_PATH=$(realpath --relative-to="$CONFIG_DIR" "$OUTPUT_DIR" 2>/dev/null || echo "./pwa-icons")
+    REL_ICON_PATH=$(realpath --relative-to="$(dirname "$CONFIG_FILE")" "$OUTPUT_DIR" 2>/dev/null || echo "./pwa-icons")
     # Ensure relative paths start with ./ for Nix
-    if [[ ! "$REL_ICON_PATH" =~ ^/ ]] && [[ ! "$REL_ICON_PATH" =~ ^\./ ]]; then
+    if [[ ! "$REL_ICON_PATH" =~ ^/ ]] && [[ ! "$REL_ICON_PATH" =~ ^\.\/ ]]; then
         REL_ICON_PATH="./$REL_ICON_PATH"
     fi
 else
@@ -454,7 +463,8 @@ Add this configuration:
 }
 
 ${BLUE}Option 2: Create modular pwa.nix file${NC}
-${YELLOW}Create: ${CONFIG_DIR}/pwa.nix${NC}
+${YELLOW}Create: 
+${CONFIG_DIR:-.}/pwa.nix${NC}
 
 {
   axios.pwa = {
@@ -530,10 +540,12 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     
     TARGET_LINE=""
     if [ "$HAS_HM_BLOCK" = "yes" ]; then
-        TARGET_LINE=$(grep -n "};" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+        TARGET_LINE=$(grep -n "};
+" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
         INSERT_DESC="before the closing of your home-manager block (line $TARGET_LINE)"
     else
-        TARGET_LINE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+        TARGET_LINE=$(grep -n "}
+" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
         INSERT_DESC="before the last closing brace (line $TARGET_LINE)"
     fi
 
@@ -566,23 +578,9 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
             print_info "Updating configuration..."
             
             if [ "$HAS_PWA_BLOCK" = "yes" ]; then
-                INSERT_BLOCK="  axios.pwa.extraApps.${PWA_ID} = {
-    name = \"${PWA_NAME}\";
-    url = \"${PWA_URL}\";
-    icon = \"${PWA_ID}\";
-    categories = ${CATEGORIES};${ACTIONS_CODE}
-  };"
+                INSERT_BLOCK="  axios.pwa.extraApps.${PWA_ID} = {\n    name = \"${PWA_NAME}\";\n    url = \"${PWA_URL}\";\n    icon = \"${PWA_ID}\";\n    categories = ${CATEGORIES};${ACTIONS_CODE}\n  };"
             else
-                INSERT_BLOCK="
-  # Generated PWA: ${PWA_NAME}
-  axios.pwa.enable = lib.mkDefault true;
-  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
-  axios.pwa.extraApps.${PWA_ID} = {
-    name = \"${PWA_NAME}\";
-    url = \"${PWA_URL}\";
-    icon = \"${PWA_ID}\";
-    categories = ${CATEGORIES};${ACTIONS_CODE}
-  };"
+                INSERT_BLOCK="\n  # Generated PWA: ${PWA_NAME}\n  axios.pwa.enable = lib.mkDefault true;\n  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};\n  axios.pwa.extraApps.${PWA_ID} = {\n    name = \"${PWA_NAME}\";\n    url = \"${PWA_URL}\";\n    icon = \"${PWA_ID}\";\n    categories = ${CATEGORIES};${ACTIONS_CODE}\n  };"
             fi
 
             if [ -n "$TARGET_LINE" ]; then
