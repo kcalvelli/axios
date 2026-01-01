@@ -510,6 +510,14 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     echo -e "I can attempt to automatically add this PWA to your config."
     echo -e "File: ${BLUE}$CONFIG_FILE${NC}"
     echo ""
+    
+    # Preview insertion point
+    echo -e "${YELLOW}--- Preview of insertion point (end of file) ---${NC}"
+    tail -n 5 "$CONFIG_FILE"
+    echo -e "${YELLOW}------------------------------------------------${NC}"
+    echo -e "I will insert the configuration block right before the last closing brace '}'."
+    echo ""
+
     read -p "Would you like to update this file? [y/N]: " AUTO_UPDATE
 
     if [[ "$AUTO_UPDATE" =~ ^[Yy]$ ]]; then
