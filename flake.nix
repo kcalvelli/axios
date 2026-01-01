@@ -86,6 +86,8 @@
     niri = {
       url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
+      # Eliminate 15GB+ of duplicate packages by using unstable for stable channel too
+      inputs.nixpkgs-stable.follows = "nixpkgs";
     };
 
     # Fun with "AI"
