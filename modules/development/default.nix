@@ -27,7 +27,8 @@
       bun # Required for VSCode material theme updates
 
       # === API Development & Testing ===
-      bruno # Open-source API testing (Postman/Insomnia alternative)
+      mitmproxy # Interactive HTTPS proxy
+      k6 # Load testing tool
 
       # === Nix Tools ===
       devenv
