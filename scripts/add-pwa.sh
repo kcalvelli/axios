@@ -593,7 +593,22 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
                 cp "$TEMP_CONF" "$CONFIG_FILE"
                 rm "$TEMP_CONF"
                 print_success "Configuration updated successfully!"
+                
+                # Check if we are in a git repo and the file is untracked
+                if git -C "$(dirname "$CONFIG_FILE")" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+                    echo ""
+                    print_info "IMPORTANT: You are in a Git repository."
+                    print_info "You must add the new icon file for Nix to see it:"
+                    echo -e "  ${BLUE}git add ${OUTPUT_DIR}/${PWA_ID}.png${NC}"
+                    if [ "$HAS_PWA_BLOCK" != "yes" ]; then
+                         # If we added a new directory reference (iconPath), remind to add that too if it's new
+                         echo -e "  ${BLUE}git add ${OUTPUT_DIR}${NC}"
+                    fi
+                fi
+
                 print_info "Don't forget to rebuild: ${BLUE}sudo nixos-rebuild switch --flake .${NC}"
+            else
+                print_error "Could not find a suitable insertion point in the file."
             fi
         fi
     fi
