@@ -527,41 +527,59 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
         else
             print_info "Updating configuration..."
             
-            # Prepare the block
-            # We use a sub-attribute syntax which is valid at the top level or inside a config block
-            UPDATE_BLOCK="
-  # Generated PWA: ${PWA_NAME}
-  axios.pwa.enable = lib.mkDefault true;
-  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
-  axios.pwa.extraApps.${PWA_ID} = {
+            # --- Smart Insertion Logic ---
+            HAS_PWA_BLOCK=$(grep -q "axios.pwa =" "$CONFIG_FILE" && echo "yes" || echo "no")
+            HAS_HM_BLOCK=$(grep -q "home-manager.users\." "$CONFIG_FILE" && echo "yes" || echo "no")
+            
+            if [ "$HAS_PWA_BLOCK" = "yes" ]; then
+                # Pattern 1: axios.pwa is already defined. Insert inside extraApps.
+                # Find the line with extraApps and insert after it, or insert before the closing brace of the pwa block
+                # For simplicity and safety, we use the sub-attribute syntax which is very robust in Nix
+                INSERT_BLOCK="  axios.pwa.extraApps.${PWA_ID} = {
     name = \"${PWA_NAME}\";
     url = \"${PWA_URL}\";
     icon = \"${PWA_ID}\";
     categories = ${CATEGORIES};${ACTIONS_CODE}
   };"
+            else
+                # Pattern 2: No PWA block. Need full definition.
+                INSERT_BLOCK="
+    # Generated PWA: ${PWA_NAME}
+    axios.pwa.enable = lib.mkDefault true;
+    axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
+    axios.pwa.extraApps.${PWA_ID} = {
+      name = \"${PWA_NAME}\";
+      url = \"${PWA_URL}\";
+      icon = \"${PWA_ID}\";
+      categories = ${CATEGORIES};${ACTIONS_CODE}
+    };"
+            fi
 
-            # Safe Append Strategy: Find the last closing brace and insert before it
-            # This works for almost all standard Nix home-manager/NixOS configs
-            if sed -i "$|i \\${UPDATE_BLOCK}" "$CONFIG_FILE" 2>/dev/null; then
-                # Check if we need to fix the insertion point (sed $i inserts before last line)
-                # If the last line is just '}', we are good.
+            TARGET_LINE=""
+            if [ "$HAS_HM_BLOCK" = "yes" ]; then
+                # Find the closing brace of the home-manager block (usually };)
+                # We look for the LAST }; in the file which usually closes the HM block in axios templates
+                TARGET_LINE=$(grep -n "};" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+                print_info "Detected home-manager block. Inserting before line $TARGET_LINE."
+            fi
+
+            if [ -z "$TARGET_LINE" ]; then
+                # Fallback: Before the last closing brace of the file
+                TARGET_LINE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+                print_info "Using fallback insertion point before line $TARGET_LINE."
+            fi
+
+            if [ -n "$TARGET_LINE" ]; then
+                TEMP_CONF=$(mktemp)
+                head -n $((TARGET_LINE - 1)) "$CONFIG_FILE" > "$TEMP_CONF"
+                echo "$INSERT_BLOCK" >> "$TEMP_CONF"
+                tail -n +$TARGET_LINE "$CONFIG_FILE" >> "$TEMP_CONF"
+                cp "$TEMP_CONF" "$CONFIG_FILE"
+                rm "$TEMP_CONF"
                 print_success "Configuration updated successfully!"
                 print_info "Don't forget to rebuild: ${BLUE}sudo nixos-rebuild switch --flake .${NC}"
             else
-                # Fallback for some sed versions
-                TEMP_CONF=$(mktemp)
-                # Find line number of last '}'
-                LAST_BRACE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
-                if [ -n "$LAST_BRACE" ]; then
-                    head -n $((LAST_BRACE - 1)) "$CONFIG_FILE" > "$TEMP_CONF"
-                    echo "$UPDATE_BLOCK" >> "$TEMP_CONF"
-                    tail -n +$LAST_BRACE "$CONFIG_FILE" >> "$TEMP_CONF"
-                    cp "$TEMP_CONF" "$CONFIG_FILE"
-                    rm "$TEMP_CONF"
-                    print_success "Configuration updated successfully!"
-                else
-                    print_error "Could not find a suitable insertion point in the file."
-                fi
+                print_error "Could not find a suitable insertion point in the file."
             fi
         fi
     fi
