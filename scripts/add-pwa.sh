@@ -647,18 +647,27 @@ EOM
             else
                 # We are adding lib.mkDefault, so we MUST ensure 'lib' is available in the module args
                 if [ "$HAS_HM_BLOCK" = "yes" ]; then
+                    # Check if HM block is a function (has args)
                     HM_START_LINE=$(grep -n "home-manager.users\." "$CONFIG_FILE" | head -n 1 | cut -d: -f1)
-                    # Check next 5 lines for arguments
                     ARGS_CONTEXT=$(sed -n "${HM_START_LINE},$((HM_START_LINE + 5))p" "$CONFIG_FILE")
                     
-                    if ! echo "$ARGS_CONTEXT" | grep -q "lib"; then
-                        print_info "Ensuring 'lib' is available in config arguments..."
-                        # Pattern 1: { pkgs, ... } -> { pkgs, lib, ... }
-                        sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *pkgs/{ pkgs, lib/" "$CONFIG_FILE"
-                        # Pattern 2: { config, ... } -> { config, lib, ... }
-                        sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *config/{ config, lib/" "$CONFIG_FILE"
-                        # Pattern 3: { ... } -> { lib, ... }
-                        sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *\.\.\./{ lib, .../" "$CONFIG_FILE"
+                    if echo "$ARGS_CONTEXT" | grep -q "{.*}:"; then
+                        # It is a function, check/inject lib here
+                        if ! echo "$ARGS_CONTEXT" | grep -q "lib"; then
+                            print_info "Ensuring 'lib' is available in home-manager arguments..."
+                            sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *pkgs/{ pkgs, lib/" "$CONFIG_FILE"
+                            sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *config/{ config, lib/" "$CONFIG_FILE"
+                            sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *\.\.\./{ lib, .../" "$CONFIG_FILE"
+                        fi
+                    else
+                        # HM block is a set, so we must check the TOP of the file
+                        TOP_CONTEXT=$(head -n 5 "$CONFIG_FILE")
+                        if ! echo "$TOP_CONTEXT" | grep -q "lib"; then
+                            print_info "Ensuring 'lib' is available in file arguments..."
+                            sed -i "1,5s/{ *pkgs/{ pkgs, lib/" "$CONFIG_FILE"
+                            sed -i "1,5s/{ *config/{ config, lib/" "$CONFIG_FILE"
+                            sed -i "1,5s/{ *\.\.\./{ lib, .../" "$CONFIG_FILE"
+                        fi
                     fi
                 fi
 
