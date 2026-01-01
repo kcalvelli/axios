@@ -326,12 +326,11 @@ echo "Fetching Icon"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-TEMP_ICON_DIR="$TEMP_DIR/home/resources/pwa-icons"
-
-# Run fetch script in temp directory
-if (cd "$TEMP_DIR" && "$FETCH_SCRIPT" "$PWA_URL" "$PWA_ID"); then
-    # Move icon to output directory
-    mv "$TEMP_ICON_DIR/${PWA_ID}.png" "$OUTPUT_DIR/"
+# Run fetch script
+# Pass TEMP_DIR as the output directory for the icon
+if "$FETCH_SCRIPT" "$PWA_URL" "$PWA_ID" "$TEMP_DIR"; then
+    # Move icon from temp dir to final output directory
+    mv "$TEMP_DIR/${PWA_ID}.png" "$OUTPUT_DIR/"
     print_success "Icon saved to: $OUTPUT_DIR/${PWA_ID}.png"
 else
     print_error "Failed to fetch icon automatically"

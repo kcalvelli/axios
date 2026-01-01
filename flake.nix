@@ -201,7 +201,7 @@
                         pkgs.bash
                         pkgs.curl
                         pkgs.jq
-                        pkgs.imagemagickBig
+                        pkgs.imagemagick
                         pkgs.coreutils
                         pkgs.gnugrep
                         pkgs.gnused
@@ -224,7 +224,7 @@
                         pkgs.bash
                         pkgs.curl
                         pkgs.jq
-                        pkgs.imagemagickBig
+                        pkgs.imagemagick
                         pkgs.coreutils
                         pkgs.gnugrep
                         pkgs.gnused

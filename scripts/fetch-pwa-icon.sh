@@ -13,8 +13,23 @@ fi
 
 URL="$1"
 OUTPUT_NAME="$2"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-OUTPUT_DIR="$SCRIPT_DIR/../home/resources/pwa-icons"
+
+if [ $# -ge 3 ]; then
+    OUTPUT_DIR="$3"
+else
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    OUTPUT_DIR="$SCRIPT_DIR/../home/resources/pwa-icons"
+fi
+
+# Ensure output directory exists
+if [ ! -d "$OUTPUT_DIR" ]; then
+    mkdir -p "$OUTPUT_DIR" || {
+        echo "❌ Error: Cannot create output directory $OUTPUT_DIR"
+        echo "   (Running from read-only Nix store? Use 3rd argument to specify output path)"
+        exit 1
+    }
+fi
+
 OUTPUT_FILE="$OUTPUT_DIR/${OUTPUT_NAME}.png"
 TEMP_DIR=$(mktemp -d)
 
