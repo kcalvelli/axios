@@ -396,6 +396,10 @@ fi
 # Get relative path from config directory to icon directory
 if [ -n "$CONFIG_FILE" ]; then
     REL_ICON_PATH=$(realpath --relative-to="$CONFIG_DIR" "$OUTPUT_DIR" 2>/dev/null || echo "./pwa-icons")
+    # Ensure relative paths start with ./ for Nix
+    if [[ ! "$REL_ICON_PATH" =~ ^/ ]] && [[ ! "$REL_ICON_PATH" =~ ^\./ ]]; then
+        REL_ICON_PATH="./$REL_ICON_PATH"
+    fi
 else
     REL_ICON_PATH="./pwa-icons"
 fi
