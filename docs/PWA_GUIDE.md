@@ -165,7 +165,7 @@ pwa-name = {
 - **Email**: `[ "Office" "Email" ]`
 - **Video Conferencing**: `[ "Network" "VideoConference" ]`
 - **Development**: `[ "Development" ]`
-- **Design**: `[ "Graphics" "Design" ]`
+- **Design**: `[ "Graphics" "VectorGraphics" ]`
 - **Project Management**: `[ "Office" "ProjectManagement" ]`
 
 ## Icon Management

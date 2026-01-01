@@ -211,7 +211,7 @@ if [ -z "$MANIFEST_CATEGORIES" ]; then
         1) CATEGORIES='[ "Office" ]' ;;
         2) CATEGORIES='[ "Network" ]' ;;
         3) CATEGORIES='[ "Development" ]' ;;
-        4) CATEGORIES='[ "Graphics" "Design" ]' ;;
+        4) CATEGORIES='[ "Graphics" "VectorGraphics" ]' ;;
         5) CATEGORIES='[ "Office" "ProjectManagement" ]' ;;
         6)
             read -p "Enter categories (space-separated, e.g., 'Network InstantMessaging'): " CUSTOM_CATS

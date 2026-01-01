@@ -335,7 +335,6 @@
     categories = [
       "Graphics"
       "VectorGraphics"
-      "Design"
     ];
   };
 
