@@ -645,6 +645,23 @@ ${ACTIONS_CODE}
   };
 EOM
             else
+                # We are adding lib.mkDefault, so we MUST ensure 'lib' is available in the module args
+                if [ "$HAS_HM_BLOCK" = "yes" ]; then
+                    HM_START_LINE=$(grep -n "home-manager.users\." "$CONFIG_FILE" | head -n 1 | cut -d: -f1)
+                    # Check next 5 lines for arguments
+                    ARGS_CONTEXT=$(sed -n "${HM_START_LINE},$((HM_START_LINE + 5))p" "$CONFIG_FILE")
+                    
+                    if ! echo "$ARGS_CONTEXT" | grep -q "lib"; then
+                        print_info "Ensuring 'lib' is available in config arguments..."
+                        # Pattern 1: { pkgs, ... } -> { pkgs, lib, ... }
+                        sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *pkgs/{ pkgs, lib/" "$CONFIG_FILE"
+                        # Pattern 2: { config, ... } -> { config, lib, ... }
+                        sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *config/{ config, lib/" "$CONFIG_FILE"
+                        # Pattern 3: { ... } -> { lib, ... }
+                        sed -i "${HM_START_LINE},$((HM_START_LINE + 5))s/{ *\.\.\./{ lib, .../" "$CONFIG_FILE"
+                    fi
+                fi
+
                 read -r -d '' INSERT_BLOCK << EOM || true
 
   # Generated PWA: ${PWA_NAME}
