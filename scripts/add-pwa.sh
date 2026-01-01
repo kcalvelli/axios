@@ -577,10 +577,35 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
         else
             print_info "Updating configuration..."
             
-            if [ "$HAS_PWA_BLOCK" = "yes" ]; then
-                INSERT_BLOCK="  axios.pwa.extraApps.${PWA_ID} = {\n    name = \"${PWA_NAME}\";\n    url = \"${PWA_URL}\";\n    icon = \"${PWA_ID}\";\n    categories = ${CATEGORIES};${ACTIONS_CODE}\n  };"
+            # Check for any axios.pwa definition (including dot notation like axios.pwa.enable)
+            if grep -q "axios\.pwa" "$CONFIG_FILE"; then
+                HAS_PWA_BLOCK="yes"
             else
-                INSERT_BLOCK="\n  # Generated PWA: ${PWA_NAME}\n  axios.pwa.enable = lib.mkDefault true;\n  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};\n  axios.pwa.extraApps.${PWA_ID} = {\n    name = \"${PWA_NAME}\";\n    url = \"${PWA_URL}\";\n    icon = \"${PWA_ID}\";\n    categories = ${CATEGORIES};${ACTIONS_CODE}\n  };"
+                HAS_PWA_BLOCK="no"
+            fi
+
+            if [ "$HAS_PWA_BLOCK" = "yes" ]; then
+                read -r -d '' INSERT_BLOCK << EOM || true
+  axios.pwa.extraApps.${PWA_ID} = {
+    name = "${PWA_NAME}";
+    url = "${PWA_URL}";
+    icon = "${PWA_ID}";
+    categories = ${CATEGORIES};${ACTIONS_CODE}
+  };
+EOM
+            else
+                read -r -d '' INSERT_BLOCK << EOM || true
+
+  # Generated PWA: ${PWA_NAME}
+  axios.pwa.enable = lib.mkDefault true;
+  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
+  axios.pwa.extraApps.${PWA_ID} = {
+    name = "${PWA_NAME}";
+    url = "${PWA_URL}";
+    icon = "${PWA_ID}";
+    categories = ${CATEGORIES};${ACTIONS_CODE}
+  };
+EOM
             fi
 
             if [ -n "$TARGET_LINE" ]; then
