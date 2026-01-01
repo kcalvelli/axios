@@ -85,7 +85,7 @@ download_icon() {
     # Try direct conversion - let ImageMagick detect the format
     echo "  🎨 Converting to 128x128 PNG..."
     if command -v magick &> /dev/null; then
-        if magick "$temp_icon" -resize 128x128 -gravity center -background white -extent 128x128 "$OUTPUT_FILE"; then
+        if magick "$temp_icon" -resize 128x128 -gravity center -background none -extent 128x128 "$OUTPUT_FILE"; then
             return 0
         else
             echo "  ⚠️  ImageMagick conversion failed"
