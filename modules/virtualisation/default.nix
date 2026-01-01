@@ -21,6 +21,12 @@ in
   # Enable and configure containers with podman
   config = lib.mkMerge [
     (lib.mkIf cfg.containers.enable {
+      # === Container Packages ===
+      environment.systemPackages = with pkgs; [
+        podman-desktop # Visual container management
+        ctop # Container metrics and monitoring
+      ];
+
       virtualisation = {
         oci-containers.backend = lib.mkDefault "podman";
         podman = {

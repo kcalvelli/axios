@@ -32,7 +32,7 @@ in
       obsidian # Note-taking and knowledge management
       discord # Communication platform
       kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
-      libreoffice-qt6-fresh # Office suite with Qt6 backend for consistent theming
+      dbeaver-bin # Universal database tool (supports PostgreSQL, MySQL, SQLite, etc.)
 
       # === Media Creation & Editing ===
       kdePackages.kdenlive # Video editor (professional-grade, industry standard)

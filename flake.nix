@@ -191,6 +191,49 @@
                 );
                 meta.description = "Download GGUF models for llama-cpp server";
               };
+
+              add-pwa = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "axios-add-pwa" ''
+                    export PATH="${
+                      pkgs.lib.makeBinPath [
+                        pkgs.bash
+                        pkgs.curl
+                        pkgs.jq
+                        pkgs.imagemagick
+                        pkgs.coreutils
+                        pkgs.gnugrep
+                        pkgs.gnused
+                      ]
+                    }:$PATH"
+                    export FETCH_SCRIPT="${./scripts/fetch-pwa-icon.sh}"
+                    exec ${pkgs.bash}/bin/bash ${./scripts/add-pwa.sh} "$@"
+                  ''
+                );
+                meta.description = "Interactive helper to add custom PWAs to your configuration";
+              };
+
+              fetch-pwa-icon = {
+                type = "app";
+                program = toString (
+                  pkgs.writeShellScript "axios-fetch-pwa-icon" ''
+                    export PATH="${
+                      pkgs.lib.makeBinPath [
+                        pkgs.bash
+                        pkgs.curl
+                        pkgs.jq
+                        pkgs.imagemagick
+                        pkgs.coreutils
+                        pkgs.gnugrep
+                        pkgs.gnused
+                      ]
+                    }:$PATH"
+                    exec ${pkgs.bash}/bin/bash ${./scripts/fetch-pwa-icon.sh} "$@"
+                  ''
+                );
+                meta.description = "Fetch PWA icon from a website";
+              };
             };
           };
 

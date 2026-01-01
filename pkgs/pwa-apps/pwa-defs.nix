@@ -318,4 +318,45 @@
     ];
   };
 
+  excalidraw = {
+    name = "Excalidraw";
+    url = "https://excalidraw.com/";
+    icon = "excalidraw";
+    categories = [
+      "Graphics"
+      "VectorGraphics"
+    ];
+  };
+
+  figma = {
+    name = "Figma";
+    url = "https://www.figma.com/";
+    icon = "figma";
+    categories = [
+      "Graphics"
+      "VectorGraphics"
+      "Design"
+    ];
+  };
+
+  linear = {
+    name = "Linear";
+    url = "https://linear.app/";
+    icon = "linear";
+    categories = [
+      "Office"
+      "ProjectManagement"
+    ];
+  };
+
+  notion = {
+    name = "Notion";
+    url = "https://www.notion.so/";
+    icon = "notion";
+    categories = [
+      "Office"
+      "Utility"
+    ];
+  };
+
 }
