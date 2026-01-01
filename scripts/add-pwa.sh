@@ -202,7 +202,7 @@ if ! curl -sL -A "Mozilla/5.0" "$PWA_URL" > "$HTML_FILE"; then
 fi
 
 # Extract manifest URL
-MANIFEST_URL=$(grep -oP 'rel=[\"\x27]manifest[\"\x27]\s+href=[\"\x27]\K[^"\'\x27]+' "$HTML_FILE" | head -1 || true)
+MANIFEST_URL=$(grep -oP "rel=[\"']manifest[\"']\s+href=[\"']\K[^\"']+" "$HTML_FILE" | head -1 || true)
 
 MANIFEST_NAME=""
 MANIFEST_SHORT_NAME=""
