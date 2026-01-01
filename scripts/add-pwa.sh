@@ -180,6 +180,13 @@ if [[ ! "$PWA_URL" =~ ^https?:// ]]; then
     exit 1
 fi
 
+# Normalize URL: Ensure trailing slash for root domains to fix dock icons
+# Brave generates startupWMClass differently for "https://x.com" vs "https://x.com/"
+# If path is empty, append /
+if [[ ! "$PWA_URL" =~ ^https?://[^/]+/.+ ]] && [[ ! "$PWA_URL" =~ /$ ]]; then
+    PWA_URL="${PWA_URL}/"
+fi
+
 # Fetch and parse manifest
 echo ""
 print_info "Fetching manifest from $PWA_URL..."
