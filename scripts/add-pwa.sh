@@ -36,10 +36,20 @@ print_info() {
 
 # Determine output directory
 DETECTED_DIR=""
+PWA_URL_PRESET=""
 
 if [ $# -gt 0 ]; then
-    OUTPUT_DIR="$1"
-else
+    if [[ "$1" =~ ^https?:// ]]; then
+        PWA_URL_PRESET="$1"
+        if [ $# -gt 1 ]; then
+            OUTPUT_DIR="$2"
+        fi
+    else
+        OUTPUT_DIR="$1"
+    fi
+fi
+
+if [ -z "${OUTPUT_DIR:-}" ]; then
     # Strategy 1: Check FLAKE_PATH environment variable
     if [ -n "${FLAKE_PATH:-}" ] && [ -d "$FLAKE_PATH" ]; then
         DETECTED_DIR="$FLAKE_PATH/pwa-icons"
@@ -91,7 +101,12 @@ echo "PWA URL"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-read -p "URL (e.g., 'https://github.com'): " PWA_URL
+if [ -n "$PWA_URL_PRESET" ]; then
+    echo "Using URL: $PWA_URL_PRESET"
+    PWA_URL="$PWA_URL_PRESET"
+else
+    read -p "URL (e.g., 'https://github.com'): " PWA_URL
+fi
 
 # Validate URL
 if [[ ! "$PWA_URL" =~ ^https?:// ]]; then
