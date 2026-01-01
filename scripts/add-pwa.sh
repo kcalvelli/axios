@@ -72,6 +72,16 @@ if [ -z "${OUTPUT_DIR:-}" ]; then
         fi
     fi
 
+    # Strategy 4: Try to extract iconPath from existing config
+    # We look for axios.pwa.iconPath = ./some-path; or iconPath = ./some-path;
+    if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
+        EXISTING_PATH=$(grep -oP 'iconPath\s*=\s*\./\K[^;]+' "$CONFIG_FILE" | head -1 | tr -d ' "')
+        if [ -n "$EXISTING_PATH" ]; then
+            DETECTED_DIR="$(dirname "$CONFIG_FILE")/$EXISTING_PATH"
+            print_info "Detected existing iconPath in config: $EXISTING_PATH"
+        fi
+    fi
+
     OUTPUT_DIR="$DETECTED_DIR"
 fi
 
@@ -507,15 +517,37 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     echo -e "${YELLOW}Automatic Configuration Update${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
+
+    # Detect insertion point early for preview
+    HAS_PWA_BLOCK=$(grep -q "axios.pwa =" "$CONFIG_FILE" && echo "yes" || echo "no")
+    HAS_HM_BLOCK=$(grep -q "home-manager.users\." "$CONFIG_FILE" && echo "yes" || echo "no")
+    
+    TARGET_LINE=""
+    if [ "$HAS_HM_BLOCK" = "yes" ]; then
+        TARGET_LINE=$(grep -n "};" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+        INSERT_DESC="before the closing of your home-manager block (line $TARGET_LINE)"
+    else
+        TARGET_LINE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
+        INSERT_DESC="before the last closing brace (line $TARGET_LINE)"
+    fi
+
     echo -e "I can attempt to automatically add this PWA to your config."
     echo -e "File: ${BLUE}$CONFIG_FILE${NC}"
     echo ""
     
-    # Preview insertion point
-    echo -e "${YELLOW}--- Preview of insertion point (end of file) ---${NC}"
-    tail -n 5 "$CONFIG_FILE"
-    echo -e "${YELLOW}------------------------------------------------${NC}"
-    echo -e "I will insert the configuration block right before the last closing brace '}'."
+    if [ -n "$TARGET_LINE" ]; then
+        # Preview insertion point
+        echo -e "${YELLOW}--- Preview of insertion point (around line $TARGET_LINE) ---${NC}"
+        # Show 3 lines before target
+        head -n $((TARGET_LINE - 1)) "$CONFIG_FILE" | tail -n 3
+        echo -e "${GREEN}+ [ New PWA configuration will be inserted here ]${NC}"
+        # Show the target line and one after
+        sed -n "${TARGET_LINE},$((TARGET_LINE + 1))p" "$CONFIG_FILE"
+        echo -e "${YELLOW}------------------------------------------------${NC}"
+        echo -e "I will insert the configuration $INSERT_DESC."
+    else
+        echo -e "${RED}⚠️  Could not find a suitable insertion point in the file.${NC}"
+    fi
     echo ""
 
     read -p "Would you like to update this file? [y/N]: " AUTO_UPDATE
@@ -527,14 +559,7 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
         else
             print_info "Updating configuration..."
             
-            # --- Smart Insertion Logic ---
-            HAS_PWA_BLOCK=$(grep -q "axios.pwa =" "$CONFIG_FILE" && echo "yes" || echo "no")
-            HAS_HM_BLOCK=$(grep -q "home-manager.users\." "$CONFIG_FILE" && echo "yes" || echo "no")
-            
             if [ "$HAS_PWA_BLOCK" = "yes" ]; then
-                # Pattern 1: axios.pwa is already defined. Insert inside extraApps.
-                # Find the line with extraApps and insert after it, or insert before the closing brace of the pwa block
-                # For simplicity and safety, we use the sub-attribute syntax which is very robust in Nix
                 INSERT_BLOCK="  axios.pwa.extraApps.${PWA_ID} = {
     name = \"${PWA_NAME}\";
     url = \"${PWA_URL}\";
@@ -542,31 +567,16 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     categories = ${CATEGORIES};${ACTIONS_CODE}
   };"
             else
-                # Pattern 2: No PWA block. Need full definition.
                 INSERT_BLOCK="
-    # Generated PWA: ${PWA_NAME}
-    axios.pwa.enable = lib.mkDefault true;
-    axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
-    axios.pwa.extraApps.${PWA_ID} = {
-      name = \"${PWA_NAME}\";
-      url = \"${PWA_URL}\";
-      icon = \"${PWA_ID}\";
-      categories = ${CATEGORIES};${ACTIONS_CODE}
-    };"
-            fi
-
-            TARGET_LINE=""
-            if [ "$HAS_HM_BLOCK" = "yes" ]; then
-                # Find the closing brace of the home-manager block (usually };)
-                # We look for the LAST }; in the file which usually closes the HM block in axios templates
-                TARGET_LINE=$(grep -n "};" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
-                print_info "Detected home-manager block. Inserting before line $TARGET_LINE."
-            fi
-
-            if [ -z "$TARGET_LINE" ]; then
-                # Fallback: Before the last closing brace of the file
-                TARGET_LINE=$(grep -n "}" "$CONFIG_FILE" | tail -n 1 | cut -d: -f1)
-                print_info "Using fallback insertion point before line $TARGET_LINE."
+  # Generated PWA: ${PWA_NAME}
+  axios.pwa.enable = lib.mkDefault true;
+  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
+  axios.pwa.extraApps.${PWA_ID} = {
+    name = \"${PWA_NAME}\";
+    url = \"${PWA_URL}\";
+    icon = \"${PWA_ID}\";
+    categories = ${CATEGORIES};${ACTIONS_CODE}
+  };"
             fi
 
             if [ -n "$TARGET_LINE" ]; then
@@ -578,8 +588,6 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
                 rm "$TEMP_CONF"
                 print_success "Configuration updated successfully!"
                 print_info "Don't forget to rebuild: ${BLUE}sudo nixos-rebuild switch --flake .${NC}"
-            else
-                print_error "Could not find a suitable insertion point in the file."
             fi
         fi
     fi
