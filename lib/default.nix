@@ -386,6 +386,7 @@ let
                   else
                     [ ]
                 )
+                ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim
                 ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
                 ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai;
             };

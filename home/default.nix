@@ -7,6 +7,7 @@
       desktop = ./desktop;
       workstation = ./profiles/workstation.nix;
       laptop = ./profiles/laptop.nix;
+      pim = ./pim;
       ai = ./ai;
       secrets = ./secrets;
       calendar = ./calendar;

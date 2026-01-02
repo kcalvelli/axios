@@ -80,14 +80,22 @@ This document provides a comprehensive list of all applications included in axiO
 | **GNOME Calendar** | Calendar application | Simpler and more reliable than Merkuro (no Akonadi backend) |
 | **GNOME Contacts** | Contact management | More reliable than KAddressBook (no Akonadi backend) |
 | **GNOME Online Accounts** | Unified account management | One-time configuration for Gmail, Outlook, CalDAV, CardDAV |
-| **DavMail** | Exchange/Office365 gateway | IMAP/SMTP/CalDAV/CardDAV translation for older Exchange servers |
+| **DavMail** | Exchange/Office365 gateway | Enables Geary to work with Office 365 via OAuth2 (see [setup guide](DAVMAIL_SETUP.md)) |
 | **vdirsyncer** | Calendar/contact sync tool | CLI tool for syncing multiple calendar and contact sources |
 
 **Email Client Configuration:**
 ```nix
 modules.pim = true;
 pim.emailClient = "geary";  # Options: "geary" (default), "evolution", "both"
+
+# Optional: Enable DavMail for Office 365 accounts with Geary
+programs.davmail = {
+  enable = true;
+  email = "your-email@company.com";
+};
 ```
+
+**Office 365 with Geary:** Requires DavMail - see [DAVMAIL_SETUP.md](DAVMAIL_SETUP.md) for complete setup instructions.
 
 **Note on KDE-PIM:** KDE's PIM suite (Merkuro, KAddressBook, KMail/Kontact) requires the Akonadi backend which has known reliability issues. Geary/Evolution and GNOME PIM apps provide better stability for email, calendar, and contacts.
 

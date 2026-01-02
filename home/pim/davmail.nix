@@ -1,0 +1,191 @@
+{
+  config,
+  lib,
+  pkgs,
+  osConfig,
+  ...
+}:
+let
+  cfg = config.programs.davmail;
+in
+{
+  options.programs.davmail = {
+    enable = lib.mkEnableOption "DavMail O365/Exchange gateway for IMAP/SMTP access";
+
+    email = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      example = "user@company.com";
+      description = ''
+        Your Outlook/Office 365 email address.
+        Used as a reference in the configuration file.
+      '';
+    };
+
+    mode = lib.mkOption {
+      type = lib.types.enum [
+        "O365Interactive"
+        "O365Manual"
+      ];
+      default = "O365Interactive";
+      description = ''
+        OAuth authentication mode:
+        - O365Interactive: Opens browser popup for Microsoft login (requires desktop)
+        - O365Manual: Provides URL in terminal for headless systems
+      '';
+    };
+
+    imapPort = lib.mkOption {
+      type = lib.types.port;
+      default = 1143;
+      description = "Local IMAP port (use in email client)";
+    };
+
+    smtpPort = lib.mkOption {
+      type = lib.types.port;
+      default = 1025;
+      description = "Local SMTP port (use in email client)";
+    };
+
+    caldavPort = lib.mkOption {
+      type = lib.types.port;
+      default = 1080;
+      description = "Local CalDAV port (for calendar sync)";
+    };
+
+    ldapPort = lib.mkOption {
+      type = lib.types.port;
+      default = 1389;
+      description = "Local LDAP port (for contact sync)";
+    };
+  };
+
+  config = lib.mkIf cfg.enable {
+    # Create mutable DavMail configuration
+    # Note: This file will be modified by DavMail to store OAuth tokens
+    home.file.".davmail.properties" = {
+      text = ''
+        # DavMail Configuration${lib.optionalString (cfg.email != "") " for ${cfg.email}"}
+        # This file will be automatically updated with OAuth tokens
+
+        # Server Configuration
+        davmail.server=true
+        davmail.allowRemote=false
+        davmail.bindAddress=127.0.0.1
+        davmail.mode=${cfg.mode}
+        davmail.url=https://outlook.office365.com/EWS/Exchange.asmx
+
+        # Port Configuration
+        davmail.imapPort=${toString cfg.imapPort}
+        davmail.smtpPort=${toString cfg.smtpPort}
+        davmail.ldapPort=${toString cfg.ldapPort}
+        davmail.caldavPort=${toString cfg.caldavPort}
+
+        # OAuth Token Persistence (Critical for O365)
+        davmail.oauth.persistToken=true
+
+        # Performance and Logging
+        davmail.enableKeepAlive=true
+        davmail.folderSizeLimit=0
+        log4j.logger.davmail=WARN
+        log4j.rootLogger=WARN
+      '';
+      # Allow DavMail to modify this file (write OAuth tokens)
+      force = false;
+    };
+
+    # Systemd user service for background operation
+    systemd.user.services.davmail = {
+      Unit = {
+        Description = "DavMail O365/Exchange Gateway";
+        After = [ "network-online.target" ];
+        Wants = [ "network-online.target" ];
+      };
+      Service = {
+        Type = "simple";
+        ExecStart = "${pkgs.davmail}/bin/davmail %h/.davmail.properties";
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+      Install.WantedBy = [ "default.target" ];
+    };
+
+    # Helper script for initial OAuth authentication
+    home.packages = [
+      (pkgs.writeShellScriptBin "davmail-auth" ''
+        set -e
+
+        echo "🔐 DavMail O365 Authentication Setup"
+        echo "====================================="
+        echo ""
+
+        # Stop background service if running
+        if systemctl --user is-active --quiet davmail; then
+          echo "⏹️  Stopping background DavMail service..."
+          systemctl --user stop davmail
+          sleep 1
+        fi
+
+        echo "🌐 Starting interactive OAuth authentication..."
+        echo ""
+
+        ${
+          if cfg.mode == "O365Interactive" then
+            ''
+              echo "A browser window will open for Microsoft login."
+              echo "Please log in with your credentials and approve any MFA prompts."
+            ''
+          else
+            ''
+              echo "A URL will be displayed in the terminal."
+              echo "Copy the URL, open it in a browser, log in, and paste the code back."
+            ''
+        }
+
+        echo ""
+        echo "Press Ctrl+C when you see 'DavMail Gateway listening...'"
+        echo ""
+
+        # Run DavMail interactively
+        ${pkgs.davmail}/bin/davmail ~/.davmail.properties || true
+
+        echo ""
+        echo "✅ Authentication complete! OAuth tokens saved to ~/.davmail.properties"
+        echo ""
+        echo "🚀 Starting background DavMail service..."
+        systemctl --user start davmail
+
+        echo ""
+        echo "✓ DavMail is now running in the background"
+        echo ""
+        echo "Next steps:"
+        echo "1. Open GNOME Online Accounts (gnome-online-accounts-gtk)"
+        echo "2. Add account → IMAP and SMTP"
+        echo "3. Use these settings:"
+        echo "   - IMAP Server: 127.0.0.1:${toString cfg.imapPort}"
+        echo "   - SMTP Server: 127.0.0.1:${toString cfg.smtpPort}"
+        echo "   - Security: None (localhost)"
+        echo "   - Username: ${if cfg.email != "" then cfg.email else "your-email@company.com"}"
+        echo "   - Password: dummy (any text - DavMail uses OAuth tokens)"
+        echo ""
+        echo "Check status: systemctl --user status davmail"
+      '')
+
+      (pkgs.writeShellScriptBin "davmail-status" ''
+        echo "DavMail Status"
+        echo "=============="
+        echo ""
+        systemctl --user status davmail --no-pager
+        echo ""
+        echo "Configuration: ~/.davmail.properties"
+        echo ""
+        if grep -q "davmail.oauth.refreshToken" ~/.davmail.properties 2>/dev/null; then
+          echo "✅ OAuth tokens present (authenticated)"
+        else
+          echo "❌ No OAuth tokens found"
+          echo "   Run: davmail-auth"
+        fi
+      '')
+    ];
+  };
+}
