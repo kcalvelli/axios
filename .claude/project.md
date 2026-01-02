@@ -67,6 +67,7 @@ axios/
 │   ├── gaming/            # Gaming configuration
 │   ├── graphics/          # GPU configuration
 │   ├── networking/        # Network services (samba, tailscale)
+│   ├── pim/               # Personal Information Management (email, calendar, contacts)
 │   ├── virtualisation/    # Libvirt, containers
 │   └── wayland/           # Wayland compositor
 ├── home/                  # home-manager modules

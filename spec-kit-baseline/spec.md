@@ -111,8 +111,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **System Utilities**: GNOME Disks, Swappy, Qalculate (Qt), Fuzzel, GNOME Software
   - **Document Viewers**: Okular (KDE - best-in-class PDF annotations)
   - **Security**: Seahorse (GNOME - password and encryption key manager)
-  - **Communication**: Evolution (email client with Exchange/EWS support)
-  - **PIM**: GNOME Calendar, GNOME Contacts (Evolution Data Server backend)
+  - **PIM Module** (optional): Email (Geary/Evolution), GNOME Calendar, GNOME Contacts, DavMail (Exchange gateway)
   - **Streaming**: OBS Studio
 - **Application Choices Rationale**:
   - **KDE Apps**: Dolphin (split-pane, plugins), Kdenlive (industry standard), Krita (professional), DigiKam (asset management), Kate (LSP support), Okular (annotations), Filelight (radial visualization), Haruna (MPV frontend)
@@ -120,22 +119,30 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **Qt Apps**: LibreOffice Qt6 (consistent theming), Qalculate-qt (modern port)
   - **Avoided**: KDE-PIM suite (Merkuro, KAddressBook, KMail) due to Akonadi backend reliability issues
 
-#### GNOME Online Accounts Integration
+#### PIM Module (Personal Information Management)
 - **Purpose**: Unified account management for email, calendar, and contacts without full GNOME desktop
-- **Implementation Evidence**: modules/desktop/default.nix:84-86, 137-143
+- **Implementation Evidence**: modules/pim/default.nix
 - **Confidence**: [EXPLICIT]
+- **Enable**: Set `modules.pim = true` in host configuration
 - **Components**:
   - **gnome-online-accounts-gtk**: Lightweight GTK UI for account configuration
-  - **Evolution**: Email client with GNOME Online Accounts integration (programs.evolution.enable)
+  - **Email Clients**: Configurable choice via `pim.emailClient` option
+    - **Geary** (default): Modern, lightweight email client
+    - **Evolution**: Full-featured email client with better Exchange/EWS support
+    - **both**: Install both clients
   - **GNOME Calendar**: Calendar application syncing via online accounts
   - **GNOME Contacts**: Contact management syncing via online accounts
+  - **DavMail**: IMAP/SMTP/CalDAV/CardDAV gateway for Exchange/Office365 servers
+  - **vdirsyncer**: CLI tool for syncing calendars and contacts
+  - **evolution-ews**: Exchange Web Services support
 - **Required Backend Services**:
   - **services.gnome.evolution-data-server.enable**: Provides D-Bus service `org.gnome.evolution.dataserver.Sources5` for calendar/contacts data storage
+  - **services.gnome.gnome-online-accounts.enable**: Account management backend
   - **services.geoclue2.enable**: Provides location services (`org.freedesktop.GeoClue2`) for weather features in calendar
-- **Supported Services**: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV
+- **Supported Services**: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV, Exchange/Office365 (via DavMail)
 - **Architecture**: Uses D-Bus services and GNOME keyring without requiring full GNOME desktop
 - **Integration**: Accounts configured once in gnome-online-accounts-gtk, automatically available to all PIM apps
-- **Rationale**: Evolution Data Server is a lightweight background service that provides data backends, not the full Evolution email client
+- **Rationale**: Evolution Data Server is a lightweight background service that provides data backends, not the full Evolution email client. Separated from desktop module to allow users to enable/disable PIM functionality independently.
 
 #### Wallpaper & Theming
 - **Purpose**: Automatic wallpaper management with blur effects and curated wallpaper collection

@@ -80,9 +80,8 @@ in
       libsForQt5.qt5ct # Qt5 theme configuration tool
       kdePackages.qt6ct # Qt6 theme configuration tool
 
-      # === Calendar Sync ===
       # Note: khal provided by DMS, fonts provided by DMS greeter
-      vdirsyncer
+      # Note: vdirsyncer moved to PIM module
 
       # Note: PWA apps are now managed via home-manager (axios.pwa module)
       # This allows users to add custom PWAs with their own URLs and icons
@@ -112,13 +111,6 @@ in
         }
       )
       v4l-utils # Camera debugging (v4l2-ctl --list-formats-ext)
-
-      # === Gnome  PIM (Evolution added in programs below) without Gnome ===
-      gnome-online-accounts-gtk
-      gnome-calendar
-      gnome-contacts
-      evolution-ews
-      geary # Modern, simpler email client (alternative to Evolution)
 
       # === Implements freedesktops's Desktop Menu Specification
       gnome-menus
@@ -176,7 +168,6 @@ in
       };
       _1password.enable = true;
       _1password-gui.enable = true;
-      evolution.enable = true;
     };
 
     # === Desktop Services ===
@@ -184,11 +175,8 @@ in
       gnome = {
         sushi.enable = true;
         gnome-keyring.enable = true;
-        evolution-data-server.enable = true;
-        gnome-online-accounts.enable = true;
       };
       accounts-daemon.enable = true;
-      geoclue2.enable = true; # Location services for weather in gnome-calendar
       gvfs.enable = true;
       udisks2.enable = true;
       system76-scheduler.enable = true;

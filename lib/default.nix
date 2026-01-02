@@ -257,6 +257,7 @@ let
         ++ lib.optional (hostCfg.modules.development or false) development
         ++ lib.optional (hostCfg.modules.graphics or false) graphics
         ++ lib.optional (hostCfg.modules.networking or true) networking
+        ++ lib.optional (hostCfg.modules.pim or false) pim
         ++ lib.optional (hostCfg.modules.users or true) users
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
@@ -335,6 +336,10 @@ let
             # Enable development module if specified
             (lib.optionalAttrs (hostCfg.modules.development or false) {
               development.enable = true;
+            })
+            # Enable PIM module if specified
+            (lib.optionalAttrs (hostCfg.modules.pim or false) {
+              pim.enable = true;
             })
             # Enable gaming module if specified
             (lib.optionalAttrs (hostCfg.modules.gaming or false) {

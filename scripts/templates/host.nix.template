@@ -25,6 +25,7 @@
       users = true;
       virt = {{ENABLE_VIRT}};
       gaming = {{ENABLE_GAMING}};
+      pim = {{ENABLE_PIM}};
       ai = {{ENABLE_AI}};
       secrets = {{ENABLE_SECRETS}};
     };

@@ -8,6 +8,7 @@
     hardware = ./hardware;
     graphics = ./graphics;
     networking = ./networking;
+    pim = ./pim;
     users = ./users.nix;
     virt = ./virtualisation;
     desktopHardware = ./hardware/desktop.nix;
