@@ -635,14 +635,28 @@ systemd.user.services.niri-flake-polkit.enable = false;
 ```
 (Currently not needed - niri-flake doesn't provide a polkit service)
 
-### GNOME Online Accounts Setup
+### GNOME Online Accounts Setup (PIM Module)
 
-axiOS provides lightweight GNOME PIM (Personal Information Management) apps without requiring a full GNOME desktop. This includes Evolution (email), GNOME Calendar, and GNOME Contacts, all integrated via GNOME Online Accounts.
+axiOS provides a dedicated PIM (Personal Information Management) module with lightweight GNOME apps, without requiring a full GNOME desktop. This includes email (Geary or Evolution), GNOME Calendar, and GNOME Contacts, all integrated via GNOME Online Accounts.
+
+**Prerequisites**:
+Enable the PIM module in your host configuration:
+```nix
+modules = {
+  pim = true;
+};
+
+# Optional: Choose email client (default is "geary")
+extraConfig = {
+  pim.emailClient = "geary";  # or "evolution" or "both"
+};
+```
 
 **Architecture**:
 - D-Bus backend services (accounts-daemon, gnome-keyring)
 - No GNOME Shell or gdm required
 - Works with any desktop environment (Niri, Sway, Hyprland, etc.)
+- Enabled via `modules.pim = true`
 
 **First-Time Setup**:
 
@@ -670,13 +684,29 @@ axiOS provides lightweight GNOME PIM (Personal Information Management) apps with
 
 **Using the Applications**:
 
-**Evolution (Email)**:
+**Email Client**:
+
+*Geary (default)*:
+```bash
+geary
+```
+- Modern, lightweight email client
+- Accounts from GNOME Online Accounts appear automatically
+- Simple, clean interface
+
+*Evolution (optional)*:
 ```bash
 evolution
 ```
+- Full-featured email client with better Exchange/EWS support
 - Accounts from GNOME Online Accounts appear automatically
-- No manual email configuration needed
 - Supports conversation view, search, labels
+- Better integration with corporate email systems
+
+*DavMail (included)*:
+- IMAP/SMTP/CalDAV/CardDAV gateway for Exchange/Office365
+- Provides protocol translation for older Exchange servers
+- Configure in email client using localhost proxy
 
 **GNOME Calendar**:
 ```bash
@@ -697,11 +727,15 @@ gnome-contacts
 **Troubleshooting**:
 
 **"Cannot connect to org.gnome.evolution.dataserver.Sources5" error**:
-This means Evolution Data Server is not running. axiOS enables it by default, but if you see this error:
-1. **Verify service is enabled** in your configuration:
+This means Evolution Data Server is not running. The PIM module enables it automatically, but if you see this error:
+1. **Verify PIM module is enabled** in your configuration:
    ```nix
-   services.gnome.evolution-data-server.enable = true;  # Required for calendar/contacts
+   modules.pim = true;  # Automatically enables required services
    ```
+   The PIM module enables these services automatically:
+   - `services.gnome.evolution-data-server.enable`
+   - `services.gnome.gnome-online-accounts.enable`
+   - `services.geoclue2.enable`
 2. **Check system service status**:
    ```bash
    systemctl --user status evolution-source-registry

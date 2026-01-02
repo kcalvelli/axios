@@ -60,6 +60,7 @@
   - hardware: Hardware configurations (desktopHardware, laptopHardware)
   - graphics: GPU configuration (NVIDIA, AMD, Intel)
   - networking: Network services (samba, tailscale)
+  - pim: Personal Information Management (email, calendar, contacts)
   - users: User account management
   - virt: Virtualization (libvirt, containers)
   - gaming: Gaming configuration
@@ -88,6 +89,7 @@
 - `modules/graphics/`: GPU drivers and configuration
 - `modules/hardware/`: Hardware-specific configs (desktop, laptop)
 - `modules/networking/`: Network services (samba.nix, tailscale.nix)
+- `modules/pim/`: Personal Information Management (email, calendar, contacts)
 - `modules/secrets/`: Secrets management integration
 - `modules/services/`: System services (immich.nix, caddy.nix, etc.)
 - `modules/virtualisation/`: Virtualization support
