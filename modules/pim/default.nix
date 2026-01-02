@@ -43,7 +43,10 @@ in
         evolution-ews # Exchange Web Services support for Evolution/GNOME
 
         # Exchange/Office365 Gateway
-        davmail # Provides IMAP/SMTP/CalDAV/CardDAV gateway for Exchange servers
+        davmail.override
+        {
+          jre = pkgs.jdk.override { enableJavaFX = true; };
+        } # Provides IMAP/SMTP/CalDAV/CardDAV gateway for Exchange servers
 
         # Calendar/Contact Sync Tool
         vdirsyncer # CLI tool for syncing calendars and contacts
