@@ -61,38 +61,46 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # Create mutable DavMail configuration
-    # Note: This file will be modified by DavMail to store OAuth tokens
-    home.file.".davmail.properties" = {
-      text = ''
-        # DavMail Configuration${lib.optionalString (cfg.email != "") " for ${cfg.email}"}
-        # This file will be automatically updated with OAuth tokens
+    # Create mutable DavMail configuration (REAL file, not symlink)
+    # This file will be modified by DavMail to store OAuth tokens
+    home.activation.createDavmailConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      DAVMAIL_CONFIG="$HOME/.davmail.properties"
 
-        # Server Configuration
-        davmail.server=true
-        davmail.allowRemote=false
-        davmail.bindAddress=127.0.0.1
-        davmail.mode=${cfg.mode}
-        davmail.url=https://outlook.office365.com/EWS/Exchange.asmx
+      # Only create if it doesn't exist (preserves OAuth tokens on rebuild)
+      if [ ! -f "$DAVMAIL_CONFIG" ]; then
+        $DRY_RUN_CMD mkdir -p "$(dirname "$DAVMAIL_CONFIG")"
+        $DRY_RUN_CMD cat > "$DAVMAIL_CONFIG" << 'EOF'
+# DavMail Configuration${lib.optionalString (cfg.email != "") " for ${cfg.email}"}
+# This file will be automatically updated with OAuth tokens
 
-        # Port Configuration
-        davmail.imapPort=${toString cfg.imapPort}
-        davmail.smtpPort=${toString cfg.smtpPort}
-        davmail.ldapPort=${toString cfg.ldapPort}
-        davmail.caldavPort=${toString cfg.caldavPort}
+# Server Configuration
+davmail.server=true
+davmail.allowRemote=false
+davmail.bindAddress=127.0.0.1
+davmail.mode=${cfg.mode}
+davmail.url=https://outlook.office365.com/EWS/Exchange.asmx
 
-        # OAuth Token Persistence (Critical for O365)
-        davmail.oauth.persistToken=true
+# Port Configuration
+davmail.imapPort=${toString cfg.imapPort}
+davmail.smtpPort=${toString cfg.smtpPort}
+davmail.ldapPort=${toString cfg.ldapPort}
+davmail.caldavPort=${toString cfg.caldavPort}
 
-        # Performance and Logging
-        davmail.enableKeepAlive=true
-        davmail.folderSizeLimit=0
-        log4j.logger.davmail=WARN
-        log4j.rootLogger=WARN
-      '';
-      # Allow DavMail to modify this file (write OAuth tokens)
-      force = false;
-    };
+# OAuth Token Persistence (Critical for O365)
+davmail.oauth.persistToken=true
+
+# Performance and Logging
+davmail.enableKeepAlive=true
+davmail.folderSizeLimit=0
+log4j.logger.davmail=WARN
+log4j.rootLogger=WARN
+EOF
+        $DRY_RUN_CMD chmod 600 "$DAVMAIL_CONFIG"
+        $VERBOSE_ECHO "Created mutable DavMail config: $DAVMAIL_CONFIG"
+      else
+        $VERBOSE_ECHO "DavMail config already exists (preserving OAuth tokens): $DAVMAIL_CONFIG"
+      fi
+    '';
 
     # Systemd user service for background operation
     systemd.user.services.davmail = {
@@ -118,6 +126,26 @@ in
         echo "🔐 DavMail O365 Authentication Setup"
         echo "====================================="
         echo ""
+
+        # Check if config file is a symlink (old installation)
+        if [ -L "$HOME/.davmail.properties" ]; then
+          echo "❌ Error: ~/.davmail.properties is a symlink to the Nix store (read-only)"
+          echo "   DavMail needs a writable file to save OAuth tokens."
+          echo ""
+          echo "   Please delete the symlink and rebuild:"
+          echo "   $ rm ~/.davmail.properties"
+          echo "   $ home-manager switch"
+          echo ""
+          echo "   A mutable config file will be created automatically."
+          exit 1
+        fi
+
+        # Ensure config file exists
+        if [ ! -f "$HOME/.davmail.properties" ]; then
+          echo "❌ Error: ~/.davmail.properties not found"
+          echo "   Run 'home-manager switch' to create the config file"
+          exit 1
+        fi
 
         # Stop background service if running
         if systemctl --user is-active --quiet davmail; then
