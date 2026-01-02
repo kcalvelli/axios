@@ -25,6 +25,12 @@ in
         - both: Install both clients
       '';
     };
+
+    davmailUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "https://outlook.office365.com/EWS/Exchange.asmx";
+      description = "The Exchange OWA URL for DavMail (e.g. Office365)";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -41,12 +47,6 @@ in
 
         # Email Support
         evolution-ews # Exchange Web Services support for Evolution/GNOME
-
-        # Exchange/Office365 Gateway
-        davmail.override
-        {
-          jre = pkgs.jdk.override { enableJavaFX = true; };
-        } # Provides IMAP/SMTP/CalDAV/CardDAV gateway for Exchange servers
 
         # Calendar/Contact Sync Tool
         vdirsyncer # CLI tool for syncing calendars and contacts
@@ -67,6 +67,16 @@ in
 
     # === PIM Services ===
     services = {
+      davmail = {
+        enable = true;
+        url = cfg.davmailUrl;
+        config = {
+          # Bind to localhost to avoid exposing to network by default
+          "davmail.bindAddress" = "127.0.0.1";
+          "davmail.mode" = "O365Manual";
+        };
+      };
+
       gnome = {
         evolution-data-server.enable = true; # Calendar/contacts data backend
         gnome-online-accounts.enable = true; # Account management backend
