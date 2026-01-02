@@ -703,11 +703,6 @@ evolution
 - Supports conversation view, search, labels
 - Better integration with corporate email systems
 
-*DavMail (included)*:
-- IMAP/SMTP/CalDAV/CardDAV gateway for Exchange/Office365
-- Provides protocol translation for older Exchange servers
-- Configure in email client using localhost proxy
-
 **GNOME Calendar**:
 ```bash
 gnome-calendar

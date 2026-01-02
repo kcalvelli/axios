@@ -135,7 +135,6 @@ Modules are imported using one of three patterns:
       - `programs.evolution.enable`: Full-featured email client with Exchange/EWS support (optional)
     - `gnome-calendar`: Calendar app with online account sync
     - `gnome-contacts`: Contact management with online account sync
-    - `davmail`: IMAP/SMTP/CalDAV/CardDAV gateway for Exchange/Office365
     - `vdirsyncer`: CLI tool for syncing calendars and contacts
     - `evolution-ews`: Exchange Web Services support
     - **Backend Services Required**:
@@ -143,7 +142,7 @@ Modules are imported using one of three patterns:
       - `services.gnome.gnome-online-accounts.enable`: Account management backend
       - `services.geoclue2.enable`: Location services for calendar weather (`org.freedesktop.GeoClue2`)
     - **Architecture Pattern**: D-Bus services + GNOME keyring without full GNOME stack
-    - **Supported Backends**: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV, Exchange/Office365 (via DavMail)
+    - **Supported Backends**: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV, Exchange/Office365
     - **Note**: Evolution Data Server is a lightweight service providing data storage, not the full Evolution email client
   - **Separation Rationale**: Separated from desktop module to allow independent enable/disable of PIM functionality
 

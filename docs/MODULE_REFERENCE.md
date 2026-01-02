@@ -173,7 +173,6 @@ services.swayidle.timeouts = [
 - **GNOME Calendar** - Calendar application with online account sync
 - **GNOME Contacts** - Contact management with online account sync
 - **GNOME Online Accounts** - Unified account management (Gmail, Outlook, CalDAV, CardDAV)
-- **DavMail** - IMAP/SMTP/CalDAV/CardDAV gateway for Exchange/Office365
 - **vdirsyncer** - CLI tool for syncing calendars and contacts
 - **evolution-ews** - Exchange Web Services support
 - **Backend services** - Evolution Data Server, GeoClue2 (for calendar weather)
