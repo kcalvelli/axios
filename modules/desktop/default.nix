@@ -29,7 +29,6 @@ in
       kdePackages.ark # Archive manager (integrates with Dolphin)
 
       # === Productivity Applications ===
-      obsidian # Note-taking and knowledge management
       discord # Communication platform
       kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
       dbeaver-bin # Universal database tool (supports PostgreSQL, MySQL, SQLite, etc.)

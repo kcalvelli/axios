@@ -473,7 +473,7 @@ axiOS provides two methods for installing additional applications, with differen
 - **Browsers**: Firefox, Chrome, Edge, Opera, Brave
 - **Communication**: Slack, Discord, Telegram, Signal, Teams
 - **Media**: Spotify, VLC, Audacity, GIMP, Kdenlive, Blender
-- **Productivity**: LibreOffice, OnlyOffice, Thunderbird, Obsidian
+- **Productivity**: LibreOffice, OnlyOffice, Thunderbird
 - **Development**: Postman, MongoDB Compass, Beekeeper Studio, DBeaver
 
 **Flathub Configuration**:

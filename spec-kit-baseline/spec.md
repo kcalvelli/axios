@@ -105,7 +105,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Theming**: Both GTK and Qt applications receive Material You theming equally via kdeglobals and dank-colors.css
 - **Categories**:
   - **File Management**: Dolphin (KDE), Ark (KDE), Filelight (KDE)
-  - **Productivity**: Obsidian, Discord, Ghostwriter (KDE), LibreOffice (Qt6 backend), 1Password, Kate (KDE)
+  - **Productivity**: Discord, Ghostwriter (KDE), LibreOffice (Qt6 backend), 1Password, Kate (KDE)
   - **Media Creation**: Kdenlive (KDE), Krita (KDE), Inkscape
   - **Media Viewing**: DigiKam (KDE), Loupe (GNOME), Haruna (KDE), Amberol (GNOME)
   - **System Utilities**: GNOME Disks, Swappy, Qalculate (Qt), Fuzzel, GNOME Software

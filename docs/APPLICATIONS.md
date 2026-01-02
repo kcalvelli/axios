@@ -31,7 +31,6 @@ This document provides a comprehensive list of all applications included in axiO
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
-| **Obsidian** | Note-taking and knowledge management with markdown support | Best-in-class knowledge base with local-first philosophy |
 | **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
 | **LibreOffice** (Qt6 backend) | Full office suite (Writer, Calc, Impress, Draw) | Qt6 backend ensures consistent theming with desktop |
