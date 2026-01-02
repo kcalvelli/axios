@@ -118,6 +118,7 @@ in
       gnome-calendar
       gnome-contacts
       evolution-ews
+      geary # Modern, simpler email client (alternative to Evolution)
 
       # === Implements freedesktops's Desktop Menu Specification
       gnome-menus
