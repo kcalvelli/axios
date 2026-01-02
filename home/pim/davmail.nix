@@ -123,8 +123,38 @@ in
         if systemctl --user is-active --quiet davmail; then
           echo "⏹️  Stopping background DavMail service..."
           systemctl --user stop davmail
-          sleep 1
+
+          # Wait for service to fully stop (up to 10 seconds)
+          echo "⏳ Waiting for service to stop..."
+          for i in {1..10}; do
+            if ! systemctl --user is-active --quiet davmail; then
+              echo "✓ Service stopped"
+              break
+            fi
+            sleep 1
+          done
+
+          # Final check - ensure service is really stopped
+          if systemctl --user is-active --quiet davmail; then
+            echo "❌ Error: Service failed to stop after 10 seconds"
+            echo "   Run: systemctl --user stop davmail"
+            exit 1
+          fi
+
+          # Give ports time to be released
+          sleep 2
         fi
+
+        # Verify ports are available
+        echo "🔍 Checking if ports are available..."
+        if ss -tlnp 2>/dev/null | grep -qE ':(${toString cfg.imapPort}|${toString cfg.smtpPort})'; then
+          echo "❌ Error: Ports still in use!"
+          echo "   DavMail ports (${toString cfg.imapPort}, ${toString cfg.smtpPort}) are already bound"
+          echo "   Run: systemctl --user stop davmail"
+          echo "   Then: ss -tlnp | grep -E ':(${toString cfg.imapPort}|${toString cfg.smtpPort})'"
+          exit 1
+        fi
+        echo "✓ Ports are available"
 
         echo "🌐 Starting interactive OAuth authentication..."
         echo ""
