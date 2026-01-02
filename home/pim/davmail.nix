@@ -145,13 +145,13 @@ in
           sleep 2
         fi
 
-        # Verify ports are available
+        # Verify ports are available (match exact ports, not substrings)
         echo "🔍 Checking if ports are available..."
-        if ss -tlnp 2>/dev/null | grep -qE ':(${toString cfg.imapPort}|${toString cfg.smtpPort})'; then
+        if ss -tlnp 2>/dev/null | grep -qE ':(${toString cfg.imapPort}|${toString cfg.smtpPort})([^0-9]|$)'; then
           echo "❌ Error: Ports still in use!"
           echo "   DavMail ports (${toString cfg.imapPort}, ${toString cfg.smtpPort}) are already bound"
           echo "   Run: systemctl --user stop davmail"
-          echo "   Then: ss -tlnp | grep -E ':(${toString cfg.imapPort}|${toString cfg.smtpPort})'"
+          echo "   Check with: ss -tlnp | grep -E ':${toString cfg.imapPort}[^0-9]|:${toString cfg.smtpPort}[^0-9]'"
           exit 1
         fi
         echo "✓ Ports are available"
