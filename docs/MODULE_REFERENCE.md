@@ -163,6 +163,37 @@ services.swayidle.timeouts = [
 
 ---
 
+### pim
+**What it does:** Personal Information Management (email, calendar, contacts).
+
+**Includes:**
+- **Email Clients:**
+  - **Geary** (default) - Modern, lightweight email client
+  - **Evolution** (optional) - Full-featured with better Exchange/EWS support
+- **GNOME Calendar** - Calendar application with online account sync
+- **GNOME Contacts** - Contact management with online account sync
+- **GNOME Online Accounts** - Unified account management (Gmail, Outlook, CalDAV, CardDAV)
+- **DavMail** - IMAP/SMTP/CalDAV/CardDAV gateway for Exchange/Office365
+- **vdirsyncer** - CLI tool for syncing calendars and contacts
+- **evolution-ews** - Exchange Web Services support
+- **Backend services** - Evolution Data Server, GeoClue2 (for calendar weather)
+
+**When to use:** If you need email, calendar, or contact management
+
+**Configuration:**
+```nix
+modules.pim = true;
+
+# Optional: Choose email client (default: "geary")
+pim.emailClient = "geary";     # Lightweight, modern
+# pim.emailClient = "evolution";  # Full-featured, better Exchange support
+# pim.emailClient = "both";      # Install both clients
+```
+
+**Why GNOME PIM over KDE-PIM:** Avoids Akonadi backend reliability issues. GNOME's Evolution Data Server is more stable for email, calendar, and contacts.
+
+---
+
 ## Development Tools
 
 ### development
@@ -521,6 +552,7 @@ modules = {
   networking = true;
   users = true;
   graphics = true;
+  pim = true;            # Email, calendar, contacts
   virt = true;           # VMs for testing
   ai = true;             # AI coding assistants
   secrets = true;        # Secure API keys
