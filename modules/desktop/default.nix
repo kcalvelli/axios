@@ -124,6 +124,9 @@ in
 
       # === BBS Access
       syncterm
+
+      # === Portal Helpers ===
+      kdePackages.kdialog # Required by some apps/scripts expecting KDE environment
     ];
 
     # === Wayland Environment Variables ===
@@ -131,7 +134,16 @@ in
       NIXOS_OZONE_WL = "1";
       OZONE_PLATFORM = "wayland";
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
+
+      # === Desktop Session Identity ===
       XDG_CURRENT_DESKTOP = "niri";
+      XDG_SESSION_TYPE = "wayland";
+      XDG_SESSION_DESKTOP = "niri";
+
+      # === Qt/KDE Environment ===
+      # Ensure Qt apps (including xdg-desktop-portal-kde) use Wayland
+      QT_QPA_PLATFORM = "wayland;xcb";
+      QT_QPA_PLATFORMTHEME = "qt6ct";
 
       # === Use plasma-menus (Required for kded6/Dolphin)
       XDG_MENU_PREFIX = "plasma-";
