@@ -136,8 +136,8 @@ in
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
 
       # === Desktop Session Identity ===
-      XDG_CURRENT_DESKTOP = "niri";
-      XDG_SESSION_TYPE = "wayland";
+      #XDG_CURRENT_DESKTOP = "niri";
+      #XDG_SESSION_TYPE = "wayland";
       #XDG_SESSION_DESKTOP = "niri";
 
       # === Qt/KDE Environment ===
