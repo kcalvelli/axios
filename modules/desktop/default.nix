@@ -217,15 +217,14 @@ in
       deps = [ "etc" ]; # Run after /etc is set up
     };
 
-    # === Start kded6 (KDE Daemon) automatically ===
-    # This ensures KDE services (file picker, shortcuts, caching) work in Niri.
+  # === Start kded6 (KDE Daemon) automatically ===
     systemd.user.services.kded6 = {
       description = "KDE Daemon";
       wantedBy = [ "graphical-session.target" ];
       partOf = [ "graphical-session.target" ];
       serviceConfig = {
-        # Force it to run immediately
-        ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/kded6";
+        # FIX: kded6 is located in 'kdePackages.kded', not 'plasma-workspace'
+        ExecStart = "${pkgs.kdePackages.kded}/bin/kded6";
         Restart = "on-failure";
         Slice = "session.slice";
       };
