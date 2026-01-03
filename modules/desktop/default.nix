@@ -138,11 +138,11 @@ in
       # === Desktop Session Identity ===
       XDG_CURRENT_DESKTOP = "niri";
       XDG_SESSION_TYPE = "wayland";
-      XDG_SESSION_DESKTOP = "niri";
+      #XDG_SESSION_DESKTOP = "niri";
 
       # === Qt/KDE Environment ===
       # Ensure Qt apps (including xdg-desktop-portal-kde) use Wayland
-      QT_QPA_PLATFORM = "wayland;xcb";
+      #QT_QPA_PLATFORM = "wayland;xcb";
       QT_QPA_PLATFORMTHEME = "qt6ct";
 
       # === Use plasma-menus (Required for kded6/Dolphin)
