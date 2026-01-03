@@ -226,13 +226,20 @@ in
       portal = {
         enable = true;
         extraPortals = [
+          pkgs.xdg-desktop-portal-kde # KDE file chooser (superior to GNOME/GTK)
           pkgs.xdg-desktop-portal-gnome
           pkgs.xdg-desktop-portal-gtk
         ];
-        config.common.default = [
-          "gnome"
-          "gtk"
-        ];
+        # Use GNOME/GTK for most interfaces (Niri compatibility)
+        # but KDE specifically for file chooser (better UX)
+        config.common = {
+          default = [
+            "gnome"
+            "gtk"
+          ];
+          # Use KDE file chooser (Dolphin-style)
+          "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+        };
       };
     };
 
