@@ -11,7 +11,11 @@ let
 in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
-  imports = [ ./browsers.nix ];
+  # Added flatpak.nix to imports
+  imports = [ 
+    ./browsers.nix 
+    ./flatpak.nix 
+  ];
 
   options.desktop = {
     enable = lib.mkEnableOption "Desktop environment with applications and services";
@@ -112,7 +116,6 @@ in
       v4l-utils # Camera debugging (v4l2-ctl --list-formats-ext)
 
       # === Implements freedesktops's Desktop Menu Specification
-      #gnome-menus
       kdePackages.plasma-workspace
       kdePackages.kservice
 
@@ -126,7 +129,7 @@ in
       OZONE_PLATFORM = "wayland";
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
 
-      # === Use plasma-menus
+      # === Use plasma-menus (Required for kded6/Dolphin)
       XDG_MENU_PREFIX = "plasma-";
 
       GTK_USE_PORTAL = "1";
@@ -178,7 +181,7 @@ in
       gvfs.enable = true;
       udisks2.enable = true;
       system76-scheduler.enable = true;
-      flatpak.enable = true;
+      # flatpak.enable moved to flatpak.nix
       fwupd.enable = true;
       upower.enable = true;
       libinput.enable = true;
@@ -204,20 +207,8 @@ in
       '';
     };
 
-    # === Flatpak Configuration ===
-    # Flathub remote setup:
-    # - System-level: Added via activation script (for GNOME Software compatibility)
-    # - User-level: Added via home-manager (see home/desktop/default.nix)
-    # Both use activation scripts to avoid network timing issues at boot
-    system.activationScripts.setupFlathubSystem = {
-      text = ''
-        # Add Flathub remote at system level (for GNOME Software)
-        ${pkgs.flatpak}/bin/flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
-      '';
-      deps = [ "etc" ]; # Run after /etc is set up
-    };
-
     # === Start kded6 (KDE Daemon) automatically ===
+    # Required for Niri to support KDE file dialogs and menus
     systemd.user.services.kded6 = {
       description = "KDE Daemon";
       wantedBy = [ "graphical-session.target" ];
