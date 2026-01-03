@@ -108,7 +108,7 @@
   };
 
   systemd.user.services.kdeconnect = {
-    Service.Environment = [ "XDG_MENU_PREFIX=gnome-" ];
+    Service.Environment = [ "XDG_MENU_PREFIX=plasma-" ];
   };
 
   # Trayscale (Tailscale system tray) - autostart if Tailscale is enabled

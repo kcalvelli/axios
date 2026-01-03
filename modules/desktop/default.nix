@@ -31,6 +31,8 @@ in
       # File manager
       kdePackages.dolphin # File manager (split-pane, superior plugin ecosystem)
       kdePackages.ark # Archive manager (integrates with Dolphin)
+      kdePackages.kio-extras # Extra protocols for Dolphin
+      kdePackages.kdegraphics-thumbnailers # Thumbnails for graphics files
 
       # === Productivity Applications ===
       discord # Communication platform
@@ -65,6 +67,7 @@ in
       kdePackages.kate # Text editor (LSP, minimap, plugins, dev-tier features)
 
       # === Wayland Tools ===
+      pipewire # Required for Qt6 multimedia symbols (Dolphin, etc.)
       fuzzel # Application launcher
       wtype # Wayland key automation
       playerctl # Media player control
@@ -128,6 +131,7 @@ in
       NIXOS_OZONE_WL = "1";
       OZONE_PLATFORM = "wayland";
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
+      XDG_CURRENT_DESKTOP = "niri";
 
       # === Use plasma-menus (Required for kded6/Dolphin)
       XDG_MENU_PREFIX = "plasma-";
