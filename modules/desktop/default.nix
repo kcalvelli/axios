@@ -239,13 +239,23 @@ in
         ];
         # Use GNOME/GTK for most interfaces (Niri compatibility)
         # but KDE specifically for file chooser (better UX)
-        config.common = {
-          default = [
-            "gnome"
-            "gtk"
-          ];
-          # Use KDE file chooser (Dolphin-style)
-          "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+        config = {
+          common = {
+            default = [
+              "gnome"
+              "gtk"
+            ];
+            # Use KDE file chooser (Dolphin-style)
+            "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+          };
+          # Force Niri to use the same configuration
+          niri = {
+            default = [
+              "gnome"
+              "gtk"
+            ];
+            "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+          };
         };
       };
     };
