@@ -58,7 +58,6 @@ in
       swaybg # Wallpaper setter
       imagemagick # Image processing
       libnotify # Desktop notifications
-      gnome-software # Software center (better Flatpak handling in non-Plasma)
       kdePackages.kate # Text editor (LSP, minimap, plugins, dev-tier features)
 
       # === Wayland Tools ===
@@ -113,7 +112,8 @@ in
       v4l-utils # Camera debugging (v4l2-ctl --list-formats-ext)
 
       # === Implements freedesktops's Desktop Menu Specification
-      gnome-menus
+      #gnome-menus
+      kdePackages.plasma-workspace
       kdePackages.kservice
 
       # === BBS Access
@@ -126,12 +126,10 @@ in
       OZONE_PLATFORM = "wayland";
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
 
-      # == Use Flathub as the only repo in GNOME Software ==
-      GNOME_SOFTWARE_REPOS_ENABLED = "flathub";
-      GNOME_SOFTWARE_USE_FLATPAK_ONLY = "1";
+      # === Use plasma-menus
+      XDG_MENU_PREFIX = "plasma-";
 
-      # === Use gnome-menus
-      XDG_MENU_PREFIX = "gnome-";
+      GTK_USE_PORTAL = "1";
     };
 
     # Enable DankMaterialShell with greeter
@@ -217,6 +215,20 @@ in
         ${pkgs.flatpak}/bin/flatpak remote-add --system --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
       '';
       deps = [ "etc" ]; # Run after /etc is set up
+    };
+
+    # === Start kded6 (KDE Daemon) automatically ===
+    # This ensures KDE services (file picker, shortcuts, caching) work in Niri.
+    systemd.user.services.kded6 = {
+      description = "KDE Daemon";
+      wantedBy = [ "graphical-session.target" ];
+      partOf = [ "graphical-session.target" ];
+      serviceConfig = {
+        # Force it to run immediately
+        ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/kded6";
+        Restart = "on-failure";
+        Slice = "session.slice";
+      };
     };
 
     # === XDG Portal Configuration ===
