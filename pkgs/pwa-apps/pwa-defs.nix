@@ -358,4 +358,12 @@
     ];
   };
 
+  flathub = {
+    name = "Flathub";
+    url = "https://flathub.org/";
+    icon = "flathub";
+    categories = [ "Network" ];
+
+  };  
+
 }

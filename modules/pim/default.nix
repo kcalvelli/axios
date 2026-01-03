@@ -35,14 +35,12 @@ in
         # Geary reports "geary" as App ID but desktop file is "org.gnome.Geary.desktop"
         # Adding StartupWMClass tells the compositor to match them
         geary = prev.geary.overrideAttrs (oldAttrs: {
-          postInstall =
-            (oldAttrs.postInstall or "")
-            + ''
-              # Add StartupWMClass to match the App ID
-              substituteInPlace $out/share/applications/org.gnome.Geary.desktop \
-                --replace-fail '[Desktop Entry]' '[Desktop Entry]
-              StartupWMClass=geary'
-            '';
+          postInstall = (oldAttrs.postInstall or "") + ''
+            # Add StartupWMClass to match the App ID
+            substituteInPlace $out/share/applications/org.gnome.Geary.desktop \
+              --replace-fail '[Desktop Entry]' '[Desktop Entry]
+            StartupWMClass=geary'
+          '';
         });
       })
     ];

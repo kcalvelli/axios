@@ -3,9 +3,10 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.desktop.enable {
-    
+
     # === Core Flatpak Services ===
     services.flatpak.enable = true;
 
@@ -53,7 +54,7 @@
       # -----------------------------------------------------------------------
       (writeShellScriptBin "axios-flatpak-install" ''
         REF="$1"
-        
+
         # Launch 'foot' in a specific size/title so Window Manager rules can float it
         ${pkgs.foot}/bin/foot \
           --title="Axios Store" \
@@ -78,9 +79,9 @@
         icon = "system-software-install";
         terminal = false; # We spawn our own terminal window in the script
         type = "Application";
-        mimeTypes = [ 
-          "application/vnd.flatpak.ref" 
-          "application/vnd.flatpak.repo" 
+        mimeTypes = [
+          "application/vnd.flatpak.ref"
+          "application/vnd.flatpak.repo"
         ];
         noDisplay = true; # Don't clutter the app launcher
       })

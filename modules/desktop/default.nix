@@ -12,9 +12,9 @@ in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
   # Added flatpak.nix to imports
-  imports = [ 
-    ./browsers.nix 
-    ./flatpak.nix 
+  imports = [
+    ./browsers.nix
+    ./flatpak.nix
   ];
 
   options.desktop = {
