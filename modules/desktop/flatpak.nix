@@ -3,9 +3,10 @@
   lib,
   config,
   ...
-}: {
+}:
+{
   config = lib.mkIf config.desktop.enable {
-    
+
     # === Core Flatpak Services ===
     services.flatpak.enable = true;
 

@@ -364,6 +364,6 @@
     icon = "flathub";
     categories = [ "Network" ];
 
-  };  
+  };
 
 }
