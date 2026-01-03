@@ -238,7 +238,7 @@ in
       portal = {
         enable = true;
         extraPortals = [
-          pkgs.xdg-desktop-portal-kde # KDE file chooser (superior to GNOME/GTK)
+          pkgskdePackages.xdg-desktop-portal-kde # KDE file chooser (superior to GNOME/GTK)
           pkgs.xdg-desktop-portal-gnome
           pkgs.xdg-desktop-portal-gtk
         ];
