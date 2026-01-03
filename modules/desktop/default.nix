@@ -217,16 +217,17 @@ in
       deps = [ "etc" ]; # Run after /etc is set up
     };
 
-  # === Start kded6 (KDE Daemon) automatically ===
+    # === Start kded6 (KDE Daemon) automatically ===
     systemd.user.services.kded6 = {
       description = "KDE Daemon";
       wantedBy = [ "graphical-session.target" ];
       partOf = [ "graphical-session.target" ];
       serviceConfig = {
-        # FIX: kded6 is located in 'kdePackages.kded', not 'plasma-workspace'
         ExecStart = "${pkgs.kdePackages.kded}/bin/kded6";
         Restart = "on-failure";
         Slice = "session.slice";
+        # FIX: Explicitly pass the prefix so kded6 looks for 'plasma-applications.menu'
+        Environment = "XDG_MENU_PREFIX=plasma-";
       };
     };
 
