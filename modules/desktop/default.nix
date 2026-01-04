@@ -242,8 +242,9 @@ in
       portal = {
         enable = true;
 
-        # CRITICAL FIX: Force xdg-open to use portals (required for Electron apps like VSCode)
-        xdgOpenUsePortal = true;
+        # NOTE: xdgOpenUsePortal NOT used - causes 20-30s boot delays due to portal timeout loops.
+        # It's only for xdg-open command, not file chooser dialogs. VSCode/Electron apps use
+        # GtkFileChooserNative which respects portal config directly without this option.
 
         # All three portals are required:
         # - xdg-desktop-portal-kde: KDE file chooser (superior UX)
