@@ -143,9 +143,11 @@ in
       # === Use plasma-menus (Required for kded6/Dolphin)
       XDG_MENU_PREFIX = "plasma-";
 
-      # NOTE: GTK_USE_PORTAL="1" REMOVED - causes portal loops where GTK portal waits for itself,
-      # resulting in timeouts and fallback to GNOME file chooser. Portal configuration is handled
-      # via xdg.portal.config and xdgOpenUsePortal instead.
+      # === Portal Configuration ===
+      # NOTE: GTK_USE_PORTAL="1" REMOVED - deprecated upstream and causes portal loops
+      # Modern replacement: GDK_DEBUG=portals forces GTK apps (including Electron/VSCode)
+      # to use XDG Desktop Portal file choosers without causing timeout loops
+      GDK_DEBUG = "portals";
     };
 
     # Enable DankMaterialShell with greeter
@@ -232,6 +234,34 @@ in
         Slice = "session.slice";
         # FIX: Explicitly pass the prefix so kded6 looks for 'plasma-applications.menu'
         Environment = "XDG_MENU_PREFIX=plasma-";
+      };
+    };
+
+    # === Portal Service Optimization ===
+    # Fix 20-30s boot delay caused by portal service timeouts (NixOS 24.11 issue)
+    # Ensure portals start only after session environment is fully initialized
+    systemd.user.services.xdg-desktop-portal = {
+      serviceConfig = {
+        # Reduce timeout from default 90s to 10s for faster failure/retry
+        TimeoutStartSec = "10s";
+      };
+    };
+
+    systemd.user.services.xdg-desktop-portal-gnome = {
+      serviceConfig = {
+        TimeoutStartSec = "10s";
+      };
+    };
+
+    systemd.user.services.xdg-desktop-portal-kde = {
+      serviceConfig = {
+        TimeoutStartSec = "10s";
+      };
+    };
+
+    systemd.user.services.xdg-desktop-portal-gtk = {
+      serviceConfig = {
+        TimeoutStartSec = "10s";
       };
     };
 
