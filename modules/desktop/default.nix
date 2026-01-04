@@ -143,7 +143,9 @@ in
       # === Use plasma-menus (Required for kded6/Dolphin)
       XDG_MENU_PREFIX = "plasma-";
 
-      GTK_USE_PORTAL = "1";
+      # NOTE: GTK_USE_PORTAL="1" REMOVED - causes portal loops where GTK portal waits for itself,
+      # resulting in timeouts and fallback to GNOME file chooser. Portal configuration is handled
+      # via xdg.portal.config and xdgOpenUsePortal instead.
     };
 
     # Enable DankMaterialShell with greeter
@@ -239,12 +241,21 @@ in
       icons.enable = true;
       portal = {
         enable = true;
+
+        # CRITICAL FIX: Force xdg-open to use portals (required for Electron apps like VSCode)
+        xdgOpenUsePortal = true;
+
+        # All three portals are required:
+        # - xdg-desktop-portal-kde: KDE file chooser (superior UX)
+        # - xdg-desktop-portal-gnome: Required by niri for screencasting support
+        # - xdg-desktop-portal-gtk: Fallback for other interfaces
         extraPortals = [
-          pkgs.kdePackages.xdg-desktop-portal-kde # KDE file chooser (superior to GNOME/GTK)
+          pkgs.kdePackages.xdg-desktop-portal-kde
           pkgs.xdg-desktop-portal-gnome
           pkgs.xdg-desktop-portal-gtk
         ];
-        # Use GNOME/GTK for most interfaces (Niri compatibility)
+
+        # Use GNOME/GTK for most interfaces (Niri compatibility + screencasting)
         # but KDE specifically for file chooser (better UX)
         config = {
           common = {
@@ -252,7 +263,7 @@ in
               "gnome"
               "gtk"
             ];
-            # Use KDE file chooser (Dolphin-style)
+            # Use KDE file chooser (Dolphin-style) instead of GNOME/GTK
             "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
           };
           # Explicitly configure niri to use KDE file chooser
