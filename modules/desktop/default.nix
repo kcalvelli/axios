@@ -124,6 +124,9 @@ in
 
       # === BBS Access
       syncterm
+
+      # === Portal Helpers ===
+      kdePackages.kdialog # Required by xdg-desktop-portal-kde
     ];
 
     # === Wayland Environment Variables ===
@@ -131,7 +134,11 @@ in
       NIXOS_OZONE_WL = "1";
       OZONE_PLATFORM = "wayland";
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
+
+      # === Desktop Session Identity ===
       XDG_CURRENT_DESKTOP = "niri";
+      XDG_SESSION_TYPE = "wayland";
+      XDG_SESSION_DESKTOP = "niri";
 
       # === Use plasma-menus (Required for kded6/Dolphin)
       XDG_MENU_PREFIX = "plasma-";
@@ -239,13 +246,24 @@ in
         ];
         # Use GNOME/GTK for most interfaces (Niri compatibility)
         # but KDE specifically for file chooser (better UX)
-        config.common = {
-          default = [
-            "gnome"
-            "gtk"
-          ];
-          # Use KDE file chooser (Dolphin-style)
-          "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+        config = {
+          common = {
+            default = [
+              "gnome"
+              "gtk"
+            ];
+            # Use KDE file chooser (Dolphin-style)
+            "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+          };
+          # Explicitly configure niri to use KDE file chooser
+          # (fallback to 'common' doesn't work reliably with Electron apps)
+          niri = {
+            default = [
+              "gnome"
+              "gtk"
+            ];
+            "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
+          };
         };
       };
     };
