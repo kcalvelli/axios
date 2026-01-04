@@ -124,9 +124,6 @@ in
 
       # === BBS Access
       syncterm
-
-      # === Portal Helpers ===
-      kdePackages.kdialog # Required by xdg-desktop-portal-kde
     ];
 
     # === Wayland Environment Variables ===
@@ -144,10 +141,8 @@ in
       XDG_MENU_PREFIX = "plasma-";
 
       # === Portal Configuration ===
-      # NOTE: GTK_USE_PORTAL="1" REMOVED - deprecated upstream and causes portal loops
-      # Modern replacement: GDK_DEBUG=portals forces GTK apps (including Electron/VSCode)
-      # to use XDG Desktop Portal file choosers without causing timeout loops
-      GDK_DEBUG = "portals";
+      # NOTE: No portal-specific environment variables - portals auto-detect based on XDG_CURRENT_DESKTOP
+      # Niri uses xdg-desktop-portal-gnome and xdg-desktop-portal-gtk (official requirement)
     };
 
     # Enable DankMaterialShell with greeter
@@ -238,22 +233,14 @@ in
     };
 
     # === Portal Service Optimization ===
-    # Fix 20-30s boot delay caused by portal service timeouts (NixOS 24.11 issue)
-    # Ensure portals start only after session environment is fully initialized
+    # Reduce timeout for faster failure/retry (addresses NixOS 24.11 portal timeout issue)
     systemd.user.services.xdg-desktop-portal = {
       serviceConfig = {
-        # Reduce timeout from default 90s to 10s for faster failure/retry
         TimeoutStartSec = "10s";
       };
     };
 
     systemd.user.services.xdg-desktop-portal-gnome = {
-      serviceConfig = {
-        TimeoutStartSec = "10s";
-      };
-    };
-
-    systemd.user.services.xdg-desktop-portal-kde = {
       serviceConfig = {
         TimeoutStartSec = "10s";
       };
@@ -266,45 +253,29 @@ in
     };
 
     # === XDG Portal Configuration ===
+    # Using only Niri-required portals (no mixing with KDE)
     xdg = {
       mime.enable = true;
       icons.enable = true;
       portal = {
         enable = true;
 
-        # NOTE: xdgOpenUsePortal NOT used - causes 20-30s boot delays due to portal timeout loops.
-        # It's only for xdg-open command, not file chooser dialogs. VSCode/Electron apps use
-        # GtkFileChooserNative which respects portal config directly without this option.
-
-        # All three portals are required:
-        # - xdg-desktop-portal-kde: KDE file chooser (superior UX)
-        # - xdg-desktop-portal-gnome: Required by niri for screencasting support
-        # - xdg-desktop-portal-gtk: Fallback for other interfaces
+        # Niri officially requires:
+        # - xdg-desktop-portal-gnome: Required for screencasting support
+        # - xdg-desktop-portal-gtk: Default fallback portal for all interfaces
         extraPortals = [
-          pkgs.kdePackages.xdg-desktop-portal-kde
           pkgs.xdg-desktop-portal-gnome
           pkgs.xdg-desktop-portal-gtk
         ];
 
-        # Use GNOME/GTK for most interfaces (Niri compatibility + screencasting)
-        # but KDE specifically for file chooser (better UX)
+        # Use GNOME portal as default (handles screencasting + all interfaces)
+        # GTK portal serves as fallback
         config = {
-          common = {
-            default = [
-              "gnome"
-              "gtk"
-            ];
-            # Use KDE file chooser (Dolphin-style) instead of GNOME/GTK
-            "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
-          };
-          # Explicitly configure niri to use KDE file chooser
-          # (fallback to 'common' doesn't work reliably with Electron apps)
           niri = {
             default = [
               "gnome"
               "gtk"
             ];
-            "org.freedesktop.impl.portal.FileChooser" = [ "kde" ];
           };
         };
       };
