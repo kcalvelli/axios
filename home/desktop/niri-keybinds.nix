@@ -186,6 +186,155 @@ in
   programs.niri.settings.binds = {
     "Mod+Shift+Slash".action.spawn = [ "axios-help" ];
 
+    # --- DMS FEATURES ---
+    "Mod+Space" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "spotlight"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Application Launcher";
+    };
+    "Mod+N" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "notifications"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Notification Center";
+    };
+    "Mod+Comma" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "settings"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Settings";
+    };
+    "Mod+P" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "notepad"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Notepad";
+    };
+    "Super+Alt+L" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "lock"
+        "lock"
+      ];
+      hotkey-overlay.title = "Toggle Lock Screen";
+    };
+    "Mod+X" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "powermenu"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Power Menu";
+    };
+    "Mod+M" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "processlist"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Process List";
+    };
+    "Mod+V" = {
+      action.spawn = [
+        "dms"
+        "ipc"
+        "clipboard"
+        "toggle"
+      ];
+      hotkey-overlay.title = "Toggle Clipboard Manager";
+    };
+
+    # DMS Audio controls (allow-when-locked for convenience)
+    "XF86AudioRaiseVolume" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "audio"
+        "increment"
+        "3"
+      ];
+    };
+    "XF86AudioLowerVolume" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "audio"
+        "decrement"
+        "3"
+      ];
+    };
+    "XF86AudioMute" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "audio"
+        "mute"
+      ];
+    };
+    "XF86AudioMicMute" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "audio"
+        "micmute"
+      ];
+    };
+
+    # DMS Brightness controls (allow-when-locked for convenience)
+    "XF86MonBrightnessUp" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "brightness"
+        "increment"
+        "5"
+        ""
+      ];
+    };
+    "XF86MonBrightnessDown" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "brightness"
+        "decrement"
+        "5"
+        ""
+      ];
+    };
+
+    # DMS Night mode toggle (allow-when-locked for convenience)
+    "Mod+Alt+N" = {
+      allow-when-locked = true;
+      action.spawn = [
+        "dms"
+        "ipc"
+        "night"
+        "toggle"
+      ];
+    };
+
     # --- NIRI DEFAULTS: Core Actions ---
     "Mod+T".action.spawn = "ghostty"; # Niri default terminal
     "Mod+Q".action."close-window" = [ ];

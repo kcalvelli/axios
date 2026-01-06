@@ -15,7 +15,7 @@
     niri.package = lib.mkForce pkgs.niri;
     dank-material-shell = {
       niri = {
-        enableKeybinds = true;
+        enableKeybinds = false; # Keybinds defined manually in niri-keybinds.nix
         enableSpawn = true; # DMS spawns when Niri starts (eliminates race conditions)
       };
     };
