@@ -24,7 +24,6 @@ let
   # Base arguments for all configurations
   baseArgs = [
     "--password-store=detect"
-    "--gtk-version=4"
   ];
 
   # Common hardware acceleration flags for both AMD and NVIDIA
