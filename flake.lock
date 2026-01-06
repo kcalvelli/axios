@@ -51,11 +51,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767742513,
-        "narHash": "sha256-dpFLB1yLmMhJ7oWoqwoYzF10FlitS6PaCTU2pLVgqzA=",
+        "lastModified": 1767742839,
+        "narHash": "sha256-NsACeUW7tVfH3Tcc5V087Eb7YE6u7eR9h2aPTcT4WJo=",
         "owner": "kcalvelli",
         "repo": "brave-browser-previews",
-        "rev": "bc878435d2d852f735fdc4704351c12549769ed3",
+        "rev": "abaa40f5244f2437ed03308525bc79614a2268be",
         "type": "github"
       },
       "original": {
