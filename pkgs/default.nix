@@ -35,6 +35,8 @@ in
           allowUnfree = true;
         };
         overlays = [
+          # brave-browser-previews overlay provides brave-nightly package
+          inputs.brave-browser-previews.overlays.default
           self.overlays.default
           # mcp-servers-nix overlay provides pre-built MCP servers
           # Warning about "github-mcp-server has been removed" is informational:

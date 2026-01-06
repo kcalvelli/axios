@@ -61,7 +61,7 @@ let
 in
 {
   options.axios.pwa = {
-    enable = lib.mkEnableOption "PWA apps with Brave browser";
+    enable = lib.mkEnableOption "PWA apps with Brave Nightly";
 
     includeDefaults = lib.mkOption {
       type = lib.types.bool;
