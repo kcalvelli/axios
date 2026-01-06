@@ -1,7 +1,8 @@
 {
   lib,
   stdenv,
-  brave,
+  #brave,
+  brave-nightly,
   makeDesktopItem,
   symlinkJoin,
   extraDefs ? { },
@@ -27,7 +28,7 @@ let
       # Join path parts: first slash (after domain) → __, rest → _
       path = if pathParts == [ ] then "" else "__" + (lib.concatStringsSep "_" pathParts);
     in
-    "brave-${domain}${path}-Default";
+    "brave-nightly-${domain}${path}-Default";
 
   # Helper to generate a PWA launcher script
   makePWALauncher = pwaId: pwa: ''
@@ -35,7 +36,7 @@ let
     #!/usr/bin/env bash
     # PWA Launcher for ${pwa.name}
     # Launches as a proper web app using Brave's app mode
-    exec ${lib.getExe brave} --app=${pwa.url} "$@"
+    exec /run/current-system/sw/bin/brave-nightly --app=${pwa.url} "$@"
     LAUNCHER
     chmod +x $out/bin/pwa-${pwaId}
   '';
@@ -56,7 +57,7 @@ let
       startupWMClass = urlToAppId pwa.url;
       actions = lib.mapAttrs (_actionId: action: {
         name = action.name;
-        exec = ''${lib.getExe brave} --app="${action.url}"'';
+        exec = ''/run/current-system/sw/bin/brave-nightly --app="${action.url}"'';
       }) (pwa.actions or { });
     };
 
