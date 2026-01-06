@@ -72,11 +72,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1767727422,
-        "narHash": "sha256-7eMoBYxNp/Fn6rWr9paXADxKwpg79fj4ulwIeT91yKk=",
+        "lastModified": 1767729529,
+        "narHash": "sha256-mIIC4XhTeKUwpm/ky8huDoBwRD4pZ7kWY2ftEO9mruo=",
         "owner": "kcalvelli",
         "repo": "c64-stream-viewer",
-        "rev": "9b38e5d73ed1a040911b11d63478eefcf508b0c1",
+        "rev": "80eeb337a78c3fdb10e1eeb4a4cc9d4237501852",
         "type": "github"
       },
       "original": {
