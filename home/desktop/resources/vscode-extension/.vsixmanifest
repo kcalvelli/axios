@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Language="en-US" Id="dynamic-base16-dankshell" Version="0.0.1" Publisher="local" />
-    <DisplayName>Dynamic Base16 DankShell</DisplayName>
-    <Description xml:space="preserve">Dynamic Material You theme with base16 terminal colors</Description>
+    <Identity Language="en-US" Id="dms-theme" Version="0.0.3" Publisher="DankLinux" />
+    <DisplayName>DMS - Dank Material Shell Theme</DisplayName>
+    <Description xml:space="preserve">Dynamic theme using matugen &amp; dank16 terminal colors - auto-updated by DankMaterialShell</Description>
     <Categories>Themes</Categories>
     <Properties>
       <Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.70.0" />

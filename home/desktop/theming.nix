@@ -17,7 +17,7 @@ let
   qt6ct = "${config.home.homeDirectory}/.config/qt6ct/colors/matugen.conf";
   qt5ct = "${config.home.homeDirectory}/.config/qt5ct/colors/matugen.conf";
 
-  base16ExtDir = "${codeExtDir}/local.dynamic-base16-dankshell-0.0.1";
+  base16ExtDir = "${codeExtDir}/danklinux.dms-theme-0.0.3";
 in
 {
   options.axios.theming = {
@@ -94,12 +94,28 @@ in
 
     # Deploy VSCode extension skeleton
     # DMS generates theme JSON files in themes/ directory, but needs the extension manifest
-    home.file.".vscode/extensions/local.dynamic-base16-dankshell-0.0.1/package.json" = {
+    home.file.".vscode/extensions/danklinux.dms-theme-0.0.3/package.json" = {
       source = ./resources/vscode-extension/package.json;
     };
 
-    home.file.".vscode/extensions/local.dynamic-base16-dankshell-0.0.1/.vsixmanifest" = {
+    home.file.".vscode/extensions/danklinux.dms-theme-0.0.3/.vsixmanifest" = {
       source = ./resources/vscode-extension/.vsixmanifest;
+    };
+
+    home.file.".vscode/extensions/danklinux.dms-theme-0.0.3/README.md" = {
+      source = ./resources/vscode-extension/README.md;
+    };
+
+    home.file.".vscode/extensions/danklinux.dms-theme-0.0.3/CHANGELOG.md" = {
+      source = ./resources/vscode-extension/CHANGELOG.md;
+    };
+
+    home.file.".vscode/extensions/danklinux.dms-theme-0.0.3/LICENSE" = {
+      source = ./resources/vscode-extension/LICENSE;
+    };
+
+    home.file.".vscode/extensions/danklinux.dms-theme-0.0.3/danklogo.png" = {
+      source = ./resources/vscode-extension/danklogo.png;
     };
 
     # Deploy Kate syntax highlighting theme template
@@ -111,7 +127,7 @@ in
 
     # Ensure VSCode extension themes directory exists (DMS will populate it)
     home.activation.createVSCodeThemesDir = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-      $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.vscode/extensions/local.dynamic-base16-dankshell-0.0.1/themes
+      $DRY_RUN_CMD mkdir -p ${config.home.homeDirectory}/.vscode/extensions/danklinux.dms-theme-0.0.3/themes
     '';
 
     # Ensure Kate themes directory exists
@@ -203,18 +219,24 @@ in
         ''
     );
 
-    # Register base16 VSCode extension so VSCode can detect it
+    # Register DMS VSCode extension so VSCode can detect it
     home.activation.registerVSCodeExtension = config.lib.dag.entryAfter [ "writeBoundary" ] ''
       if [ -d "${base16ExtDir}" ]; then
         $DRY_RUN_CMD chmod -R u+rwX "${base16ExtDir}" 2>/dev/null || true
 
         extJson="${codeExtDir}/extensions.json"
-        extId="local.dynamic-base16-dankshell"
+        extId="danklinux.dms-theme"
 
         # Ensure extensions.json exists
         if [ ! -f "$extJson" ]; then
           $DRY_RUN_CMD mkdir -p "${codeExtDir}"
           echo '[]' > "$extJson"
+        fi
+
+        # Remove old extension if it exists
+        if grep -q "local.dynamic-base16-dankshell" "$extJson" 2>/dev/null; then
+          echo "Removing old extension: local.dynamic-base16-dankshell"
+          $DRY_RUN_CMD ${pkgs.jq}/bin/jq 'map(select(.identifier.id != "local.dynamic-base16-dankshell"))' "$extJson" > "$extJson.tmp" && mv "$extJson.tmp" "$extJson"
         fi
 
         # Only register if not already in extensions.json
@@ -224,13 +246,13 @@ in
           # Add extension entry to extensions.json
           $DRY_RUN_CMD ${pkgs.jq}/bin/jq '. += [{
             "identifier": {"id": "'"$extId"'"},
-            "version": "0.0.1",
+            "version": "0.0.3",
             "location": {
               "$mid": 1,
               "path": "'"${base16ExtDir}"'",
               "scheme": "file"
             },
-            "relativeLocation": "local.dynamic-base16-dankshell-0.0.1",
+            "relativeLocation": "danklinux.dms-theme-0.0.3",
             "metadata": {
               "installedTimestamp": '"$timestamp"',
               "pinned": false,
