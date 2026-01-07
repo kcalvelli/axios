@@ -28,7 +28,7 @@ let
       # Join path parts: first slash (after domain) → __, rest → _
       path = if pathParts == [ ] then "" else "__" + (lib.concatStringsSep "_" pathParts);
     in
-    "brave-nightly-${domain}${path}-Default";
+    "brave-${domain}${path}-Default";
 
   # Helper to generate a PWA launcher script
   makePWALauncher = pwaId: pwa: ''
@@ -36,7 +36,7 @@ let
     #!/usr/bin/env bash
     # PWA Launcher for ${pwa.name}
     # Launches as a proper web app using Brave's app mode
-    exec /run/current-system/sw/bin/brave-nightly --app=${pwa.url} "$@"
+    exec ${lib.getExe brave} --app=${pwa.url} "$@"
     LAUNCHER
     chmod +x $out/bin/pwa-${pwaId}
   '';
@@ -57,7 +57,7 @@ let
       startupWMClass = urlToAppId pwa.url;
       actions = lib.mapAttrs (_actionId: action: {
         name = action.name;
-        exec = ''/run/current-system/sw/bin/brave-nightly --app="${action.url}"'';
+        exec = ''${lib.getExe brave} --app="${action.url}"'';
       }) (pwa.actions or { });
     };
 
