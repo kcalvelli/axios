@@ -2,7 +2,7 @@
   lib,
   stdenv,
   #brave,
-  brave-nightly,
+  brave,
   makeDesktopItem,
   symlinkJoin,
   extraDefs ? { },
