@@ -27,7 +27,7 @@ jobs:
       - uses: DeterminateSystems/nix-installer-action@main
       
       - uses: DeterminateSystems/magic-nix-cache-action@main
-      
+
       - name: List available devShells
         run: nix flake show --json | jq -r '.devShells."x86_64-linux" | keys[]' | tee devshells.txt
       

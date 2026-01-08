@@ -145,6 +145,19 @@ in
       # Niri uses xdg-desktop-portal-gnome and xdg-desktop-portal-gtk (official requirement)
     };
 
+    # === Binary Cache Configuration ===
+    # Configure binary caches to avoid compiling from source
+    nix.settings = {
+      substituters = [
+        "https://niri.cachix.org"
+        "https://brave-previews.cachix.org"
+      ];
+      trusted-public-keys = [
+        "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+        "brave-previews.cachix.org-1:9bLSYtgro1rYD4hUzFVASMpsNjWjHvEz11HGB2trAq4="
+      ];
+    };
+
     # Enable DankMaterialShell with greeter
     programs.dank-material-shell = {
       enable = true; # Provides system packages (matugen, hyprpicker, cava, etc.)
