@@ -1,0 +1,77 @@
+name: Build and Cache Packages
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'pkgs/**'
+      - 'flake.nix'
+      - 'flake.lock'
+  pull_request:
+    paths:
+      - 'pkgs/**'
+      - 'flake.nix'
+      - 'flake.lock'
+  # Run weekly to keep cache fresh as inputs update
+  schedule:
+    - cron: '0 2 * * 1' # Mondays at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  build-packages:
+    name: Build axios custom packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - uses: cachix/cachix-action@v16
+        with:
+          name: axios
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: List available packages
+        run: |
+          echo "📦 Available axios packages:"
+          nix flake show --json | jq -r '.packages."x86_64-linux" // {} | keys[]' | tee packages.txt
+
+      - name: Build all axios packages
+        run: |
+          echo "🏗️ Building axios packages for cache..."
+          while IFS= read -r pkg; do
+            echo "Building package: $pkg"
+            nix build ".#packages.x86_64-linux.$pkg" --print-build-logs
+          done < packages.txt
+
+  build-apps:
+    name: Build app dependencies
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app:
+          - init
+          - add-pwa
+          - fetch-pwa-icon
+          - download-llama-models
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - uses: cachix/cachix-action@v16
+        with:
+          name: axios
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Build app dependencies
+        run: |
+          echo "🏗️ Building dependencies for app: ${{ matrix.app }}"
+          # Build the app which will cache its dependencies
+          nix build ".#apps.x86_64-linux.${{ matrix.app }}" --print-build-logs
