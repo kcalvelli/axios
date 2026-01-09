@@ -40,6 +40,9 @@ let
     # Show C64 boot message
     ${c64BootScript}/bin/c64-boot-message
 
+    # Initialize Starship prompt
+    ${pkgs.starship}/bin/starship init fish | source
+
     # C64 color theme (approximating classic blue screen)
     set -g fish_color_normal white
     set -g fish_color_command white --bold
@@ -63,15 +66,15 @@ let
 
   # Starship config for C64 shell (minimal, just READY. prompt)
   c64StarshipConfig = pkgs.writeText "c64-starship.toml" ''
-    # C64-style minimal prompt
-    format = """
-    READY.
+        # C64-style minimal prompt
+        # Disable all default modules to remove hostname/username
+        format = """READY.
     $character"""
 
-    [character]
-    success_symbol = "█"
-    error_symbol = "█"
-    vimcmd_symbol = "█"
+        [character]
+        success_symbol = "█"
+        error_symbol = "█"
+        vimcmd_symbol = "█"
   '';
 
   # Ghostty configuration for C64 shell (authentic C64 colors)
