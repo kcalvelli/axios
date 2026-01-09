@@ -323,6 +323,47 @@
             fixed = 1100;
           };
         }
+
+        # C64 Shell (Ghostty with C64 config): float, centered, classic 4:3 aspect
+        {
+          matches = [
+            {
+              app-id = "^com\\.mitchellh\\.ghostty$";
+              title = "^ghostty$"; # Default Ghostty title when launched with custom config
+            }
+          ];
+
+          # Override global maximized rule
+          open-maximized = false;
+          open-floating = true; # Centers by default
+
+          # Classic 4:3 aspect ratio sized for comfortable C64 viewing
+          default-column-width = {
+            fixed = 1024;
+          };
+          default-window-height = {
+            fixed = 768;
+          };
+        }
+
+        # C64 Stream Viewer: float, centered, matches C64 shell size
+        {
+          matches = [
+            { title = "^C64 Stream Viewer$"; } # Match by title (SDL apps often don't set app-id)
+          ];
+
+          # Override global maximized rule
+          open-maximized = false;
+          open-floating = true; # Centers by default
+
+          # Same size as C64 shell for consistency
+          default-column-width = {
+            fixed = 1024;
+          };
+          default-window-height = {
+            fixed = 768;
+          };
+        }
       ];
 
     };
