@@ -387,7 +387,8 @@ let
                     [ ]
                 )
                 ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
-                ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai;
+                ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai
+                ++ [ self.homeModules.c64 ]; # Always available, users opt-in with programs.c64.enable
             };
           }
           dynamicConfig
