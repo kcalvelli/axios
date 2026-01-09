@@ -157,8 +157,9 @@ stdenv.mkDerivation rec {
     # Copy C64 config to proper Ghostty config location
     cp @GHOSTTY_CONFIG@ "$C64_XDG_HOME/ghostty/config"
 
-    # Launch Ghostty with isolated config and Fish shell
+    # Launch Ghostty with isolated config, custom app-id, and Fish shell
     exec env XDG_CONFIG_HOME="$C64_XDG_HOME" @GHOSTTY@ \
+      --class=com.kc.c64shell \
       -e @FISH@ \
       --init-command="source @FISH_CONFIG@; and set -x STARSHIP_CONFIG @STARSHIP_CONFIG@"
     LAUNCHER_EOF
