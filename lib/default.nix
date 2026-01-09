@@ -262,7 +262,8 @@ let
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or false) ai
-        ++ lib.optional (hostCfg.modules.secrets or false) secrets;
+        ++ lib.optional (hostCfg.modules.secrets or false) secrets
+        ++ lib.optional (hostCfg.modules.c64 or false) c64;
 
       # Hardware modules conditionally imported based on vendor/formFactor
       conditionalHwModules =
