@@ -76,38 +76,32 @@ let
 
   # Ghostty configuration for C64 shell (authentic C64 colors)
   c64GhosttyConfig = pkgs.writeText "c64-ghostty-config" ''
-    # Authentic Commodore 64 color scheme
-    background = 3e31a2  # C64 blue
-    foreground = 7c70da  # C64 light blue
+    background = 3e31a2
+    foreground = 7c70da
 
-    # C64 PETSCII-inspired color palette (16 colors)
-    palette = 0=#000000   # Black
-    palette = 1=#ffffff   # White
-    palette = 2=#883932   # Red
-    palette = 3=#67b6bd   # Cyan
-    palette = 4=#8b3f96   # Purple
-    palette = 5=#55a049   # Green
-    palette = 6=#40318d   # Blue
-    palette = 7=#bfce72   # Yellow
-    palette = 8=#8b5429   # Orange
-    palette = 9=#574200   # Brown
-    palette = 10=#b86962  # Light Red
-    palette = 11=#505050  # Dark Gray
-    palette = 12=#787878  # Gray
-    palette = 13=#94e089  # Light Green
-    palette = 14=#7869c4  # Light Blue
-    palette = 15=#9f9f9f  # Light Gray
+    palette = 0=#000000
+    palette = 1=#ffffff
+    palette = 2=#883932
+    palette = 3=#67b6bd
+    palette = 4=#8b3f96
+    palette = 5=#55a049
+    palette = 6=#40318d
+    palette = 7=#bfce72
+    palette = 8=#8b5429
+    palette = 9=#574200
+    palette = 10=#b86962
+    palette = 11=#505050
+    palette = 12=#787878
+    palette = 13=#94e089
+    palette = 14=#7869c4
+    palette = 15=#9f9f9f
 
-    # Use a monospace font that evokes C64
-    # You can install C64 Pro Mono or similar for even more authenticity
-    font-family = "Monospace"
+    font-family = Monospace
     font-size = 12
 
-    # Window settings
     window-padding-x = 10
     window-padding-y = 10
 
-    # Cursor (blinking block to match C64)
     cursor-style = block
     cursor-style-blink = true
   '';
