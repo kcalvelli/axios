@@ -107,6 +107,10 @@
       url = "github:kcalvelli/c64-stream-viewer";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    c64term = {
+      url = "github:kcalvelli/c64term";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };    
     mcp-servers-nix = {
       url = "github:natsukium/mcp-servers-nix";
       inputs.nixpkgs.follows = "nixpkgs";
