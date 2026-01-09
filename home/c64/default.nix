@@ -151,7 +151,7 @@ in
       genericName = "Commodore 64 Terminal";
       comment = "Authentic Commodore 64 terminal experience";
       exec = "${c64ShellLauncher}/bin/c64-shell";
-      icon = "c64term";
+      icon = "${config.home.homeDirectory}/.local/share/icons/c64term.png";
       terminal = false;
       categories = [
         "System"
