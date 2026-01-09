@@ -39,7 +39,7 @@ let
   #        age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
   #     Secret path: /run/user/$UID/agenix/brave-api-key
   #
-  # 🎮 COMMODORE 64 INTEGRATION (requires programs.c64.enable = true):
+  # 🎮 COMMODORE 64 INTEGRATION:
   #   - ultimate64: Ultimate64 C64 emulator control
   #     REQUIRES: Ultimate64 hardware on local network
   #     OPTIONAL: Set C64_HOST environment variable (e.g., home.sessionVariables.C64_HOST = "192.168.x.x")
@@ -100,10 +100,9 @@ let
           inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/nix-devshell-mcp";
       };
-    }
-    // lib.optionalAttrs (config.programs.c64.enable or false) {
-      # Ultimate64 C64 emulator control (only enabled with programs.c64)
-      # REQUIRES: Ultimate64 hardware on local network + programs.c64.enable = true
+
+      # Ultimate64 C64 emulator control
+      # REQUIRES: Ultimate64 hardware on local network
       # Provides: Remote control, file management, video streaming
       # OPTIONAL: Configure C64_HOST in your downstream config:
       #   home.sessionVariables.C64_HOST = "192.168.x.x";
@@ -206,7 +205,7 @@ in
     home.packages = [
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-      # Note: ultimate64-mcp is installed by programs.c64 module
+      inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
     # Claude Code MCP configuration (declarative)

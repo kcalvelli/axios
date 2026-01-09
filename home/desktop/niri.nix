@@ -324,25 +324,7 @@
           };
         }
 
-        # C64 Shell: float, centered, classic 4:3 aspect
-        # Commented out - C64 shell development moved to separate c64term project
-        # {
-        #   matches = [ { app-id = "^com\\.kc\\.c64shell$"; } ];
-        #
-        #   # Override global maximized rule
-        #   open-maximized = false;
-        #   open-floating = true; # Centers by default
-        #
-        #   # Classic 4:3 aspect ratio sized for comfortable C64 viewing
-        #   default-column-width = {
-        #     fixed = 1024;
-        #   };
-        #   default-window-height = {
-        #     fixed = 768;
-        #   };
-        # }
-
-        # C64 Stream Viewer: float, centered, matches C64 shell size
+        # C64 Stream Viewer: float, centered, classic 4:3 aspect
         {
           matches = [
             { title = "^C64 Stream Viewer$"; } # Match by title (SDL apps often don't set app-id)
@@ -352,7 +334,7 @@
           open-maximized = false;
           open-floating = true; # Centers by default
 
-          # Same size as C64 shell for consistency
+          # Classic 4:3 aspect ratio for C64 content
           default-column-width = {
             fixed = 1024;
           };

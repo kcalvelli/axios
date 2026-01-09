@@ -11,7 +11,6 @@
       ai = ./ai;
       secrets = ./secrets;
       calendar = ./calendar;
-      c64 = ./c64;
     };
   };
 }
