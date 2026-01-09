@@ -114,9 +114,15 @@ let
 
   # Desktop launcher script
   c64ShellLauncher = pkgs.writeShellScriptBin "c64-shell" ''
-    # Launch Ghostty with C64 configuration and Fish shell
-    exec ${pkgs.ghostty}/bin/ghostty \
-      --config=${c64GhosttyConfig} \
+    # Create temporary XDG config home for isolated C64 Ghostty instance
+    C64_XDG_HOME="''${XDG_RUNTIME_DIR:-/tmp}/c64-xdg-config"
+    mkdir -p "$C64_XDG_HOME/ghostty"
+
+    # Copy C64 config to proper Ghostty config location
+    cp ${c64GhosttyConfig} "$C64_XDG_HOME/ghostty/config"
+
+    # Launch Ghostty with isolated config and Fish shell
+    exec env XDG_CONFIG_HOME="$C64_XDG_HOME" ${pkgs.ghostty}/bin/ghostty \
       -e ${pkgs.fish}/bin/fish \
       --init-command="source ${c64FishConfig}; and set -x STARSHIP_CONFIG ${c64StarshipConfig}"
   '';
