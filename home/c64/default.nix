@@ -74,52 +74,61 @@ let
     vimcmd_symbol = "█"
   '';
 
-  # cool-retro-term configuration for C64 profile
-  c64CoolRetroTermConfig = {
-    profiles = [
-      {
-        name = "Commodore 64";
-        colorScheme = "Commodore64";
-        fontColor = "#7C70DA";
-        backgroundColor = "#3E31A2";
-        fontName = "COMMODORE_64";
-        fontWidth = 1.0;
-        fontScaling = 1.0;
-        burnIn = 0.45;
-        staticNoise = 0.05;
-        jitter = 0.11;
-        glowingLine = 0.2;
-        bloom = 0.4;
-        curvature = 0.1;
-        screenCurvature = true;
-        ambientLight = 0.2;
-        saturationColor = 0.0;
-        brightness = 0.5;
-        rbgShift = 0.0;
-        horizontalSync = 0.14;
-        flickering = 0.1;
-        rasterization = false;
-      }
-    ];
-  };
+  # Ghostty configuration for C64 shell (authentic C64 colors)
+  c64GhosttyConfig = pkgs.writeText "c64-ghostty-config" ''
+    # Authentic Commodore 64 color scheme
+    background = 3e31a2  # C64 blue
+    foreground = 7c70da  # C64 light blue
+
+    # C64 PETSCII-inspired color palette (16 colors)
+    palette = 0=#000000   # Black
+    palette = 1=#ffffff   # White
+    palette = 2=#883932   # Red
+    palette = 3=#67b6bd   # Cyan
+    palette = 4=#8b3f96   # Purple
+    palette = 5=#55a049   # Green
+    palette = 6=#40318d   # Blue
+    palette = 7=#bfce72   # Yellow
+    palette = 8=#8b5429   # Orange
+    palette = 9=#574200   # Brown
+    palette = 10=#b86962  # Light Red
+    palette = 11=#505050  # Dark Gray
+    palette = 12=#787878  # Gray
+    palette = 13=#94e089  # Light Green
+    palette = 14=#7869c4  # Light Blue
+    palette = 15=#9f9f9f  # Light Gray
+
+    # Use a monospace font that evokes C64
+    # You can install C64 Pro Mono or similar for even more authenticity
+    font-family = "Monospace"
+    font-size = 12
+
+    # Window settings
+    window-padding-x = 10
+    window-padding-y = 10
+
+    # Cursor (blinking block to match C64)
+    cursor-style = block
+    cursor-style-blink = true
+  '';
 
   # Desktop launcher script
   c64ShellLauncher = pkgs.writeShellScriptBin "c64-shell" ''
-    # Launch cool-retro-term with C64 Fish shell configuration
-    exec ${pkgs.cool-retro-term}/bin/cool-retro-term \
+    # Launch Ghostty with C64 configuration and Fish shell
+    exec ${pkgs.ghostty}/bin/ghostty \
+      --config=${c64GhosttyConfig} \
       -e ${pkgs.fish}/bin/fish \
       --init-command="source ${c64FishConfig}; and set -x STARSHIP_CONFIG ${c64StarshipConfig}"
   '';
 in
 {
   options.programs.c64 = {
-    enable = lib.mkEnableOption "Commodore 64 shell experience with cool-retro-term";
+    enable = lib.mkEnableOption "Commodore 64 shell experience with authentic colors and font";
   };
 
   config = lib.mkIf cfg.enable {
-    # Install cool-retro-term and support packages
+    # Install C64 tools and support packages
     home.packages = [
-      pkgs.cool-retro-term
       c64BootScript
       c64ShellLauncher
       # C64/Ultimate64 video/audio stream viewer
@@ -145,8 +154,9 @@ in
       ];
     };
 
-    # Ensure Fish is available
+    # Ensure required programs are available
     programs.fish.enable = lib.mkDefault true;
     programs.starship.enable = lib.mkDefault true;
+    programs.ghostty.enable = lib.mkDefault true;
   };
 }
