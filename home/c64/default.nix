@@ -24,6 +24,10 @@ in
       inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
+    # Install C64 icon from package to user directory for theme system
+    home.file.".local/share/icons/hicolor/512x512/apps/c64term.png".source =
+      "${pkgs.c64-shell}/share/icons/hicolor/512x512/apps/c64term.png";
+
     # Create desktop launcher
     xdg.desktopEntries.c64-shell = {
       name = "C64 Shell";
@@ -37,6 +41,8 @@ in
         "TerminalEmulator"
         "Development"
       ];
+      # Match Ghostty's app-id for proper window icon association
+      startupWMClass = "com.mitchellh.ghostty";
     };
 
     # Ensure required programs are available
