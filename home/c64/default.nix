@@ -42,7 +42,9 @@ in
         "Development"
       ];
       # Match custom C64 shell app-id
-      startupWMClass = "com.kc.c64shell";
+      settings = {
+        StartupWMClass = "com.kc.c64shell";
+      };
     };
 
     # Ensure required programs are available
