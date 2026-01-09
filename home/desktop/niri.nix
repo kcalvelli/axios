@@ -325,21 +325,22 @@
         }
 
         # C64 Shell: float, centered, classic 4:3 aspect
-        {
-          matches = [ { app-id = "^com\\.kc\\.c64shell$"; } ];
-
-          # Override global maximized rule
-          open-maximized = false;
-          open-floating = true; # Centers by default
-
-          # Classic 4:3 aspect ratio sized for comfortable C64 viewing
-          default-column-width = {
-            fixed = 1024;
-          };
-          default-window-height = {
-            fixed = 768;
-          };
-        }
+        # Commented out - C64 shell development moved to separate c64term project
+        # {
+        #   matches = [ { app-id = "^com\\.kc\\.c64shell$"; } ];
+        #
+        #   # Override global maximized rule
+        #   open-maximized = false;
+        #   open-floating = true; # Centers by default
+        #
+        #   # Classic 4:3 aspect ratio sized for comfortable C64 viewing
+        #   default-column-width = {
+        #     fixed = 1024;
+        #   };
+        #   default-window-height = {
+        #     fixed = 768;
+        #   };
+        # }
 
         # C64 Stream Viewer: float, centered, matches C64 shell size
         {
