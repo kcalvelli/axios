@@ -25,7 +25,8 @@ in
     ];
 
     # Install C64 icon from package to user directory for theme system
-    home.file.".local/share/icons/hicolor/512x512/apps/c64term.png".source =
+    # Icon name matches app-id for proper association
+    home.file.".local/share/icons/hicolor/512x512/apps/com.kc.c64shell.png".source =
       "${pkgs.c64-shell}/share/icons/hicolor/512x512/apps/c64term.png";
 
     # Create desktop launcher
@@ -34,7 +35,7 @@ in
       genericName = "Commodore 64 Terminal";
       comment = "Authentic Commodore 64 terminal experience with development tools";
       exec = "${pkgs.c64-shell}/bin/c64-shell";
-      icon = "c64term";
+      icon = "com.kc.c64shell";
       terminal = false;
       categories = [
         "System"
