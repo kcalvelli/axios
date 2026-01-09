@@ -16,12 +16,12 @@ let
     LIGHTBLUE="\033[38;2;124;112;218m" # C64 light blue text
     RESET="\033[0m"
 
-    # Get system info
-    TOTAL_RAM=$(${pkgs.coreutils}/bin/free -h | ${pkgs.gnugrep}/bin/grep "Mem:" | ${pkgs.gawk}/bin/awk '{print $2}')
-    AVAILABLE_RAM=$(${pkgs.coreutils}/bin/free -h | ${pkgs.gnugrep}/bin/grep "Mem:" | ${pkgs.gawk}/bin/awk '{print $7}')
+    # Get system info (free is in procps, not coreutils)
+    TOTAL_RAM=$(${pkgs.procps}/bin/free -h | ${pkgs.gnugrep}/bin/grep "Mem:" | ${pkgs.gawk}/bin/awk '{print $2}')
+    AVAILABLE_RAM=$(${pkgs.procps}/bin/free -h | ${pkgs.gnugrep}/bin/grep "Mem:" | ${pkgs.gawk}/bin/awk '{print $7}')
 
     # Convert to bytes for BASIC BYTES FREE calculation (approximate)
-    AVAILABLE_BYTES=$(${pkgs.coreutils}/bin/free -b | ${pkgs.gnugrep}/bin/grep "Mem:" | ${pkgs.gawk}/bin/awk '{print $7}')
+    AVAILABLE_BYTES=$(${pkgs.procps}/bin/free -b | ${pkgs.gnugrep}/bin/grep "Mem:" | ${pkgs.gawk}/bin/awk '{print $7}')
 
     # Print boot message
     echo -e ""
@@ -107,7 +107,6 @@ let
   c64ShellLauncher = pkgs.writeShellScriptBin "c64-shell" ''
     # Launch cool-retro-term with C64 Fish shell configuration
     exec ${pkgs.cool-retro-term}/bin/cool-retro-term \
-      --profile "Commodore 64" \
       -e ${pkgs.fish}/bin/fish \
       --init-command="source ${c64FishConfig}; and set -x STARSHIP_CONFIG ${c64StarshipConfig}"
   '';
