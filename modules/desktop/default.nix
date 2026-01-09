@@ -52,9 +52,6 @@ in
       ffmpeg # Video/audio processing, conversion, streaming
       amberol # Music player (simple, focused on music playback)
 
-      # === Ultimate64 Tools ===
-      inputs.c64-stream-viewer.packages.${pkgs.stdenv.hostPlatform.system}.av # C64/Ultimate64 video/audio stream viewer
-
       # === System Utilities ===
       kdePackages.filelight # Disk usage analyzer (superior radial visualization)
       kdePackages.ksshaskpass # GUI password prompt for sudo -A

@@ -21,7 +21,6 @@ let
   #   - time: Provides date/time utilities
   #   - journal: Reads systemd journal logs
   #   - nix-devshell-mcp: Nix development environment management
-  #   - ultimate64: Ultimate64 C64 emulator control (requires Ultimate64 hardware)
   #   - sequential-thinking: Enhanced reasoning for complex problems
   #   - context7: Up-to-date documentation search
   #   - filesystem: File access (restricted to /tmp and ~/Projects)
@@ -39,6 +38,12 @@ let
   #     3. Add to your NixOS config:
   #        age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
   #     Secret path: /run/user/$UID/agenix/brave-api-key
+  #
+  # 🎮 COMMODORE 64 INTEGRATION (requires programs.c64.enable = true):
+  #   - ultimate64: Ultimate64 C64 emulator control
+  #     REQUIRES: Ultimate64 hardware on local network
+  #     OPTIONAL: Set C64_HOST environment variable (e.g., home.sessionVariables.C64_HOST = "192.168.x.x")
+  #     Provides: Remote control, file management, video streaming, .prg execution
   #
   # DISABLING MCP SERVERS:
   #   Set services.ai.mcp.enable = false; in your NixOS configuration
@@ -95,12 +100,13 @@ let
           inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/nix-devshell-mcp";
       };
-
-      # Ultimate64 C64 emulator control
-      # REQUIRES: Ultimate64 hardware on local network
+    }
+    // lib.optionalAttrs (config.programs.c64.enable or false) {
+      # Ultimate64 C64 emulator control (only enabled with programs.c64)
+      # REQUIRES: Ultimate64 hardware on local network + programs.c64.enable = true
       # Provides: Remote control, file management, video streaming
       # OPTIONAL: Configure C64_HOST in your downstream config:
-      #   programs.claude-code.mcpServers.ultimate64.env.C64_HOST = "192.168.x.x";
+      #   home.sessionVariables.C64_HOST = "192.168.x.x";
       #   Or use 'ultimate_set_connection' tool at runtime
       ultimate64 = {
         command = "${
@@ -108,7 +114,8 @@ let
         }/bin/mcp-ultimate";
         args = [ "--stdio" ];
       };
-
+    }
+    // {
       # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       # AI ENHANCEMENT SERVERS (No setup required)
       # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -199,7 +206,7 @@ in
     home.packages = [
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-      inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+      # Note: ultimate64-mcp is installed by programs.c64 module
     ];
 
     # Claude Code MCP configuration (declarative)

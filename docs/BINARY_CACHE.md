@@ -1,10 +1,21 @@
 # Binary Cache
 
-Axios provides a binary cache to speed up builds for downstream users.
+Axios uses multiple binary caches to speed up builds and avoid compiling from source.
 
-## For Users: Using the Axios Cache
+## For Users: Binary Cache Configuration
 
-Add the axios binary cache to your NixOS configuration:
+### Automatic Configuration (Recommended)
+
+**If you enable `modules.desktop = true`**, binary caches are automatically configured for you! The desktop module sets up:
+
+- ✅ **niri.cachix.org** - Niri compositor (avoids 10-15 min Rust compilation)
+- ✅ **brave-previews.cachix.org** - Brave Nightly/Beta browsers
+
+No manual configuration needed - just enable the desktop module.
+
+### Manual Configuration
+
+If you want to add the axios cache manually (for custom packages), or if you're not using the desktop module:
 
 ```nix
 # In your configuration.nix or flake-based config
@@ -12,43 +23,66 @@ Add the axios binary cache to your NixOS configuration:
   nix.settings = {
     substituters = [
       "https://cache.nixos.org"
-      "https://axios.cachix.org"  # Add axios cache
+      "https://axios.cachix.org"           # Axios custom packages
+      "https://niri.cachix.org"            # Niri compositor
+      "https://brave-previews.cachix.org"  # Brave browsers
     ];
-    
+
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431kS1gBOk6429S9g0f1NXtv+FIsf8Xma0="
       "axios.cachix.org-1:8c7nj72raLM0Q4Fie799J/70D2/5oDd7rxqnOuxObh4="
+      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
+      "brave-previews.cachix.org-1:9bLSYtgro1rYD4hUzFVASMpsNjWjHvEz11HGB2trAq4="
     ];
   };
 }
 ```
 
-**Get the public key from:** https://app.cachix.org/cache/axios
+**Get public keys from:**
+- https://app.cachix.org/cache/axios
+- https://app.cachix.org/cache/niri
+- https://app.cachix.org/cache/brave-previews
 
-### What Gets Cached?
+## What Gets Cached?
 
-The binary cache includes:
-- ✅ All devShells (default, rust, qml, zig, spec)
-- ✅ Packages (pwa-apps)
-- ✅ Apps (init)
-- ✅ Formatter
-- ✅ Dependencies built during CI
+### axios.cachix.org
+- ✅ Custom packages (pwa-apps)
+- ✅ App dependencies (init, add-pwa, fetch-pwa-icon, download-llama-models)
 
-### What Doesn't Get Cached?
+### niri.cachix.org (External)
+- ✅ Niri compositor (Rust application, ~10-15 min build time saved)
 
-- ❌ NixOS modules (these are Nix code, not built artifacts)
-- ❌ Your specific system configuration
-- ❌ Packages from other flakes you're using
+### brave-previews.cachix.org
+- ✅ Brave Nightly browser
+- ✅ Brave Beta browser
 
-### Benefits
+## What Doesn't Get Cached?
 
-Without cache:
-- First build: **30-60 minutes** (building everything from source)
-- Subsequent builds: 5-30 minutes (depending on changes)
+- ❌ **Full NixOS system builds** (too large, mostly standard nixpkgs anyway)
+- ❌ **DevShells** (not worth the cache space)
+- ❌ **DankMaterialShell (DMS)** (still compiles from source - may add later)
+- ❌ **NixOS modules** (these are Nix code, not built artifacts)
+- ❌ **Your specific system configuration**
 
-With cache:
-- First build: **2-5 minutes** (downloading pre-built binaries)
-- Subsequent builds: 1-2 minutes (minimal changes)
+## Benefits
+
+### Time Savings
+
+**Without binary caches:**
+- First build with desktop module: **40-60 minutes**
+  - Niri compilation: 10-15 min
+  - DMS compilation: 5-10 min
+  - Brave Nightly: 10-20 min (if using previews)
+  - Everything else: 15-25 min
+
+**With binary caches (auto-configured):**
+- First build with desktop module: **10-20 minutes**
+  - Niri: ✅ Downloaded (~30 sec)
+  - DMS: ❌ Still compiles (5-10 min)
+  - Brave Nightly: ✅ Downloaded (~1 min)
+  - Everything else: 5-10 min
+
+**Estimated savings: 30-40 minutes on first build**, even more on subsequent builds.
 
 ### Troubleshooting
 
@@ -74,26 +108,44 @@ nix build --option substitute true --option substituters "https://axios.cachix.o
 
 ### Cache Statistics
 
-View cache usage at: https://app.cachix.org/cache/axios
+View cache usage at:
+- **axios**: https://app.cachix.org/cache/axios
+- **brave-previews**: https://app.cachix.org/cache/brave-previews
 
-### What Gets Pushed
+### What Gets Pushed to axios.cachix.org
 
-The `cachix-action` automatically pushes:
-- All builds from GitHub Actions workflows
-- Everything built during `nix flake check`
-- Any explicit builds in CI
+The `build-packages.yml` workflow pushes:
+- ✅ Custom packages from `pkgs/` (pwa-apps)
+- ✅ App dependencies (init, add-pwa, fetch-pwa-icon, download-llama-models)
+- ❌ **NOT** full system builds (kept as dry-run validation)
+- ❌ **NOT** devShells (not worth the space)
 
-### Storage Limits
+**Weekly cron** (Mondays 2 AM UTC) rebuilds to keep cache fresh with input updates.
 
-**Free tier:**
-- 5 GB storage
+### What Gets Pushed to brave-previews.cachix.org
+
+The `brave-browser-previews-flake` repo workflows push:
+- ✅ brave-nightly (daily updates via `update.yml`)
+- ✅ brave-beta (daily updates via `update.yml`)
+- ✅ On-demand builds via `build-and-cache.yml`
+
+### Storage Strategy
+
+**Free tier per cache:**
+- 5 GB storage per cache
 - Unlimited downloads
 - Public caches only
 
-**If you hit limits:**
-1. Clean old store paths from cache
-2. Upgrade to paid plan ($20/month for 50GB)
-3. Set up cache retention policies
+**Current usage strategy:**
+- **axios.cachix.org**: ~500MB-1GB (custom packages only, selective caching)
+- **brave-previews.cachix.org**: ~500MB-1GB (brave builds, automatic updates)
+- **Total**: Well under combined 10GB limit ✅
+
+**Why this works:**
+- We **don't cache** full NixOS systems (would be 2-5GB per config)
+- We **don't cache** devShells (low value, moderate size)
+- We **rely on** external caches (niri.cachix.org) where available
+- We **only cache** what's unique to axios and not available elsewhere
 
 ### Manual Push
 
