@@ -324,6 +324,25 @@
           };
         }
 
+        # C64 Terminal: float, centered, classic 4:3 aspect
+        {
+          matches = [
+            { app-id = "^io\\.github\\.kcalvelli\\.c64term$"; }
+          ];
+
+          # Override global maximized rule
+          open-maximized = false;
+          open-floating = true; # Centers by default
+
+          # Classic 4:3 aspect ratio sized for comfortable C64 viewing
+          default-column-width = {
+            fixed = 1024;
+          };
+          default-window-height = {
+            fixed = 768;
+          };
+        }
+
         # C64 Stream Viewer: float, centered, classic 4:3 aspect
         {
           matches = [
