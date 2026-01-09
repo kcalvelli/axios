@@ -324,14 +324,9 @@
           };
         }
 
-        # C64 Shell (Ghostty with C64 config): float, centered, classic 4:3 aspect
+        # C64 Shell: float, centered, classic 4:3 aspect
         {
-          matches = [
-            {
-              app-id = "^com\\.mitchellh\\.ghostty$";
-              title = "^C64 Shell$";
-            }
-          ];
+          matches = [ { app-id = "^com\\.kc\\.c64shell$"; } ];
 
           # Override global maximized rule
           open-maximized = false;
