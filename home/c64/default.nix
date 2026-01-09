@@ -76,6 +76,8 @@ let
 
   # Ghostty configuration for C64 shell (authentic C64 colors)
   c64GhosttyConfig = pkgs.writeText "c64-ghostty-config" ''
+    title = C64 Shell
+
     background = 3e31a2
     foreground = 7c70da
 

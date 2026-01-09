@@ -329,7 +329,7 @@
           matches = [
             {
               app-id = "^com\\.mitchellh\\.ghostty$";
-              title = "^ghostty$"; # Default Ghostty title when launched with custom config
+              title = "^C64 Shell$";
             }
           ];
 
