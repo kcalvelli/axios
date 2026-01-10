@@ -158,13 +158,25 @@ let
 
   # Script to display keybindings in a terminal with proper scrolling
   showKeybindings = pkgs.writeShellScript "show-niri-keybindings" ''
-    # Use less for scrolling support on all screen sizes
-    # -R: handle ANSI colors (from bat)
+    # Center text in terminal (80 columns wide)
+    center_text() {
+      ${pkgs.gawk}/bin/awk '{
+        width = 80
+        len = length($0)
+        if (len < width) {
+          padding = int((width - len) / 2)
+          printf "%*s%s\n", padding, "", $0
+        } else {
+          print $0
+        }
+      }'
+    }
+
+    # Display centered text with less for scrolling
+    # -R: handle ANSI colors
     # -F: quit if content fits on one screen
     # -X: don't clear screen on exit
-    # -S: chop long lines (no wrap, use arrow keys to scroll horizontally)
-    ${pkgs.bat}/bin/bat --plain --language txt ${keybindingGuide} 2>/dev/null | ${pkgs.less}/bin/less -RFX || \
-    ${pkgs.less}/bin/less -RFX ${keybindingGuide}
+    ${pkgs.coreutils}/bin/cat ${keybindingGuide} | center_text | ${pkgs.less}/bin/less -RFX
   '';
 
 in
