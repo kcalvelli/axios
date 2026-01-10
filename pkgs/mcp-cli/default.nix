@@ -1,8 +1,7 @@
 {
   lib,
   stdenv,
-  fetchFromGitHub,
-  bun,
+  fetchurl,
   ...
 }:
 
@@ -10,30 +9,19 @@ stdenv.mkDerivation rec {
   pname = "mcp-cli";
   version = "0.1.3";
 
-  src = fetchFromGitHub {
-    owner = "philschmid";
-    repo = "mcp-cli";
-    rev = "v${version}";
-    hash = "sha256-xEiTWvlOZY51v4diIIAcVSt5MyHQY2Q+wFJMzHtjip8=";
+  src = fetchurl {
+    url = "https://github.com/philschmid/mcp-cli/releases/download/v${version}/mcp-cli-linux-x64";
+    hash = "sha256-J13r3KU5Si32K3FUak5k4P9UdGnQyT+kHko29+IVek4=";
   };
 
-  nativeBuildInputs = [ bun ];
-
-  buildPhase = ''
-    runHook preBuild
-
-    # Install dependencies
-    bun install --frozen-lockfile
-
-    # Build standalone executable
-    bun build --compile --minify --target=bun-linux-x64 src/index.ts --outfile mcp-cli
-
-    runHook postBuild
-  '';
+  dontUnpack = true;
+  dontBuild = true;
+  dontPatchELF = true;  # Don't modify the binary
+  dontStrip = true;     # Don't strip the binary
 
   installPhase = ''
     runHook preInstall
-    install -Dm755 mcp-cli $out/bin/mcp-cli
+    install -Dm755 $src $out/bin/mcp-cli
     runHook postInstall
   '';
 
