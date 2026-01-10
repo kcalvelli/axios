@@ -216,5 +216,15 @@ in
       mcpServers =
         (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
     };
+
+    # mcp-cli MCP configuration (declarative)
+    # Generate MCP server configuration for mcp-cli dynamic tool discovery
+    # mcp-cli reads ~/.config/mcp/mcp_servers.json by default
+    # This enables AI agents to use mcp-cli for just-in-time tool discovery
+    # reducing context window consumption by ~99% compared to static loading
+    home.file.".config/mcp/mcp_servers.json".text = builtins.toJSON {
+      mcpServers =
+        (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+    };
   };
 }

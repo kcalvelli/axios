@@ -401,8 +401,9 @@ All workflows use:
 ## AI Module Specifics
 
 The `services.ai.enable` module provides:
-- **Tools**: claude-code, copilot-cli, claude-monitor, gemini-cli, and other AI assistants
+- **Tools**: claude-code, copilot-cli, claude-monitor, gemini-cli, mcp-cli, and other AI assistants
 - **MCP Servers** (optional): Enable with `services.ai.mcp.enable = true` (default: true)
+- **Dynamic Discovery**: mcp-cli for just-in-time tool discovery (99% token reduction)
 - **Architecture**: Uses `mcp-servers-nix` library for declarative MCP server configuration
 
 ### MCP Configuration
@@ -460,6 +461,66 @@ echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
 ```
 
 axios will automatically use `passwordCommand` to securely load this secret. If the secret isn't configured, it falls back to the environment variable `$BRAVE_API_KEY`.
+
+### Dynamic Tool Discovery with mcp-cli
+
+**What is mcp-cli?**
+
+mcp-cli is a lightweight command-line interface for the Model Context Protocol that enables **dynamic tool discovery** for AI agents. It solves a critical problem: traditional MCP integration loads all tool definitions upfront into the agent's context window, consuming massive token allocations.
+
+**Token Reduction:**
+- Traditional MCP: ~47,000 tokens for 6 servers with 60 tools
+- With mcp-cli: ~400 tokens (99% reduction!)
+
+**How it works:**
+
+Instead of loading all tool schemas at once, AI agents can use mcp-cli to discover tools on-demand:
+
+```bash
+# List all available MCP servers
+mcp-cli
+
+# Search for specific tools
+mcp-cli grep "search"
+
+# Get tool schema
+mcp-cli github/search
+
+# Execute tool with arguments
+mcp-cli github/search '{"query": "axios", "path": "README.md"}'
+
+# Use stdin for complex JSON
+echo '{"query": "test"}' | mcp-cli server/tool -
+```
+
+**Integration:**
+
+mcp-cli is **automatically enabled** when `services.ai.enable = true`. axios automatically generates:
+- `~/.mcp.json` - Claude Code native MCP configuration
+- `~/.config/mcp/mcp_servers.json` - mcp-cli configuration (same server definitions)
+
+Both files use the same declarative MCP server configuration from `home/ai/mcp.nix`.
+
+**Usage in AI Agents:**
+
+AI agents like Claude Code can invoke mcp-cli via the Bash tool for just-in-time tool discovery:
+1. Agent searches for relevant tools: `mcp-cli grep "file"`
+2. Agent inspects tool schema: `mcp-cli filesystem/read_file`
+3. Agent executes with proper arguments: `mcp-cli filesystem/read_file '{"path": "/tmp/test.txt"}'`
+
+This approach dramatically reduces context window usage and enables using many more MCP servers simultaneously.
+
+**Benefits:**
+- ✅ 99% reduction in context token usage
+- ✅ Lower API costs (fewer tokens per request)
+- ✅ Support for 20+ MCP servers without hitting limits
+- ✅ No configuration needed - works automatically with existing MCP setup
+- ✅ Complements (not replaces) native Claude Code MCP integration
+
+**References:**
+- Package: `pkgs/mcp-cli/default.nix`
+- Configuration: `home/ai/mcp.nix:220-228`
+- Upstream: https://github.com/philschmid/mcp-cli
 
 ## Common Patterns
 

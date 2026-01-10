@@ -114,6 +114,7 @@ in
         whisper-cpp # Speech-to-text
         nodejs # For npx MCP servers
         claude-monitor # Real-time Claude Code usage monitoring
+        mcp-cli # Dynamic MCP tool discovery for reduced context usage
 
         # CLI Coding Agents (3 distinct AI ecosystems)
         claude-code # Anthropic - MCP support, deep integration
