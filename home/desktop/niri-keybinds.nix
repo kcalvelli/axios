@@ -475,7 +475,15 @@ in
       matches = [
         { title = "Niri Keybindings - axiOS"; }
       ];
+      open-maximized = false;
       open-floating = true;
+      # Comfortable size that fits on 1366x768 displays and larger
+      default-column-width = {
+        fixed = 900;
+      };
+      default-window-height = {
+        fixed = 700;
+      };
     }
   ];
 

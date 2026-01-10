@@ -302,28 +302,6 @@
           # no open-floating here, so they tile/maximize per your global rules
         }
 
-        # Niri keybinding help window: float, centered, comfortable reading size
-        {
-          matches = [
-            {
-              app-id = "^com\\.mitchellh\\.ghostty$";
-              title = "^Niri Keybindings - axiOS$";
-            }
-          ];
-
-          # Override global maximized rule
-          open-maximized = false;
-          open-floating = true; # Centers by default
-
-          # Portrait orientation - taller than wide for better readability
-          default-column-width = {
-            fixed = 800;
-          };
-          default-window-height = {
-            fixed = 1100;
-          };
-        }
-
         # C64 Terminal: float, centered, classic 4:3 aspect
         {
           matches = [
