@@ -229,14 +229,42 @@ in
 
     # axiOS system prompts for AI agents
     # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
-    # RECOMMENDED: Use this as your primary AI agent system prompt
-    #   Claude Code: Copy content to customInstructions in ~/.claude.json
-    #   Gemini CLI: Use --system-instruction ~/.config/ai/prompts/axios.md
+    # Auto-injected into Claude Code's ~/.claude.json via activation script below
     # Users can append custom instructions at the bottom of this file
     home.file.".config/ai/prompts/axios.md".source = ./prompts/axios-system-prompt.md;
 
     # mcp-cli technical reference (included in axios.md above)
     # Kept for standalone reference if needed
     home.file.".config/ai/prompts/mcp-cli.md".source = ./prompts/mcp-cli-system-prompt.md;
+
+    # Auto-inject axios system prompt into Claude Code configuration
+    # This runs after home-manager builds, safely appending to existing config
+    home.activation.injectAxiosPrompt = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      CLAUDE_CONFIG="$HOME/.claude.json"
+      AXIOS_PROMPT="$HOME/.config/ai/prompts/axios.md"
+
+      # Ensure axios prompt exists (should be installed by home.file above)
+      if [ ! -f "$AXIOS_PROMPT" ]; then
+        echo "Warning: axios prompt not found at $AXIOS_PROMPT"
+        exit 0
+      fi
+
+      # Create ~/.claude.json if it doesn't exist
+      if [ ! -f "$CLAUDE_CONFIG" ]; then
+        echo '{}' > "$CLAUDE_CONFIG"
+      fi
+
+      # Check if customInstructions already contains axios prompt
+      if ${pkgs.jq}/bin/jq -e '.customInstructions | contains("axiOS System Prompt")' "$CLAUDE_CONFIG" > /dev/null 2>&1; then
+        echo "axios prompt already present in $CLAUDE_CONFIG"
+      else
+        # Append axios prompt to customInstructions
+        PROMPT_CONTENT=$(cat "$AXIOS_PROMPT")
+        ${pkgs.jq}/bin/jq --arg prompt "$PROMPT_CONTENT" \
+          '.customInstructions = (.customInstructions // "") + (if (.customInstructions // "") == "" then "" else "\n\n---\n\n" end) + $prompt' \
+          "$CLAUDE_CONFIG" > "$CLAUDE_CONFIG.tmp" && mv "$CLAUDE_CONFIG.tmp" "$CLAUDE_CONFIG"
+        echo "Injected axios prompt into $CLAUDE_CONFIG"
+      fi
+    '';
   };
 }

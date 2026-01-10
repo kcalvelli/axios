@@ -16,8 +16,8 @@ stdenv.mkDerivation rec {
 
   dontUnpack = true;
   dontBuild = true;
-  dontPatchELF = true;  # Don't modify the binary
-  dontStrip = true;     # Don't strip the binary
+  dontPatchELF = true; # Don't modify the binary
+  dontStrip = true; # Don't strip the binary
 
   installPhase = ''
     runHook preInstall

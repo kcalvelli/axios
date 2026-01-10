@@ -498,8 +498,14 @@ echo '{"query": "test"}' | mcp-cli server/tool -
 mcp-cli is **automatically enabled** when `services.ai.enable = true`. axios automatically generates:
 - `~/.mcp.json` - Claude Code native MCP configuration
 - `~/.config/mcp/mcp_servers.json` - mcp-cli configuration (same server definitions)
+- `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
 
-Both files use the same declarative MCP server configuration from `home/ai/mcp.nix`.
+Both MCP config files use the same declarative server configuration from `home/ai/mcp.nix`.
+
+**Zero Configuration Required:**
+- After system rebuild, the axios prompt is automatically injected into `~/.claude.json`
+- Just restart Claude Code to pick up the new system prompt
+- No manual setup or configuration needed!
 
 **axiOS System Prompt for AI Agents:**
 
@@ -510,21 +516,19 @@ axios provides a comprehensive system prompt at `~/.config/ai/prompts/axios.md` 
 - **NixOS-specific guidance** - How to work with Nix configurations
 - **Custom user instructions** - Section at bottom for users to append their own
 
-**RECOMMENDED**: Use this as your primary AI agent system prompt instead of creating one from scratch.
+**Claude Code: AUTOMATIC INTEGRATION**
 
-**Claude Code:**
-Add the axios prompt to your custom instructions in `~/.claude.json`:
+The axios prompt is **automatically injected** into `~/.claude.json` when you rebuild your system. No manual setup required!
+
+**How it works:**
+- During `home-manager switch`, an activation script checks `~/.claude.json`
+- If the axios prompt isn't present, it's automatically appended to `customInstructions`
+- If you already have custom instructions, axios adds its prompt after a separator (`---`)
+- Restart Claude Code after rebuild to pick up the new prompt
+
+**View the prompt:**
 ```bash
-# View the comprehensive prompt
 cat ~/.config/ai/prompts/axios.md
-
-# Add to customInstructions (preserves existing if present)
-jq --arg prompt "$(cat ~/.config/ai/prompts/axios.md)" \
-  '.customInstructions = $prompt' \
-  ~/.claude.json > ~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json
-
-# To append your own custom instructions, edit ~/.config/ai/prompts/axios.md
-# and add them under the "Custom User Instructions" section
 ```
 
 **Gemini CLI:**
@@ -536,23 +540,30 @@ gemini-cli --system-instruction ~/.config/ai/prompts/axios.md
 alias gemini='gemini-cli --system-instruction ~/.config/ai/prompts/axios.md'
 ```
 
-**Adding Custom Instructions:**
+**Adding Your Own Custom Instructions:**
 
-The axios prompt includes a section for your custom instructions:
+**Method 1: Edit axios prompt directly** (recommended)
 ```bash
-# Edit the file directly to add your custom instructions
+# Edit the axios prompt to add your custom instructions
 $EDITOR ~/.config/ai/prompts/axios.md
-# Add your instructions under "## Custom User Instructions"
+# Add your instructions under "## Custom User Instructions" section at the bottom
+# Next rebuild will inject the updated prompt into ~/.claude.json
 ```
 
-Or create a merged prompt:
+**Method 2: Edit ~/.claude.json directly**
 ```bash
-# Combine axios prompt with your custom instructions
-cat ~/.config/ai/prompts/axios.md > ~/my-custom-prompt.md
-echo "" >> ~/my-custom-prompt.md
-cat ~/my-custom-instructions.md >> ~/my-custom-prompt.md
+# Manually edit Claude Code config (bypasses auto-injection)
+$EDITOR ~/.claude.json
+# Add your custom instructions to the "customInstructions" field
+# Note: axios activation script won't modify if axios prompt is already present
+```
 
-# Then use ~/my-custom-prompt.md with your AI agent
+**Method 3: Merge prompts for other AI agents**
+```bash
+# Create a combined prompt file for Gemini CLI or other tools
+cat ~/.config/ai/prompts/axios.md > ~/my-ai-prompt.md
+echo "" >> ~/my-ai-prompt.md
+cat ~/my-custom-instructions.md >> ~/my-ai-prompt.md
 ```
 
 **Usage in AI Agents:**
@@ -573,10 +584,11 @@ This approach dramatically reduces context window usage and enables using many m
 
 **References:**
 - Package: `pkgs/mcp-cli/default.nix`
-- Configuration: `home/ai/mcp.nix:230-240`
+- Configuration: `home/ai/mcp.nix:230-268`
 - **System Prompts:**
-  - `home/ai/prompts/axios-system-prompt.md` → `~/.config/ai/prompts/axios.md` (comprehensive, recommended)
+  - `home/ai/prompts/axios-system-prompt.md` → `~/.config/ai/prompts/axios.md` (comprehensive, auto-injected)
   - `home/ai/prompts/mcp-cli-system-prompt.md` → `~/.config/ai/prompts/mcp-cli.md` (mcp-cli only)
+- Auto-injection: `home/ai/mcp.nix:242-268` (home.activation.injectAxiosPrompt)
 - Upstream: https://github.com/philschmid/mcp-cli
 
 ## Common Patterns
