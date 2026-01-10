@@ -335,12 +335,12 @@
           open-floating = true; # Centers by default
 
           # Classic 4:3 aspect ratio sized for comfortable C64 viewing
-          default-column-width = {
-            fixed = 1024;
-          };
-          default-window-height = {
-            fixed = 768;
-          };
+          #default-column-width = {
+          #  fixed = 1024;
+          #};
+          #default-window-height = {
+          #  fixed = 768;
+          #};
         }
 
         # C64 Stream Viewer: float, centered, classic 4:3 aspect
