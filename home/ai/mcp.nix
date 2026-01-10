@@ -72,7 +72,7 @@ let
         command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
         args = [ "stdio" ];
         env = {
-          GITHUB_PERSONAL_ACCESS_TOKEN = ''''${GITHUB_PERSONAL_ACCESS_TOKEN}'';
+          GITHUB_PERSONAL_ACCESS_TOKEN = "\${GITHUB_PERSONAL_ACCESS_TOKEN}";
         };
         passwordCommand = {
           GITHUB_PERSONAL_ACCESS_TOKEN = [
@@ -172,7 +172,7 @@ let
           "@modelcontextprotocol/server-brave-search"
         ];
         env = {
-          BRAVE_API_KEY = ''''${BRAVE_API_KEY}'';
+          BRAVE_API_KEY = "\${BRAVE_API_KEY}";
         };
         passwordCommand = {
           BRAVE_API_KEY = [
