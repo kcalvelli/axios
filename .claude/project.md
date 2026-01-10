@@ -501,9 +501,32 @@ mcp-cli is **automatically enabled** when `services.ai.enable = true`. axios aut
 
 Both files use the same declarative MCP server configuration from `home/ai/mcp.nix`.
 
+**Enabling AI Agent Awareness:**
+
+For AI agents to use mcp-cli, they need to know it exists. axios installs a system prompt at `~/.config/ai/prompts/mcp-cli.md` that teaches agents how to use mcp-cli.
+
+**Claude Code:**
+Add the prompt to your custom instructions in `~/.claude.json`:
+```bash
+# View the prompt
+cat ~/.config/ai/prompts/mcp-cli.md
+
+# Manually add the content to ~/.claude.json under customInstructions
+# OR use this helper to append it:
+jq --arg prompt "$(cat ~/.config/ai/prompts/mcp-cli.md)" \
+  '.customInstructions = (.customInstructions // "") + "\n\n" + $prompt' \
+  ~/.claude.json > ~/.claude.json.tmp && mv ~/.claude.json.tmp ~/.claude.json
+```
+
+**Gemini CLI:**
+Use the `--system-instruction` flag:
+```bash
+gemini-cli --system-instruction ~/.config/ai/prompts/mcp-cli.md
+```
+
 **Usage in AI Agents:**
 
-AI agents like Claude Code can invoke mcp-cli via the Bash tool for just-in-time tool discovery:
+Once enabled, AI agents can invoke mcp-cli via the Bash tool for just-in-time tool discovery:
 1. Agent searches for relevant tools: `mcp-cli grep "file"`
 2. Agent inspects tool schema: `mcp-cli filesystem/read_file`
 3. Agent executes with proper arguments: `mcp-cli filesystem/read_file '{"path": "/tmp/test.txt"}'`
@@ -519,7 +542,9 @@ This approach dramatically reduces context window usage and enables using many m
 
 **References:**
 - Package: `pkgs/mcp-cli/default.nix`
-- Configuration: `home/ai/mcp.nix:220-228`
+- Configuration: `home/ai/mcp.nix:220-235`
+- System Prompt: `home/ai/prompts/mcp-cli-system-prompt.md`
+- Installed Prompt: `~/.config/ai/prompts/mcp-cli.md`
 - Upstream: https://github.com/philschmid/mcp-cli
 
 ## Common Patterns

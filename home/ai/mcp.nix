@@ -226,5 +226,12 @@ in
       mcpServers =
         (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
     };
+
+    # mcp-cli system prompt for AI agents
+    # This prompt teaches AI agents (Claude Code, Gemini CLI) how to use mcp-cli
+    # Users can include this in their AI agent custom instructions:
+    #   Claude Code: Copy content to custom instructions in ~/.claude.json
+    #   Gemini CLI: Use --system-instruction flag pointing to this file
+    home.file.".config/ai/prompts/mcp-cli.md".source = ./prompts/mcp-cli-system-prompt.md;
   };
 }
