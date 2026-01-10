@@ -118,6 +118,7 @@ in
 
         # CLI Coding Agents (3 distinct AI ecosystems)
         claude-code # Anthropic - MCP support, deep integration
+        claude-desktop # Nix packaging of claude desktop for debian
         claude-code-acp # Claude Code Agent Communication Protocol
         claude-code-router # Claude Code request router
         copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
