@@ -227,11 +227,16 @@ in
         (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
     };
 
-    # mcp-cli system prompt for AI agents
-    # This prompt teaches AI agents (Claude Code, Gemini CLI) how to use mcp-cli
-    # Users can include this in their AI agent custom instructions:
-    #   Claude Code: Copy content to custom instructions in ~/.claude.json
-    #   Gemini CLI: Use --system-instruction flag pointing to this file
+    # axiOS system prompts for AI agents
+    # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
+    # RECOMMENDED: Use this as your primary AI agent system prompt
+    #   Claude Code: Copy content to customInstructions in ~/.claude.json
+    #   Gemini CLI: Use --system-instruction ~/.config/ai/prompts/axios.md
+    # Users can append custom instructions at the bottom of this file
+    home.file.".config/ai/prompts/axios.md".source = ./prompts/axios-system-prompt.md;
+
+    # mcp-cli technical reference (included in axios.md above)
+    # Kept for standalone reference if needed
     home.file.".config/ai/prompts/mcp-cli.md".source = ./prompts/mcp-cli-system-prompt.md;
   };
 }
