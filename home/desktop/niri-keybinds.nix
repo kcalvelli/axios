@@ -475,7 +475,6 @@ in
       matches = [
         { title = "Niri Keybindings - axiOS"; }
       ];
-      default-column-width = { };
       open-floating = true;
     }
   ];
