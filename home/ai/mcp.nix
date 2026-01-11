@@ -233,6 +233,11 @@ in
         evaluatedServers =
           (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
 
+        # Filter out passwordCommand for tools that don't support it (Gemini, Copilot)
+        # Claude Code supports passwordCommand, but other tools only accept env vars
+        filterPasswordCommand =
+          servers: lib.mapAttrs (name: server: builtins.removeAttrs server [ "passwordCommand" ]) servers;
+
         # Generate unified prompt from default + user's extraInstructions
         # Only generate if systemPrompt is enabled
         unifiedPrompt =
@@ -263,8 +268,9 @@ in
         # Gemini CLI MCP configuration (declarative)
         # Generate MCP server configuration for Gemini CLI
         # Gemini CLI reads ~/.gemini/settings.json for configuration
+        # NOTE: Gemini CLI doesn't support passwordCommand - using filtered config
         ".gemini/settings.json".text = builtins.toJSON {
-          mcpServers = evaluatedServers;
+          mcpServers = filterPasswordCommand evaluatedServers;
           model = "gemini-2.0-flash-thinking-exp-01-21";
           general = {
             contextSize = 32768;
@@ -275,7 +281,10 @@ in
         # Copilot CLI MCP configuration (declarative)
         # Generate MCP server configuration for GitHub Copilot CLI
         # Copilot CLI reads ~/.copilot/mcp-config.json for MCP servers
-        ".copilot/mcp-config.json".text = builtins.toJSON { mcpServers = evaluatedServers; };
+        # NOTE: Copilot CLI doesn't support passwordCommand - using filtered config
+        ".copilot/mcp-config.json".text = builtins.toJSON {
+          mcpServers = filterPasswordCommand evaluatedServers;
+        };
 
         # axiOS system prompts for AI agents
         # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
