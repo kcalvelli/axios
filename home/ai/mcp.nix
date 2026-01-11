@@ -196,12 +196,15 @@ in
       ccm = "claude-monitor";
 
       # AI tool shortcuts with unified system prompt
+      # Claude Code: Direct call with system prompt flag
       axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
       axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
-      axios-gemini = "gemini"; # Uses GEMINI_SYSTEM_MD env var
-      axg = "gemini";
-      axios-copilot = "gh copilot"; # Reads .github/copilot-instructions.md
-      axcp = "gh copilot";
+
+      # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
+      axg = "axios-gemini";
+
+      # Copilot CLI: Wrapper script loads secrets + .github/copilot-instructions.md
+      axcp = "axios-copilot";
     };
 
     programs.zsh.shellAliases = {
@@ -211,12 +214,15 @@ in
       ccm = "claude-monitor";
 
       # AI tool shortcuts with unified system prompt
+      # Claude Code: Direct call with system prompt flag
       axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
       axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
-      axios-gemini = "gemini"; # Uses GEMINI_SYSTEM_MD env var
-      axg = "gemini";
-      axios-copilot = "gh copilot"; # Reads .github/copilot-instructions.md
-      axcp = "gh copilot";
+
+      # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
+      axg = "axios-gemini";
+
+      # Copilot CLI: Wrapper script loads secrets + .github/copilot-instructions.md
+      axcp = "axios-copilot";
     };
 
     # Install MCP server packages
@@ -224,6 +230,36 @@ in
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
+    ]
+    # Wrapper scripts for AI tools that load MCP secrets from agenix
+    # These wrappers read secret paths and set environment variables before launching tools
+    ++ lib.optionals (osConfig.services.ai.gemini.enable or true) [
+      (pkgs.writeShellScriptBin "axios-gemini" ''
+        # Load secrets if configured
+        ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
+          export GITHUB_PERSONAL_ACCESS_TOKEN=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.githubTokenPath} | ${pkgs.coreutils}/bin/tr -d '\n')
+        ''}
+        ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
+          export BRAVE_API_KEY=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.braveApiKeyPath} | ${pkgs.coreutils}/bin/tr -d '\n')
+        ''}
+
+        # Launch Gemini CLI with all arguments passed through
+        exec ${pkgs.gemini-cli-bin}/bin/gemini "$@"
+      '')
+    ]
+    ++ lib.optionals (osConfig.services.ai.copilot.enable or true) [
+      (pkgs.writeShellScriptBin "axios-copilot" ''
+        # Load secrets if configured
+        ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
+          export GITHUB_PERSONAL_ACCESS_TOKEN=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.githubTokenPath} | ${pkgs.coreutils}/bin/tr -d '\n')
+        ''}
+        ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
+          export BRAVE_API_KEY=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.braveApiKeyPath} | ${pkgs.coreutils}/bin/tr -d '\n')
+        ''}
+
+        # Launch Copilot CLI with all arguments passed through
+        exec ${pkgs.gh}/bin/gh copilot "$@"
+      '')
     ];
 
     # Evaluate MCP servers once (single source of truth for all AI tools)

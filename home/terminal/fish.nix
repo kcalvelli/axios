@@ -80,12 +80,15 @@
       abbr -a mkcd 'mkdir -p && cd'
 
       # AI tool shortcuts with unified system prompt
+      # Claude Code: Direct call with system prompt flag
       abbr -a axios-claude 'claude --system-prompt ~/.config/ai/prompts/axios.md'
       abbr -a axc 'claude --system-prompt ~/.config/ai/prompts/axios.md'
-      abbr -a axios-gemini 'gemini'
-      abbr -a axg 'gemini'
-      abbr -a axios-copilot 'gh copilot'
-      abbr -a axcp 'gh copilot'
+
+      # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
+      abbr -a axg 'axios-gemini'
+
+      # Copilot CLI: Wrapper script loads secrets + .github/copilot-instructions.md
+      abbr -a axcp 'axios-copilot'
     '';
     plugins = [
       # { name = "fzf"; src = pkgs.fishPlugins.fzf.src; }

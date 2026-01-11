@@ -69,6 +69,40 @@ in
         };
       };
 
+      # MCP server secrets configuration
+      secrets = {
+        braveApiKeyPath = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "config.age.secrets.brave-api-key.path";
+          description = ''
+            Path to Brave API key secret file for MCP brave-search server.
+            Used by Gemini CLI and Copilot CLI (Claude Code uses passwordCommand).
+
+            Example with agenix:
+              age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
+              services.ai.secrets.braveApiKeyPath = config.age.secrets.brave-api-key.path;
+          '';
+        };
+
+        githubTokenPath = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "config.age.secrets.github-token.path";
+          description = ''
+            Path to GitHub personal access token secret file for MCP github server.
+            Used by Gemini CLI and Copilot CLI (Claude Code uses gh auth token).
+
+            Example with agenix:
+              age.secrets.github-token.file = ./secrets/github-token.age;
+              services.ai.secrets.githubTokenPath = config.age.secrets.github-token.path;
+
+            Alternative: Use gh CLI authentication (recommended for Claude Code)
+              Run: gh auth login
+          '';
+        };
+      };
+
       local = {
         enable = lib.mkEnableOption "local LLM inference stack (Ollama, OpenCode)";
 
