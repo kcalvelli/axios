@@ -190,15 +190,33 @@ in
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
     # Shell aliases for AI tools
     programs.bash.shellAliases = {
+      # Claude monitor
       cm = "claude-monitor";
       cmonitor = "claude-monitor";
       ccm = "claude-monitor";
+
+      # AI tool shortcuts with unified system prompt
+      axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axios-gemini = "gemini"; # Uses GEMINI_SYSTEM_MD env var
+      axg = "gemini";
+      axios-copilot = "gh copilot"; # Reads .github/copilot-instructions.md
+      axcp = "gh copilot";
     };
 
     programs.zsh.shellAliases = {
+      # Claude monitor
       cm = "claude-monitor";
       cmonitor = "claude-monitor";
       ccm = "claude-monitor";
+
+      # AI tool shortcuts with unified system prompt
+      axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axios-gemini = "gemini"; # Uses GEMINI_SYSTEM_MD env var
+      axg = "gemini";
+      axios-copilot = "gh copilot"; # Reads .github/copilot-instructions.md
+      axcp = "gh copilot";
     };
 
     # Install MCP server packages
@@ -208,63 +226,75 @@ in
       inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
-    # Claude Code MCP configuration (declarative)
-    # Generate MCP server configuration file for Claude Code CLI
-    # Claude Code reads ~/.mcp.json for global MCP server definitions
-    # Note: Do NOT overwrite ~/.claude.json as it contains user state and preferences
-    home.file.".mcp.json".text = builtins.toJSON {
-      mcpServers =
-        (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+    # Evaluate MCP servers once (single source of truth for all AI tools)
+    # This configuration is shared across Claude Code, Gemini CLI, Copilot CLI, and mcp-cli
+    home.file =
+      let
+        evaluatedServers =
+          (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
+
+        # Generate unified prompt from default + user's extraInstructions
+        # Only generate if systemPrompt is enabled
+        unifiedPrompt =
+          if (osConfig.services.ai.systemPrompt.enable or true) then
+            let
+              defaultPrompt = builtins.readFile ./prompts/axios-system-prompt.md;
+              extraInstructions = osConfig.services.ai.systemPrompt.extraInstructions or "";
+              hasExtra = extraInstructions != "";
+            in
+            defaultPrompt + (if hasExtra then "\n\n${extraInstructions}\n" else "")
+          else
+            "";
+      in
+      {
+        # Claude Code MCP configuration (declarative)
+        # Generate MCP server configuration file for Claude Code CLI
+        # Claude Code reads ~/.mcp.json for global MCP server definitions
+        # Note: Do NOT overwrite ~/.claude.json as it contains user state and preferences
+        ".mcp.json".text = builtins.toJSON { mcpServers = evaluatedServers; };
+
+        # mcp-cli MCP configuration (declarative)
+        # Generate MCP server configuration for mcp-cli dynamic tool discovery
+        # mcp-cli reads ~/.config/mcp/mcp_servers.json by default
+        # This enables AI agents to use mcp-cli for just-in-time tool discovery
+        # reducing context window consumption by ~99% compared to static loading
+        ".config/mcp/mcp_servers.json".text = builtins.toJSON { mcpServers = evaluatedServers; };
+
+        # Gemini CLI MCP configuration (declarative)
+        # Generate MCP server configuration for Gemini CLI
+        # Gemini CLI reads ~/.gemini/settings.json for configuration
+        ".gemini/settings.json".text = builtins.toJSON {
+          mcpServers = evaluatedServers;
+          model = "gemini-2.0-flash-thinking-exp-01-21";
+          general = {
+            contextSize = 32768;
+            autoUpdate = false;
+          };
+        };
+
+        # Copilot CLI MCP configuration (declarative)
+        # Generate MCP server configuration for GitHub Copilot CLI
+        # Copilot CLI reads ~/.copilot/mcp-config.json for MCP servers
+        ".copilot/mcp-config.json".text = builtins.toJSON { mcpServers = evaluatedServers; };
+
+        # axiOS system prompts for AI agents
+        # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
+        # Generated from default prompt + user's extraInstructions
+        ".config/ai/prompts/axios.md".text = unifiedPrompt;
+
+        # GitHub Copilot CLI instructions
+        # Copilot reads .github/copilot-instructions.md for project-level instructions
+        ".github/copilot-instructions.md".text = unifiedPrompt;
+
+        # mcp-cli technical reference (included in axios.md above)
+        # Kept for standalone reference if needed
+        ".config/ai/prompts/mcp-cli.md".source = ./prompts/mcp-cli-system-prompt.md;
+      };
+
+    # Environment variable for Gemini CLI system prompt
+    # Gemini CLI reads GEMINI_SYSTEM_MD for the path to system instructions
+    home.sessionVariables = lib.mkIf (osConfig.services.ai.systemPrompt.enable or true) {
+      GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/axios.md";
     };
-
-    # mcp-cli MCP configuration (declarative)
-    # Generate MCP server configuration for mcp-cli dynamic tool discovery
-    # mcp-cli reads ~/.config/mcp/mcp_servers.json by default
-    # This enables AI agents to use mcp-cli for just-in-time tool discovery
-    # reducing context window consumption by ~99% compared to static loading
-    home.file.".config/mcp/mcp_servers.json".text = builtins.toJSON {
-      mcpServers =
-        (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
-    };
-
-    # axiOS system prompts for AI agents
-    # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
-    # Auto-injected into Claude Code's ~/.claude.json via activation script below
-    # Users can append custom instructions at the bottom of this file
-    home.file.".config/ai/prompts/axios.md".source = ./prompts/axios-system-prompt.md;
-
-    # mcp-cli technical reference (included in axios.md above)
-    # Kept for standalone reference if needed
-    home.file.".config/ai/prompts/mcp-cli.md".source = ./prompts/mcp-cli-system-prompt.md;
-
-    # Auto-inject axios system prompt into Claude Code configuration
-    # This runs after home-manager builds, safely appending to existing config
-    home.activation.injectAxiosPrompt = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      CLAUDE_CONFIG="$HOME/.claude.json"
-      AXIOS_PROMPT="$HOME/.config/ai/prompts/axios.md"
-
-      # Ensure axios prompt exists (should be installed by home.file above)
-      if [ ! -f "$AXIOS_PROMPT" ]; then
-        echo "Warning: axios prompt not found at $AXIOS_PROMPT"
-        exit 0
-      fi
-
-      # Create ~/.claude.json if it doesn't exist
-      if [ ! -f "$CLAUDE_CONFIG" ]; then
-        echo '{}' > "$CLAUDE_CONFIG"
-      fi
-
-      # Check if customInstructions already contains axios prompt
-      if ${pkgs.jq}/bin/jq -e '.customInstructions | contains("axiOS System Prompt")' "$CLAUDE_CONFIG" > /dev/null 2>&1; then
-        echo "axios prompt already present in $CLAUDE_CONFIG"
-      else
-        # Append axios prompt to customInstructions
-        PROMPT_CONTENT=$(cat "$AXIOS_PROMPT")
-        ${pkgs.jq}/bin/jq --arg prompt "$PROMPT_CONTENT" \
-          '.customInstructions = (.customInstructions // "") + (if (.customInstructions // "") == "" then "" else "\n\n---\n\n" end) + $prompt' \
-          "$CLAUDE_CONFIG" > "$CLAUDE_CONFIG.tmp" && mv "$CLAUDE_CONFIG.tmp" "$CLAUDE_CONFIG"
-        echo "Injected axios prompt into $CLAUDE_CONFIG"
-      fi
-    '';
   };
 }

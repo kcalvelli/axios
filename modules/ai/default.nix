@@ -21,6 +21,54 @@ in
         };
       };
 
+      # Per-tool enablement (all default to true for backward compatibility)
+      claude = {
+        enable = lib.mkEnableOption "Claude Code" // {
+          default = true;
+        };
+      };
+
+      gemini = {
+        enable = lib.mkEnableOption "Gemini CLI" // {
+          default = true;
+        };
+      };
+
+      copilot = {
+        enable = lib.mkEnableOption "GitHub Copilot CLI" // {
+          default = true;
+        };
+      };
+
+      # Unified system prompt
+      systemPrompt = {
+        enable = lib.mkEnableOption "unified system prompt for AI agents" // {
+          default = true;
+        };
+
+        extraInstructions = lib.mkOption {
+          type = lib.types.lines;
+          default = "";
+          description = ''
+            Additional custom instructions appended to the axiOS system prompt.
+            These are added under the "Custom User Instructions" section.
+
+            Example:
+              services.ai.systemPrompt.extraInstructions = '''
+                ## Project Standards
+                - Use Rust for performance-critical code
+                - Include integration tests
+                - Follow conventional commits
+              ''';
+          '';
+          example = ''
+            ## My Coding Rules
+            - Prefer functional patterns
+            - Always add comprehensive error handling
+          '';
+        };
+      };
+
       local = {
         enable = lib.mkEnableOption "local LLM inference stack (Ollama, OpenCode)";
 
@@ -109,29 +157,31 @@ in
       };
 
       # AI tools and packages
-      environment.systemPackages = with pkgs; [
-        # AI assistant tools
-        whisper-cpp # Speech-to-text
-        nodejs # For npx MCP servers
-        claude-monitor # Real-time Claude Code usage monitoring
-        mcp-cli # Dynamic MCP tool discovery for reduced context usage
-
-        # CLI Coding Agents (3 distinct AI ecosystems)
-        claude-code # Anthropic - MCP support, deep integration
-        claude-desktop # Nix packaging of claude desktop for debian
-        claude-code-acp # Claude Code Agent Communication Protocol
-        claude-code-router # Claude Code request router
-        copilot-cli # GitHub/OpenAI - Enterprise, GitHub features
-        gemini-cli-bin # Google - Multimodal, free tier
-
-        # Workflow & Support Tools
-        spec-kit # Spec-driven development framework
-
-        # VSCode extension compatibility: claude-code symlink
-        (writeShellScriptBin "claude-code" ''
-          exec ${claude-code}/bin/claude "$@"
-        '')
-      ];
+      environment.systemPackages =
+        with pkgs;
+        [
+          # Core AI tools (always installed when services.ai.enable = true)
+          whisper-cpp # Speech-to-text
+          nodejs # For npx MCP servers
+          claude-monitor # Real-time Claude Code usage monitoring
+          mcp-cli # Dynamic MCP tool discovery for reduced context usage
+          spec-kit # Spec-driven development framework
+        ]
+        # Claude Code (conditional on services.ai.claude.enable)
+        ++ lib.optionals cfg.claude.enable [
+          claude-code # Anthropic - MCP support, deep integration
+          claude-desktop # Nix packaging of claude desktop for debian
+          claude-code-acp # Claude Code Agent Communication Protocol
+          claude-code-router # Claude Code request router
+          # VSCode extension compatibility: claude-code symlink
+          (writeShellScriptBin "claude-code" ''
+            exec ${claude-code}/bin/claude "$@"
+          '')
+        ]
+        # Gemini CLI (conditional on services.ai.gemini.enable)
+        ++ lib.optional cfg.gemini.enable gemini-cli-bin
+        # Copilot CLI (conditional on services.ai.copilot.enable)
+        ++ lib.optional cfg.copilot.enable copilot-cli;
     })
 
     # Local LLM configuration (conditional on services.ai.local.enable)

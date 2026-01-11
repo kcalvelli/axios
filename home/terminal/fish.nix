@@ -78,6 +78,14 @@
       abbr -a gb  'git switch -c'
       abbr -a gl  'git log --oneline --graph --decorate -20'
       abbr -a mkcd 'mkdir -p && cd'
+
+      # AI tool shortcuts with unified system prompt
+      abbr -a axios-claude 'claude --system-prompt ~/.config/ai/prompts/axios.md'
+      abbr -a axc 'claude --system-prompt ~/.config/ai/prompts/axios.md'
+      abbr -a axios-gemini 'gemini'
+      abbr -a axg 'gemini'
+      abbr -a axios-copilot 'gh copilot'
+      abbr -a axcp 'gh copilot'
     '';
     plugins = [
       # { name = "fzf"; src = pkgs.fishPlugins.fzf.src; }
