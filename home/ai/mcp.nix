@@ -258,7 +258,7 @@ in
         ''}
 
         # Launch Copilot CLI with all arguments passed through
-        exec ${pkgs.copilot-cli}/bin/copilot "$@"
+        exec ${pkgs.gh}/bin/gh copilot "$@"
       '')
     ];
 
