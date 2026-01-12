@@ -188,6 +188,28 @@ let
 in
 {
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
+    # Load MCP secrets into shell environment
+    # These environment variables are used by mcp-cli, Gemini CLI, Claude Code, and other MCP tools
+    programs.bash.initExtra = lib.mkAfter ''
+      # Load MCP secrets from agenix
+      ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
+        export GITHUB_PERSONAL_ACCESS_TOKEN=$(cat ${osConfig.services.ai.secrets.githubTokenPath} 2>/dev/null | tr -d '\n')
+      ''}
+      ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
+        export BRAVE_API_KEY=$(cat ${osConfig.services.ai.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\n')
+      ''}
+    '';
+
+    programs.zsh.initExtra = lib.mkAfter ''
+      # Load MCP secrets from agenix
+      ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
+        export GITHUB_PERSONAL_ACCESS_TOKEN=$(cat ${osConfig.services.ai.secrets.githubTokenPath} 2>/dev/null | tr -d '\n')
+      ''}
+      ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
+        export BRAVE_API_KEY=$(cat ${osConfig.services.ai.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\n')
+      ''}
+    '';
+
     # Shell aliases for AI tools
     programs.bash.shellAliases = {
       # Claude monitor
@@ -200,9 +222,9 @@ in
       axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
       axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
 
-      # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
-      axios-gemini = "axios-gemini";
-      axg = "axios-gemini";
+      # Gemini CLI: Uses GEMINI_SYSTEM_MD env var for system prompt
+      axios-gemini = "gemini";
+      axg = "gemini";
     };
 
     programs.zsh.shellAliases = {
@@ -216,32 +238,17 @@ in
       axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
       axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
 
-      # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
-      axios-gemini = "axios-gemini";
-      axg = "axios-gemini";
+      # Gemini CLI: Uses GEMINI_SYSTEM_MD env var for system prompt
+      axios-gemini = "gemini";
+      axg = "gemini";
     };
 
     # Install MCP server packages
+    # Secrets are loaded via shell initExtra above, no wrappers needed
     home.packages = [
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-    ]
-    # Wrapper scripts for AI tools that load MCP secrets from agenix
-    # These wrappers read secret paths and set environment variables before launching tools
-    ++ lib.optionals (osConfig.services.ai.gemini.enable or true) [
-      (pkgs.writeShellScriptBin "axios-gemini" ''
-        # Load secrets if configured
-        ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
-          export GITHUB_PERSONAL_ACCESS_TOKEN=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.githubTokenPath} | ${pkgs.coreutils}/bin/tr -d '\n')
-        ''}
-        ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
-          export BRAVE_API_KEY=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.braveApiKeyPath} | ${pkgs.coreutils}/bin/tr -d '\n')
-        ''}
-
-        # Launch Gemini CLI with all arguments passed through
-        exec ${pkgs.gemini-cli-bin}/bin/gemini "$@"
-      '')
     ];
 
     # Evaluate MCP servers once (single source of truth for all AI tools)
