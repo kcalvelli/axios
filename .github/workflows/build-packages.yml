@@ -46,32 +46,3 @@ jobs:
             echo "Building package: $pkg"
             nix build ".#packages.x86_64-linux.$pkg" --print-build-logs
           done < packages.txt
-
-  build-apps:
-    name: Build app dependencies
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        app:
-          - init
-          - add-pwa
-          - fetch-pwa-icon
-          - download-llama-models
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: DeterminateSystems/nix-installer-action@main
-
-      - uses: DeterminateSystems/magic-nix-cache-action@main
-
-      - uses: cachix/cachix-action@v16
-        with:
-          name: axios
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
-
-      - name: Build app dependencies
-        run: |
-          echo "🏗️ Building dependencies for app: ${{ matrix.app }}"
-          # Build the app which will cache its dependencies
-          nix build ".#apps.x86_64-linux.${{ matrix.app }}" --print-build-logs
