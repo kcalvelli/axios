@@ -188,6 +188,10 @@ let
 in
 {
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
+    # Enable bash and zsh to manage shell configuration
+    programs.bash.enable = true;
+    programs.zsh.enable = true;
+
     # Load MCP secrets into shell environment
     # These environment variables are used by mcp-cli, Gemini CLI, Claude Code, and other MCP tools
     programs.bash.initExtra = lib.mkAfter ''
