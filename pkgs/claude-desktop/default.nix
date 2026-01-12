@@ -182,28 +182,13 @@ let
         gnumake
       ];
 
-    runScript = "${makeWrapper}/bin/makeWrapper";
+    runScript = "${claude-unwrapped}/bin/claude-desktop";
 
     extraInstallCommands = ''
-      # Create wrapper that adds Wayland flags explicitly
-      makeWrapper ${claude-unwrapped}/bin/claude-desktop $out/bin/claude-desktop-wayland \
-        --add-flags "--enable-features=UseOzonePlatform,WaylandWindowDecorations" \
-        --add-flags "--ozone-platform=wayland"
-
-      # Keep original for XWayland fallback
-      ln -s ${claude-unwrapped}/bin/claude-desktop $out/bin/claude-desktop-xwayland
-
-      # Default symlink points to Wayland version
-      ln -s $out/bin/claude-desktop-wayland $out/bin/claude-desktop
-
-      # Copy desktop file from unwrapped package
+      # Copy desktop file and icons from unwrapped package
       mkdir -p $out/share/applications
       if [ -f ${claude-unwrapped}/share/applications/claude-desktop.desktop ]; then
         cp ${claude-unwrapped}/share/applications/claude-desktop.desktop $out/share/applications/
-
-        # Update exec path to use Wayland wrapper by default
-        substituteInPlace $out/share/applications/claude-desktop.desktop \
-          --replace-fail "${claude-unwrapped}/bin/claude-desktop" "$out/bin/claude-desktop-wayland"
       fi
 
       # Copy icons
@@ -215,13 +200,54 @@ let
     '';
   };
 
+  # Wayland wrapper for the FHS environment
+  claude-wayland = stdenv.mkDerivation {
+    pname = "claude-desktop-wayland";
+    inherit version;
+
+    nativeBuildInputs = [ makeWrapper ];
+
+    dontUnpack = true;
+    dontBuild = true;
+
+    installPhase = ''
+      mkdir -p $out/bin
+
+      # Wayland variant with flags
+      makeWrapper ${claude-fhs}/bin/claude-desktop $out/bin/claude-desktop \
+        --add-flags "--enable-features=UseOzonePlatform,WaylandWindowDecorations" \
+        --add-flags "--ozone-platform=wayland"
+
+      # XWayland fallback
+      ln -s ${claude-fhs}/bin/claude-desktop $out/bin/claude-desktop-xwayland
+
+      # Copy desktop file and update it
+      mkdir -p $out/share/applications
+      if [ -f ${claude-fhs}/share/applications/claude-desktop.desktop ]; then
+        cp ${claude-fhs}/share/applications/claude-desktop.desktop $out/share/applications/
+        substituteInPlace $out/share/applications/claude-desktop.desktop \
+          --replace-quiet "${claude-fhs}/bin/claude-desktop" "$out/bin/claude-desktop" \
+          --replace-quiet "${claude-unwrapped}/bin/claude-desktop" "$out/bin/claude-desktop"
+      fi
+
+      # Copy icons
+      for dir in ${claude-fhs}/share/icons ${claude-fhs}/share/pixmaps; do
+        if [ -d "$dir" ]; then
+          cp -r "$dir" $out/share/ || true
+        fi
+      done
+    '';
+
+    meta = claude-unwrapped.meta;
+  };
+
 in
-# Export both variants
-# Default export is FHS wrapper (better MCP compatibility)
-# Access unwrapped with: pkgs.claude-desktop.unwrapped
-claude-fhs
+# Export Wayland wrapper by default (best compatibility)
+# Access other variants: pkgs.claude-desktop.unwrapped, pkgs.claude-desktop.fhs
+claude-wayland
 // {
   unwrapped = claude-unwrapped;
+  fhs = claude-fhs;
 
   # Convenience passthru for version info
   passthru = {
