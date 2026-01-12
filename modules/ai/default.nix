@@ -209,14 +209,20 @@ in
         # Gemini CLI (conditional on services.ai.gemini.enable)
         ++ lib.optional cfg.gemini.enable gemini-cli-bin;
 
-      # Load MCP secrets into environment (all shells)
-      environment.sessionVariables =
-        lib.optionalAttrs (cfg.secrets.githubTokenPath != null) {
-          GITHUB_PERSONAL_ACCESS_TOKEN = "$(cat ${cfg.secrets.githubTokenPath} 2>/dev/null | tr -d '\\n')";
-        }
-        // lib.optionalAttrs (cfg.secrets.braveApiKeyPath != null) {
-          BRAVE_API_KEY = "$(cat ${cfg.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\\n')";
-        };
+      # Load MCP secrets into environment (all shells via /etc/profile.d/)
+      environment.etc."profile.d/mcp-secrets.sh" =
+        lib.mkIf (cfg.secrets.githubTokenPath != null || cfg.secrets.braveApiKeyPath != null)
+          {
+            text = ''
+              # Load MCP secrets from agenix for all shells
+              ${lib.optionalString (cfg.secrets.githubTokenPath != null) ''
+                export GITHUB_PERSONAL_ACCESS_TOKEN=$(cat ${cfg.secrets.githubTokenPath} 2>/dev/null | tr -d '\n')
+              ''}
+              ${lib.optionalString (cfg.secrets.braveApiKeyPath != null) ''
+                export BRAVE_API_KEY=$(cat ${cfg.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\n')
+              ''}
+            '';
+          };
     })
 
     # Local LLM configuration (conditional on services.ai.local.enable)
