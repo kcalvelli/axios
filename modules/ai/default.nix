@@ -13,7 +13,7 @@ in
 {
   options = {
     services.ai = {
-      enable = lib.mkEnableOption "AI tools and services (copilot-cli, claude-code)";
+      enable = lib.mkEnableOption "AI tools and services (claude-code, gemini-cli)";
 
       mcp = {
         enable = lib.mkEnableOption "Model Context Protocol (MCP) server integration" // {
@@ -30,12 +30,6 @@ in
 
       gemini = {
         enable = lib.mkEnableOption "Gemini CLI" // {
-          default = true;
-        };
-      };
-
-      copilot = {
-        enable = lib.mkEnableOption "GitHub Copilot CLI" // {
           default = true;
         };
       };
@@ -213,9 +207,7 @@ in
           '')
         ]
         # Gemini CLI (conditional on services.ai.gemini.enable)
-        ++ lib.optional cfg.gemini.enable gemini-cli-bin
-        # Copilot CLI (conditional on services.ai.copilot.enable)
-        ++ lib.optional cfg.copilot.enable copilot-cli;
+        ++ lib.optional cfg.gemini.enable gemini-cli-bin;
     })
 
     # Local LLM configuration (conditional on services.ai.local.enable)

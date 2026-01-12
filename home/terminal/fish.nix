@@ -85,10 +85,8 @@
       abbr -a axc 'claude --system-prompt ~/.config/ai/prompts/axios.md'
 
       # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
+      abbr -a axios-gemini 'axios-gemini'
       abbr -a axg 'axios-gemini'
-
-      # Copilot CLI: Wrapper script loads secrets + .github/copilot-instructions.md
-      abbr -a axcp 'axios-copilot'
     '';
     plugins = [
       # { name = "fzf"; src = pkgs.fishPlugins.fzf.src; }

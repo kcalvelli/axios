@@ -201,10 +201,8 @@ in
       axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
 
       # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
+      axios-gemini = "axios-gemini";
       axg = "axios-gemini";
-
-      # Copilot CLI: Wrapper script loads secrets + .github/copilot-instructions.md
-      axcp = "axios-copilot";
     };
 
     programs.zsh.shellAliases = {
@@ -219,10 +217,8 @@ in
       axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
 
       # Gemini CLI: Wrapper script loads secrets + GEMINI_SYSTEM_MD env var
+      axios-gemini = "axios-gemini";
       axg = "axios-gemini";
-
-      # Copilot CLI: Wrapper script loads secrets + .github/copilot-instructions.md
-      axcp = "axios-copilot";
     };
 
     # Install MCP server packages
@@ -246,31 +242,17 @@ in
         # Launch Gemini CLI with all arguments passed through
         exec ${pkgs.gemini-cli-bin}/bin/gemini "$@"
       '')
-    ]
-    ++ lib.optionals (osConfig.services.ai.copilot.enable or true) [
-      (pkgs.writeShellScriptBin "axios-copilot" ''
-        # Load secrets if configured
-        ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
-          export GITHUB_PERSONAL_ACCESS_TOKEN=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.githubTokenPath} | ${pkgs.coreutils}/bin/tr -d '\n')
-        ''}
-        ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
-          export BRAVE_API_KEY=$(${pkgs.coreutils}/bin/cat ${osConfig.services.ai.secrets.braveApiKeyPath} | ${pkgs.coreutils}/bin/tr -d '\n')
-        ''}
-
-        # Launch Copilot CLI with all arguments passed through
-        exec ${pkgs.copilot-cli}/bin/copilot "$@"
-      '')
     ];
 
     # Evaluate MCP servers once (single source of truth for all AI tools)
-    # This configuration is shared across Claude Code, Gemini CLI, Copilot CLI, and mcp-cli
+    # This configuration is shared across Claude Code, Gemini CLI, and mcp-cli
     home.file =
       let
         evaluatedServers =
           (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
 
-        # Filter out passwordCommand for tools that don't support it (Gemini, Copilot)
-        # Claude Code supports passwordCommand, but other tools only accept env vars
+        # Filter out passwordCommand for tools that don't support it (Gemini)
+        # Claude Code supports passwordCommand, but Gemini only accepts env vars
         filterPasswordCommand =
           servers: lib.mapAttrs (name: server: builtins.removeAttrs server [ "passwordCommand" ]) servers;
 
@@ -314,22 +296,10 @@ in
           };
         };
 
-        # Copilot CLI MCP configuration (declarative)
-        # Generate MCP server configuration for GitHub Copilot CLI
-        # Copilot CLI reads ~/.copilot/mcp-config.json for MCP servers
-        # NOTE: Copilot CLI doesn't support passwordCommand - using filtered config
-        ".copilot/mcp-config.json".text = builtins.toJSON {
-          mcpServers = filterPasswordCommand evaluatedServers;
-        };
-
         # axiOS system prompts for AI agents
         # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
         # Generated from default prompt + user's extraInstructions
         ".config/ai/prompts/axios.md".text = unifiedPrompt;
-
-        # GitHub Copilot CLI instructions
-        # Copilot reads .github/copilot-instructions.md for project-level instructions
-        ".github/copilot-instructions.md".text = unifiedPrompt;
 
         # mcp-cli technical reference (included in axios.md above)
         # Kept for standalone reference if needed

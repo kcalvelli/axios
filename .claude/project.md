@@ -401,7 +401,7 @@ All workflows use:
 ## AI Module Specifics
 
 The `services.ai.enable` module provides:
-- **Tools**: claude-code, copilot-cli, claude-monitor, gemini-cli, mcp-cli, and other AI assistants
+- **Tools**: claude-code, gemini-cli, claude-monitor, mcp-cli, and other AI assistants
 - **MCP Servers** (optional): Enable with `services.ai.mcp.enable = true` (default: true)
 - **Dynamic Discovery**: mcp-cli for just-in-time tool discovery (99% token reduction)
 - **Architecture**: Uses `mcp-servers-nix` library for declarative MCP server configuration
@@ -625,7 +625,6 @@ environment.systemPackages = with pkgs; [
   claude-code
   claude-code-acp
   claude-code-router
-  copilot-cli
   gemini-cli-bin
   spec-kit
   opencode  # For local LLM integration
