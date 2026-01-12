@@ -182,17 +182,28 @@ let
         gnumake
       ];
 
-    runScript = "claude-desktop";
+    runScript = "${makeWrapper}/bin/makeWrapper";
 
     extraInstallCommands = ''
+      # Create wrapper that adds Wayland flags explicitly
+      makeWrapper ${claude-unwrapped}/bin/claude-desktop $out/bin/claude-desktop-wayland \
+        --add-flags "--enable-features=UseOzonePlatform,WaylandWindowDecorations" \
+        --add-flags "--ozone-platform=wayland"
+
+      # Keep original for XWayland fallback
+      ln -s ${claude-unwrapped}/bin/claude-desktop $out/bin/claude-desktop-xwayland
+
+      # Default symlink points to Wayland version
+      ln -s $out/bin/claude-desktop-wayland $out/bin/claude-desktop
+
       # Copy desktop file from unwrapped package
       mkdir -p $out/share/applications
       if [ -f ${claude-unwrapped}/share/applications/claude-desktop.desktop ]; then
         cp ${claude-unwrapped}/share/applications/claude-desktop.desktop $out/share/applications/
 
-        # Update exec path to use FHS wrapper
+        # Update exec path to use Wayland wrapper by default
         substituteInPlace $out/share/applications/claude-desktop.desktop \
-          --replace-fail "${claude-unwrapped}/bin/claude-desktop" "$out/bin/claude-desktop"
+          --replace-fail "${claude-unwrapped}/bin/claude-desktop" "$out/bin/claude-desktop-wayland"
       fi
 
       # Copy icons

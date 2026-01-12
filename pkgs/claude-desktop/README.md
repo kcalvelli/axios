@@ -83,20 +83,34 @@ The easiest way to use this is through axios's AI module:
 
 This package inherits all features from claude-desktop-debian v1.2.1:
 
-✅ **Wayland Support**: Defaults to X11 for global hotkey compatibility
+✅ **Wayland Support**: Native Wayland by default with XWayland fallback available
 ✅ **Claude Code Integration**: node-pty support for terminal integration
 ✅ **System Tray**: Functional tray icon on Wayland
 ✅ **MCP Servers**: Full Model Context Protocol support via FHS wrapper
 ✅ **Desktop Integration**: Proper .desktop file and icon installation
 
-### Wayland Usage
+### Wayland vs XWayland
 
-For native Wayland (instead of XWayland default):
+This package now **defaults to native Wayland** with explicit Electron flags:
+- Default: `claude-desktop` → native Wayland with `--ozone-platform=wayland`
+- Fallback: `claude-desktop-xwayland` → XWayland mode (better for global hotkeys)
+
+**Why native Wayland by default?**
+- Fixes blank window issue on Wayland compositors
+- Better integration with Wayland-native desktops (Niri, Sway, Hyprland)
+- Proper window decorations and scaling
+
+**When to use XWayland mode:**
+- If you rely on global hotkeys (Ctrl+Alt+Space may not work in Wayland mode)
+- If you experience issues with the Wayland backend
+
 ```bash
-NIXOS_OZONE_WL=1 claude-desktop
-```
+# Use Wayland mode (default)
+claude-desktop
 
-The default XWayland mode is used because global hotkeys (Ctrl+Alt+Space) don't work reliably in native Wayland mode.
+# Force XWayland mode
+claude-desktop-xwayland
+```
 
 ## Known Issues
 

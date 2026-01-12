@@ -17,6 +17,7 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes | When experiencing problems |
 | [BINARY_CACHE.md](BINARY_CACHE.md) | Using the binary cache | Speed up builds |
+| [ADVANCED-TOOL-USE-SUMMARY.md](ADVANCED-TOOL-USE-SUMMARY.md) | AI & MCP integration guide | **Understanding AI capabilities** |
 
 ## Quick Start
 
@@ -61,6 +62,31 @@ Topics covered:
 - Building and deploying your system
 
 **Start here if you're installing axiOS for the first time.**
+
+## AI & MCP Integration
+
+### 🤖 [ADVANCED-TOOL-USE-SUMMARY.md](ADVANCED-TOOL-USE-SUMMARY.md)
+**Quick start guide for advanced tool use and MCP**
+
+Essential overview:
+- How mcp-cli saves 96.8% tokens (vs traditional MCP)
+- Adding new MCP servers to axios
+- Advanced tool use features (Anthropic beta)
+- Real axios workflow examples
+- Cost savings analysis ($169/year for typical usage)
+
+**Start here to understand axios's AI capabilities.**
+
+### 📚 AI/MCP Deep Dives
+
+| Document | Purpose | When to Read |
+|----------|---------|--------------|
+| [mcp-cli-quick-reference.md](mcp-cli-quick-reference.md) | One-page summary of token savings | Quick lookup |
+| [mcp-cli-axios-example.md](mcp-cli-axios-example.md) | Detailed real-world example | See concrete workflow |
+| [mcp-cli-token-savings-visual.md](mcp-cli-token-savings-visual.md) | Visual comparison charts | Understand the math |
+| [advanced-tool-use.md](advanced-tool-use.md) | Anthropic beta features | Future capabilities |
+| [adding-mcp-servers.md](adding-mcp-servers.md) | Add new tools to Claude Code | Extending axios |
+| [../home/ai/mcp-examples.nix](../home/ai/mcp-examples.nix) | 50+ ready-to-use server configs | Copy-paste examples |
 
 ## Configuration & Maintenance
 
