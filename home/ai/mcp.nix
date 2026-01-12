@@ -188,31 +188,8 @@ let
 in
 {
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
-    # Enable bash and zsh to manage shell configuration
-    programs.bash.enable = true;
-    programs.zsh.enable = true;
-
-    # Load MCP secrets into shell environment
-    # These environment variables are used by mcp-cli, Gemini CLI, Claude Code, and other MCP tools
-    programs.bash.initExtra = lib.mkAfter ''
-      # Load MCP secrets from agenix
-      ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
-        export GITHUB_PERSONAL_ACCESS_TOKEN=$(cat ${osConfig.services.ai.secrets.githubTokenPath} 2>/dev/null | tr -d '\n')
-      ''}
-      ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
-        export BRAVE_API_KEY=$(cat ${osConfig.services.ai.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\n')
-      ''}
-    '';
-
-    programs.zsh.initExtra = lib.mkAfter ''
-      # Load MCP secrets from agenix
-      ${lib.optionalString (osConfig.services.ai.secrets.githubTokenPath != null) ''
-        export GITHUB_PERSONAL_ACCESS_TOKEN=$(cat ${osConfig.services.ai.secrets.githubTokenPath} 2>/dev/null | tr -d '\n')
-      ''}
-      ${lib.optionalString (osConfig.services.ai.secrets.braveApiKeyPath != null) ''
-        export BRAVE_API_KEY=$(cat ${osConfig.services.ai.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\n')
-      ''}
-    '';
+    # MCP secrets are loaded at system level via environment.sessionVariables
+    # See modules/ai/default.nix for environment variable configuration
 
     # Shell aliases for AI tools
     programs.bash.shellAliases = {

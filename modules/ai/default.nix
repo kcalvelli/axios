@@ -208,6 +208,15 @@ in
         ]
         # Gemini CLI (conditional on services.ai.gemini.enable)
         ++ lib.optional cfg.gemini.enable gemini-cli-bin;
+
+      # Load MCP secrets into environment (all shells)
+      environment.sessionVariables =
+        lib.optionalAttrs (cfg.secrets.githubTokenPath != null) {
+          GITHUB_PERSONAL_ACCESS_TOKEN = "$(cat ${cfg.secrets.githubTokenPath} 2>/dev/null | tr -d '\\n')";
+        }
+        // lib.optionalAttrs (cfg.secrets.braveApiKeyPath != null) {
+          BRAVE_API_KEY = "$(cat ${cfg.secrets.braveApiKeyPath} 2>/dev/null | tr -d '\\n')";
+        };
     })
 
     # Local LLM configuration (conditional on services.ai.local.enable)
