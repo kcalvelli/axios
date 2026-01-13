@@ -125,10 +125,11 @@ in
       source = ../terminal/resources/kate-dankshell.mustache;
     };
 
-    # Expose the generated DMS theme to Antigravity
-    # This allows the AI agent to see the current system colors
-    xdg.configFile."antigravity/theme.json" = {
-      source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.vscode/extensions/danklinux.dms-theme-0.0.3/themes/dankshell-default.json";
+
+
+    # Also link the extension itself, as Antigravity appears to support VSCode-style extensions
+    home.file.".antigravity/extensions/danklinux.dms-theme-0.0.3" = {
+      source = config.lib.file.mkOutOfStoreSymlink base16ExtDir;
     };
 
     # Ensure VSCode extension themes directory exists (DMS will populate it)
