@@ -30,14 +30,12 @@ let
   #     Run: gh auth login
   #     Verify: gh auth status
   #
-  # 🔑 REQUIRES API KEYS (via agenix secrets):
+  # 🔑 REQUIRES API KEYS (set in your config):
   #   - brave-search: Requires Brave Search API key
   #     1. Get API key: https://brave.com/search/api/
-  #     2. Create encrypted secret:
-  #        echo "your-api-key" | agenix -e secrets/brave-api-key.age
-  #     3. Add to your NixOS config:
-  #        age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
-  #     Secret path: /run/user/$UID/agenix/brave-api-key
+  #     2. Set environment variable in your config:
+  #        environment.sessionVariables.BRAVE_API_KEY = "your-api-key";
+  #     Alternatively: export BRAVE_API_KEY="your-api-key" in your shell
   #
   # 🎮 COMMODORE 64 INTEGRATION:
   #   - ultimate64: Ultimate64 C64 emulator control
@@ -188,8 +186,8 @@ let
 in
 {
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
-    # MCP secrets are loaded at system level via environment.sessionVariables
-    # See modules/ai/default.nix for environment variable configuration
+    # MCP secrets (BRAVE_API_KEY, GITHUB_PERSONAL_ACCESS_TOKEN) should be set by users
+    # in their own configuration using environment.sessionVariables
 
     # Shell aliases for AI tools
     programs.bash.shellAliases = {
@@ -225,7 +223,6 @@ in
     };
 
     # Install MCP server packages
-    # Secrets are loaded via shell initExtra above, no wrappers needed
     home.packages = [
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
