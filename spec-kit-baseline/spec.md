@@ -94,6 +94,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Browsers**:
   - **Brave Stable**: Primary browser (default)
   - **Brave Nightly**: Bleeding-edge version for testing
+  - **Google Chrome**: Secondary browser with Google Docs Offline support
 - **Configuration**:
   - Shared extensions (Password managers, AI tools, Dev tools)
   - Shared command line arguments (Password store detection, GTK4)

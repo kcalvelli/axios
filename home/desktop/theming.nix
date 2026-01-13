@@ -125,8 +125,6 @@ in
       source = ../terminal/resources/kate-dankshell.mustache;
     };
 
-
-
     # Also link the extension itself, as Antigravity appears to support VSCode-style extensions
     home.file.".antigravity/extensions/danklinux.dms-theme-0.0.3" = {
       source = config.lib.file.mkOutOfStoreSymlink base16ExtDir;

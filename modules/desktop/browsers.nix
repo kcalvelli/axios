@@ -21,6 +21,10 @@ let
     "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
   ];
 
+  chromeExtensionIds = [
+    "ghbmnnjooekpmoecnnnilnnbdlolhkhi" # Google Docs Offline
+  ];
+
   # Base arguments for all configurations
   baseArgs = [
     "--password-store=detect"
@@ -52,12 +56,22 @@ let
     baseArgs
     ++ lib.optionals isAmd (commonAccelFlags ++ amdAccelFlags)
     ++ lib.optionals isNvidia (commonAccelFlags ++ nvidiaAccelFlags);
+
+  chromeArgs =
+    baseArgs
+    ++ lib.optionals isAmd (commonAccelFlags ++ amdAccelFlags)
+    ++ lib.optionals isNvidia (commonAccelFlags ++ nvidiaAccelFlags);
 in
 {
   # Import NixOS module from flake
   imports = [ inputs.brave-browser-previews.nixosModules.default ];
 
   config = lib.mkIf config.desktop.enable {
+    # === Google Chrome Policy (System) ===
+    environment.etc."opt/chrome/policies/managed/axios.json".text = builtins.toJSON {
+      ExtensionInstallForceList = chromeExtensionIds;
+    };
+
     # === Brave Nightly Configuration (System) ===
     programs.brave-nightly = {
       enable = true;
@@ -74,6 +88,11 @@ in
             enable = true;
             extensions = map (id: { inherit id; }) braveExtensionIds;
             commandLineArgs = braveArgs;
+          };
+
+          programs.google-chrome = {
+            enable = true;
+            commandLineArgs = chromeArgs;
           };
         }
       )

@@ -788,5 +788,5 @@ N/A (library project, not microservices)
 - [TBD] Disaster recovery procedures
 - [TBD] Virtualization module container runtime details (Podman confirmed, Docker alternative)
 - [TBD] Security module capabilities
-- [TBD] Browser module Firefox/Chrome configuration details
+- [TBD] Browser module Firefox configuration details
 - [TBD] Performance benchmarks or metrics
