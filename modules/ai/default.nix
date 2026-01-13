@@ -173,7 +173,7 @@ in
           '')
         ]
         # Gemini CLI (conditional on services.ai.gemini.enable)
-        ++ lib.optional cfg.gemini.enable [
+        ++ lib.optionals cfg.gemini.enable [
           gemini-cli-bin
           inputs.antigravity-nix.packages.x86_64-linux.default
         ];

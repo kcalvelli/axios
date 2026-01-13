@@ -132,12 +132,12 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    
+
     # Up to date google's agentic IDE
     antigravity-nix = {
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
-    };    
+    };
   };
 
   nixConfig = {
