@@ -33,6 +33,8 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - `graphics`: GPU drivers (NVIDIA, AMD, Intel) with AMD GPU recovery (modules/graphics/)
   - `networking`: Samba, Tailscale integration (modules/networking/)
   - `gaming`: Gaming configuration (modules/gaming/)
+  - `c64`: Commodore 64/Ultimate64 integration (modules/c64/)
+  - `pim`: Personal Information Management - email, calendar, contacts (modules/pim/)
   - `virt`: Virtualization support (modules/virtualisation/)
   - `ai`: AI tools integration (modules/ai/)
   - `secrets`: agenix secrets management (modules/secrets/)
@@ -229,6 +231,28 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - **spec-kit**: Spec-driven development framework (used by axiOS spec-kit-baseline/)
   - **claude-monitor**: Resource monitoring for AI sessions
   - **whisper-cpp**: Speech-to-text tool
+- **System Prompts**: Unified AI coding experience with auto-injected prompts (see below)
+
+#### System Prompts for AI Agents
+- **Purpose**: Comprehensive system prompts teaching AI agents about axiOS features and workflows
+- **Implementation Evidence**: home/ai/prompts/axios-system-prompt.md, home/ai/mcp.nix:242-268
+- **Confidence**: [EXPLICIT]
+- **Prompts Available**:
+  - **axios-system-prompt.md**: Complete axiOS reference (~/.config/ai/prompts/axios.md)
+    - MCP server usage guide and workflows
+    - NixOS-specific guidance for AI agents
+    - Available tools and capabilities
+    - Custom user instructions section at bottom
+  - **mcp-cli-system-prompt.md**: Focused mcp-cli guide (~/.config/ai/prompts/mcp-cli.md)
+- **Auto-Injection**: axios prompt automatically injected into Claude Code config (~/.claude.json)
+  - Home activation script checks and injects during `home-manager switch`
+  - Preserves existing custom instructions with `---` separator
+  - No manual configuration required - just rebuild and restart Claude Code
+- **Usage**:
+  - **Claude Code**: Automatic after system rebuild (restart app to load)
+  - **Gemini CLI**: Use `--system-instruction ~/.config/ai/prompts/axios.md` flag
+  - **Other tools**: Load prompt file manually as system instruction
+- **Customization**: Append custom instructions to `~/.config/ai/prompts/axios.md` under "## Custom User Instructions" section
 
 #### Local LLM Inference Stack
 - **Purpose**: Self-hosted LLM inference with AMD GPU acceleration
@@ -267,18 +291,25 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Implementation Evidence**: home/ai/mcp.nix, .claude/project.md:178-205
 - **Confidence**: [EXPLICIT]
 - **Servers Available**:
-  - **git**: Git operations
-  - **github**: GitHub integration (requires token)
-  - **filesystem**: File system access
-  - **journal**: systemd journal access (mcp-journal)
-  - **mcp-nixos**: NixOS package/option search
-  - **sequential-thinking**: AI reasoning enhancement
-  - **context7**: Documentation retrieval
-  - **time**: Time zone operations
-  - **brave-search**: Web search (requires API key)
-  - **tavily**: Advanced search (requires API key)
-  - **nix-devshell-mcp**: Nix devshell integration
+  - **git**: Git operations (no setup required)
+  - **github**: GitHub integration (requires `gh auth login`)
+  - **filesystem**: File system access (no setup required)
+  - **journal**: systemd journal access (no setup required)
+  - **nix-devshell-mcp**: Nix devshell integration (no setup required)
+  - **sequential-thinking**: AI reasoning enhancement (no setup required)
+  - **context7**: Documentation retrieval (no setup required)
+  - **time**: Time zone operations (no setup required)
+  - **brave-search**: Web search (requires API key via environment variable)
+  - **ultimate64**: Commodore 64 emulator control (requires hardware)
 - **Configuration**: Via `programs.claude-code.mcpServers` using mcp-servers-nix library
+- **API Key Configuration**: Users must configure API keys via `environment.sessionVariables`:
+  ```nix
+  environment.sessionVariables = {
+    BRAVE_API_KEY = "your-api-key";
+    GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_your-token";  # Optional, gh CLI handles this
+  };
+  ```
+- **Note**: Previous `services.ai.secrets` options were removed. Users now manage API keys directly.
 
 ### Networking & Services
 #### Tailscale Integration
@@ -321,7 +352,7 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Purpose**: Automatic GPU driver configuration
 - **Implementation Evidence**: modules/graphics/default.nix
 - **Confidence**: [EXPLICIT]
-- **Supported GPUs**: NVIDIA, AMD, Intel
+- **Supported GPUs**: NVIDIA, AMD, Intel (all fully functional as of recent fixes)
 - **Options**:
   - `axios.hardware.gpuType`: GPU type ("nvidia", "amd", "intel")
   - `axios.hardware.isLaptop`: Whether this is a laptop (affects PRIME)
@@ -330,9 +361,14 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Features**:
   - Hardware acceleration (VA-API, Vulkan)
   - 32-bit library support for gaming
-  - GPU-specific utilities (nvtop, radeontop, intel-gpu-tools)
+  - GPU-specific utilities per vendor (nvtop, radeontop, intel-gpu-tools)
   - Graphics debugging (renderdoc)
   - Wayland support with proper kernel parameters
+  - Common tools for all GPUs: clinfo, wayland-utils, vulkan-tools
+- **Recent Fixes**:
+  - Fixed Nvidia/Intel GPU support (was broken, AMD-only prior to fix)
+  - Added critical `services.xserver.videoDrivers` configuration for all GPU types
+  - Added nvidia-settings and power management for Nvidia
 - **Nvidia-specific**:
   - Driver version selection (stable for reliability, beta for RTX 50-series/Blackwell)
   - Open kernel module by default (RTX 20+/Turing and newer)
@@ -371,7 +407,8 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 - **Purpose**: Encrypted secrets with age
 - **Implementation Evidence**: modules/secrets/, home/secrets/, flake.nix:27-30
 - **Confidence**: [EXPLICIT]
-- **Use Case**: API keys (Brave, Tavily), credentials
+- **Use Case**: System credentials, service passwords, SSH keys, TLS certificates
+- **Note**: MCP API keys (Brave Search) are configured via environment variables, not agenix
 
 #### Boot Configuration
 - **Purpose**: UEFI boot with systemd-boot and optional Secure Boot
@@ -411,6 +448,23 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - OpenComposite OpenXR compatibility layer
   - Wayland-native VR overlays
 
+### Retro Computing
+#### C64/Ultimate64 Integration
+- **Purpose**: Commodore 64 and Ultimate64 hardware integration for retro computing enthusiasts
+- **Implementation Evidence**: modules/c64/default.nix, inputs.c64-stream-viewer, inputs.c64term
+- **Confidence**: [EXPLICIT]
+- **Features**:
+  - **c64-stream-viewer**: Real-time video and audio streaming from Ultimate64 hardware
+  - **c64term**: Terminal emulator with authentic PETSCII colors and boot screen
+  - **ultimate64-mcp**: MCP server for remote control of Ultimate64 via AI tools
+- **Configuration**: Enable via `modules.c64 = true` in host configuration
+- **Requirements**: Ultimate64 hardware on local network (for ultimate64-mcp and streaming)
+- **Use Cases**:
+  - Stream C64 video/audio to desktop window
+  - Control Ultimate64 remotely via Claude Code
+  - Terminal access to C64 with authentic character set
+  - Automated C64 file management (.prg, .d64 files)
+
 ### Configuration Management
 #### Interactive Configuration Generator
 - **Purpose**: Generate axiOS configurations interactively
@@ -421,7 +475,17 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
   - Module selection
   - Template-based generation
   - Automatic timezone detection
+  - **Hardware configuration management**:
+    - Copies complete `hardware-configuration.nix` from nixos-generate-config
+    - Includes boot modules, kernel modules, filesystems, and swap
+    - Users specify path via `hardwareConfigPath` option
+    - Fixes VM boot failures and exotic hardware support
 - **Access**: `nix run github:kcalvelli/axios#init`
+- **Recent Changes**:
+  - Replaced `diskConfigPath` with `hardwareConfigPath` (2025-12-11)
+  - Now copies full hardware config instead of extracting disk portions
+  - Prevents missing VirtIO modules and boot configuration issues
+  - Both options supported for backward compatibility
 
 #### Disko Integration
 - **Purpose**: Declarative disk partitioning
@@ -471,15 +535,20 @@ axiOS is NOT a personal configuration repository - it's a library designed for m
 1. User imports `inputs.axios.homeModules.ai` in home-manager configuration
 2. User enables `osConfig.services.ai.enable = true` at system level
 3. MCP servers are automatically configured in Claude Code
-4. For servers requiring API keys (brave-search, tavily):
-   - User creates secrets with agenix
-   - axiOS automatically uses passwordCommand to load secrets
+4. For servers requiring API keys (brave-search):
+   - User sets environment variables in configuration:
+     ```nix
+     environment.sessionVariables = {
+       BRAVE_API_KEY = "your-api-key";
+     };
+     ```
+   - User rebuilds system to apply changes
 5. User runs Claude Code with full MCP server access
 
 **Success Criteria**: Claude Code has access to all configured MCP servers
 **Error Scenarios**:
-- Missing API keys for search servers (fallback to env variables)
-- GitHub token not configured (github MCP server unavailable)
+- Missing API keys for search servers (brave-search server will fail)
+- GitHub authentication not configured (`gh auth login` required for github server)
 
 ### Journey 3: Setting Up Self-Hosted Photo Backup
 **Actor**: Home Lab Enthusiast
@@ -702,8 +771,8 @@ Evidence: pkgs/
 
 ### Known Limitations
 - Immich requires custom package (2.3.1) until nixpkgs updates
-- Search MCP servers require API keys (brave-search, tavily)
-- GitHub MCP server requires authentication token
+- brave-search MCP server requires API key (configured via `environment.sessionVariables`)
+- GitHub MCP server requires authentication (`gh auth login`)
 - Google Drive sync requires manual OAuth setup
 - Desktop focused primarily on Niri compositor
 - System support primarily x86_64-linux

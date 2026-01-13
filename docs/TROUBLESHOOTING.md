@@ -107,6 +107,149 @@ nix-collect-garbage --delete-older-than 30d
 - **Impact:** NixOS module not imported, daemon still works
 - **Future:** Can re-enable when FlakeHub-free version available
 
+## Hardware-Specific Issues
+
+axiOS provides generic hardware support (CPU/GPU types, form factors), but vendor-specific quirks belong in your downstream configuration via the `extraConfig` section.
+
+### Common Hardware Quirk Patterns
+
+#### Pattern 1: Kernel Module Loading
+
+```nix
+extraConfig = {
+  boot.kernelModules = [ "module-name" ];
+};
+```
+
+**When to use**: Hardware requires a module not loaded automatically (sensors, controllers, vendor features).
+
+#### Pattern 2: Kernel Module Blacklisting
+
+```nix
+extraConfig = {
+  boot.blacklistedKernelModules = [ "problematic-module" ];
+};
+```
+
+**When to use**: Kernel loads wrong driver causing conflicts.
+
+#### Pattern 3: Module Parameters
+
+```nix
+extraConfig = {
+  boot.extraModprobeConfig = ''
+    options module-name parameter=value
+  '';
+};
+```
+
+**When to use**: Hardware needs specific tuning (Wi-Fi/Bluetooth quirks, GPU options, power management).
+
+#### Pattern 4: Kernel Parameters
+
+```nix
+extraConfig = {
+  boot.kernelParams = [ "parameter=value" ];
+};
+```
+
+**When to use**: ACPI workarounds, GPU boot options, memory/CPU tuning.
+
+### Example: MSI Motherboard Sensors
+
+**Issue**: Fan and temperature sensors require specific kernel module
+
+```nix
+extraConfig = {
+  boot.kernelModules = [ "nct6775" ];
+  boot.kernelParams = [ "acpi_enforce_resources=lax" ];
+};
+```
+
+### Example: System76 Pangolin 12 Laptop
+
+**Issues**: Multiple hardware-specific quirks
+
+```nix
+extraConfig = {
+  hardware.system76 = {
+    firmware-daemon.enable = true;
+    power-daemon.enable = true;
+  };
+
+  boot = {
+    kernelModules = [ "system76_acpi" ];
+    blacklistedKernelModules = [ "psmouse" ];
+    extraModprobeConfig = ''
+      options mt7921_common disable_clc=1
+    '';
+  };
+};
+```
+
+### Example: Logitech Wireless Peripherals
+
+**Issue**: Wireless peripherals need udev rules
+
+```nix
+extraConfig = {
+  hardware.desktop.enableLogitechSupport = true;
+};
+```
+
+### Finding Quirks for Your Hardware
+
+1. **Check nixos-hardware repository**: https://github.com/NixOS/nixos-hardware
+   ```bash
+   find /nix/store/*nixos-hardware*/lib -name "*.nix" | grep -i "yourmodel"
+   ```
+
+2. **Vendor documentation**:
+   - System76: https://github.com/system76/firmware-open
+   - Framework: https://github.com/NixOS/nixos-hardware/tree/master/framework
+   - Dell: Check nixos-hardware for XPS, Latitude models
+
+3. **NixOS Wiki**: https://nixos.wiki/wiki/Laptop
+
+### Diagnosing Hardware Issues
+
+```bash
+# Check loaded kernel modules
+lsmod
+
+# Detect sensors
+sudo sensors-detect
+
+# Check hardware detection
+lspci -v          # PCI devices
+lsusb -v          # USB devices
+dmesg | grep -i error  # Kernel errors
+```
+
+### Testing Quirks Temporarily
+
+```bash
+# Load a module temporarily (test before adding to config)
+sudo modprobe module-name
+
+# Blacklist a module temporarily
+sudo rmmod problematic-module
+
+# Test kernel parameter at boot (GRUB menu) before making permanent
+```
+
+### When NOT to Add Quirks
+
+**Don't add quirks for**:
+- Things that work automatically (NixOS detects most hardware)
+- Generic features (CPU/GPU type handled by axios hardware.cpu/hardware.gpu)
+- Features provided by axios modules (desktop, laptop, graphics modules)
+
+**Only add quirks for**:
+- Vendor-specific hardware needing special configuration
+- Model-specific workarounds for known issues
+- Peripherals requiring special drivers or udev rules
+
 ## Getting Help
 
 If issues persist after trying all solutions:

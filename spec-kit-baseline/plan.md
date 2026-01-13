@@ -228,6 +228,28 @@ Modules are imported using one of three patterns:
   - nix-ld for binary game compatibility
   - Optional VR: WiVRn (CUDA for nvidia), ALVR, Steam hardware, OpenXR
 
+#### modules/c64/
+- **Path**: `modules/c64/`
+- **Purpose**: Commodore 64 and Ultimate64 hardware integration for retro computing
+- **Language**: Nix
+- **Dependencies**:
+  - Internal: inputs.c64-stream-viewer, inputs.c64term
+  - External: Ultimate64 hardware (optional)
+- **Exposed Interface**: `inputs.axios.nixosModules.c64`
+- **Entry Points**: default.nix
+- **Configuration**: Enable via `modules.c64 = true` in host configuration
+- **Key Features**:
+  - c64-stream-viewer: Real-time video/audio streaming from Ultimate64
+  - c64term: Terminal emulator with authentic PETSCII character set and boot screen
+  - ultimate64-mcp: MCP server for AI-driven C64 control (provided by services.ai module)
+  - Automated C64 file management (.prg, .d64 files) via MCP
+  - Niri window rules for C64 applications
+- **Hardware Requirements**: Ultimate64 device on local network (for streaming and MCP server)
+- **Use Cases**:
+  - Stream C64 video/audio to desktop window for recording or observation
+  - Remote control Ultimate64 via Claude Code (file transfer, program execution)
+  - Authentic terminal access to C64 with period-accurate character rendering
+
 #### modules/virtualisation/
 - **Path**: `modules/virtualisation/`
 - **Purpose**: VM and container support
@@ -258,12 +280,11 @@ Modules are imported using one of three patterns:
   - `services.ai.local.ollamaReverseProxy.domain`: Domain override for Ollama
 - **Architecture**:
   - **Two-tier config**: Base AI tools always enabled, local LLM optional via mkMerge
-  - **AI Tools Philosophy**: Opinionated selection of 3 distinct AI ecosystems (all from nixpkgs)
-    - **CLI Coding Agents** (5):
+  - **AI Tools Philosophy**: Opinionated selection of distinct AI ecosystems (all from nixpkgs)
+    - **CLI Coding Agents** (4):
       - **claude-code**: Anthropic ecosystem with MCP support
       - **claude-code-acp**: Claude Code Agent Communication Protocol
       - **claude-code-router**: Claude Code request router
-      - **copilot-cli**: GitHub/OpenAI ecosystem with enterprise features
       - **gemini-cli-bin**: Google ecosystem with multimodal capabilities
     - **Workflow Tools** (3):
       - **spec-kit**: Spec-driven development (used by axiOS spec-kit-baseline/)
@@ -293,6 +314,10 @@ Modules are imported using one of three patterns:
     - Requires `selfHosted.enable = true`
   - **MCP Support**: OpenCode supports MCP servers (user-configured)
     - OpenCode: `~/.config/opencode/opencode.json`
+  - **MCP Secrets Management**: API keys configured via environment variables (not agenix)
+    - Users set `environment.sessionVariables.BRAVE_API_KEY = "..."` in configuration
+    - Previous `services.ai.secrets.*` options removed (breaking change)
+    - GitHub token handled by `gh auth login`, not environment variables
   - **Runtime Dependencies**: nodejs, python3, uv for MCP server execution
 
 #### modules/secrets/

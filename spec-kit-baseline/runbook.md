@@ -444,6 +444,178 @@ extraConfig = {
 
 **Note**: Podman is recommended for security and modern best practices. Only use Docker if you have specific compatibility requirements.
 
+### Troubleshooting Graphics Issues
+
+#### Nvidia Graphics Not Working
+
+**Symptoms**: Black screen, no display output, or graphics not accelerating
+
+**Diagnosis**:
+```bash
+# Check if nvidia driver is loaded
+lsmod | grep nvidia
+
+# Check if X server is using nvidia driver
+glxinfo | grep "OpenGL renderer"
+
+# Check nvidia-smi (if installed)
+nvidia-smi
+```
+
+**Solution**: Ensure GPU type is set correctly in configuration:
+```nix
+{
+  axios.hardware.gpuType = "nvidia";  # Critical: must be set!
+}
+```
+
+**Note**: Prior to recent fixes, axios only properly configured AMD GPUs. If upgrading from an older version, verify your GPU type is explicitly set.
+
+#### Verifying GPU Configuration
+
+**Check which GPU is active**:
+```bash
+# Vulkan devices
+vulkaninfo | grep deviceName
+
+# OpenGL renderer
+glxinfo | grep "OpenGL renderer"
+
+# Video acceleration
+vainfo
+```
+
+**Verify driver installation**:
+```bash
+# Nvidia
+nvidia-smi
+nvidia-settings
+
+# AMD
+radeontop
+amdgpu_top
+
+# Intel
+intel_gpu_top
+```
+
+#### Common Issues
+
+**Issue**: "nvidia kernel module not loaded"
+- **Cause**: GPU type not set or incorrect
+- **Solution**: Set `axios.hardware.gpuType = "nvidia"` and rebuild
+
+**Issue**: Poor Nvidia performance
+- **Cause**: Wrong driver version or power management disabled
+- **Solution**: Try `axios.hardware.nvidiaDriver = "production"` or enable power management in extraConfig
+
+**Issue**: Wayland session not starting
+- **Cause**: Missing kernel parameters for Nvidia
+- **Solution**: axios automatically sets `nvidia_drm.modeset=1`, verify it's applied with `cat /proc/cmdline`
+
+**Issue**: Intel graphics tearing or glitches
+- **Cause**: Missing modesetting driver
+- **Solution**: axios automatically configures this, verify with `xrandr --listproviders`
+
+## AI Tools & MCP Configuration
+
+### Enabling AI Tools
+
+axiOS provides AI coding assistants via the `services.ai` module:
+
+```nix
+# In your NixOS configuration
+{
+  services.ai.enable = true;  # Enables Claude Code, Gemini CLI, and MCP servers
+}
+```
+
+This automatically configures:
+- **claude-code**: Anthropic's AI coding assistant with MCP support
+- **gemini-cli**: Google's AI assistant
+- **MCP servers**: Model Context Protocol servers for enhanced AI capabilities
+
+### Configuring MCP API Keys
+
+Some MCP servers require API keys. axiOS uses **environment variables** for API key configuration.
+
+#### Brave Search API Key
+
+1. **Get API key**: Visit https://brave.com/search/api/
+2. **Configure in NixOS**:
+   ```nix
+   # In your NixOS configuration
+   {
+     environment.sessionVariables = {
+       BRAVE_API_KEY = "your-api-key-here";
+     };
+   }
+   ```
+3. **Rebuild system**: `sudo nixos-rebuild switch`
+4. **Verify**: Log out and back in, then check with `echo $BRAVE_API_KEY`
+
+**Security Note**: This approach stores the API key in the Nix store (world-readable). For production use, consider:
+- Using a script to load from a secure file
+- Storing in `~/.bashrc` or `~/.profile` instead
+- Using password managers via shell integration
+
+#### GitHub Personal Access Token (Optional)
+
+The `github` MCP server uses the `gh` CLI for authentication:
+
+```bash
+gh auth login
+```
+
+Alternatively, set via environment variable:
+```nix
+environment.sessionVariables = {
+  GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_your_token_here";
+};
+```
+
+### Available MCP Servers
+
+When `services.ai.enable = true`, these MCP servers are automatically configured:
+
+| Server | Purpose | Setup Required |
+|--------|---------|----------------|
+| git | Git operations | None |
+| github | GitHub API | `gh auth login` |
+| filesystem | File read/write | None |
+| journal | systemd logs | None |
+| nix-devshell-mcp | Nix dev environments | None |
+| sequential-thinking | Enhanced AI reasoning | None |
+| context7 | Library documentation | None |
+| time | Date/time utilities | None |
+| brave-search | Web search | API key (see above) |
+| ultimate64 | C64 emulator control | Hardware required |
+
+### Verifying MCP Configuration
+
+```bash
+# Check MCP configuration file
+cat ~/.mcp.json
+
+# Test MCP servers with mcp-cli
+mcp-cli                    # List all servers
+mcp-cli github             # List github server tools
+mcp-cli filesystem/read_file '{"path": "/tmp/test.txt"}'  # Test a tool
+```
+
+### Troubleshooting
+
+**Issue**: brave-search server fails
+- **Solution**: Verify API key is set: `echo $BRAVE_API_KEY`
+- **Solution**: Check that you rebuilt system and logged out/in
+
+**Issue**: github server unavailable
+- **Solution**: Run `gh auth login` to authenticate
+
+**Issue**: MCP servers not appearing in Claude Code
+- **Solution**: Restart Claude Code after system rebuild
+- **Solution**: Check `~/.mcp.json` was generated
+
 ## User Operations
 
 ### Installing Additional Applications

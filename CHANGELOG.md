@@ -7,36 +7,178 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+## [v2026.01.13] - 2026-01-13
+
+Major release with 329 commits over 33 days. Includes new PIM and C64 modules, enhanced PWA workflow, and major desktop refinements.
+
+### ⚠️ BREAKING CHANGES
+
+- **MCP Secrets Management Removed**: `services.ai.secrets` options have been removed. Users must now configure API keys via `environment.sessionVariables`:
+  ```nix
+  environment.sessionVariables = {
+    BRAVE_API_KEY = "your-api-key";
+    GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_your-token";  # Optional, gh CLI handles this
+  };
+  ```
+
 ### Added
-- **Gaming Module**
+
+#### New Modules
+
+- **PIM Module** (`modules/pim/`)
+  - New dedicated module for Personal Information Management
+  - Email clients: Geary (default, lightweight) or Evolution (full-featured, Exchange/EWS support)
+  - GNOME Calendar and Contacts with GNOME Online Accounts integration
+  - DavMail integration for Office 365 OAuth2 support
+  - vdirsyncer for calendar/contact syncing
+  - Supported backends: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV, Exchange/Office365
+  - Uses Evolution Data Server (lightweight D-Bus service) without requiring full GNOME desktop
+  - Enable via `modules.pim = true`
+
+- **C64/Ultimate64 Integration** (`modules/c64/`)
+  - Full support for Commodore 64 and Ultimate64 hardware
+  - c64-stream-viewer: Real-time video/audio streaming from Ultimate64 hardware
+  - c64term: Terminal emulator with authentic PETSCII colors and boot screen
+  - ultimate64-mcp: MCP server for AI-driven control (file transfer, program execution)
+  - Niri window rules for C64 applications
+  - Enable via `modules.c64 = true`
+
+#### AI & MCP Enhancements
+
+- **System Prompts for AI Agents**
+  - Comprehensive axios system prompt (auto-injected into Claude Code)
+  - MCP server usage guides for AI agents
+  - Dynamic tool discovery with mcp-cli documentation
+  - Per-tool enablement (claude.enable, gemini.enable)
+  - Unified AI coding experience
+  - Custom instructions support via `~/.config/ai/prompts/axios.md`
+  - Auto-injection into `~/.claude.json` during home-manager switch
+
+- **MCP Examples**
+  - Comprehensive MCP server configuration examples (`home/ai/mcp-examples.nix`)
+  - 100+ ready-to-use server configurations
+  - Examples for Notion, Slack, Jira, PostgreSQL, SQLite, Docker, and more
+
+#### Desktop & PWA Enhancements
+
+- **Enhanced PWA Workflow**
+  - `add-pwa` script now auto-updates configuration
+  - Auto-format with `nix fmt` after insertion
+  - Smart insertion detection for axios project structure
+  - Auto-sanitize manifest categories to Freedesktop standards
+  - Improved icon fetching with better quality and transparency handling
+  - 20+ PWA icons updated (Google suite, productivity apps)
+  - Added new PWAs: Linear, Notion, Figma, Excalidraw, Flathub
+
+- **Desktop Refinements**
+  - Major Niri/KDE interoperability fixes (xdg-portals, kdialog, file choosers)
+  - Dedicated keybindings guide (`home/desktop/niri-keybinds.nix`)
+  - Improved window rules for various applications
+  - Enhanced DMS outputs.kdl configuration
+  - Mouse wheel bindings for column navigation
+  - Fixed Qt platform environment variables
+  - Portal configuration for KDE file choosers
+
+#### Gaming & Graphics
+
+- **Gaming Module Enhancements**
   - Binary compatibility via nix-ld for native Linux games
   - SDL2 family libraries (SDL2_image, SDL2_mixer, SDL2_ttf)
   - Graphics APIs (libGL, vulkan-loader)
   - Audio libraries (alsa-lib, openal, libpulseaudio)
   - Fixes "library not found" errors for indie games, Unity, MonoGame
-- **Development Module**
-  - Inotify tuning for file watchers (fs.inotify.max_user_watches = 524288)
-  - Fixes "ENOSPC: System limit for number of file watchers reached"
-  - Critical for VS Code, Rider, WebStorm, hot-reload workflows
+
 - **Desktop Module**
   - USB device permissions for game controllers (Sony, Microsoft, Nintendo, Valve)
   - Normal users can access USB devices without root
   - Also benefits Arduino, dev boards, USB peripherals
+
 - **Graphics Module**
   - vulkan-tools (vulkaninfo, vkcube) for all GPU types
   - Helps users verify GPU setup and debug graphics issues
 
+#### Development
+
+- **Development Module**
+  - Inotify tuning for file watchers (fs.inotify.max_user_watches = 524288)
+  - Fixes "ENOSPC: System limit for number of file watchers reached"
+  - Critical for VS Code, Rider, WebStorm, hot-reload workflows
+
 ### Fixed
-- **Graphics Module**
-  - Fixed nvidia/intel GPU support (previously AMD-only despite accepting these values)
+
+- **Graphics Module (Critical)**
+  - Fixed nvidia/intel GPU support (was broken, AMD-only prior to this release)
   - Added missing `services.xserver.videoDrivers = ["nvidia"]` (critical for Nvidia to work!)
   - Added hardware.nvidia.nvidiaSettings and nvidia-settings package
   - Added power management defaults (disabled by default per NixOS wiki)
-  - Graphics module now conditionally applies GPU-specific configuration
-  - AMD: radeontop, corectrl, amdgpu_top, HIP_PLATFORM
-  - Nvidia: nvtopPackages.nvidia, nvidia-settings, proper driver loading
-  - Intel: intel-gpu-tools, intel-media-driver
-  - Common packages (clinfo, wayland-utils, vulkan-tools) available for all GPU types
+  - Graphics module now conditionally applies GPU-specific configuration:
+    - AMD: radeontop, corectrl, amdgpu_top, HIP_PLATFORM
+    - Nvidia: nvtopPackages.nvidia, nvidia-settings, proper driver loading
+    - Intel: intel-gpu-tools, intel-media-driver
+    - Common packages (clinfo, wayland-utils, vulkan-tools) available for all GPU types
+
+- **Desktop**
+  - Portal configuration for KDE file choosers
+  - Numerous Niri window rules and keybindings fixes
+  - Icon and desktop entry corrections
+  - Fixed clipboard functionality with manual wl-paste spawn
+  - Prevented duplicate DMS spawning with systemd service configuration
+
+- **Scripts**
+  - Improved robustness and error handling in add-pwa
+  - Better edge case handling in configuration scripts
+
+### Changed
+
+- **AI Tools**
+  - Removed copilot-cli (focus on Claude Code and Gemini CLI)
+  - MCP secrets now configured via environment variables instead of agenix
+  - Simplified MCP configuration for easier setup
+
+- **Hardware Configuration**
+  - New `hardwareConfigPath` option replacing `diskConfigPath` (backward compatible)
+  - Init script now copies complete hardware-configuration.nix
+  - Prevents missing VirtIO modules and boot configuration issues
+
+### Documentation
+
+- **Consolidated MCP Documentation**
+  - Created comprehensive `docs/MCP_GUIDE.md` (complete setup and usage)
+  - Created `docs/MCP_REFERENCE.md` (quick command reference)
+  - Removed 6 redundant MCP documentation files
+  - Clearer navigation and reduced duplication
+
+- **New Documentation**
+  - Added `docs/PWA_GUIDE.md` - Progressive Web Apps guide
+  - Added `docs/MODULE_REFERENCE.md` - Complete module reference
+  - Added `docs/APPLICATIONS.md` - Application catalog
+  - Merged `docs/hardware-quirks.md` into `docs/TROUBLESHOOTING.md`
+
+- **Updated spec-kit-baseline**
+  - Documented C64/Ultimate64 module across all baseline files
+  - Documented PIM module architecture and features
+  - Updated MCP secrets management documentation
+  - Added graphics module fixes and troubleshooting
+  - Added system prompts architecture documentation
+  - Updated hardware configuration pattern documentation
+
+### Migration Guide
+
+**For users with Brave Search or other MCP servers requiring API keys:**
+
+Old configuration (no longer works):
+```nix
+services.ai.secrets.braveApiKeyPath = config.age.secrets.brave-api-key.path;
+```
+
+New configuration:
+```nix
+environment.sessionVariables = {
+  BRAVE_API_KEY = "your-api-key";
+};
+```
+
+**Note**: Log out and log back in after rebuilding for environment variables to take effect.
 
 ## [2025-12-11] - VM Support & Hardware Configuration Fix
 

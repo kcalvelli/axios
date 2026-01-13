@@ -60,7 +60,7 @@ This document captures architectural patterns that span multiple modules and aff
 **Evidence**: All module default.nix files with option definitions
 
 ### Secrets Management
-**Strategy**: [EXPLICIT] agenix (age encryption)
+**Strategy**: [EXPLICIT] agenix (age encryption) for system secrets, environment variables for MCP API keys
 
 **Implementation**:
 - **Encryption**: age-encrypted files in secrets/ directory
@@ -69,22 +69,34 @@ This document captures architectural patterns that span multiple modules and aff
 - **Access Control**: File permissions (owner, mode)
 
 **Secret Types**:
-- API keys (Brave Search, Tavily)
-- OAuth tokens (GitHub, Google Drive)
-- Service credentials (database passwords)
-- SSH keys
-- TLS certificates (managed by Tailscale)
+- **agenix-managed**: Service credentials (database passwords), SSH keys, TLS certificates (Tailscale)
+- **Environment variables**: MCP API keys (Brave Search API key)
+- **Tool-managed**: GitHub tokens (via `gh auth login`), Google Drive OAuth (manual setup)
 
-**Evidence**: modules/secrets/, home/secrets/, flake.nix:27-30, .claude/project.md:178-205
+**Evidence**: modules/secrets/, home/secrets/, flake.nix:27-30, home/ai/mcp.nix
 
-**Configuration Example**:
+**Configuration Examples**:
+
+**System secrets (agenix)**:
 ```nix
-age.secrets.brave-api-key = {
-  file = ./secrets/brave-api-key.age;
+age.secrets.database-password = {
+  file = ./secrets/database-password.age;
   owner = "username";
   mode = "0400";
 };
 ```
+
+**MCP API keys (environment variables)**:
+```nix
+environment.sessionVariables = {
+  BRAVE_API_KEY = "your-api-key";  # Warning: stored in world-readable Nix store
+};
+```
+
+**Security Considerations**:
+- **agenix secrets**: Encrypted at rest, decrypted to tmpfs at runtime, access-controlled
+- **Environment variables**: Stored in Nix store (world-readable), suitable for non-critical API keys
+- **For sensitive keys**: Use agenix or external secret management (e.g., `passwordCommand` loading from agenix)
 
 **Secret Rotation**: [TBD] Manual process, no automated rotation
 
@@ -168,6 +180,81 @@ age.secrets.brave-api-key = {
 - **Periodic Sync**: Google Drive bidirectional sync
 - **Photo Processing**: Immich thumbnail generation, ML processing
 - **System Maintenance**: Nix garbage collection (user-configured)
+
+### Hardware Acceleration & GPU Configuration
+
+#### GPU Driver Management
+**Strategy**: [EXPLICIT] Automatic GPU driver configuration based on hardware type
+
+**Supported GPUs**: NVIDIA, AMD, Intel (all fully functional)
+
+**Critical Requirements**:
+- **GPU Type Must Be Set**: Users MUST explicitly configure `axios.hardware.gpuType`
+- **Automatic Driver Loading**: axios automatically sets `services.xserver.videoDrivers` based on GPU type
+- **Hardware Acceleration**: VA-API and Vulkan automatically configured for all GPU types
+
+**Evidence**: modules/graphics/default.nix, CHANGELOG.md (Unreleased - Graphics fixes)
+
+#### Nvidia-Specific Considerations
+
+**Driver Configuration**:
+- **Kernel Module**: Open kernel module enabled by default (RTX 20+/Turing and newer)
+- **Wayland Support**: `nvidia_drm.modeset=1` kernel parameter automatically set
+- **Power Management**: Disabled by default per NixOS wiki recommendations (configurable)
+- **PRIME**: Automatically disabled on single-GPU desktops, manual configuration required for dual-GPU
+
+**Performance**:
+- **Driver Versions**: stable (default), beta (RTX 50-series/Blackwell), production (latest stable)
+- **32-bit Support**: Enabled automatically for gaming compatibility
+- **CUDA**: Available for ML/AI workloads (used by WiVRn VR wireless streaming)
+
+**Tools Provided**: nvidia-smi, nvidia-settings, nvtopPackages.nvidia
+
+**Known Issues (Historical)**:
+- Prior to recent fixes, Nvidia/Intel GPU support was broken (AMD-only)
+- Fixed by adding proper `services.xserver.videoDrivers` configuration
+- Users upgrading from older versions should verify GPU type is set
+
+#### AMD-Specific Considerations
+
+**Driver**: AMDGPU kernel driver (automatic)
+
+**Features**:
+- **GPU Recovery**: Optional `axios.hardware.enableGPURecovery` for hang recovery
+- **ROCm**: Available for ML/AI workloads (Ollama uses ROCm acceleration)
+- **Vulkan**: RADV driver automatically configured
+- **Mesa**: Latest Mesa with AMDGPU support
+
+**Tools Provided**: radeontop, corectrl, amdgpu_top
+
+**Environment Variables**: `AMD_VULKAN_ICD=RADV`, `HIP_PLATFORM=amd` for ROCm
+
+#### Intel-Specific Considerations
+
+**Driver**: Modesetting driver (automatic)
+
+**Features**:
+- **Media Acceleration**: intel-media-driver for VA-API
+- **Vulkan**: ANV driver automatically configured
+- **Display Management**: Intel DDX driver for X11 compatibility
+
+**Tools Provided**: intel-gpu-tools (intel_gpu_top)
+
+**Known Issues (Historical)**:
+- Prior to recent fixes, Intel GPU support was broken
+- Fixed by proper driver configuration
+
+#### Common Tools (All GPU Types)
+
+**Debugging**: clinfo (OpenCL), wayland-utils, vulkan-tools (vulkaninfo, vkcube)
+
+**Verification**:
+```bash
+# Check GPU detection
+vulkaninfo | grep deviceName
+glxinfo | grep "OpenGL renderer"
+vainfo  # Video acceleration
+```
 
 ## Error Handling & Resilience
 

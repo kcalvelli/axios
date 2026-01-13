@@ -249,6 +249,40 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Evidence**: pkgs/pwa-apps/, home/desktop/pwa-apps.nix, CHANGELOG.md:49
 
+### C64
+**Definition**: Commodore 64 - An 8-bit home computer introduced by Commodore International in 1982, one of the best-selling single computer models of all time
+
+**Usage**: Retro computing integration in axiOS
+- Module: modules/c64/
+- Enable: `modules.c64 = true`
+
+**Related Terms**: Ultimate64, PETSCII, Retro Computing
+
+**Evidence**: modules/c64/default.nix
+
+### Ultimate64
+**Definition**: FPGA-based hardware reimplementation of the Commodore 64, providing cycle-exact compatibility with original hardware plus modern features like HDMI output, network connectivity, and USB support
+
+**Usage**: Hardware platform for C64 module
+- Streaming: c64-stream-viewer streams video/audio from Ultimate64
+- MCP: ultimate64-mcp server provides AI-driven control
+- Requirements: Device must be accessible on local network
+
+**Related Terms**: C64, FPGA, Retro Computing
+
+**Evidence**: modules/c64/default.nix, home/ai/mcp.nix
+
+### PETSCII
+**Definition**: PET Standard Code of Information Interchange - The character set used by Commodore computers, including unique graphics characters and control codes
+
+**Usage**: C64 terminal emulator character rendering
+- Tool: c64term displays authentic PETSCII characters
+- Features: Period-accurate colors, boot screen, graphics characters
+
+**Related Terms**: C64, ASCII, Character Encoding
+
+**Evidence**: modules/c64/default.nix (c64term terminal emulator)
+
 ### rclone
 **Definition**: Command-line tool for syncing files to cloud storage
 

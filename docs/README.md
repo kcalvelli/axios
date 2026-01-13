@@ -17,7 +17,8 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes | When experiencing problems |
 | [BINARY_CACHE.md](BINARY_CACHE.md) | Using the binary cache | Speed up builds |
-| [ADVANCED-TOOL-USE-SUMMARY.md](ADVANCED-TOOL-USE-SUMMARY.md) | AI & MCP integration guide | **Understanding AI capabilities** |
+| [MCP_GUIDE.md](MCP_GUIDE.md) | Complete MCP integration guide | **Understanding AI & MCP** |
+| [MCP_REFERENCE.md](MCP_REFERENCE.md) | Quick MCP command reference | Quick lookup for mcp-cli |
 
 ## Quick Start
 
@@ -65,28 +66,50 @@ Topics covered:
 
 ## AI & MCP Integration
 
-### 🤖 [ADVANCED-TOOL-USE-SUMMARY.md](ADVANCED-TOOL-USE-SUMMARY.md)
-**Quick start guide for advanced tool use and MCP**
+### 🤖 [MCP_GUIDE.md](MCP_GUIDE.md)
+**Complete guide to MCP (Model Context Protocol) integration**
 
-Essential overview:
+Essential topics:
+- What is MCP and how axios configures it
+- 10 pre-configured MCP servers (no setup required)
 - How mcp-cli saves 96.8% tokens (vs traditional MCP)
 - Adding new MCP servers to axios
-- Advanced tool use features (Anthropic beta)
-- Real axios workflow examples
+- Configuration guide with examples
+- Real-world workflows and debugging
 - Cost savings analysis ($169/year for typical usage)
 
 **Start here to understand axios's AI capabilities.**
 
-### 📚 AI/MCP Deep Dives
+### 📚 [MCP_REFERENCE.md](MCP_REFERENCE.md)
+**Quick reference card for mcp-cli commands**
 
-| Document | Purpose | When to Read |
-|----------|---------|--------------|
-| [mcp-cli-quick-reference.md](mcp-cli-quick-reference.md) | One-page summary of token savings | Quick lookup |
-| [mcp-cli-axios-example.md](mcp-cli-axios-example.md) | Detailed real-world example | See concrete workflow |
-| [mcp-cli-token-savings-visual.md](mcp-cli-token-savings-visual.md) | Visual comparison charts | Understand the math |
-| [advanced-tool-use.md](advanced-tool-use.md) | Anthropic beta features | Future capabilities |
-| [adding-mcp-servers.md](adding-mcp-servers.md) | Add new tools to Claude Code | Extending axios |
-| [../home/ai/mcp-examples.nix](../home/ai/mcp-examples.nix) | 50+ ready-to-use server configs | Copy-paste examples |
+One-page reference:
+- Quick command syntax and examples
+- Token savings breakdown
+- Cost analysis tables
+- Scaling comparison
+- Best practices and verification
+
+**Use as a cheat sheet for mcp-cli.**
+
+### 🔮 [advanced-tool-use.md](advanced-tool-use.md)
+**Anthropic beta features (API-only)**
+
+Future capabilities:
+- Tool Search Tool (defer_loading)
+- Programmatic Tool Calling
+- Tool Use Examples
+
+**For users interested in upcoming Anthropic API features.**
+
+### 💡 [../home/ai/mcp-examples.nix](../home/ai/mcp-examples.nix)
+**100+ ready-to-use MCP server configurations**
+
+Copy-paste examples for popular services:
+- Notion, Slack, Jira, Linear
+- PostgreSQL, SQLite, MongoDB
+- Docker, Kubernetes
+- And many more!
 
 ## Configuration & Maintenance
 

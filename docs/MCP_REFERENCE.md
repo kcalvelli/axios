@@ -1,29 +1,10 @@
-# mcp-cli Quick Reference Card
+# mcp-cli Quick Reference
 
-## One-Page Summary
-
-### The Problem
-Traditional MCP integration loads **ALL tool schemas upfront** into every API call:
-- 10 servers = 47,000 tokens per message
-- 5-turn conversation = 242,450 total tokens
-- Cost: $0.73 per session
-
-### The Solution
-mcp-cli discovers tools **on-demand only when needed**:
-- Initial load = 2,000 tokens (system prompt)
-- Discovery as-needed = ~500 tokens
-- 5-turn conversation = 7,850 total tokens
-- Cost: $0.02 per session
-
-### The Result
-✅ **96.8% token reduction**
-✅ **30x more efficient**
-✅ **$169/year saved** (typical usage)
-✅ **Already working in axios!**
-
----
+One-page command reference and token savings analysis for axiOS MCP integration.
 
 ## Quick Commands
+
+### Basic Operations
 
 ```bash
 # List all MCP servers (~200 tokens)
@@ -46,18 +27,70 @@ mcp-cli github/search_repositories '{"query": "axios"}'
 mcp-cli filesystem/list_directory '{"path": "/tmp"}'
 ```
 
-**Add `-d` for detailed descriptions:**
+### Advanced Usage
+
 ```bash
-mcp-cli github -d          # Include tool descriptions
+# Add -d for detailed descriptions
+mcp-cli github -d
+
+# Use stdin for complex JSON
+echo '{"query": "test"}' | mcp-cli server/tool -
+
+# Pipe output for processing
+mcp-cli filesystem/list_directory '{"path": "/tmp"}' | jq '.files'
 ```
 
----
+## Available MCP Servers
 
-## Real axios Workflow Example
+| Server | Purpose | Tools | Setup |
+|--------|---------|-------|-------|
+| **git** | Git operations | status, diff, log, commit | None |
+| **github** | GitHub API | search, create_issue, get_pr | `gh auth login` |
+| **filesystem** | File read/write | read_file, write_file, list | None |
+| **journal** | systemd logs | query_logs, tail | None |
+| **nix-devshell-mcp** | Nix devshells | list, enter | None |
+| **sequential-thinking** | AI reasoning | think, analyze | None |
+| **context7** | Documentation | query_docs, search | None |
+| **time** | Date/time | convert, calculate | None |
+| **brave-search** | Web search | web_search | API key |
+| **ultimate64** | C64 emulator | transfer, execute | Hardware |
 
-**Task:** Add SQLite MCP server to axios
+## Token Efficiency
 
-### Traditional Approach
+### The Problem: Traditional MCP
+
+Traditional MCP loads **ALL tool schemas upfront** into every API call:
+
+```
+10 servers = 47,000 tokens per message
+5-turn conversation = 242,450 total tokens
+Cost: $0.73 per session
+```
+
+### The Solution: mcp-cli
+
+mcp-cli discovers tools **on-demand only when needed**:
+
+```
+Initial load = 2,000 tokens (system prompt)
+Discovery as-needed = ~500 tokens
+5-turn conversation = 7,850 total tokens
+Cost: $0.02 per session
+```
+
+### The Result
+
+- ✅ **96.8% token reduction**
+- ✅ **30x more efficient**
+- ✅ **$169/year saved** (typical usage)
+- ✅ **Already working in axios!**
+
+## Real Workflow Example
+
+**Task**: Add SQLite MCP server to axios
+
+### Traditional Approach (242K tokens, $0.73)
+
 ```
 Turn 1: Load all tools        49,050 tokens
 Turn 2: Find config          +47,750 tokens
@@ -66,10 +99,10 @@ Turn 4: Propose config      +47,800 tokens
 Turn 5: Edit file           +47,600 tokens
 ────────────────────────────────────────────
 TOTAL:                      242,450 tokens
-Cost: $0.73
 ```
 
-### mcp-cli Approach
+### mcp-cli Approach (7.8K tokens, $0.02)
+
 ```
 Turn 1: User request           2,050 tokens
 Turn 2: mcp-cli                 +600 tokens
@@ -79,16 +112,14 @@ Turn 5: Edit file               +600 tokens
 Turn 6: Test                    +450 tokens
 ────────────────────────────────────────────
 TOTAL:                        7,850 tokens
-Cost: $0.02
 ```
 
 **Savings: 96.8% tokens, $0.71 per session**
 
----
-
-## Token Breakdown by Source
+## Token Breakdown
 
 ### Traditional (242K tokens)
+
 ```
 System prompt:          2,000 tokens  (  1%)
 Tool schemas:         235,000 tokens  ( 97%)  ← WASTE!
@@ -96,13 +127,12 @@ Actual work:            5,450 tokens  (  2%)
 ```
 
 ### mcp-cli (7.8K tokens)
+
 ```
 System prompt:          2,000 tokens  ( 25%)
 Tool discovery:           500 tokens  (  6%)
 Actual work:            5,350 tokens  ( 69%)
 ```
-
----
 
 ## Cost Analysis
 
@@ -116,11 +146,10 @@ Actual work:            5,350 tokens  ( 69%)
 
 *Based on $3/MTok input pricing*
 
----
-
 ## Scaling Comparison
 
 ### Traditional: Gets Worse With More Servers
+
 ```
 10 servers:   47K tokens per message
 20 servers:   94K tokens per message  ⚠️
@@ -129,6 +158,7 @@ Actual work:            5,350 tokens  ( 69%)
 ```
 
 ### mcp-cli: Constant Overhead
+
 ```
 10 servers:   2K tokens initial
 20 servers:   2K tokens initial  ✅
@@ -136,11 +166,10 @@ Actual work:            5,350 tokens  ( 69%)
 100 servers:  2K tokens initial  ✅ Scales infinitely!
 ```
 
----
-
 ## What Gets Loaded When
 
 ### Traditional: Everything Always
+
 ```
 Every message includes:
 ├─ git (9 tools)           4,500 tokens
@@ -158,6 +187,7 @@ Every message includes:
 ```
 
 ### mcp-cli: Only What's Needed
+
 ```
 Initial: System prompt only (2K tokens)
 
@@ -168,8 +198,6 @@ When needed:
                                          ──────────
                                          650 tokens only when used!
 ```
-
----
 
 ## Efficiency Metrics
 
@@ -186,11 +214,10 @@ When needed:
 ╚═══════════════════════════════════════════════════╝
 ```
 
----
-
 ## Common Use Cases
 
 ### Debugging
+
 ```bash
 # Check system logs
 mcp-cli journal/query_logs '{"unit": "nginx"}'
@@ -198,9 +225,11 @@ mcp-cli journal/query_logs '{"unit": "nginx"}'
 # Check git status
 mcp-cli git/status '{}'
 ```
-**Tokens saved:** 46,500 per conversation (99%)
+
+**Tokens saved**: 46,500 per conversation (99%)
 
 ### Development
+
 ```bash
 # Search repositories
 mcp-cli github/search_repositories '{"query": "nix MCP"}'
@@ -208,9 +237,11 @@ mcp-cli github/search_repositories '{"query": "nix MCP"}'
 # Find files
 mcp-cli grep "nix"
 ```
-**Tokens saved:** 46,200 per conversation (98%)
+
+**Tokens saved**: 46,200 per conversation (98%)
 
 ### Research
+
 ```bash
 # Query library docs
 mcp-cli context7/query_docs '{"library": "nixpkgs", "query": "override"}'
@@ -218,13 +249,13 @@ mcp-cli context7/query_docs '{"library": "nixpkgs", "query": "override"}'
 # Web search
 mcp-cli brave-search/web_search '{"query": "NixOS modules"}'
 ```
-**Tokens saved:** 46,600 per conversation (99%)
 
----
+**Tokens saved**: 46,600 per conversation (99%)
 
 ## Best Practices
 
 ### ✅ Do This
+
 1. **Let mcp-cli discover** - Don't request all tool schemas
 2. **Use native tools first** - Read, Edit, Bash, Glob are more efficient
 3. **Search before inspecting** - `mcp-cli grep` before full schema
@@ -232,54 +263,11 @@ mcp-cli brave-search/web_search '{"query": "NixOS modules"}'
 5. **Test with mcp-cli** - Verify servers before using in Claude
 
 ### ❌ Don't Do This
+
 1. Don't load all MCP schemas upfront
 2. Don't use MCP for basic file operations (use native Read/Edit)
 3. Don't inspect all tools "just in case"
 4. Don't skip `mcp-cli grep` for discovery
-
----
-
-## axios Configuration
-
-### Already Enabled!
-mcp-cli is automatically configured in axios:
-
-**System Prompt:** `~/.config/ai/prompts/axios.md`
-- Teaches Claude about mcp-cli
-- Documents available servers
-- Provides usage examples
-
-**MCP Config:** `~/.mcp.json` and `~/.config/mcp/mcp_servers.json`
-- Auto-generated from `home/ai/mcp.nix`
-- Same config for Claude Code and mcp-cli
-
-**Zero configuration needed** - just rebuild and use!
-
-```bash
-# Verify it's working
-mcp-cli
-cat ~/.config/ai/prompts/axios.md
-```
-
----
-
-## When to Use mcp-cli
-
-### ✅ Best For
-
-- **10+ MCP servers** configured
-- **Long conversations** (5+ turns)
-- **Exploratory workflows** (don't know which tools needed)
-- **Multiple external systems** (GitHub + Notion + Jira)
-- **Cost-sensitive usage** (production deployments)
-
-### ⚠️ Less Critical
-
-- Single-turn tasks (but still saves tokens!)
-- Tool-light conversations (mostly native tools)
-- Known tool sequences (still beneficial though)
-
----
 
 ## Verification
 
@@ -298,8 +286,6 @@ mcp-cli | wc -c          # Should be ~800 bytes (200 tokens)
 grep -q "mcp-cli" ~/.claude.json && echo "✅ Enabled" || echo "❌ Not found"
 ```
 
----
-
 ## Key Insight
 
 ```
@@ -315,17 +301,11 @@ grep -q "mcp-cli" ~/.claude.json && echo "✅ Enabled" || echo "❌ Not found"
 └─────────────────────────────────────────────────────────┘
 ```
 
----
-
 ## Further Reading
 
-- **Detailed Example:** `docs/mcp-cli-axios-example.md`
-- **Visual Comparison:** `docs/mcp-cli-token-savings-visual.md`
-- **Advanced Features:** `docs/advanced-tool-use.md`
-- **Adding Servers:** `docs/adding-mcp-servers.md`
-- **Examples:** `home/ai/mcp-examples.nix`
-
----
+- **Detailed Guide**: `docs/MCP_GUIDE.md` - Complete MCP setup and usage
+- **Advanced Features**: `docs/advanced-tool-use.md` - Anthropic beta features
+- **Examples**: `home/ai/mcp-examples.nix` - 100+ server configurations
 
 ## TL;DR
 

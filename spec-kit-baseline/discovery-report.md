@@ -47,7 +47,12 @@
 - **Home Module Files**: 9 home-manager modules in home/
 - **DevShells**: 3 development environments (rust, zig, qml)
 - **Examples**: 2 example configurations (minimal-flake, multi-host)
-- **Documentation Files**: 12+ README files across different directories
+- **Documentation Files**: Comprehensive documentation structure:
+  - **Root**: README.md, CHANGELOG.md, CLAUDE.md, CODE_OF_ETHICS.md
+  - **spec-kit-baseline/**: 9 files (spec.md, plan.md, runbook.md, concerns.md, glossary.md, discovery-report.md, constitution.md, unknowns.md, README.md)
+  - **docs/**: 15+ guides (INSTALLATION.md, LIBRARY_USAGE.md, MODULE_REFERENCE.md, APPLICATIONS.md, PWA_GUIDE.md, TROUBLESHOOTING.md, etc.)
+  - **MCP docs**: Advanced tool use guides (mcp-cli-*.md, adding-mcp-servers.md)
+  - **Module READMEs**: Inline documentation in module directories
 - **CI Workflows**: 6 GitHub Actions workflows
 
 ## Entry Points
@@ -86,6 +91,7 @@
 - `modules/desktop/`: Desktop environment (GNOME, KDE, Niri)
 - `modules/development/`: Development tools and environments
 - `modules/gaming/`: Gaming-specific configuration
+- `modules/c64/`: Commodore 64/Ultimate64 retro computing integration
 - `modules/graphics/`: GPU drivers and configuration
 - `modules/hardware/`: Hardware-specific configs (desktop, laptop)
 - `modules/networking/`: Network services (samba.nix, tailscale.nix)
