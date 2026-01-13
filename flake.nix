@@ -90,7 +90,6 @@
       inputs.nixpkgs-stable.follows = "nixpkgs";
     };
 
-    # Fun with "AI"
     mcp-journal = {
       url = "github:kcalvelli/mcp-journal";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -133,6 +132,12 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    
+    # Up to date google's agentic IDE
+    antigravity-nix = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };    
   };
 
   nixConfig = {

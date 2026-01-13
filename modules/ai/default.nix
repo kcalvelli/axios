@@ -173,7 +173,10 @@ in
           '')
         ]
         # Gemini CLI (conditional on services.ai.gemini.enable)
-        ++ lib.optional cfg.gemini.enable gemini-cli-bin;
+        ++ lib.optional cfg.gemini.enable [
+          gemini-cli-bin
+          inputs.antigravity-nix.packages.x86_64-linux.default
+        ];
     })
 
     # Local LLM configuration (conditional on services.ai.local.enable)
