@@ -29,7 +29,6 @@ Major release with 329 commits over 33 days. Includes new PIM and C64 modules, e
   - New dedicated module for Personal Information Management
   - Email clients: Geary (default, lightweight) or Evolution (full-featured, Exchange/EWS support)
   - GNOME Calendar and Contacts with GNOME Online Accounts integration
-  - DavMail integration for Office 365 OAuth2 support
   - vdirsyncer for calendar/contact syncing
   - Supported backends: Gmail, Outlook, IMAP/SMTP, CalDAV, CardDAV, Exchange/Office365
   - Uses Evolution Data Server (lightweight D-Bus service) without requiring full GNOME desktop
