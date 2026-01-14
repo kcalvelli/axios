@@ -26,6 +26,9 @@ Defines the procedures for system installation, automated validation, and contin
 - **Implementation**: `lib/default.nix`, `modules/secrets/`
 
 ## Procedures
+- **Spec-Driven Development**: All changes MUST follow the OpenSpec workflow.
+    - **Tool**: `openspec` CLI.
+    - **Workflow**: Create delta in `openspec/changes/`, update specs, implement, and archive.
 - **Formatting**: Always run `nix fmt .` before committing.
 - **Testing**: Use `./scripts/test-build.sh` for local validation of heavy changes.
 - **Conventional Commits**: All PRs and commits should follow standard git conventions.
