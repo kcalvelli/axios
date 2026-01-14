@@ -154,7 +154,10 @@ Major release with 329 commits over 33 days. Includes new PIM and C64 modules, e
   - Added `docs/APPLICATIONS.md` - Application catalog
   - Merged `docs/hardware-quirks.md` into `docs/TROUBLESHOOTING.md`
 
-- **Updated spec-kit-baseline**
+- **Migrated to OpenSpec SDD**
+  - Moved from monolithic `spec-kit-baseline` to modular `openspec/`
+  - Integrated delta-based development workflow
+  - Updated AI agent instructions for spec-driven development
   - Documented C64/Ultimate64 module across all baseline files
   - Documented PIM module architecture and features
   - Updated MCP secrets management documentation

@@ -2,16 +2,15 @@
 
 ## 1. Spec-Driven Development Mandate (CRITICAL)
 
-**You are operating under a strict Spec-Driven Development (SDD) methodology.**
+**You are operating under a strict Spec-Driven Development (SDD) methodology using OpenSpec.**
 
-1.  **Source of Truth:** The `spec-kit-baseline/` directory contains the authoritative specifications for this project.
-    *   `spec-kit-baseline/constitution.md`: Non-negotiable rules, standards, and architecture constraints.
-    *   `spec-kit-baseline/spec.md`: Features, user journeys, and data models.
-    *   `spec-kit-baseline/plan.md`: Technical architecture and implementation details.
-    *   `spec-kit-baseline/runbook.md`: Operational procedures.
-2.  **Spec First:** Before ANY code change, you MUST consult the relevant spec file to understand the requirements and constraints.
-3.  **Update Specs First:** If a user request implies a change to the architecture, features, or operational procedures defined in the specs, you MUST update the corresponding file in `spec-kit-baseline/` *before* modifying any code.
-4.  **Compliance:** All changes must comply with `spec-kit-baseline/constitution.md`. Violations of the Constitution are not permitted.
+1.  **Source of Truth:** The `openspec/` directory contains the authoritative specifications for this project.
+    *   `openspec/project.md`: Project identity, goal, tech stack, and non-negotiable rules.
+    *   `openspec/AGENTS.md`: Detailed instructions for AI agents (Consult this file first!).
+    *   `openspec/specs/`: Directory containing feature-specific specifications (e.g., `specs/system/spec.md`).
+2.  **Spec First:** Before ANY code change, you MUST consult the relevant spec files in `openspec/specs/` to understand the current requirements.
+3.  **Delta-Based Updates:** All changes MUST be staged as "deltas" in `openspec/changes/[change-name]/` before being merged into the main specs and implemented in code.
+4.  **Compliance:** All changes must comply with the rules defined in `openspec/project.md`.
 
 ## 2. Project Overview & Role
 
@@ -22,48 +21,42 @@
 
 ## 3. Constitution & Constraints (Summary)
 
-*Full details in `spec-kit-baseline/constitution.md`*
+*Full details in `openspec/project.md`*
 
 *   **Architecture:** Modular Library/Framework. Users import as a flake. No opinionated end-user config in the library itself.
-*   **Code Style:** `nixpkgs-fmt` enforced. Kebab-case files. Directory-based modules.
+*   **Code Style:** `nixfmt-rfc-style` (enforced via `nix fmt .`). Kebab-case files. Directory-based modules.
 *   **Module Structure:**
     *   Each module MUST be a directory with `default.nix`.
     *   Packages MUST be inside `config = lib.mkIf cfg.enable { ... }`.
     *   No inter-module dependencies.
 *   **No Regional Defaults:** Timezones and locales must be explicitly configured by the user.
 *   **System Reference:** Use `pkgs.stdenv.hostPlatform.system`, NEVER `system`.
-*   **Secrets:** `agenix` only.
+*   **Secrets:** `agenix` for system secrets; environment variables for AI/MCP keys.
 
-## 4. Workflow
+## 4. Workflow (OpenSpec)
 
-### A. Analysis & Planning
+### A. Discovery & Planning
 1.  **Understand:** Read the user request.
-2.  **Consult Specs:** Read relevant files in `spec-kit-baseline/` to establish the current baseline and rules. Use `codebase_investigator` if deep context is needed.
-3.  **Gap Analysis:** Determine if the request fits the current Spec.
-    *   **If YES:** Proceed to Plan.
-    *   **If NO:** Plan must include updating `spec-kit-baseline/` files first.
-4.  **Plan:** Propose a step-by-step plan.
+2.  **Consult Specs:** Read `openspec/specs/` to establish the baseline.
+3.  **Create Change Delta**: Propose a new directory `openspec/changes/[name]/`.
+4.  **Stage Specs**: Copy relevant spec files to `openspec/changes/[name]/specs/` and apply target changes.
+5.  **Create Tasks**: Write `openspec/changes/[name]/tasks.md` with implementation steps.
 
 ### B. Implementation
-1.  **Update Specs (if required):** Modify `spec-kit-baseline/` files to reflect the new reality.
-2.  **Implement Code:** Use `replace` or `write_file`. Adhere strictly to `constitution.md`.
-3.  **Verify:**
+1.  **Execute Tasks**: Implement the code changes defined in `tasks.md`.
+2.  **Verify**:
     *   `nix flake check` (Structure)
-    *   `nix fmt` (Style)
-    *   Verify against `spec-kit-baseline/spec.md` acceptance criteria.
+    *   `nix fmt .` (Style)
+    *   Verify against the updated spec in the change delta.
 
-### C. Commit & Push
-1.  **Pre-Commit Hook:** Execute `nix fmt .` as mandated by the Constitution.
-2.  **Prepare:**
-    *   Run `git status` to verify tracked files.
-    *   Run `git diff HEAD` to review changes.
-3.  **Message:** Construct a Descriptive commit message following Conventional Commits (feat, fix, chore, refactor).
-4.  **Execution:**
-    *   Perform the commit.
-    *   Push changes to the remote repository (upstream).
+### C. Finalization
+1.  **Merge Specs**: Update the main `openspec/specs/` files with the versions from the change delta.
+2.  **Archive**: Move the change directory to `openspec/changes/archive/`.
+3.  **Commit**: Follow Conventional Commits (feat, fix, chore, refactor). Run `nix fmt .` before committing.
 
 ## 5. Tool Usage Guidelines
 
-- **File Editing:** Always use `replace` or `write_file`.
-- **Exploration:** Use `ls`, `cat`, `grep`, `glob`, `search_file_content`.
-- **Context:** Use `read_file` to read Spec files (`spec-kit-baseline/*`) whenever uncertain about a rule or pattern.
+- **File Editing**: Always use `replace` or `write_file`.
+- **Formatting**: Always run `nix fmt .` after editing `.nix` files.
+- **Context**: Read `openspec/AGENTS.md` for more detailed AI-specific guidance.
+

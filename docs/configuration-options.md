@@ -354,4 +354,4 @@ Any NixOS option can be set in `extraConfig` - the options listed in this docume
 
 - [Hardware Quirks Guide](hardware-quirks.md) - Vendor-specific hardware configuration
 - [Module Architecture](.claude/project.md) - How modules are structured
-- [Constitution](../spec-kit-baseline/constitution.md) - Design decisions and constraints
+- [Constitution](../openspec/project.md) - Design decisions and constraints
