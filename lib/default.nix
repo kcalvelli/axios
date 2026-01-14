@@ -426,10 +426,16 @@ let
   # Usage: mkSystem { hostConfig attrs }
   mkSystem =
     hostCfg:
+    let
+      # Merge framework inputs with user provided inputs. 
+      # User inputs take precedence (allowing overrides), but missing keys fall back to framework.
+      finalInputs = inputs // (hostCfg.inputs or {});
+    in
     inputs.nixpkgs.lib.nixosSystem {
       system = hostCfg.system or "x86_64-linux";
       specialArgs = {
-        inherit inputs self;
+        inputs = finalInputs; # Now contains BOTH sets
+        inherit self;
         inherit (self) nixosModules homeModules;
       };
       modules = buildModules hostCfg;
