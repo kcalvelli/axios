@@ -17,7 +17,6 @@ let
     "nimfmkdcckklbkhjjkmbjfcpaiifgamg" # Brave Talk
     "aomjjfmjlecjafonmbhlgochhaoplhmo" # 1Password
     "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
-    "bkhaagjahfmjljalopjnoealnfndnagc" # Octotree - GitHub code tree
     "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
   ];
 
