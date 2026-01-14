@@ -67,10 +67,6 @@ in
   imports = [ inputs.brave-browser-previews.nixosModules.default ];
 
   config = lib.mkIf config.desktop.enable {
-    # === Google Chrome Policy (System) ===
-    environment.etc."opt/chrome/policies/managed/axios.json".text = builtins.toJSON {
-      ExtensionInstallForceList = chromeExtensionIds;
-    };
 
     # === Brave Nightly Configuration (System) ===
     programs.brave-nightly = {
@@ -92,6 +88,7 @@ in
 
           programs.google-chrome = {
             enable = true;
+            extensions = map (id: { inherit id; }) chromeExtensionIds;
             commandLineArgs = chromeArgs;
           };
         }
