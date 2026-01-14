@@ -21,10 +21,6 @@ let
     "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
   ];
 
-  chromeExtensionIds = [
-    "ghbmnnjooekpmoecnnnilnnbdlolhkhi" # Google Docs Offline
-  ];
-
   # Base arguments for all configurations
   baseArgs = [
     "--password-store=detect"
@@ -88,7 +84,6 @@ in
 
           programs.google-chrome = {
             enable = true;
-            extensions = map (id: { inherit id; }) chromeExtensionIds;
             commandLineArgs = chromeArgs;
           };
         }
