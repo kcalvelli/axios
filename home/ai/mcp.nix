@@ -70,10 +70,10 @@ let
         command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
         args = [ "stdio" ];
         env = {
-          GITHUB_PERSONAL_ACCESS_TOKEN = "\${GITHUB_PERSONAL_ACCESS_TOKEN}";
+          GITHUB_TOKEN = "\${GITHUB_TOKEN}";
         };
         passwordCommand = {
-          GITHUB_PERSONAL_ACCESS_TOKEN = [
+          GITHUB_TOKEN = [
             (lib.getExe config.programs.gh.package)
             "auth"
             "token"
@@ -186,7 +186,7 @@ let
 in
 {
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
-    # MCP secrets (BRAVE_API_KEY, GITHUB_PERSONAL_ACCESS_TOKEN) should be set by users
+    # MCP secrets (BRAVE_API_KEY, GITHUB_TOKEN) should be set by users
     # in their own configuration using environment.sessionVariables
 
     # Shell aliases for AI tools

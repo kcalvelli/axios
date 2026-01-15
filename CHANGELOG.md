@@ -17,7 +17,7 @@ Major release with 329 commits over 33 days. Includes new PIM and C64 modules, e
   ```nix
   environment.sessionVariables = {
     BRAVE_API_KEY = "your-api-key";
-    GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_your-token";  # Optional, gh CLI handles this
+    GITHUB_TOKEN = "ghp_your-token";  # Optional, gh CLI handles this
   };
   ```
 

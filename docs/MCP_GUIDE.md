@@ -409,7 +409,7 @@ axios uses environment variables for MCP API keys:
 {
   environment.sessionVariables = {
     BRAVE_API_KEY = "your-api-key-here";
-    GITHUB_PERSONAL_ACCESS_TOKEN = "ghp_your_token";  # Optional, gh CLI handles this
+    GITHUB_TOKEN = "ghp_your_token";  # Optional, gh CLI handles this
   };
 }
 ```
@@ -454,7 +454,7 @@ For sensitive keys in production:
   ```bash
   gh auth login
   ```
-  - Alternatively, set `GITHUB_PERSONAL_ACCESS_TOKEN`
+  - Alternatively, set `GITHUB_TOKEN`
 
 ## Troubleshooting
 
@@ -475,7 +475,7 @@ For sensitive keys in production:
 **Solutions**:
 1. Run `gh auth login` to authenticate
 2. Verify authentication: `gh auth status`
-3. Alternatively, set `GITHUB_PERSONAL_ACCESS_TOKEN` environment variable
+3. Alternatively, set `GITHUB_TOKEN` environment variable
 
 ### Issue: MCP servers not appearing in Claude Code
 
