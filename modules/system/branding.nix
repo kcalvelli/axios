@@ -26,8 +26,9 @@
 
     # Override the LOGO field in /etc/os-release
     # DMS and other desktop components read this to display the OS logo
-    environment.etc."os-release".text = lib.mkAfter ''
-      LOGO=axios
+    # Note: mkAfter only appends; we need to replace the existing LOGO line
+    system.activationScripts.axiosBranding = lib.stringAfter [ "etc" ] ''
+      ${pkgs.gnused}/bin/sed -i 's/^LOGO=.*/LOGO=axios/' /etc/os-release
     '';
   };
 }
