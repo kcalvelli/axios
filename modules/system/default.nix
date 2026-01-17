@@ -14,6 +14,7 @@
 
   # Import necessary modules (must be at top level to register options)
   imports = [
+    ./branding.nix
     ./locale.nix
     ./nix.nix
     ./boot.nix

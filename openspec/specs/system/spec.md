@@ -30,6 +30,13 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 - **Options**: `axios.user.name`, `axios.user.fullName`, `axios.user.email`.
 - **Features**: Automatic group membership for normal users (networkmanager, wheel, systemd-journal).
 
+### System Branding
+- **Distribution Identity**: Configures system to identify as "axiOS" instead of generic "NixOS".
+- **Logo Integration**: Installs axiOS logo to system pixmaps directory for desktop environment usage.
+- **os-release Configuration**: Sets `LOGO=axios` in `/etc/os-release` for desktop shell integration (e.g., DMS launcher).
+- **Implementation**: `modules/system/branding.nix`
+- **Assets**: `modules/system/resources/branding/axios.png`
+
 ## Requirements
 - **UEFI Only**: System must support UEFI boot; legacy BIOS/MBR is not supported.
 - **Hardware Config**: Users must provide `hardwareConfigPath` (typically `/etc/nixos/hardware-configuration.nix`).
