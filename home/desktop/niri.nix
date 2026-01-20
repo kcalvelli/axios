@@ -48,26 +48,8 @@
           ];
         }
         #{command = ["qs" "-c" "DankMaterialShell"];}
-
-        # Kill any zombie ghostty singleton processes from previous sessions
-        # This prevents stale processes (from crashes/freezes) blocking new instances
-        # pkill returns non-zero if no match, but Niri ignores spawn exit codes
-        {
-          command = [
-            "${pkgs.procps}/bin/pkill"
-            "-9"
-            "-f"
-            "ghostty.*--gtk-single-instance"
-          ];
-        }
-        {
-          command = [
-            "$ghostty"
-            "--gtk-single-instance=true" # reuse one resident process
-            "--initial-window=false" # start with no window
-            "--quit-after-last-window-closed=false" # keep the process alive
-          ];
-        }
+        # Note: Ghostty is started via systemd user service (app-com.mitchellh.ghostty.service)
+        # configured in home/terminal/ghostty.nix with singleton mode for drop-down terminal support
         # Show keybinding guide on first login (helpful for new users)
         {
           command = [ "axios-help" ];

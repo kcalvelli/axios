@@ -36,12 +36,18 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 ## Session Lifecycle Management
 
 ### Ghostty Singleton Mode
-Ghostty is configured to run in singleton mode (`--gtk-single-instance=true`) for performance benefits:
+Ghostty is managed via **systemd user service** (`app-com.mitchellh.ghostty.service`) for proper lifecycle management:
+- **Startup**: Automatically starts on `graphical-session.target`
+- **Singleton mode**: `--gtk-single-instance=true` for instant window creation
+- **Resident process**: `--quit-after-last-window-closed=false` keeps process alive for drop-down terminal
+- **Zombie prevention**: Systemd handles cleanup on logout/crash (no manual pkill needed)
+
+Performance benefits:
 - **First launch**: Slow (~300ms-1s) due to GTK initialization overhead
 - **Subsequent windows**: Near-instant (~10-50ms) as they reuse the existing process
 - **Memory**: Shared process reduces memory usage with multiple terminals
 
-To prevent zombie processes from blocking new sessions after crashes or unclean logouts, a cleanup command runs at Niri startup to kill any stale Ghostty instances before starting fresh.
+**Implementation**: `home/terminal/ghostty.nix` (service override), NOT spawn-at-startup
 
 ### Known Upstream Stability Issues
 

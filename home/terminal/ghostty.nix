@@ -1,5 +1,6 @@
 {
   pkgs,
+  lib,
   config,
   ...
 }:
@@ -9,6 +10,14 @@
     package = pkgs.ghostty;
     enableFishIntegration = true;
     installVimSyntax = true;
+  };
+
+  # Override systemd service to keep ghostty resident for drop-down terminal
+  # Default service exits when all windows close, breaking Mod+` drop-down
+  systemd.user.services."app-com.mitchellh.ghostty" = {
+    Service = {
+      ExecStart = lib.mkForce "${pkgs.ghostty}/bin/ghostty --gtk-single-instance=true --initial-window=false --quit-after-last-window-closed=false";
+    };
   };
 
   # Generate ghostty config directly via xdg.configFile
