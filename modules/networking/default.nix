@@ -58,9 +58,7 @@ in
         enable = true;
         llmnr = "resolve";
         dnssec = "allow-downgrade";
-        extraConfig = ''
-          MulticastDNS=no
-        '';
+        settings.Resolve.MulticastDNS = "no";
       };
       openssh.enable = true;
     };
