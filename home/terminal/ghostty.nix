@@ -14,11 +14,12 @@
 
   # Override systemd service to keep ghostty resident for drop-down terminal
   # Default service exits when all windows close, breaking Mod+` drop-down
-  systemd.user.services."app-com.mitchellh.ghostty" = {
-    Service = {
-      ExecStart = lib.mkForce "${pkgs.ghostty}/bin/ghostty --gtk-single-instance=true --initial-window=false --quit-after-last-window-closed=false";
-    };
-  };
+  # Use drop-in override file to avoid conflict with ghostty module's service file
+  xdg.configFile."systemd/user/app-com.mitchellh.ghostty.service.d/axios-override.conf".text = ''
+    [Service]
+    ExecStart=
+    ExecStart=${pkgs.ghostty}/bin/ghostty --gtk-single-instance=true --initial-window=false --quit-after-last-window-closed=false
+  '';
 
   # Generate ghostty config directly via xdg.configFile
   # Note: dankcolors are loaded separately via config-file directive
