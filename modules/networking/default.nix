@@ -56,9 +56,11 @@ in
     services = {
       resolved = {
         enable = true;
-        llmnr = "resolve";
-        dnssec = "allow-downgrade";
-        settings.Resolve.MulticastDNS = "no";
+        settings.Resolve = {
+          LLMNR = "resolve";
+          DNSSEC = "allow-downgrade";
+          MulticastDNS = "no";
+        };
       };
       openssh.enable = true;
     };
