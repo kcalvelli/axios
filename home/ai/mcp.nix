@@ -289,6 +289,13 @@ in
         # mcp-cli technical reference (included in axios.md above)
         # Kept for standalone reference if needed
         ".config/ai/prompts/mcp-cli.md".source = ./prompts/mcp-cli-system-prompt.md;
+
+        # Global Claude Code slash commands for OpenSpec workflow
+        # These are user-level commands available across all projects
+        # Usage: /openspec-proposal, /openspec-apply, /openspec-archive
+        ".claude/commands/openspec/proposal.md".source = ./commands/openspec/proposal.md;
+        ".claude/commands/openspec/apply.md".source = ./commands/openspec/apply.md;
+        ".claude/commands/openspec/archive.md".source = ./commands/openspec/archive.md;
       };
 
     # Environment variable for Gemini CLI system prompt
