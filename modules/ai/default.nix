@@ -69,14 +69,15 @@ in
         models = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [
-            "qwen3-coder:30b"
-            "qwen3:14b"
-            "deepseek-coder-v2:16b"
-            "qwen3:4b"
+            "mistral:7b" # 4.4 GB - excellent quality/size ratio, general purpose
+            "nomic-embed-text" # 274 MB - for RAG/semantic search
           ];
           description = ''
             List of Ollama models to preload on first run.
             Models are pulled automatically when the service starts.
+
+            Users needing coding models can add them:
+              services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
           '';
         };
 
@@ -118,7 +119,7 @@ in
 
         keepAlive = lib.mkOption {
           type = lib.types.str;
-          default = "5m";
+          default = "1m";
           example = "0";
           description = ''
             Duration to keep models loaded in GPU memory after last request.
@@ -128,6 +129,7 @@ in
             Higher values improve response time but risk VRAM exhaustion during
             continuous operation (e.g., frequent axios-ai-mail queries).
 
+            Default is 1 minute to balance responsiveness with GPU memory pressure.
             Format: "5m" (minutes), "1h" (hours), "0" (immediate unload)
           '';
         };
@@ -209,6 +211,8 @@ in
           # Unload models after inactivity to prevent GPU memory exhaustion
           # Addresses: AMDGPU memory eviction warnings and system freezes
           OLLAMA_KEEP_ALIVE = cfg.local.keepAlive;
+          # Prevent concurrent model loads to reduce GPU queue pressure
+          OLLAMA_MAX_LOADED_MODELS = "1";
         };
         loadModels = cfg.local.models;
       };
