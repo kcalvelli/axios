@@ -116,6 +116,22 @@ in
           };
         };
 
+        keepAlive = lib.mkOption {
+          type = lib.types.str;
+          default = "5m";
+          example = "0";
+          description = ''
+            Duration to keep models loaded in GPU memory after last request.
+            Set to "0" to unload immediately after each request.
+
+            Lower values reduce GPU memory usage but increase model load latency.
+            Higher values improve response time but risk VRAM exhaustion during
+            continuous operation (e.g., frequent axios-ai-mail queries).
+
+            Format: "5m" (minutes), "1h" (hours), "0" (immediate unload)
+          '';
+        };
+
         cli = lib.mkEnableOption "OpenCode agentic CLI" // {
           default = true;
         };
@@ -190,6 +206,9 @@ in
         environmentVariables = {
           # 32K context window for agentic tool use
           OLLAMA_NUM_CTX = "32768";
+          # Unload models after inactivity to prevent GPU memory exhaustion
+          # Addresses: AMDGPU memory eviction warnings and system freezes
+          OLLAMA_KEEP_ALIVE = cfg.local.keepAlive;
         };
         loadModels = cfg.local.models;
       };
