@@ -625,6 +625,19 @@ environment.systemPackages = with pkgs; [
 
 ## Notes for AI Assistants
 
+### Git Workflow for axiOS
+
+**CRITICAL**: axiOS is a flake library consumed by downstream systems. When making changes:
+
+1. **Always push commits before asking the user to rebuild** - The user's system pulls from the remote repository, not your local changes. If you commit but don't push, they cannot rebuild with your changes.
+
+2. **Commit + Push workflow**:
+   ```bash
+   git add <files> && git commit -m "message" && git push
+   ```
+
+3. **Never say "rebuild your system" without first pushing** - Verify with `git status` that your branch is not ahead of origin.
+
 ### ⛔ CRITICAL: OpenSpec Consultation REQUIRED ⛔
 
 **ABSOLUTE REQUIREMENT - NO EXCEPTIONS:**
