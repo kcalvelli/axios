@@ -33,27 +33,38 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 - **Features**: Curated collection at `~/Pictures/Wallpapers`, blurred background effects, and Base16/Dank16 support for VSCode.
 - **Implementation**: `home/desktop/wallpaper.nix`, `home/desktop/theming.nix`
 
-## Session Lifecycle Management
+## ADDED Requirements
 
-### Ghostty Singleton Mode
-Ghostty is configured to run in singleton mode (`--gtk-single-instance=true`) for performance benefits:
-- **First launch**: Slow (~300ms-1s) due to GTK initialization overhead
-- **Subsequent windows**: Near-instant (~10-50ms) as they reuse the existing process
-- **Memory**: Shared process reduces memory usage with multiple terminals
+### Requirement: Ghostty Singleton Cleanup
 
-To prevent zombie processes from blocking new sessions after crashes or unclean logouts, a cleanup command runs at Niri startup to kill any stale Ghostty instances before starting fresh.
+Applications spawned at Niri startup with singleton/resident mode MUST have pre-startup cleanup to prevent zombie processes from blocking new sessions.
 
-### Known Upstream Stability Issues
+#### Scenario: Ghostty starts after unclean logout
 
-#### DMS/Quickshell SIGSEGV at Greeter
-- **Status**: Known issue, upstream dependency (quickshell)
-- **Impact**: Occasional greeter session crash before login
-- **Workaround**: Re-attempt login; usually succeeds on second try
+- **Given**: A previous Niri session crashed or the system froze before logout
+- **And**: A Ghostty process from the old session is still running (zombie state)
+- **When**: User logs in and Niri starts a new session
+- **Then**: The pre-startup cleanup command kills the stale Ghostty process
+- **And**: A new Ghostty instance starts successfully with `--gtk-single-instance=true`
 
-#### kded6 SIGABRT at Session Startup
-- **Status**: Known issue, upstream (KDE)
-- **Impact**: KDE services may not start properly on first login
-- **Workaround**: Services usually recover; manual restart via `kded6` if needed
+#### Scenario: Clean logout and re-login
+
+- **Given**: User logged out cleanly (Niri exited normally)
+- **And**: No stale Ghostty processes exist
+- **When**: User logs in again
+- **Then**: The pre-startup cleanup command completes (no-op if nothing to kill)
+- **And**: Ghostty starts normally
+
+### Requirement: Document Known Upstream Stability Issues
+
+Known stability issues caused by upstream dependencies MUST be documented in the spec to help users understand expected behavior.
+
+#### Scenario: User investigates DMS crash at login
+
+- **Given**: User experiences occasional DMS/Quickshell SIGSEGV at greeter startup
+- **When**: User consults the desktop spec documentation
+- **Then**: User finds the issue documented as a known upstream limitation
+- **And**: User finds the workaround (re-attempt login)
 
 ## Constraints
 - **Wayland Compatibility**: All desktop components must be Wayland-native.

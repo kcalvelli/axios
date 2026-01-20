@@ -33,9 +33,11 @@ Integrates advanced AI agents and local inference capabilities into the develope
 ### Local Inference Stack (Ollama)
 - **Acceleration**: ROCm for AMD GPUs (default gfx1030/10.3.0 override).
 - **Context Window**: Configured for 32K tokens (`OLLAMA_NUM_CTX`) to support agentic workflows.
+- **Memory Management**: Configurable `OLLAMA_KEEP_ALIVE` duration (default: 5 minutes) to automatically unload idle models and prevent GPU memory exhaustion.
 - **Reverse Proxy**: Optional Caddy integration (`services.ai.local.ollamaReverseProxy`) for secure remote access via Tailscale.
 - **Implementation**: `modules/ai/default.nix`
 
 ## Constraints
 - **Secrets**: API keys (e.g., `BRAVE_API_KEY`) MUST be set via environment variables, not `agenix`.
 - **GPU Recovery**: Optional AMD GPU hang recovery provided by the graphics module.
+- **GPU Memory**: Long-running inference workloads may cause VRAM exhaustion; `keepAlive` option mitigates this by unloading idle models.

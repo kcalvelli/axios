@@ -48,6 +48,18 @@
           ];
         }
         #{command = ["qs" "-c" "DankMaterialShell"];}
+
+        # Kill any zombie ghostty singleton processes from previous sessions
+        # This prevents stale processes (from crashes/freezes) blocking new instances
+        # pkill returns non-zero if no match, but Niri ignores spawn exit codes
+        {
+          command = [
+            "${pkgs.procps}/bin/pkill"
+            "-9"
+            "-f"
+            "ghostty.*--gtk-single-instance"
+          ];
+        }
         {
           command = [
             "$ghostty"
