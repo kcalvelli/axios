@@ -43,17 +43,24 @@ Integrates advanced AI agents and local inference capabilities into the develope
 
 ## ADDED Requirements
 
-### Requirement: GPU Discovery Timeout Mitigation
+### Requirement: GPU Discovery Timeout Awareness
 
-Ollama's GPU discovery process MUST be resilient to AMD GPU contention scenarios.
+Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configured by axiOS.
+
+#### Known Limitation
+
+- **Memory refresh timeout**: 3 seconds (hardcoded in Ollama)
+- **Bootstrap timeout**: 30 seconds (hardcoded in Ollama)
+- **No env var exists**: `OLLAMA_GPU_DISCOVERY_TIMEOUT` is not supported
+- **Upstream PR**: #13186 (open) would extend to 10s when `HSA_OVERRIDE_GFX_VERSION` is set
 
 #### Scenario: GPU discovery during desktop activity
 
 - **Given**: User is running a Wayland desktop with GPU-accelerated compositor
-- **And**: Ollama attempts to discover GPU memory availability
-- **When**: ROCm runtime queries take longer than expected due to GPU load
-- **Then**: Ollama SHOULD use extended timeout or retry logic
-- **And**: System SHOULD NOT fall back to stale memory values without warning
+- **And**: Ollama attempts to refresh GPU memory availability (3-second timeout)
+- **When**: ROCm runtime queries take longer than 3 seconds due to GPU load
+- **Then**: Ollama logs "failed to finish discovery before timeout"
+- **And**: Ollama falls back to stale memory values (may cause oversubscription)
 
 #### Scenario: Clean session startup after ollama usage
 
@@ -77,10 +84,10 @@ Ollama MUST reserve memory headroom for desktop GPU usage.
 
 ## Constraints
 - **Secrets**: API keys (e.g., `BRAVE_API_KEY`) MUST be set via environment variables, not `agenix`.
-- **GPU Recovery**: Optional AMD GPU hang recovery provided by the graphics module.
+- **GPU Recovery**: AMD GPU hang recovery enabled by default via graphics module; prevents hard freezes from GPU hangs.
 - **GPU Memory**: Long-running inference workloads may cause VRAM exhaustion; `keepAlive` option mitigates this by unloading idle models.
 - **Model Size**: Models larger than available VRAM trigger CPU offload, causing ROCm queue evictions and degraded performance.
-- **GPU Discovery**: ROCm GPU discovery may timeout under load; axiOS configures extended timeouts to prevent stale memory fallback.
+- **GPU Discovery**: ROCm GPU discovery has a hardcoded 3-second timeout in Ollama; this cannot be configured and may cause stale memory fallback under load.
 
 ## Model Size Guidance
 
@@ -102,12 +109,17 @@ services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
 
 ### Symptoms: "failure during GPU discovery" / "failed to finish discovery before timeout"
 
-**Cause**: ROCm runtime queries timing out under GPU load.
+**Cause**: ROCm runtime queries exceeding Ollama's hardcoded 3-second timeout.
 
-**Mitigations**:
+**Root Cause**: Ollama's GPU memory refresh timeout is hardcoded at 3 seconds and cannot be configured. Under GPU load (compositor, other apps), ROCm queries may take longer.
+
+**Mitigations** (workarounds, not fixes):
 1. Reduce concurrent GPU workloads during ollama inference
 2. Use smaller models that fit comfortably in VRAM with headroom
-3. Enable `services.ai.local.gpuMemoryReserve` to prevent oversubscription
+3. Avoid `keep_alive: 0` patterns that cause frequent model load/unload cycles
+4. Accept that discovery timeouts will occur under load; Ollama will use stale values
+
+**Note**: With GPU recovery enabled (default for AMD), discovery timeout issues won't cause hard freezes—worst case is suboptimal model scheduling.
 
 ### Symptoms: "queue evicted" kernel warnings
 

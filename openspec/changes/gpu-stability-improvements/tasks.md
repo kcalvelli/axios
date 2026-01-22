@@ -16,10 +16,15 @@ Address GPU stability issues causing hard freezes and application crashes on AMD
 
 ### Phase 2: GPU Discovery Timeout Mitigation
 
-- [ ] Research if Ollama supports `OLLAMA_GPU_DISCOVERY_TIMEOUT` or similar environment variable
-- [ ] If supported: Add option `services.ai.local.gpuDiscoveryTimeout` (default: 10000ms)
-- [ ] If not supported: Document the limitation and workaround (reduce concurrent GPU usage)
-- [ ] Update `modules/ai/default.nix` with new environment variable if applicable
+- [x] Research if Ollama supports `OLLAMA_GPU_DISCOVERY_TIMEOUT` or similar environment variable
+  - **Finding**: No such env var exists. Timeouts are hardcoded:
+    - Bootstrap discovery: 30 seconds (hardcoded)
+    - Memory refresh: 3 seconds (hardcoded) ← causes "failed to finish discovery before timeout"
+    - Model load: 5 minutes (`OLLAMA_LOAD_TIMEOUT`, configurable but unrelated)
+  - **Upstream**: PR #13186 (open, not merged) would extend to 10s when `HSA_OVERRIDE_GFX_VERSION` is set
+- [x] If not supported: Document the limitation
+  - Limitation documented below; no axios-side fix possible
+- [ ] Consider upstream contribution to add `OLLAMA_GPU_DISCOVERY_TIMEOUT` (optional, future work)
 
 ### Phase 3: GPU Memory Headroom (Deferred)
 
