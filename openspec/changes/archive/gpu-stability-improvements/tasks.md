@@ -35,10 +35,10 @@ Address GPU stability issues causing hard freezes and application crashes on AMD
 
 ### Phase 4: Documentation & Spec Updates
 
-- [ ] Update `openspec/specs/ai/spec.md` with GPU troubleshooting section
-- [ ] Update `openspec/specs/desktop/spec.md` with GPU correlation notes
-- [ ] Update `openspec/specs/graphics/spec.md` with recovery recommendation for AI workloads
-- [ ] Add entry to `openspec/discovery/unknowns.md` for deferred GPU watchdog
+- [x] Update `openspec/specs/ai/spec.md` with GPU troubleshooting section
+- [x] Update `openspec/specs/desktop/spec.md` with GPU correlation notes
+- [x] Update `openspec/specs/graphics/spec.md` with recovery recommendation for AI workloads
+- [x] Specs merged from delta to main
 
 ### Phase 5: Validation
 

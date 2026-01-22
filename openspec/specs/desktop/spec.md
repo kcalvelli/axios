@@ -55,13 +55,49 @@ Performance benefits:
 - **Status**: Known issue, upstream dependency (quickshell)
 - **Impact**: Occasional greeter session crash before login
 - **Workaround**: Re-attempt login; usually succeeds on second try
+- **Contributing factors**: May be exacerbated by GPU memory pressure from previous ollama sessions (see GPU Correlation below)
 
 #### kded6 SIGABRT at Session Startup
 - **Status**: Known issue, upstream (KDE)
 - **Impact**: KDE services may not start properly on first login
 - **Workaround**: Services usually recover; manual restart via `kded6` if needed
 
+## Requirements
+
+### Requirement: GPU Resource Correlation Awareness
+
+Desktop session stability correlates with GPU memory state; axiOS documents this relationship to aid troubleshooting.
+
+#### Scenario: Login after heavy ollama usage
+
+- **Given**: User ran large model inference before logout
+- **And**: ROCm had queue evictions during the session
+- **When**: User logs back in and greeter starts quickshell
+- **Then**: quickshell MAY have increased crash probability
+- **And**: User SHOULD know to check AI spec's GPU troubleshooting section
+
+#### Scenario: Stable session startup
+
+- **Given**: Ollama models were unloaded before logout (via keepAlive timeout or manual unload)
+- **And**: No queue evictions occurred in previous session
+- **When**: User logs in
+- **Then**: Greeter SHOULD start normally with low crash probability
+
 ## Constraints
 - **Wayland Compatibility**: All desktop components must be Wayland-native.
 - **Spawn Order**: DMS must spawn after `dbus-update-activation-environment` to ensure session variables are available.
 - **Singleton Cleanup**: Singleton applications in `spawn-at-startup` must have pre-startup cleanup commands.
+- **GPU Resource Sharing**: Desktop GPU usage must coexist with AI inference; see AI spec for memory reservation guidance.
+
+## Troubleshooting
+
+### Frequent Quickshell Crashes at Login
+
+If DMS/Quickshell crashes frequently at greeter startup:
+
+1. **Check if ollama was running heavy workloads**: `journalctl -u ollama --since "1 hour ago" | grep -E "evict|timeout|discovery"`
+2. **Unload ollama models before logout**: `curl -X DELETE http://localhost:11434/api/generate` or wait for keepAlive timeout
+3. **Reduce ollama context window**: Lower `OLLAMA_NUM_CTX` reduces VRAM footprint
+4. **Use smaller models**: See AI spec model size guidance
+
+If crashes persist without ollama correlation, this is the known upstream quickshell issue.
