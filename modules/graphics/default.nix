@@ -50,12 +50,17 @@ in
       '';
     };
 
-    enableGPURecovery = lib.mkEnableOption ''
-      automatic GPU hang recovery (AMD GPUs only).
-      Adds kernel parameter amdgpu.gpu_recovery=1.
-      Only enable if experiencing GPU hangs or stability issues.
-      This option only works when gpuType is "amd"
-    '';
+    enableGPURecovery = lib.mkOption {
+      type = lib.types.bool;
+      default = isAmd;
+      description = ''
+        Enable automatic GPU hang recovery (AMD GPUs only).
+        Adds kernel parameters amdgpu.gpu_recovery=1 and amdgpu.lockup_timeout=5000.
+        This allows the kernel to reset the GPU on hang instead of freezing the system.
+        Enabled by default for AMD GPUs. Disable only if experiencing issues with GPU resets.
+        This option only works when gpuType is "amd".
+      '';
+    };
   };
 
   config = {
@@ -149,7 +154,8 @@ in
     # === Kernel Parameters ===
     boot.kernelParams =
       lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
-        "amdgpu.gpu_recovery=1"
+        "amdgpu.gpu_recovery=1" # Enable GPU reset on hang
+        "amdgpu.lockup_timeout=5000" # Detect GPU hangs within 5 seconds
       ]
       ++ lib.optionals isNvidia [
         "nvidia_drm.modeset=1" # Enable modesetting (required for Wayland)
