@@ -333,6 +333,9 @@ in
       environment.systemPackages =
         with pkgs;
         [
+          # Ollama CLI (uses OLLAMA_HOST for remote server)
+          ollama
+
           # MCP server runtimes
           python3
           uv # Python package manager for uvx
