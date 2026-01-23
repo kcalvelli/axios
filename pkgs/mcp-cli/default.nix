@@ -22,7 +22,10 @@ let
     pname = "mcp-cli-node-modules";
     inherit version src;
 
-    nativeBuildInputs = [ bun cacert ];
+    nativeBuildInputs = [
+      bun
+      cacert
+    ];
 
     # This is a fixed-output derivation - it has network access
     # but must produce the same output given the same inputs
@@ -92,7 +95,10 @@ stdenv.mkDerivation {
     changelog = "https://github.com/philschmid/mcp-cli/blob/v${version}/CHANGELOG.md";
     license = licenses.mit;
     maintainers = [ ];
-    platforms = [ "x86_64-linux" "aarch64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+    ];
     mainProgram = "mcp-cli";
   };
 }
