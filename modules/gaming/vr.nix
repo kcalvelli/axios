@@ -88,8 +88,7 @@ in
     # VR overlay applications
     (lib.mkIf (cfg.enable && cfg.overlays) {
       environment.systemPackages = with pkgs; [
-        wlx-overlay-s # VR overlay for Wayland
-        wayvr-dashboard # Wayland VR dashboard
+        wayvr
       ];
     })
   ];
