@@ -9,8 +9,7 @@
 let
   # Get webui config from NixOS system config
   webuiCfg = osConfig.services.ai.webui or { };
-  aiEnabled = osConfig.services.ai.enable or false;
-  isEnabled = aiEnabled && (webuiCfg.enable or false);
+  isEnabled = webuiCfg.enable or false;
   isServer = (webuiCfg.role or "server") == "server";
   isClient = (webuiCfg.role or "server") == "client";
 
