@@ -133,3 +133,10 @@ services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
 1. Ensure `OLLAMA_MAX_LOADED_MODELS=1` (default in axiOS)
 2. Avoid models that require CPU offload
 3. Check `amd_smi` or `rocm-smi` for VRAM usage before loading large models
+
+## References
+
+- **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
+  - Ollama API: Local 11434, Tailscale 8447
+- **PIM Module**: See `openspec/specs/pim/spec.md` for axios-ai-mail (uses Ollama for AI classification)
+- **Crash Diagnostics**: See `openspec/specs/hardware/crash-diagnostics.md` for GPU hang recovery

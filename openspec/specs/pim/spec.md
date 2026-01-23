@@ -413,3 +413,11 @@ journalctl --user -u axios-ai-mail-sync
 1. `pim.pwa.enable = true` in config
 2. `pim.pwa.tailnetDomain` is set
 3. Run `update-desktop-database` or logout/login
+
+## References
+
+- **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
+  - Local port: 8080 (default)
+  - Tailscale port: 8443 (default)
+- **AI Module**: See `openspec/specs/ai/spec.md` for Ollama configuration
+- **Upstream**: [axios-ai-mail repository](https://github.com/kcalvelli/axios-ai-mail)
