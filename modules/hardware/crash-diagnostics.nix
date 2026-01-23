@@ -88,10 +88,10 @@ in
 
     # Hardware watchdog via systemd
     # This provides last-resort recovery from hard freezes that bypass software detection
-    systemd.extraConfig = lib.mkIf cfg.enableHardwareWatchdog ''
-      RuntimeWatchdogSec=${toString cfg.runtimeWatchdogSec}
-      RebootWatchdogSec=60
-      KExecWatchdogSec=60
-    '';
+    systemd.settings.Manager = lib.mkIf cfg.enableHardwareWatchdog {
+      RuntimeWatchdogSec = cfg.runtimeWatchdogSec;
+      RebootWatchdogSec = 60;
+      KExecWatchdogSec = 60;
+    };
   };
 }
