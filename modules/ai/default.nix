@@ -13,6 +13,10 @@ let
 
 in
 {
+  imports = [
+    ./webui.nix
+  ];
+
   options = {
     services.ai = {
       enable = lib.mkEnableOption "AI tools and services (claude-code, gemini-cli)";
