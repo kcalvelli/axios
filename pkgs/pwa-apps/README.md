@@ -74,8 +74,13 @@ Brave generates app-ids based on URLs:
 
 The transformation:
 1. Remove `https://` or `http://`
-2. Replace `/` with `__` (double underscore)
-3. Prefix with `brave-` and suffix with `-Default`
+2. Strip port number if present (`:8443` is removed)
+3. Replace `/` with `__` (double underscore)
+4. Prefix with `brave-` and suffix with `-Default`
+
+**Port handling example:**
+- URL: `https://myserver.example.com:8443/`
+- App-ID: `brave-myserver.example.com__-Default` (port stripped)
 
 This pattern is used in:
 - Desktop entry `StartupWMClass` hint

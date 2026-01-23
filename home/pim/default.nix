@@ -24,13 +24,15 @@ let
   pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
   # Generate Brave app-id for StartupWMClass
-  # Brave uses a hash of the URL for the app window class
+  # Brave uses a specific format: brave-{domain}__-Default (port is stripped)
   urlToAppId =
     url:
     let
       withoutProtocol = lib.removePrefix "https://" url;
       parts = lib.splitString "/" withoutProtocol;
-      domain = lib.head parts;
+      domainWithPort = lib.head parts;
+      # Strip port number if present (e.g., "host:8443" -> "host")
+      domain = lib.head (lib.splitString ":" domainWithPort);
     in
     "brave-${domain}__-Default";
 in

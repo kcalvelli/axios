@@ -17,13 +17,16 @@ let
   # Helper to convert URL to Brave's app-id format for WM_CLASS matching
   # Brave's format: brave-{domain}{path}-Default
   # Path conversion: first slash → __, subsequent slashes → _
+  # Note: Port numbers are stripped from the domain
   urlToAppId =
     url:
     let
       withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
       # Split into domain and path at first slash
       parts = lib.splitString "/" withoutProtocol;
-      domain = lib.head parts;
+      domainWithPort = lib.head parts;
+      # Strip port number if present (e.g., "host:8443" -> "host")
+      domain = lib.head (lib.splitString ":" domainWithPort);
       pathParts = lib.tail parts;
       # Join path parts: first slash (after domain) → __, rest → _
       path = if pathParts == [ ] then "" else "__" + (lib.concatStringsSep "_" pathParts);
