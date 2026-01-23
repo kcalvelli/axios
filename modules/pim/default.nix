@@ -1,88 +1,166 @@
+# PIM Module: axios-ai-mail integration
+# Provides AI-powered email management with server/client role support
 {
+  config,
   lib,
   pkgs,
-  config,
+  inputs,
   ...
 }:
 let
   cfg = config.pim;
+  isServer = cfg.role == "server";
 in
 {
-  options.pim = {
-    enable = lib.mkEnableOption "Personal Information Management (email, calendar, contacts)";
+  # Import axios-ai-mail NixOS module (provides services.axios-ai-mail options)
+  # This is always imported; the service is only enabled for server role
+  imports = [ inputs.axios-ai-mail.nixosModules.default ];
 
-    emailClient = lib.mkOption {
+  options.pim = {
+    enable = lib.mkEnableOption "Personal Information Management (axios-ai-mail)";
+
+    role = lib.mkOption {
       type = lib.types.enum [
-        "geary"
-        "evolution"
-        "both"
+        "server"
+        "client"
       ];
-      default = "geary";
+      default = "server";
       description = ''
-        Email client to install:
-        - geary: Modern, lightweight email client
-        - evolution: Full-featured email client with better Exchange/EWS support
-        - both: Install both clients
+        PIM deployment role:
+        - "server": Run axios-ai-mail backend service (requires AI module)
+        - "client": PWA desktop entry only (connects to server on tailnet)
       '';
+    };
+
+    # Server-only options
+    port = lib.mkOption {
+      type = lib.types.port;
+      default = 8080;
+      description = "Port for axios-ai-mail web UI (server role only)";
+    };
+
+    user = lib.mkOption {
+      type = lib.types.str;
+      default = "";
+      description = "User to run axios-ai-mail service as (server role only)";
+    };
+
+    tailscaleServe = {
+      enable = lib.mkEnableOption "Expose axios-ai-mail via Tailscale HTTPS (server role only)";
+      httpsPort = lib.mkOption {
+        type = lib.types.port;
+        default = 8443;
+        description = "HTTPS port for Tailscale serve";
+      };
+    };
+
+    sync = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable background sync service (server role only)";
+      };
+      frequency = lib.mkOption {
+        type = lib.types.str;
+        default = "5m";
+        description = "Sync frequency (systemd timer format)";
+      };
+    };
+
+    # PWA options (both roles)
+    pwa = {
+      enable = lib.mkEnableOption "Generate axios-ai-mail PWA desktop entry";
+      serverHost = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "edge";
+        description = ''
+          Hostname of axios-ai-mail server on tailnet.
+          - null: Use local hostname (for server role)
+          - "edge": Connect to edge.tailnet.ts.net (for client role)
+        '';
+      };
+      tailnetDomain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "taile0fb4.ts.net";
+        description = "Tailscale tailnet domain for PWA URL generation";
+      };
+      httpsPort = lib.mkOption {
+        type = lib.types.port;
+        default = 8443;
+        description = "HTTPS port of the axios-ai-mail server";
+      };
     };
   };
 
   config = lib.mkIf cfg.enable {
-    # === Package Overrides ===
-    nixpkgs.overlays = [
-      (final: prev: {
-        # Fix Geary desktop file to match App ID reported by the application
-        # Geary reports "geary" as App ID but desktop file is "org.gnome.Geary.desktop"
-        # Adding StartupWMClass tells the compositor to match them
-        geary = prev.geary.overrideAttrs (oldAttrs: {
-          postInstall = (oldAttrs.postInstall or "") + ''
-            # Add StartupWMClass to match the App ID
-            substituteInPlace $out/share/applications/org.gnome.Geary.desktop \
-              --replace-fail '[Desktop Entry]' '[Desktop Entry]
-            StartupWMClass=geary'
-          '';
-        });
-      })
+    assertions = [
+      {
+        assertion = !cfg.pwa.enable || cfg.pwa.tailnetDomain != null;
+        message = ''
+          pim.pwa.enable requires pim.pwa.tailnetDomain to be set.
+
+          Example:
+            pim.pwa.tailnetDomain = "taile0fb4.ts.net";
+        '';
+      }
+      {
+        assertion = cfg.role != "client" || cfg.pwa.serverHost != null;
+        message = ''
+          pim.role = "client" requires pim.pwa.serverHost to be set.
+
+          Example:
+            pim.pwa.serverHost = "edge";  # hostname of your PIM server
+        '';
+      }
+      {
+        assertion = !isServer || cfg.user != "";
+        message = ''
+          pim.role = "server" requires pim.user to be set.
+
+          Example:
+            pim.user = "keith";
+        '';
+      }
+      {
+        assertion = !isServer || config.services.ai.enable;
+        message = ''
+          axiOS configuration error: PIM server role requires AI module.
+
+          You have:
+            modules.pim = true
+            pim.role = "server"
+            modules.ai = false (or services.ai.enable = false)
+
+          axios-ai-mail server requires Ollama for email classification.
+
+          Fix by either:
+            modules.ai = true;  # Enable AI module (default)
+          Or:
+            pim.role = "client";  # Use client role (PWA only, no AI needed)
+        '';
+      }
     ];
 
-    # === PIM Packages ===
-    environment.systemPackages =
-      with pkgs;
-      [
-        # Account Management
-        gnome-online-accounts-gtk # GTK UI for account configuration (D-Bus backend)
+    # Server role: import axios-ai-mail overlay and configure service
+    nixpkgs.overlays = lib.mkIf isServer [ inputs.axios-ai-mail.overlays.default ];
 
-        # Calendar & Contacts
-        gnome-calendar # Calendar app with online account sync
-        gnome-contacts # Contact management app with online account sync
-
-        # Email Support
-        evolution-ews # Exchange Web Services support for Evolution/GNOME
-
-        # Calendar/Contact Sync Tool
-        vdirsyncer # CLI tool for syncing calendars and contacts
-
-        # Email Clients (conditional)
-      ]
-      ++ lib.optionals (cfg.emailClient == "geary" || cfg.emailClient == "both") [
-        geary # Modern, simpler email client
-      ]
-      ++ lib.optionals (cfg.emailClient == "evolution" || cfg.emailClient == "both") [
-        # Evolution is enabled via programs.evolution below
-      ];
-
-    # === PIM Programs ===
-    programs = {
-      evolution.enable = (cfg.emailClient == "evolution" || cfg.emailClient == "both");
-    };
-
-    # === PIM Services ===
-    services = {
-      gnome = {
-        evolution-data-server.enable = true; # Calendar/contacts data backend
-        gnome-online-accounts.enable = true; # Account management backend
+    services.axios-ai-mail = lib.mkIf isServer {
+      enable = true;
+      port = cfg.port;
+      user = cfg.user;
+      tailscaleServe = {
+        enable = cfg.tailscaleServe.enable;
+        httpsPort = cfg.tailscaleServe.httpsPort;
       };
-      geoclue2.enable = true; # Location services for weather in gnome-calendar
+      sync = {
+        enable = cfg.sync.enable;
+        frequency = cfg.sync.frequency;
+      };
     };
+
+    # Keep vdirsyncer for calendar sync (both roles)
+    environment.systemPackages = [ pkgs.vdirsyncer ];
   };
 }

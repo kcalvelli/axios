@@ -138,6 +138,12 @@
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # AI-powered email management
+    axios-ai-mail = {
+      url = "github:kcalvelli/axios-ai-mail";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {

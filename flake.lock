@@ -44,6 +44,26 @@
         "type": "github"
       }
     },
+    "axios-ai-mail": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769032495,
+        "narHash": "sha256-wfY9Y/1R63mKqZE2BhI/+e0Gvu+N5j6GNCF69kzR+Ys=",
+        "owner": "kcalvelli",
+        "repo": "axios-ai-mail",
+        "rev": "2dab13645f8d439dc84a112b05f664432f425800",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kcalvelli",
+        "repo": "axios-ai-mail",
+        "type": "github"
+      }
+    },
     "axios-monitor": {
       "inputs": {
         "nixpkgs": [
@@ -772,6 +792,7 @@
       "inputs": {
         "agenix": "agenix",
         "antigravity-nix": "antigravity-nix",
+        "axios-ai-mail": "axios-ai-mail",
         "axios-monitor": "axios-monitor",
         "brave-browser-previews": "brave-browser-previews",
         "c64-stream-viewer": "c64-stream-viewer",

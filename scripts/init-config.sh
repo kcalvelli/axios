@@ -224,8 +224,9 @@ else
 fi
 
 ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
-ENABLE_PIM=$(prompt_bool "Enable PIM (email, calendar, contacts)?" "n")
-ENABLE_AI=$(prompt_bool "Enable AI services (Claude CLI, Github Copilot, MCP servers)?" "n")
+ENABLE_PIM=$(prompt_bool "Enable PIM (axios-ai-mail email management)?" "n")
+# AI module now defaults to true - no longer prompted
+ENABLE_AI="true"
 ENABLE_SECRETS=$(prompt_bool "Enable secrets management (age-encrypted secrets)?" "n")
 ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
 
@@ -272,7 +273,6 @@ echo "  CPU: $CPU, GPU: $GPU"
 echo "  SSD: $HAS_SSD"
 echo "  Gaming: $ENABLE_GAMING"
 echo "  PIM: $ENABLE_PIM"
-echo "  AI Services: $ENABLE_AI"
 echo "  Secrets: $ENABLE_SECRETS"
 echo "  Virtualization: $ENABLE_VIRT"
 if [ "$ENABLE_VIRT" = "true" ]; then

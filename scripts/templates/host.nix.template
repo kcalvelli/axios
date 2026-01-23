@@ -16,6 +16,7 @@
     };
     
     # NixOS modules to enable
+    # Note: ai module defaults to true and is not listed here
     modules = {
       system = true;
       desktop = true;
@@ -26,7 +27,6 @@
       virt = {{ENABLE_VIRT}};
       gaming = {{ENABLE_GAMING}};
       pim = {{ENABLE_PIM}};
-      ai = {{ENABLE_AI}};
       secrets = {{ENABLE_SECRETS}};
     };
     

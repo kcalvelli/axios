@@ -18,11 +18,25 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 - **Implementation**: `home/desktop/default.nix`, `home/desktop/theming.nix`, `home/desktop/niri.nix`
 
 ### Personal Information Management (PIM)
-- **Clients**: Geary (Email), GNOME Calendar, GNOME Contacts, Evolution (Backend).
-- **Backend**: Evolution Data Server (EDS) services for lightweight PIM without full GNOME.
-- **Sync**: `vdirsyncer` support for CalDAV/CardDAV.
-- **Limitation**: Office365/Outlook integration is currently non-functional.
-- **Implementation**: `modules/pim/default.nix`
+
+**Email**: axios-ai-mail - AI-powered email management with local LLM classification.
+- Multi-account support (Gmail OAuth, IMAP/SMTP)
+- Privacy-first local processing via Ollama
+- Modern web UI with PWA support
+- Tailscale integration for cross-device access
+
+**Calendar**: vdirsyncer + khal + PWA apps
+- Automated CalDAV sync via systemd timers
+- khal CLI for DMS calendar widget integration
+- PWA apps for graphical interface (user's choice)
+
+**Contacts**: Cloud provider UIs or PWA apps
+- Future: axios-ai-mail contacts module (planned)
+
+**Implementation**:
+- `modules/pim/default.nix` (system services)
+- `home/pim/default.nix` (user configuration)
+- See `openspec/specs/pim/spec.md` for full documentation
 
 ### Application Management
 - **PWA support**: Dedicated builder for Progressive Web Apps.

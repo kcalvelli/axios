@@ -261,7 +261,7 @@ let
         ++ lib.optional (hostCfg.modules.users or true) users
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
-        ++ lib.optional (hostCfg.modules.ai or false) ai
+        ++ lib.optional (hostCfg.modules.ai or true) ai
         ++ lib.optional (hostCfg.modules.secrets or false) secrets
         ++ lib.optional (hostCfg.modules.c64 or false) c64;
 
@@ -326,8 +326,8 @@ let
             (lib.optionalAttrs ((hostCfg.modules.virt or false) && (hostCfg ? virt)) {
               virt = hostCfg.virt;
             })
-            # Enable AI module if specified
-            (lib.optionalAttrs (hostCfg.modules.ai or false) {
+            # Enable AI module if specified (now defaults to true)
+            (lib.optionalAttrs (hostCfg.modules.ai or true) {
               services.ai.enable = true;
             })
             # Enable desktop module if specified
@@ -388,7 +388,8 @@ let
                     [ ]
                 )
                 ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
-                ++ lib.optional (hostCfg.modules.ai or false) self.homeModules.ai;
+                ++ lib.optional (hostCfg.modules.ai or true) self.homeModules.ai
+                ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim;
             };
           }
           dynamicConfig
