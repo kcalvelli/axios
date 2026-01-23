@@ -32,8 +32,10 @@ let
   pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
   # Unique window class for this PWA
-  # Using --class flag to override Brave's default domain-based class
+  # --class only works when combined with --user-data-dir (Chromium bug #118613)
+  # Each PWA gets its own profile to enable unique window class
   wmClass = "axios-ai-chat";
+  pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/chat";
 
   pwaEnabled = webuiCfg.pwa.enable or false;
 in
@@ -43,7 +45,7 @@ in
     xdg.desktopEntries.axios-ai-chat = {
       name = "Axios AI Chat";
       comment = "AI chat interface powered by local LLMs";
-      exec = "${lib.getExe pkgs.brave} --class=${wmClass} --app=${pwaUrl}";
+      exec = "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass} --app=${pwaUrl}";
       icon = "axios-ai-chat";
       terminal = false;
       categories = [

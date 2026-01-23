@@ -24,8 +24,10 @@ let
   pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
   # Unique window class for this PWA
-  # Using --class flag to override Brave's default domain-based class
+  # --class only works when combined with --user-data-dir (Chromium bug #118613)
+  # Each PWA gets its own profile to enable unique window class
   wmClass = "axios-ai-mail";
+  pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/mail";
 in
 {
   # Import axios-ai-mail home module for server role (provides account config options)
@@ -38,7 +40,7 @@ in
     xdg.desktopEntries.axios-ai-mail = lib.mkIf (pimCfg.pwa.enable or false) {
       name = "Axios AI Mail";
       comment = "AI-powered email management";
-      exec = "${lib.getExe pkgs.brave} --class=${wmClass} --app=${pwaUrl}";
+      exec = "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass} --app=${pwaUrl}";
       icon = "axios-ai-mail";
       terminal = false;
       categories = [
