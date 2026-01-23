@@ -293,11 +293,16 @@ virt = {
 
 #### Local LLM Configuration
 
-**Enable local LLM stack:**
+The local LLM stack supports **server/client roles** for distributed inference across your tailnet.
+
+**Server Role (default):**
+
+Run Ollama locally with GPU acceleration:
 
 ```nix
 services.ai.local = {
-  enable = true;  # Enables Ollama + OpenCode
+  enable = true;
+  role = "server";  # Default - runs Ollama locally with GPU
 
   # Model management
   models = [
@@ -313,15 +318,40 @@ services.ai.local = {
   # Optional components
   cli = true;  # OpenCode (default: true)
 
-  # Optional: Caddy reverse proxy for remote access
-  ollamaReverseProxy = {
+  # Expose Ollama API via Tailscale HTTPS (recommended)
+  tailscaleServe = {
     enable = true;
-    path = "/ollama";  # Access via https://[hostname].[domain]/ollama
+    httpsPort = 8447;  # Default port
   };
 };
 ```
 
-**Features:**
+**Client Role:**
+
+Connect to a remote Ollama server (no local GPU required):
+
+```nix
+services.ai.local = {
+  enable = true;
+  role = "client";  # Use remote Ollama server
+
+  # Required: Specify your Ollama server
+  serverHost = "edge";           # Hostname on tailnet (e.g., "edge" for edge.taile0fb4.ts.net)
+  tailnetDomain = "taile0fb4.ts.net";  # Your tailnet domain
+  serverPort = 8447;             # Default port (matches server's tailscaleServe.httpsPort)
+
+  # Optional components
+  cli = true;  # OpenCode still works, connects to remote Ollama
+};
+```
+
+**Benefits of Server/Client Architecture:**
+- 🖥️ **Powerful desktop** runs inference with GPU acceleration
+- 💻 **Lightweight laptops** get AI capabilities without GPU stack
+- 🔒 **Secure** over Tailscale VPN (end-to-end encrypted)
+- 📦 **Lighter footprint** on clients (no ROCm, no amdgpu kernel module)
+
+**Features (Server Role):**
 - **32K context window** for agentic tool use
 - **Automatic model preloading** on service start
 - **ROCm acceleration** with automatic gfx1031 override for older AMD GPUs
@@ -331,19 +361,30 @@ services.ai.local = {
 **Usage:**
 
 ```bash
-# Ollama CLI
+# Ollama CLI (server or client)
 ollama run qwen3-coder:30b "Write a function to..."
 
-# OpenCode CLI
+# OpenCode CLI (works with both roles)
 opencode "implement feature X with tests"
 ```
 
 **Remote Access:**
 
-When `ollamaReverseProxy.enable = true`:
-- Access Ollama via HTTPS: `https://[hostname].[tailscale-domain]/ollama`
-- Uses existing Tailscale domain for automatic certificates
-- Compatible with other Caddy routes (path-based routing)
+When `tailscaleServe.enable = true` (server role):
+- Access Ollama via HTTPS: `https://[hostname].[tailscale-domain]:8447`
+- Uses Tailscale certificates (automatic)
+- Other machines on tailnet can connect by setting `role = "client"`
+
+**Legacy (Deprecated):**
+
+The `ollamaReverseProxy` option is deprecated in favor of `tailscaleServe`. If you're using it:
+```nix
+# Old (deprecated)
+services.ai.local.ollamaReverseProxy.enable = true;
+
+# New (recommended)
+services.ai.local.tailscaleServe.enable = true;
+```
 
 ---
 

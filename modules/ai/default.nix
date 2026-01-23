@@ -8,6 +8,8 @@
 
 let
   cfg = config.services.ai;
+  isServer = cfg.local.role == "server";
+  isClient = cfg.local.role == "client";
 
 in
 {
@@ -65,6 +67,50 @@ in
 
       local = {
         enable = lib.mkEnableOption "local LLM inference stack (Ollama, OpenCode)";
+
+        role = lib.mkOption {
+          type = lib.types.enum [
+            "server"
+            "client"
+          ];
+          default = "server";
+          description = ''
+            Local LLM deployment role:
+            - "server": Run Ollama locally with GPU acceleration
+            - "client": Use remote Ollama server (no local GPU required)
+          '';
+        };
+
+        # Client role options
+        serverHost = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "edge";
+          description = "Hostname of Ollama server on tailnet (client role only)";
+        };
+
+        tailnetDomain = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "taile0fb4.ts.net";
+          description = "Tailscale tailnet domain";
+        };
+
+        serverPort = lib.mkOption {
+          type = lib.types.port;
+          default = 8447;
+          description = "HTTPS port of the remote Ollama server (client role only)";
+        };
+
+        # Server role options
+        tailscaleServe = {
+          enable = lib.mkEnableOption "Expose Ollama API via Tailscale HTTPS (server role only)";
+          httpsPort = lib.mkOption {
+            type = lib.types.port;
+            default = 8447;
+            description = "HTTPS port for Ollama API on Tailscale";
+          };
+        };
 
         models = lib.mkOption {
           type = lib.types.listOf lib.types.str;
@@ -142,20 +188,62 @@ in
   };
 
   config = lib.mkMerge [
-    # Assertions for reverse proxy configuration
+    # Assertions for role and configuration validation
     {
       assertions = [
+        # Client role requires serverHost
+        {
+          assertion = !(cfg.enable && cfg.local.enable && isClient) || cfg.local.serverHost != null;
+          message = ''
+            services.ai.local.role = "client" requires serverHost to be set.
+
+            Example:
+              services.ai.local.serverHost = "edge";  # hostname of your Ollama server
+          '';
+        }
+        # Client role requires tailnetDomain
+        {
+          assertion = !(cfg.enable && cfg.local.enable && isClient) || cfg.local.tailnetDomain != null;
+          message = ''
+            services.ai.local.role = "client" requires tailnetDomain to be set.
+
+            Example:
+              services.ai.local.tailnetDomain = "taile0fb4.ts.net";
+          '';
+        }
+        # Tailscale serve requires server role
+        {
+          assertion = !cfg.local.tailscaleServe.enable || isServer;
+          message = ''
+            services.ai.local.tailscaleServe is only available for server role.
+
+            You have role = "client" with tailscaleServe.enable = true.
+            Remove tailscaleServe or set role = "server".
+          '';
+        }
+        # Legacy ollamaReverseProxy requires selfHosted (deprecated)
         {
           assertion =
             cfg.enable -> (cfg.local.ollamaReverseProxy.enable -> config.selfHosted.enable or false);
           message = ''
             services.ai.local.ollamaReverseProxy requires selfHosted.enable = true.
 
-            Add to your configuration:
-              selfHosted.enable = true;
+            NOTE: ollamaReverseProxy is deprecated. Consider using tailscaleServe instead:
+              services.ai.local.tailscaleServe.enable = true;
           '';
         }
       ];
+
+      # Deprecation warning for ollamaReverseProxy
+      warnings = lib.optional cfg.local.ollamaReverseProxy.enable ''
+        services.ai.local.ollamaReverseProxy is deprecated.
+
+        Use services.ai.local.tailscaleServe instead for simpler Tailscale HTTPS exposure:
+          services.ai.local.ollamaReverseProxy.enable = false;
+          services.ai.local.tailscaleServe.enable = true;
+
+        The ollamaReverseProxy option will be removed in a future release.
+      '';
     }
 
     # Base AI configuration (always enabled when services.ai.enable = true)
@@ -198,8 +286,8 @@ in
         ];
     })
 
-    # Local LLM configuration (conditional on services.ai.local.enable)
-    (lib.mkIf (cfg.enable && cfg.local.enable) {
+    # Server role: Local Ollama with GPU acceleration
+    (lib.mkIf (cfg.enable && cfg.local.enable && isServer) {
       # Ollama service with ROCm acceleration
       services.ollama = {
         enable = true;
@@ -220,7 +308,7 @@ in
       # Ensure amdgpu kernel module loads at boot
       boot.kernelModules = [ "amdgpu" ];
 
-      # Local LLM packages
+      # Server role packages (GPU stack + LLM tools)
       environment.systemPackages =
         with pkgs;
         [
@@ -234,8 +322,52 @@ in
         ++ lib.optional cfg.local.cli pkgs.opencode;
     })
 
-    # Ollama reverse proxy configuration (conditional on ollamaReverseProxy.enable)
-    (lib.mkIf (cfg.enable && cfg.local.enable && cfg.local.ollamaReverseProxy.enable) {
+    # Client role: Remote Ollama via Tailscale
+    (lib.mkIf (cfg.enable && cfg.local.enable && isClient) {
+      # Set OLLAMA_HOST environment variable for all tools that use Ollama
+      environment.sessionVariables = {
+        OLLAMA_HOST = "https://${cfg.local.serverHost}.${cfg.local.tailnetDomain}:${toString cfg.local.serverPort}";
+      };
+
+      # Client role packages (no GPU stack, lighter footprint)
+      environment.systemPackages =
+        with pkgs;
+        [
+          # MCP server runtimes
+          python3
+          uv # Python package manager for uvx
+        ]
+        ++ lib.optional cfg.local.cli pkgs.opencode;
+    })
+
+    # Tailscale serve for Ollama API (server role only)
+    (lib.mkIf (cfg.enable && cfg.local.enable && isServer && cfg.local.tailscaleServe.enable) {
+      # Systemd service to configure Tailscale serve
+      # Note: tailscale serve configuration persists until reset
+      systemd.services.tailscale-serve-ollama = {
+        description = "Configure Tailscale serve for Ollama API";
+        after = [
+          "network-online.target"
+          "tailscaled.service"
+          "ollama.service"
+        ];
+        wants = [
+          "network-online.target"
+          "tailscaled.service"
+        ];
+        wantedBy = [ "multi-user.target" ];
+
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --https ${toString cfg.local.tailscaleServe.httpsPort} http://127.0.0.1:11434";
+          ExecStop = "${pkgs.tailscale}/bin/tailscale serve --https ${toString cfg.local.tailscaleServe.httpsPort} off";
+        };
+      };
+    })
+
+    # Legacy: Ollama reverse proxy via Caddy (deprecated, server role only)
+    (lib.mkIf (cfg.enable && cfg.local.enable && isServer && cfg.local.ollamaReverseProxy.enable) {
       selfHosted.caddy.routes.ollama =
         let
           tailscaleDomain = config.networking.tailscale.domain or null;

@@ -31,15 +31,39 @@ Integrates advanced AI agents and local inference capabilities into the develope
 - **Implementation**: `home/ai/mcp.nix`
 
 ### Local Inference Stack (Ollama)
-- **Default Models**: Minimal set for general use:
-    - `mistral:7b` (4.4 GB) - General purpose, excellent quality/size ratio
-    - `nomic-embed-text` (274 MB) - For RAG/semantic search
-- **Acceleration**: ROCm for AMD GPUs (default gfx1030/10.3.0 override).
-- **Context Window**: Configured for 32K tokens (`OLLAMA_NUM_CTX`) to support agentic workflows.
-- **Memory Management**: Configurable `OLLAMA_KEEP_ALIVE` duration (default: 1 minute) to automatically unload idle models and prevent GPU memory exhaustion.
-- **Concurrency Limit**: Single model loading (`OLLAMA_MAX_LOADED_MODELS=1`) to prevent queue evictions.
-- **Reverse Proxy**: Optional Caddy integration (`services.ai.local.ollamaReverseProxy`) for secure remote access via Tailscale.
-- **Implementation**: `modules/ai/default.nix`
+
+**Deployment Roles:**
+
+The local LLM stack supports server/client architecture for distributed inference:
+
+- **Server Role** (`role = "server"`, default):
+  - Run Ollama locally with GPU acceleration
+  - Full ROCm stack installed (AMD GPUs)
+  - Can expose API via Tailscale serve for remote clients
+
+- **Client Role** (`role = "client"`):
+  - Connect to remote Ollama server on tailnet
+  - No local GPU stack installed (lighter footprint)
+  - Sets `OLLAMA_HOST` environment variable for all tools
+  - Ideal for lightweight laptops using a desktop as inference server
+
+**Default Models**: Minimal set for general use:
+- `mistral:7b` (4.4 GB) - General purpose, excellent quality/size ratio
+- `nomic-embed-text` (274 MB) - For RAG/semantic search
+
+**Acceleration**: ROCm for AMD GPUs (default gfx1030/10.3.0 override) - server role only.
+
+**Context Window**: Configured for 32K tokens (`OLLAMA_NUM_CTX`) to support agentic workflows.
+
+**Memory Management**: Configurable `OLLAMA_KEEP_ALIVE` duration (default: 1 minute) to automatically unload idle models and prevent GPU memory exhaustion.
+
+**Concurrency Limit**: Single model loading (`OLLAMA_MAX_LOADED_MODELS=1`) to prevent queue evictions.
+
+**Network Access**:
+- **Tailscale Serve** (recommended): `services.ai.local.tailscaleServe.enable = true` exposes Ollama API on port 8447 via Tailscale HTTPS.
+- **Caddy Reverse Proxy** (deprecated): `services.ai.local.ollamaReverseProxy` - legacy path-based routing via Caddy.
+
+**Implementation**: `modules/ai/default.nix`
 
 ## Requirements
 
