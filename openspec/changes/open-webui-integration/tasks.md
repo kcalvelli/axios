@@ -86,15 +86,16 @@ Add Open WebUI as an axios service with server/client roles, Tailscale serve int
 
 ---
 
-## Phase 6: Documentation
+## Phase 6: Documentation ✅
 
 ### Task 6.1: Update Module Documentation
-- [ ] Add webui section to `docs/MODULE_REFERENCE.md`
-- [ ] Include server and client configuration examples
+- [x] Add webui section to `docs/MODULE_REFERENCE.md`
+- [x] Include server and client configuration examples
 
 ### Task 6.2: Update AI Spec
-- [ ] Add webui to `openspec/specs/ai/spec.md`
-- [ ] Document PWA access pattern
+- [x] Add webui to `openspec/specs/ai/spec.md`
+- [x] Document PWA access pattern
+- [x] Update port registry status to Active
 
 ---
 

@@ -419,6 +419,61 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 
 ---
 
+#### Open WebUI (axios-ai-chat)
+
+Web-based chat interface for local LLMs, available as a PWA desktop app.
+
+**Features:**
+- Multi-model chat with Ollama backend
+- Conversation history and management
+- System prompt customization
+- Privacy-preserving (telemetry disabled by default)
+
+**Server Role** (runs the service):
+```nix
+services.ai.webui = {
+  enable = true;
+  role = "server";
+
+  # Expose via Tailscale HTTPS
+  tailscaleServe = {
+    enable = true;
+    httpsPort = 8444;
+  };
+
+  # Create PWA desktop entry
+  pwa = {
+    enable = true;
+    tailnetDomain = "your-tailnet.ts.net";
+  };
+};
+```
+
+**Client Role** (PWA only, no local service):
+```nix
+services.ai.webui = {
+  enable = true;
+  role = "client";
+  serverHost = "edge";        # Your server's hostname
+  serverPort = 8444;          # Server's HTTPS port
+  pwa = {
+    enable = true;
+    tailnetDomain = "your-tailnet.ts.net";
+  };
+};
+```
+
+**Access:**
+- **Local:** `http://localhost:8081` (server role)
+- **Tailscale:** `https://[hostname].[tailnet]:8444`
+- **PWA:** Launch "Axios AI Chat" from your app launcher
+
+**First-time setup:** The first user to sign up becomes admin. Signup is disabled after the first user for security.
+
+**Port allocations:** Local 8081, Tailscale 8444
+
+---
+
 ### secrets
 **What it does:** Encrypted secrets management using age encryption.
 

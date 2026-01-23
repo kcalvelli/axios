@@ -65,6 +65,75 @@ The local LLM stack supports server/client architecture for distributed inferenc
 
 **Implementation**: `modules/ai/default.nix`
 
+### Open WebUI (axios-ai-chat)
+
+Web-based chat interface for interacting with local LLMs, exposed as a PWA.
+
+**Deployment Roles:**
+
+- **Server Role** (`role = "server"`, default):
+  - Runs Open WebUI service locally
+  - Connects to local Ollama instance
+  - Can expose via Tailscale serve for remote access
+  - Privacy-preserving defaults (telemetry disabled)
+
+- **Client Role** (`role = "client"`):
+  - No local service installed
+  - PWA desktop entry points to remote server
+  - Lightweight footprint for laptops
+
+**Configuration:**
+```nix
+services.ai.webui = {
+  enable = true;
+  role = "server";  # or "client"
+  port = 8081;      # Local port (default)
+
+  # Tailscale exposure (server role only)
+  tailscaleServe = {
+    enable = true;
+    httpsPort = 8444;
+  };
+
+  # PWA desktop entry
+  pwa = {
+    enable = true;
+    tailnetDomain = "taile0fb4.ts.net";
+  };
+};
+
+# Client role configuration
+services.ai.webui = {
+  enable = true;
+  role = "client";
+  serverHost = "edge";  # Remote server hostname
+  serverPort = 8444;    # Remote HTTPS port
+  pwa = {
+    enable = true;
+    tailnetDomain = "taile0fb4.ts.net";
+  };
+};
+```
+
+**Features:**
+- Multi-model chat interface
+- Conversation history and management
+- System prompt customization
+- Model parameter tuning (temperature, context length)
+- First user becomes admin (signup disabled after)
+
+**Access:**
+- Local: `http://localhost:8081`
+- Tailscale: `https://[hostname].[tailnet]:8444`
+- PWA: "Axios AI Chat" desktop entry
+
+**Port Allocations:**
+| Service | Local Port | Tailscale Port |
+|---------|------------|----------------|
+| Open WebUI | 8081 | 8444 |
+
+**Implementation**: `modules/ai/webui.nix`, `home/ai/webui.nix`
+
 ## Requirements
 
 ### Requirement: GPU Discovery Timeout Awareness

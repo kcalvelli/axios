@@ -22,7 +22,7 @@ This document defines port allocations for axios services. All services follow a
 | Service | Local Port | Tailscale Port | Module | Status |
 |---------|------------|----------------|--------|--------|
 | axios-ai-mail | 8080 | 8443 | `pim` | Active |
-| Open WebUI | 8081 | 8444 | `ai.webui` | Planned |
+| Open WebUI | 8081 | 8444 | `ai.webui` | Active |
 | axios Portal | 8082 | 8445 | `portal` | Planned |
 | axios Calendar | 8083 | 8446 | `pim.calendar` | Planned |
 | *Reserved* | 8084-8089 | — | — | Future |
@@ -108,6 +108,7 @@ services.example.serverPort = 84XX;  # Matches server's httpsPort
 
 - **axios-ai-mail**: See `openspec/specs/pim/spec.md`
 - **AI/Ollama**: See `openspec/specs/ai/spec.md`
+- **Open WebUI**: See `openspec/specs/ai/spec.md` (Open WebUI section)
 - **Immich**: See `selfHosted` module documentation
 
 ---
