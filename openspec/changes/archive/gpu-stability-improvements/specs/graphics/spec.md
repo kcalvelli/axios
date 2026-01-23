@@ -61,6 +61,7 @@ boot.kernelParams = lib.optionals (isAmd && config.axios.hardware.enableGPURecov
 - **Wayland Compatibility**: Kernels are configured with `nvidia_drm.modeset=1` automatically for Nvidia.
 - **Library Reference**: Use `pkgs.stdenv.hostPlatform.system` for system-specific packages.
 - **GPU Recovery**: AMD GPUs have hang recovery enabled by default; users can disable if experiencing false-positive resets.
+- **Hardware Watchdog**: For complete freeze protection, enable `hardware.crashDiagnostics.enable` which activates the hardware watchdog timer as a last-resort recovery mechanism (see ops/spec.md).
 
 ## Troubleshooting
 
@@ -90,3 +91,21 @@ axios.hardware.enableGPURecovery = true;  # default for AMD
 ```nix
 axios.hardware.enableGPURecovery = false;
 ```
+
+### System rebooted unexpectedly (hardware watchdog)
+
+**Symptoms**: System rebooted without user action, no kernel panic in pstore, journal shows clean boot.
+
+**Cause**: Hardware watchdog triggered due to complete system freeze. This is **expected behavior** when:
+- GPU hang locks PCIe bus
+- Kernel unable to service interrupts
+- All software-based detection failed
+
+**Investigation**:
+1. Check previous boot's final logs: `journalctl -b -1 | tail -100`
+2. Look for GPU-related warnings before freeze
+3. Check if pstore is empty: `ls /sys/fs/pstore/` (empty = hard freeze, not panic)
+
+**This is working as intended** - the hardware watchdog limited downtime to ~90 seconds instead of requiring manual intervention.
+
+**If watchdog triggers frequently**: Investigate GPU stability (check VRAM usage, reduce AI model sizes, check thermals).

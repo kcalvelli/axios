@@ -44,6 +44,38 @@ in
         Default: true (more aggressive recovery, prevents zombie systems)
       '';
     };
+
+    enableHardwareWatchdog = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Enable hardware watchdog timer via systemd.
+
+        This provides last-resort recovery from hard system freezes that bypass
+        all software-based detection (NMI watchdog, softlockup, GPU recovery).
+
+        The hardware watchdog (e.g., sp5100-tco on AMD, iTCO on Intel) operates
+        independently of the CPU and will force a reboot if systemd stops responding.
+
+        How it works:
+        - systemd pets /dev/watchdog every RuntimeWatchdogSec/2 (15 seconds)
+        - If systemd freezes, hardware watchdog triggers after RuntimeWatchdogSec (30s)
+        - If reboot hangs, hardware forces reset after RebootWatchdogSec (60s)
+
+        Default: true (limits hard freeze downtime to ~90 seconds)
+      '';
+    };
+
+    runtimeWatchdogSec = lib.mkOption {
+      type = lib.types.int;
+      default = 30;
+      description = ''
+        Hardware watchdog timeout in seconds.
+        systemd will pet the watchdog at half this interval.
+        If the system freezes, the watchdog triggers after this timeout.
+        Default: 30 seconds.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -53,5 +85,13 @@ in
     ++ lib.optional cfg.treatOopsAsPanic "oops=panic";
 
     boot.crashDump.enable = cfg.enableCrashDump;
+
+    # Hardware watchdog via systemd
+    # This provides last-resort recovery from hard freezes that bypass software detection
+    systemd.extraConfig = lib.mkIf cfg.enableHardwareWatchdog ''
+      RuntimeWatchdogSec=${toString cfg.runtimeWatchdogSec}
+      RebootWatchdogSec=60
+      KExecWatchdogSec=60
+    '';
   };
 }

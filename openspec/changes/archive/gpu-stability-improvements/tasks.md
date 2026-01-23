@@ -40,12 +40,21 @@ Address GPU stability issues causing hard freezes and application crashes on AMD
 - [x] Update `openspec/specs/graphics/spec.md` with recovery recommendation for AI workloads
 - [x] Specs merged from delta to main
 
-### Phase 5: Validation
+### Phase 5: Hardware Watchdog Timer (Critical - Added 2026-01-23)
+
+- [x] Update `modules/hardware/crash-diagnostics.nix` to add hardware watchdog options
+- [x] Add `enableHardwareWatchdog` option (default: true when crashDiagnostics enabled)
+- [x] Configure `systemd.extraConfig` with RuntimeWatchdogSec, RebootWatchdogSec, KExecWatchdogSec
+- [x] Update spec documentation for crash diagnostics (ops/spec.md in delta)
+- [ ] Test hardware watchdog activation (verify `/dev/watchdog` is being petted)
+
+### Phase 6: Validation
 
 - [x] Format code with `nix fmt .`
 - [x] Run `nix flake check --no-build` to validate configuration
 - [ ] Test on downstream system with AI local inference enabled
 - [ ] Monitor for GPU discovery timeout errors after changes
+- [ ] Verify hardware watchdog is active after rebuild
 - [ ] Archive this change after validation
 
 ## Implementation Details
@@ -75,11 +84,41 @@ boot.kernelParams =
   ]
 ```
 
+### Hardware Watchdog Timer - systemd Integration
+
+**File**: `modules/hardware/crash-diagnostics.nix`
+
+Add hardware watchdog support that operates independently of CPU state:
+
+```nix
+enableHardwareWatchdog = lib.mkOption {
+  type = lib.types.bool;
+  default = true;
+  description = ''
+    Enable hardware watchdog timer via systemd.
+
+    This provides last-resort recovery from hard system freezes that bypass
+    all software-based detection (NMI watchdog, softlockup, GPU recovery).
+
+    The hardware watchdog (e.g., sp5100-tco on AMD) operates independently
+    of the CPU and will force a reboot if systemd stops responding.
+  '';
+};
+
+# In config:
+systemd.extraConfig = lib.mkIf cfg.enableHardwareWatchdog ''
+  RuntimeWatchdogSec=30
+  RebootWatchdogSec=60
+  KExecWatchdogSec=60
+'';
+```
+
 ### Root Cause Summary
 
 | Issue | Root Cause | Fix | Status |
 |-------|------------|-----|--------|
-| Hard system freeze | GPU hang without recovery | Enable `amdgpu.gpu_recovery=1` + lockup_timeout | **DONE** |
+| Hard system freeze (soft) | GPU hang without recovery | Enable `amdgpu.gpu_recovery=1` + lockup_timeout | **DONE** |
+| Hard system freeze (PCIe lockup) | GPU hang locks bus, bypasses CPU | Enable hardware watchdog timer | **TODO** |
 | GPU discovery timeout | ROCm queries too slow under load | Research timeout option | Deferred |
 | Queue evictions | VRAM oversubscription | Document, recommend smaller models | Documented |
 | Quickshell crashes | Upstream issue, exacerbated by GPU state | Document correlation | Documented |
@@ -108,9 +147,11 @@ Investigation of `~/Projects/axios-ai-mail` revealed the likely trigger for cons
 
 1. [x] GPU recovery parameters added to graphics module
 2. [x] GPU recovery enabled by default for AMD GPUs (no warning needed)
-3. [ ] Specs updated with GPU troubleshooting guidance (delta created, pending merge)
+3. [x] Specs updated with GPU troubleshooting guidance (delta specs updated)
 4. [ ] No hard system freezes after enabling GPU recovery (user validation)
 5. [x] Configuration passes `nix flake check`
+6. [x] Hardware watchdog enabled in crash-diagnostics module
+7. [ ] Hardware watchdog verified active after rebuild (`systemctl show | grep Watchdog`)
 
 ## User Action Required (Downstream)
 

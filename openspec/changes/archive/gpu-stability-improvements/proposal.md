@@ -97,13 +97,43 @@ Implement monitoring that:
 - Warns when approaching limits
 - Can trigger ollama model unloading preemptively
 
+### Solution 6: Hardware Watchdog Timer (Critical - Added 2026-01-23)
+
+**Problem Discovered**: On 2026-01-23, another hard freeze occurred despite GPU recovery being enabled. Investigation revealed:
+- pstore was empty (no kernel panic data captured)
+- NMI watchdog didn't fire
+- `amdgpu.gpu_recovery=1` didn't trigger
+- System required manual power cycle after 2.5+ hours frozen
+
+**Root Cause**: GPU hang locked the PCIe bus, preventing the CPU from servicing interrupts. All software-based detection (NMI watchdog, softlockup detection, GPU lockup timeout) failed because they require the CPU to be responsive.
+
+**Solution**: Enable the hardware watchdog timer via systemd. The `sp5100-tco` watchdog operates independently of the CPU and will force a reboot if not "petted" within its timeout period.
+
+```nix
+# In crash-diagnostics.nix
+systemd.extraConfig = ''
+  RuntimeWatchdogSec=30
+  RebootWatchdogSec=60
+  KExecWatchdogSec=60
+'';
+```
+
+**How it works**:
+1. systemd writes to `/dev/watchdog` every 15 seconds (half of RuntimeWatchdogSec)
+2. If system freezes, systemd stops petting the watchdog
+3. After 30 seconds without a pet, hardware watchdog triggers panic
+4. After 60 more seconds, hardware forces reboot regardless of CPU state
+
+**This would have limited the freeze to ~90 seconds instead of 2.5+ hours.**
+
 ## Scope
 
 This proposal focuses on:
-1. **AMD GPU hang recovery** - Critical fix to prevent hard freezes
-2. **GPU discovery timeout mitigation** - Primary stability improvement
-3. **GPU memory headroom** - Prevent oversubscription
-4. **Documentation** - Update specs with GPU troubleshooting guidance
+1. **AMD GPU hang recovery** - Critical fix to prevent soft GPU hangs
+2. **Hardware watchdog timer** - Critical fix for hard freezes that bypass software detection
+3. **GPU discovery timeout mitigation** - Primary stability improvement
+4. **GPU memory headroom** - Prevent oversubscription
+5. **Documentation** - Update specs with GPU troubleshooting guidance
 
 Out of scope:
 - DMS/Quickshell crash fix (upstream dependency)
