@@ -31,18 +31,9 @@ let
 
   pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
-  # Generate Brave app-id for StartupWMClass
-  # Brave uses a specific format: brave-{domain}__-Default (port is stripped)
-  urlToAppId =
-    url:
-    let
-      withoutProtocol = lib.removePrefix "https://" url;
-      parts = lib.splitString "/" withoutProtocol;
-      domainWithPort = lib.head parts;
-      # Strip port number if present (e.g., "host:8444" -> "host")
-      domain = lib.head (lib.splitString ":" domainWithPort);
-    in
-    "brave-${domain}__-Default";
+  # Unique window class for this PWA
+  # Using --class flag to override Brave's default domain-based class
+  wmClass = "axios-ai-chat";
 
   pwaEnabled = webuiCfg.pwa.enable or false;
 in
@@ -52,7 +43,7 @@ in
     xdg.desktopEntries.axios-ai-chat = {
       name = "Axios AI Chat";
       comment = "AI chat interface powered by local LLMs";
-      exec = "${lib.getExe pkgs.brave} --app=${pwaUrl}";
+      exec = "${lib.getExe pkgs.brave} --class=${wmClass} --app=${pwaUrl}";
       icon = "axios-ai-chat";
       terminal = false;
       categories = [
@@ -61,7 +52,7 @@ in
         "ArtificialIntelligence"
       ];
       settings = {
-        StartupWMClass = urlToAppId pwaUrl;
+        StartupWMClass = wmClass;
       };
     };
 

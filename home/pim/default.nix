@@ -23,18 +23,9 @@ let
   httpsPort = toString (pimCfg.pwa.httpsPort or 8443);
   pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
-  # Generate Brave app-id for StartupWMClass
-  # Brave uses a specific format: brave-{domain}__-Default (port is stripped)
-  urlToAppId =
-    url:
-    let
-      withoutProtocol = lib.removePrefix "https://" url;
-      parts = lib.splitString "/" withoutProtocol;
-      domainWithPort = lib.head parts;
-      # Strip port number if present (e.g., "host:8443" -> "host")
-      domain = lib.head (lib.splitString ":" domainWithPort);
-    in
-    "brave-${domain}__-Default";
+  # Unique window class for this PWA
+  # Using --class flag to override Brave's default domain-based class
+  wmClass = "axios-ai-mail";
 in
 {
   # Import axios-ai-mail home module for server role (provides account config options)
@@ -47,7 +38,7 @@ in
     xdg.desktopEntries.axios-ai-mail = lib.mkIf (pimCfg.pwa.enable or false) {
       name = "Axios AI Mail";
       comment = "AI-powered email management";
-      exec = "${lib.getExe pkgs.brave} --app=${pwaUrl}";
+      exec = "${lib.getExe pkgs.brave} --class=${wmClass} --app=${pwaUrl}";
       icon = "axios-ai-mail";
       terminal = false;
       categories = [
@@ -55,7 +46,7 @@ in
         "Email"
       ];
       settings = {
-        StartupWMClass = urlToAppId pwaUrl;
+        StartupWMClass = wmClass;
       };
     };
 
