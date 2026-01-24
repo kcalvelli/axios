@@ -75,21 +75,32 @@ This document provides a comprehensive list of all applications included in axiO
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
-| **Geary** | Modern, lightweight email client (default) | Clean interface, simpler than Evolution |
-| **Evolution** | Full-featured email client (optional) | Industry standard for Exchange stability, better EWS support |
-| **GNOME Calendar** | Calendar application | Simpler and more reliable than Merkuro (no Akonadi backend) |
-| **GNOME Contacts** | Contact management | More reliable than KAddressBook (no Akonadi backend) |
-| **GNOME Online Accounts** | Unified account management | One-time configuration for Gmail, Outlook, CalDAV, CardDAV |
+| **axios-ai-mail** | AI-powered email client | Local LLM email classification and smart inbox |
 | **vdirsyncer** | Calendar/contact sync tool | CLI tool for syncing multiple calendar and contact sources |
 
-**Email Client Configuration:**
+**Server Role (runs axios-ai-mail service):**
 ```nix
 modules.pim = true;
-pim.emailClient = "geary";  # Options: "geary" (default), "evolution", "both"
-
+# In extraConfig:
+services.pim = {
+  user = "your-username";
+  pwa.enable = true;
+  pwa.tailnetDomain = "your-tailnet.ts.net";
+};
 ```
 
-**Note on KDE-PIM:** KDE's PIM suite (Merkuro, KAddressBook, KMail/Kontact) requires the Akonadi backend which has known reliability issues. Geary/Evolution and GNOME PIM apps provide better stability for email, calendar, and contacts.
+**Client Role (PWA only, connects to server):**
+```nix
+modules.pim = true;
+# In extraConfig:
+services.pim = {
+  role = "client";
+  pwa.enable = true;
+  pwa.tailnetDomain = "your-tailnet.ts.net";
+};
+```
+
+See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale configuration.
 
 ### Wayland Tools
 

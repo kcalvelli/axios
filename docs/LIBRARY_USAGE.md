@@ -228,11 +228,16 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   };
 
   # Optional: Self-hosted services (if modules.services = true)
-  selfHosted = {
+  axios = {
     immich = {
       enable = bool;                    # Photo management server
-      enableGpuAcceleration = bool;     # Use GPU for ML/transcoding
+      role = "server" | "client";       # Server runs service, client gets PWA
+      enableGpuAcceleration = bool;     # Use GPU for ML/transcoding (server only)
       gpuType = "amd" | "nvidia" | "intel";
+      pwa = {
+        enable = bool;
+        tailnetDomain = "your-tailnet.ts.net";
+      };
     };
   };
 };

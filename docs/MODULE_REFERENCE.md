@@ -164,32 +164,47 @@ services.swayidle.timeouts = [
 ---
 
 ### pim
-**What it does:** Personal Information Management (email, calendar, contacts).
+**What it does:** Personal Information Management with axios-ai-mail.
 
 **Includes:**
-- **Email Clients:**
-  - **Geary** (default) - Modern, lightweight email client
-  - **Evolution** (optional) - Full-featured with better Exchange/EWS support
-- **GNOME Calendar** - Calendar application with online account sync
-- **GNOME Contacts** - Contact management with online account sync
-- **GNOME Online Accounts** - Unified account management (Gmail, Outlook, CalDAV, CardDAV)
+- **axios-ai-mail** - AI-powered email client with local LLM classification
 - **vdirsyncer** - CLI tool for syncing calendars and contacts
-- **evolution-ews** - Exchange Web Services support
-- **Backend services** - Evolution Data Server, GeoClue2 (for calendar weather)
 
-**When to use:** If you need email, calendar, or contact management
+**When to use:** If you need email with AI-powered smart inbox features
 
-**Configuration:**
+**Server/Client Architecture:**
+
+Supports **server/client roles** for distributed deployment across your tailnet.
+
+**Server Role** (runs axios-ai-mail service):
 ```nix
 modules.pim = true;
 
-# Optional: Choose email client (default: "geary")
-pim.emailClient = "geary";     # Lightweight, modern
-# pim.emailClient = "evolution";  # Full-featured, better Exchange support
-# pim.emailClient = "both";      # Install both clients
+extraConfig = {
+  services.pim = {
+    user = "your-username";
+    pwa.enable = true;
+    pwa.tailnetDomain = "your-tailnet.ts.net";
+  };
+};
 ```
 
-**Why GNOME PIM over KDE-PIM:** Avoids Akonadi backend reliability issues. GNOME's Evolution Data Server is more stable for email, calendar, and contacts.
+**Client Role** (PWA only, connects to server):
+```nix
+modules.pim = true;
+
+extraConfig = {
+  services.pim = {
+    role = "client";
+    pwa.enable = true;
+    pwa.tailnetDomain = "your-tailnet.ts.net";
+  };
+};
+```
+
+**Access:** Via PWA at `https://axios-mail.<tailnet>.ts.net`
+
+See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale Services setup.
 
 ---
 
@@ -500,17 +515,16 @@ services.ai.webui = {
 
 **When to use:** Run your own cloud services instead of relying on third parties
 
-**Enables:** The `selfHosted` configuration section (see below)
+**Enables:** The `axios.immich` configuration section (see below)
 
 ---
 
 ## Self-Hosted Services
 
-### selfHosted (Configuration Section)
+### axios.immich (Immich Photo Backup)
 
-When you enable `modules.services = true`, you can configure self-hosted services.
+When you enable `modules.services = true`, you can configure Immich.
 
-#### Immich
 **What it is:** Self-hosted photo and video management (Google Photos alternative)
 
 **Features:**
@@ -521,32 +535,54 @@ When you enable `modules.services = true`, you can configure self-hosted service
 - Mobile apps for iOS and Android
 - **GPU acceleration** for faster ML processing
 
-**Configuration:**
+**Server/Client Architecture:**
+
+Supports **server/client roles** for distributed deployment across your tailnet.
+
+**Server Role** (runs Immich service):
 ```nix
 modules.services = true;
 
-selfHosted = {
+# In hostConfig (outside extraConfig):
+axios = {
   immich = {
     enable = true;
     enableGpuAcceleration = true;  # Use GPU for ML (faster)
     gpuType = "amd";               # Match your GPU type
+    pwa = {
+      enable = true;
+      tailnetDomain = "your-tailnet.ts.net";
+    };
   };
-};
-
-extraConfig = {
-  # Required for HTTPS access
-  networking.tailscale.domain = "your-tailscale-domain.ts.net";
 };
 ```
 
-**Access:** `https://[hostname].[tailscale-domain]` (automatic HTTPS via Tailscale)
+**Client Role** (PWA only, connects to server):
+```nix
+modules.services = true;
+
+extraConfig = {
+  axios.immich = {
+    enable = true;
+    role = "client";
+    pwa = {
+      enable = true;
+      tailnetDomain = "your-tailnet.ts.net";
+    };
+  };
+};
+```
+
+**Access:** Via PWA at `https://axios-immich.<tailnet>.ts.net`
 
 **Requirements:**
 - Tailscale for secure remote access
-- GPU recommended for ML features (optional)
-- Storage space for photos/videos
+- GPU recommended for ML features (optional, server only)
+- Storage space for photos/videos (server only)
 
-**Mobile Setup:** Install Immich mobile app, point it to your server URL
+**Mobile Setup:** Install Immich mobile app, point it to your Tailscale Services URL
+
+See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale Services setup.
 
 ---
 
