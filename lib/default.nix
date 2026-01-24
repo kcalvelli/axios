@@ -340,7 +340,7 @@ let
             })
             # Enable PIM module if specified
             (lib.optionalAttrs (hostCfg.modules.pim or false) {
-              pim.enable = true;
+              services.pim.enable = true;
             })
             # Enable gaming module if specified
             (lib.optionalAttrs (hostCfg.modules.gaming or false) {
