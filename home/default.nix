@@ -9,6 +9,7 @@
       laptop = ./profiles/laptop.nix;
       pim = ./pim;
       ai = ./ai;
+      immich = ./immich;
       secrets = ./secrets;
       calendar = ./calendar;
     };

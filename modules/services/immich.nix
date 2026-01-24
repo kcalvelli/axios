@@ -54,6 +54,17 @@ in
         Type of GPU for acceleration. Used to configure appropriate user groups.
       '';
     };
+
+    # PWA configuration
+    pwa = {
+      enable = lib.mkEnableOption "Generate Immich PWA desktop entry";
+      tailnetDomain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        example = "taile0fb4.ts.net";
+        description = "Tailscale tailnet domain for PWA URL";
+      };
+    };
   };
 
   config = lib.mkIf cfg.enable {
