@@ -389,7 +389,8 @@ let
                 )
                 ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
                 ++ lib.optional (hostCfg.modules.ai or true) self.homeModules.ai
-                ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim;
+                ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim
+                ++ lib.optional (hostCfg.modules.services or false) self.homeModules.immich;
             };
           }
           dynamicConfig
