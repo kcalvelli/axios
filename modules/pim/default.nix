@@ -11,7 +11,6 @@ let
   cfg = config.pim;
   isServer = cfg.role == "server";
   tsCfg = config.networking.tailscale;
-  useServices = tsCfg.authMode == "authkey";
 in
 {
   # Import axios-ai-mail NixOS module (provides services.axios-ai-mail options)
@@ -30,7 +29,8 @@ in
       description = ''
         PIM deployment role:
         - "server": Run axios-ai-mail backend service (requires AI module)
-        - "client": PWA desktop entry only (connects to server on tailnet)
+                    Auto-registers as axios-mail.<tailnet>.ts.net via Tailscale Services
+        - "client": PWA desktop entry only (connects to axios-mail.<tailnet>.ts.net)
       '';
     };
 
@@ -45,15 +45,6 @@ in
       type = lib.types.str;
       default = "";
       description = "User to run axios-ai-mail service as (server role only)";
-    };
-
-    tailscaleServe = {
-      enable = lib.mkEnableOption "Expose axios-ai-mail via Tailscale HTTPS (server role only)";
-      httpsPort = lib.mkOption {
-        type = lib.types.port;
-        default = 8443;
-        description = "HTTPS port for Tailscale serve";
-      };
     };
 
     sync = {
@@ -72,26 +63,11 @@ in
     # PWA options (both roles)
     pwa = {
       enable = lib.mkEnableOption "Generate axios-ai-mail PWA desktop entry";
-      serverHost = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        example = "edge";
-        description = ''
-          Hostname of axios-ai-mail server on tailnet.
-          - null: Use local hostname (for server role)
-          - "edge": Connect to edge.tailnet.ts.net (for client role)
-        '';
-      };
       tailnetDomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
         example = "taile0fb4.ts.net";
         description = "Tailscale tailnet domain for PWA URL generation";
-      };
-      httpsPort = lib.mkOption {
-        type = lib.types.port;
-        default = 8443;
-        description = "HTTPS port of the axios-ai-mail server";
       };
     };
   };
@@ -107,8 +83,6 @@ in
             pim.pwa.tailnetDomain = "taile0fb4.ts.net";
         '';
       }
-      # Client role requires tailnetDomain for Tailscale Services DNS
-      # (already covered by pwa.enable assertion above)
       {
         assertion = !isServer || cfg.user != "";
         message = ''
@@ -136,6 +110,15 @@ in
             pim.role = "client";  # Use client role (PWA only, no AI needed)
         '';
       }
+      {
+        assertion = !isServer || tsCfg.authMode == "authkey";
+        message = ''
+          pim.role = "server" requires networking.tailscale.authMode = "authkey".
+
+          Server role uses Tailscale Services for HTTPS, which requires tag-based identity.
+          Set up an auth key in the Tailscale admin console with appropriate tags.
+        '';
+      }
     ];
 
     # Server role: import axios-ai-mail overlay and configure service
@@ -145,20 +128,15 @@ in
       enable = true;
       port = cfg.port;
       user = cfg.user;
-      # Legacy tailscaleServe (only when NOT using Tailscale Services)
-      tailscaleServe = lib.mkIf (!useServices) {
-        enable = cfg.tailscaleServe.enable;
-        httpsPort = cfg.tailscaleServe.httpsPort;
-      };
       sync = {
         enable = cfg.sync.enable;
         frequency = cfg.sync.frequency;
       };
     };
 
-    # Tailscale Services registration (when authMode = "authkey")
-    # This provides unique DNS name: axios-mail.<tailnet>.ts.net
-    networking.tailscale.services."axios-mail" = lib.mkIf (isServer && useServices) {
+    # Tailscale Services registration
+    # Provides unique DNS name: axios-mail.<tailnet>.ts.net
+    networking.tailscale.services."axios-mail" = lib.mkIf isServer {
       enable = true;
       backend = "http://127.0.0.1:${toString cfg.port}";
     };

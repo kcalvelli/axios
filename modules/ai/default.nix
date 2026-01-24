@@ -82,39 +82,17 @@ in
           description = ''
             Local LLM deployment role:
             - "server": Run Ollama locally with GPU acceleration
-            - "client": Use remote Ollama server (no local GPU required)
+                        Auto-registers as axios-ollama.<tailnet>.ts.net via Tailscale Services
+            - "client": Use remote Ollama server via Tailscale Services (no local GPU required)
           '';
         };
 
         # Client role options
-        serverHost = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          example = "edge";
-          description = "Hostname of Ollama server on tailnet (client role only)";
-        };
-
         tailnetDomain = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
           default = null;
           example = "taile0fb4.ts.net";
           description = "Tailscale tailnet domain";
-        };
-
-        serverPort = lib.mkOption {
-          type = lib.types.port;
-          default = 8447;
-          description = "HTTPS port of the remote Ollama server (client role only)";
-        };
-
-        # Server role options
-        tailscaleServe = {
-          enable = lib.mkEnableOption "Expose Ollama API via Tailscale HTTPS (server role only)";
-          httpsPort = lib.mkOption {
-            type = lib.types.port;
-            default = 8447;
-            description = "HTTPS port for Ollama API on Tailscale";
-          };
         };
 
         models = lib.mkOption {
@@ -139,33 +117,6 @@ in
             ROCm GPU architecture override for older AMD GPUs.
             Required for gfx1031 (RX 5500/5600/5700 series).
           '';
-        };
-
-        ollamaReverseProxy = {
-          enable = lib.mkEnableOption "Caddy reverse proxy for Ollama with Tailscale HTTPS" // {
-            default = false;
-          };
-
-          path = lib.mkOption {
-            type = lib.types.str;
-            default = "/ollama";
-            example = "/ai/ollama";
-            description = ''
-              Path prefix for Ollama reverse proxy.
-              Server will be accessible at: {domain}{path}/*
-              Example: hostname.tail1234ab.ts.net/ollama
-            '';
-          };
-
-          domain = lib.mkOption {
-            type = lib.types.nullOr lib.types.str;
-            default = null;
-            example = "hostname.tail1234ab.ts.net";
-            description = ''
-              Domain for reverse proxy. If null, uses {hostname}.{tailscale.domain}.
-              Must match the domain used by other services for path-based routing.
-            '';
-          };
         };
 
         keepAlive = lib.mkOption {
@@ -206,39 +157,17 @@ in
               services.ai.local.tailnetDomain = "taile0fb4.ts.net";
           '';
         }
-        # Tailscale serve requires server role
+        # Server role requires authkey mode for Tailscale Services
         {
-          assertion = !cfg.local.tailscaleServe.enable || isServer;
+          assertion = !(cfg.enable && cfg.local.enable && isServer) || useServices;
           message = ''
-            services.ai.local.tailscaleServe is only available for server role.
+            services.ai.local.role = "server" requires networking.tailscale.authMode = "authkey".
 
-            You have role = "client" with tailscaleServe.enable = true.
-            Remove tailscaleServe or set role = "server".
-          '';
-        }
-        # Legacy ollamaReverseProxy requires selfHosted (deprecated)
-        {
-          assertion =
-            cfg.enable -> (cfg.local.ollamaReverseProxy.enable -> config.selfHosted.enable or false);
-          message = ''
-            services.ai.local.ollamaReverseProxy requires selfHosted.enable = true.
-
-            NOTE: ollamaReverseProxy is deprecated. Consider using tailscaleServe instead:
-              services.ai.local.tailscaleServe.enable = true;
+            Server role uses Tailscale Services for HTTPS, which requires tag-based identity.
+            Set up an auth key in the Tailscale admin console with appropriate tags.
           '';
         }
       ];
-
-      # Deprecation warning for ollamaReverseProxy
-      warnings = lib.optional cfg.local.ollamaReverseProxy.enable ''
-        services.ai.local.ollamaReverseProxy is deprecated.
-
-        Use services.ai.local.tailscaleServe instead for simpler Tailscale HTTPS exposure:
-          services.ai.local.ollamaReverseProxy.enable = false;
-          services.ai.local.tailscaleServe.enable = true;
-
-        The ollamaReverseProxy option will be removed in a future release.
-      '';
     }
 
     # Base AI configuration (always enabled when services.ai.enable = true)
@@ -315,10 +244,16 @@ in
           uv # Python package manager for uvx
         ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
+
+      # Tailscale Services registration
+      # Provides unique DNS name: axios-ollama.<tailnet>.ts.net
+      networking.tailscale.services."axios-ollama" = {
+        enable = true;
+        backend = "http://127.0.0.1:11434";
+      };
     })
 
-    # Client role: Remote Ollama via Tailscale
-    # Assumes server uses Tailscale Services (axios-ollama.<tailnet>.ts.net)
+    # Client role: Remote Ollama via Tailscale Services
     (lib.mkIf (cfg.enable && cfg.local.enable && isClient) {
       # Set OLLAMA_HOST environment variable for all tools that use Ollama
       # Uses Tailscale Services DNS name (no port needed)
@@ -338,70 +273,6 @@ in
           uv # Python package manager for uvx
         ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
-    })
-
-    # Tailscale serve for Ollama API (server role only, legacy mode)
-    (lib.mkIf
-      (cfg.enable && cfg.local.enable && isServer && cfg.local.tailscaleServe.enable && !useServices)
-      {
-        # Systemd service to configure Tailscale serve
-        # Note: tailscale serve configuration persists until reset
-        systemd.services.tailscale-serve-ollama = {
-          description = "Configure Tailscale serve for Ollama API";
-          after = [
-            "network-online.target"
-            "tailscaled.service"
-            "ollama.service"
-          ];
-          wants = [
-            "network-online.target"
-            "tailscaled.service"
-          ];
-          wantedBy = [ "multi-user.target" ];
-
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --https ${toString cfg.local.tailscaleServe.httpsPort} http://127.0.0.1:11434";
-            ExecStop = "${pkgs.tailscale}/bin/tailscale serve --https ${toString cfg.local.tailscaleServe.httpsPort} off";
-          };
-        };
-      }
-    )
-
-    # Tailscale Services registration for Ollama (when authMode = "authkey")
-    # This provides unique DNS name: axios-ollama.<tailnet>.ts.net
-    (lib.mkIf (cfg.enable && cfg.local.enable && isServer && useServices) {
-      networking.tailscale.services."axios-ollama" = {
-        enable = true;
-        backend = "http://127.0.0.1:11434";
-      };
-    })
-
-    # Legacy: Ollama reverse proxy via Caddy (deprecated, server role only)
-    (lib.mkIf (cfg.enable && cfg.local.enable && isServer && cfg.local.ollamaReverseProxy.enable) {
-      selfHosted.caddy.routes.ollama =
-        let
-          tailscaleDomain = config.networking.tailscale.domain or null;
-          domain =
-            if cfg.local.ollamaReverseProxy.domain != null then
-              cfg.local.ollamaReverseProxy.domain
-            else if tailscaleDomain != null then
-              "${config.networking.hostName}.${tailscaleDomain}"
-            else
-              throw ''
-                services.ai.local.ollamaReverseProxy requires either:
-                - services.ai.local.ollamaReverseProxy.domain to be set explicitly, OR
-                - networking.tailscale.domain to be configured (enable tailscale module)
-              '';
-          path = cfg.local.ollamaReverseProxy.path;
-        in
-        {
-          inherit domain;
-          path = "${path}/*";
-          target = "http://127.0.0.1:11434";
-          priority = 100; # Path-specific - evaluated before catch-all
-        };
     })
   ];
 }

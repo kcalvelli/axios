@@ -10,42 +10,10 @@ let
   # Get webui config from NixOS system config
   webuiCfg = osConfig.services.ai.webui or { };
   isEnabled = webuiCfg.enable or false;
-  isServer = (webuiCfg.role or "server") == "server";
-  isClient = (webuiCfg.role or "server") == "client";
 
-  # Tailscale config for detecting Services mode
-  tsCfg = osConfig.networking.tailscale or { };
-  serverUsesServices = (tsCfg.authMode or "interactive") == "authkey";
-
-  # Use service DNS if:
-  # - Server with authkey mode (registers services locally)
-  # - Client role (assumes server uses Tailscale Services)
-  useServiceDns = serverUsesServices || isClient;
-
-  # PWA URL generation
-  # When Tailscale Services: use service DNS name (no port)
-  # Legacy mode: use hostname:port format
+  # PWA URL: always uses Tailscale Services DNS name
   tailnetDomain = webuiCfg.pwa.tailnetDomain or "";
-
-  pwaUrl =
-    if useServiceDns then
-      # Tailscale Services: unique DNS name per service
-      "https://axios-ai-chat.${tailnetDomain}/"
-    else
-      # Legacy: hostname with port
-      let
-        effectiveHost =
-          if isClient then
-            webuiCfg.serverHost or "localhost"
-          else
-            osConfig.networking.hostName or "localhost";
-        httpsPort =
-          if isClient then
-            toString (webuiCfg.serverPort or 8444)
-          else
-            toString (webuiCfg.tailscaleServe.httpsPort or 8444);
-      in
-      "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
+  pwaUrl = "https://axios-ai-chat.${tailnetDomain}/";
 
   # Unique window class for this PWA
   # --class only works when combined with --user-data-dir (Chromium bug #118613)

@@ -1,5 +1,5 @@
 # Immich Service Module
-# Self-hosted photo and video backup solution with Tailscale HTTPS
+# Self-hosted photo and video backup solution with Tailscale Services HTTPS
 {
   config,
   lib,
@@ -11,21 +11,14 @@ let
   cfg = config.selfHosted.immich;
   selfHostedCfg = config.selfHosted;
   tailscaleDomain = config.networking.tailscale.domain;
+  tsCfg = config.networking.tailscale;
+
+  # Service domain: axios-immich.<tailnet>.ts.net
+  serviceDomain = "axios-immich.${tailscaleDomain}";
 in
 {
   options.selfHosted.immich = {
     enable = lib.mkEnableOption "Immich photo and video backup service";
-
-    subdomain = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "immich";
-      description = ''
-        Subdomain for Immich service.
-        If null, uses the system hostname.
-        Full domain will be: {subdomain}.{tailscale.domain}
-      '';
-    };
 
     port = lib.mkOption {
       type = lib.types.port;
@@ -83,12 +76,30 @@ in
             selfHosted.immich.gpuType = "amd";  # or "nvidia" or "intel"
         '';
       }
+      {
+        assertion = tailscaleDomain != null;
+        message = ''
+          selfHosted.immich requires networking.tailscale.domain to be set.
+
+          Find your tailnet domain in the Tailscale admin console.
+          Example: networking.tailscale.domain = "taile0fb4.ts.net";
+        '';
+      }
+      {
+        assertion = tsCfg.authMode == "authkey";
+        message = ''
+          selfHosted.immich requires networking.tailscale.authMode = "authkey".
+
+          Immich uses Tailscale Services for HTTPS, which requires tag-based identity.
+          Set up an auth key in the Tailscale admin console with appropriate tags.
+        '';
+      }
     ];
 
     # Enable Immich service
     services.immich = {
       enable = true;
-      host = "127.0.0.1"; # Only listen locally, Caddy handles external access
+      host = "127.0.0.1"; # Only listen locally, Tailscale Services handles external access
       port = cfg.port;
       mediaLocation = cfg.mediaLocation;
 
@@ -97,48 +108,16 @@ in
 
       settings = {
         newVersionCheck.enabled = false;
-        server.externalDomain =
-          let
-            domain =
-              if cfg.subdomain != null then
-                "${cfg.subdomain}.${tailscaleDomain}"
-              else
-                "${config.networking.hostName}.${tailscaleDomain}";
-          in
-          "https://${domain}";
+        server.externalDomain = "https://${serviceDomain}";
       };
     };
 
-    # Register Immich route in Caddy route registry
-    selfHosted.caddy.routes.immich =
-      let
-        domain =
-          if cfg.subdomain != null then
-            "${cfg.subdomain}.${tailscaleDomain}"
-          else
-            "${config.networking.hostName}.${tailscaleDomain}";
-      in
-      {
-        inherit domain;
-        path = null; # Catch-all (will be ordered after path-specific routes)
-        target = "http://127.0.0.1:${toString cfg.port}";
-        priority = 1000; # Catch-all - evaluated last
-
-        # reverse_proxy subdirectives
-        extraConfig = ''
-          # Prevent WebSocket timeout disconnects
-          stream_timeout 0
-          stream_close_delay 1h
-        '';
-
-        # handle-level directives
-        handleConfig = ''
-          # Immich requires large uploads for photos/videos
-          request_body {
-            max_size 50GB
-          }
-        '';
-      };
+    # Tailscale Services registration
+    # Provides unique DNS name: axios-immich.<tailnet>.ts.net
+    networking.tailscale.services."axios-immich" = {
+      enable = true;
+      backend = "http://127.0.0.1:${toString cfg.port}";
+    };
 
     # GPU user groups for hardware acceleration
     users.users.immich.extraGroups = lib.optionals cfg.enableGpuAcceleration [

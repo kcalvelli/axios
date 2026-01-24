@@ -12,37 +12,10 @@ let
   pimCfg = osConfig.pim or { };
   isEnabled = pimCfg.enable or false;
   isServer = (pimCfg.role or "server") == "server";
-  isClient = (pimCfg.role or "server") == "client";
 
-  # Tailscale config for detecting Services mode
-  tsCfg = osConfig.networking.tailscale or { };
-  serverUsesServices = (tsCfg.authMode or "interactive") == "authkey";
-
-  # Use service DNS if:
-  # - Server with authkey mode (registers services locally)
-  # - Client role (assumes server uses Tailscale Services)
-  useServiceDns = serverUsesServices || isClient;
-
-  # PWA URL generation
-  # When Tailscale Services: use service DNS name (no port)
-  # Legacy mode: use hostname:port format
+  # PWA URL: always uses Tailscale Services DNS name
   tailnetDomain = pimCfg.pwa.tailnetDomain or "";
-
-  pwaUrl =
-    if useServiceDns then
-      # Tailscale Services: unique DNS name per service
-      "https://axios-mail.${tailnetDomain}/"
-    else
-      # Legacy: hostname with port
-      let
-        effectiveHost =
-          if pimCfg.pwa.serverHost or null != null then
-            pimCfg.pwa.serverHost
-          else
-            osConfig.networking.hostName or "localhost";
-        httpsPort = toString (pimCfg.pwa.httpsPort or 8443);
-      in
-      "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
+  pwaUrl = "https://axios-mail.${tailnetDomain}/";
 
   # Unique window class for this PWA
   # --class only works when combined with --user-data-dir (Chromium bug #118613)

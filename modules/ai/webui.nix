@@ -13,7 +13,6 @@ let
   isServer = cfg.role == "server";
   isClient = cfg.role == "client";
   tsCfg = config.networking.tailscale;
-  useServices = tsCfg.authMode == "authkey";
 in
 {
   options.services.ai.webui = {
@@ -28,7 +27,8 @@ in
       description = ''
         Open WebUI deployment role:
         - "server": Run Open WebUI service locally
-        - "client": PWA desktop entry only (connects to remote server)
+                    Auto-registers as axios-ai-chat.<tailnet>.ts.net via Tailscale Services
+        - "client": PWA desktop entry only (connects to axios-ai-chat.<tailnet>.ts.net)
       '';
     };
 
@@ -51,29 +51,6 @@ in
         default = "http://localhost:11434";
         description = "Ollama API endpoint URL";
       };
-    };
-
-    tailscaleServe = {
-      enable = lib.mkEnableOption "Expose Open WebUI via Tailscale HTTPS (server role only)";
-      httpsPort = lib.mkOption {
-        type = lib.types.port;
-        default = 8444;
-        description = "HTTPS port for Tailscale serve";
-      };
-    };
-
-    # Client options
-    serverHost = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "edge";
-      description = "Hostname of Open WebUI server on tailnet (client role only)";
-    };
-
-    serverPort = lib.mkOption {
-      type = lib.types.port;
-      default = 8444;
-      description = "HTTPS port of the remote Open WebUI server (client role only)";
     };
 
     # PWA configuration (both roles)
@@ -102,16 +79,14 @@ in
               services.ai.webui.pwa.tailnetDomain = "taile0fb4.ts.net";
           '';
         }
-        # Client role requires tailnetDomain for Tailscale Services DNS
-        # (covered by pwa.enable assertion above when PWA is enabled)
-        # Tailscale serve only for server role
+        # Server role requires authkey mode for Tailscale Services
         {
-          assertion = !cfg.tailscaleServe.enable || isServer;
+          assertion = !(aiCfg.enable && cfg.enable && isServer) || tsCfg.authMode == "authkey";
           message = ''
-            services.ai.webui.tailscaleServe is only available for server role.
+            services.ai.webui.role = "server" requires networking.tailscale.authMode = "authkey".
 
-            You have role = "client" with tailscaleServe.enable = true.
-            Remove tailscaleServe or set role = "server".
+            Server role uses Tailscale Services for HTTPS, which requires tag-based identity.
+            Set up an auth key in the Tailscale admin console with appropriate tags.
           '';
         }
       ];
@@ -136,42 +111,16 @@ in
           ENABLE_SIGNUP = "false";
         };
       };
-    })
 
-    # Server role: Legacy Tailscale serve (only when NOT using Tailscale Services)
-    (lib.mkIf (aiCfg.enable && cfg.enable && isServer && cfg.tailscaleServe.enable && !useServices) {
-      systemd.services.tailscale-serve-open-webui = {
-        description = "Configure Tailscale serve for Open WebUI";
-        after = [
-          "network-online.target"
-          "tailscaled.service"
-          "open-webui.service"
-        ];
-        wants = [
-          "network-online.target"
-          "tailscaled.service"
-        ];
-        wantedBy = [ "multi-user.target" ];
-
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --https ${toString cfg.tailscaleServe.httpsPort} http://${cfg.host}:${toString cfg.port}";
-          ExecStop = "${pkgs.tailscale}/bin/tailscale serve --https ${toString cfg.tailscaleServe.httpsPort} off";
-        };
-      };
-    })
-
-    # Server role: Tailscale Services registration (when authMode = "authkey")
-    # This provides unique DNS name: axios-ai-chat.<tailnet>.ts.net
-    (lib.mkIf (aiCfg.enable && cfg.enable && isServer && useServices) {
+      # Tailscale Services registration
+      # Provides unique DNS name: axios-ai-chat.<tailnet>.ts.net
       networking.tailscale.services."axios-ai-chat" = {
         enable = true;
         backend = "http://${cfg.host}:${toString cfg.port}";
       };
     })
 
-    # Client role: No service, just ensure serverHost is available for home-manager
+    # Client role: No service, just PWA desktop entry
     # (PWA generation happens in home-manager module)
   ];
 }
