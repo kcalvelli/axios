@@ -214,10 +214,12 @@ in
           gemini-cli-bin
           inputs.antigravity-nix.packages.x86_64-linux.default
         ]
-        # Goose CLI (conditional on services.ai.goose.enable)
-        # Bleeding edge from llm-agents.nix for latest features
+        # Goose (conditional on services.ai.goose.enable)
+        # CLI: Bleeding edge from llm-agents.nix for latest features
+        # Desktop: Packaged from official GitHub releases
         ++ lib.optionals cfg.goose.enable [
           inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.goose-cli
+          pkgs.goose-desktop
         ];
     })
 
