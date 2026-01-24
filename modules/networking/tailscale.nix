@@ -120,6 +120,19 @@ in
       '';
     };
 
+    # Accept routes from other Tailscale nodes
+    acceptRoutes = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Accept routes advertised by other Tailscale nodes.
+        Required for clients to access Tailscale Services VIPs.
+
+        Default is true to enable access to Tailscale Services.
+        Set to false only if you have specific routing requirements.
+      '';
+    };
+
     # NEW: Tailscale Services
     services = lib.mkOption {
       type = lib.types.attrsOf serviceModule;
@@ -179,7 +192,9 @@ in
       tailscale = {
         enable = true;
         openFirewall = true;
-        extraSetFlags = lib.optional (cfg.operator != null) "--operator=${cfg.operator}";
+        extraSetFlags =
+          lib.optional (cfg.operator != null) "--operator=${cfg.operator}"
+          ++ lib.optional cfg.acceptRoutes "--accept-routes";
         useRoutingFeatures = "both";
 
         # Auth key authentication (for server/tag-based identity)
