@@ -1,8 +1,8 @@
-# Proposal: MCP Calendar Integration
+# Proposal: MCP Calendar Integration (via axios-dav)
 
 ## Summary
 
-Extend axios's existing vdirsyncer calendar infrastructure with declarative Nix configuration and an MCP server for AI-powered calendar management.
+Integrate axios-dav external flake to provide declarative CalDAV/CardDAV synchronization and MCP server for AI-powered calendar and contacts management.
 
 ## Motivation
 
@@ -14,388 +14,170 @@ axios currently has calendar sync infrastructure via vdirsyncer, but it has sign
 2. **Manual configuration**: Users must manually create `~/.config/vdirsyncer/config`
 3. **No AI integration**: Claude Code, Gemini CLI cannot query or manage calendar
 4. **No declarative config**: Credentials and calendar sources not in Nix
+5. **No contacts support**: khard exists but is not declaratively configured
 
 ### Solution
 
-A phased approach that builds on existing infrastructure:
+Create **axios-dav** as an external flake (similar to axios-ai-mail) that:
 
-1. **Phase 1**: Declarative vdirsyncer configuration (Nix → config file generation)
-2. **Phase 2**: Enable two-way sync
-3. **Phase 3**: Build mcp-calendar MCP server
-4. **Phase 4**: Integrate with AI module
+1. **Declarative Configuration**: Generate vdirsyncer, khal, and khard configs from Nix options
+2. **Two-Way Sync**: Support bidirectional sync with Google Calendar and CalDAV providers
+3. **MCP Server**: Build mcp-dav MCP server for AI calendar and contacts access
+4. **Modular Design**: Can be used standalone or as an axios flake input
 
-## Current State
+## Architecture Decision: External Flake
 
-### Existing Infrastructure
+**Why external?**
 
-```
-vdirsyncer (sync) → ~/.calendars/ (ics files) → khal (CLI/widget)
-                                              → PWA apps (GUI)
-```
+Following the axios-ai-mail pattern, calendar/contacts functionality is complex enough to warrant a dedicated repository:
 
-**Files**:
-- `home/calendar/default.nix` - systemd timers for sync
-- `modules/pim/default.nix` - installs vdirsyncer package
+1. **Standalone use**: Users without axios can use axios-dav independently
+2. **Focused development**: Separate test cycles, releases, and documentation
+3. **Clear boundaries**: Calendar/contacts is a distinct domain from core OS configuration
+4. **Simpler axios core**: axios imports the flake rather than maintaining complex PIM logic
 
-**Limitations**:
-- Config at `~/.config/vdirsyncer/config` is manual
-- `conflict_resolution = "b wins"` means remote always wins (read-only behavior)
-- No programmatic access for AI tools
+**Repository**: `github:kcalvelli/axios-dav`
 
-## Proposed Changes
+## axios-dav Features
 
-### Phase 1: Declarative vdirsyncer Configuration
+### Calendar (CalDAV)
 
-#### New Module Options
+- Google Calendar (OAuth)
+- Fastmail, Nextcloud, any CalDAV server
+- HTTP ICS subscriptions (read-only)
+- Two-way sync support
+
+### Contacts (CardDAV)
+
+- Google Contacts (OAuth via CardDAV endpoint)
+- Fastmail, Nextcloud, any CardDAV server
+
+### MCP Server (mcp-dav)
+
+**Calendar Tools:**
+- `list_events` - List events in date range
+- `search_events` - Search events by text
+- `create_event` - Create new calendar event
+- `get_free_busy` - Check availability
+
+**Contacts Tools:**
+- `list_contacts` - List all contacts
+- `search_contacts` - Search by name/email
+- `get_contact` - Get contact details
+
+## axios Integration
+
+### Flake Input
 
 ```nix
-services.calendar = {
-  enable = lib.mkEnableOption "Calendar sync and management";
-
-  calendars = lib.mkOption {
-    type = lib.types.attrsOf (lib.types.submodule {
-      options = {
-        type = lib.mkOption {
-          type = lib.types.enum [ "google" "caldav" "http" ];
-          description = "Calendar provider type";
-        };
-
-        # Google Calendar
-        tokenFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to OAuth token file (agenix secret)";
-        };
-
-        # CalDAV
-        url = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "CalDAV server URL";
-        };
-
-        passwordFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Path to password file (agenix secret)";
-        };
-
-        username = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "CalDAV username";
-        };
-
-        # HTTP (read-only ICS subscriptions)
-        icsUrl = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          description = "URL to ICS file for read-only subscription";
-        };
-
-        # Sync behavior
-        readWrite = lib.mkOption {
-          type = lib.types.bool;
-          default = false;
-          description = "Enable two-way sync (allows AI to create events)";
-        };
-
-        collections = lib.mkOption {
-          type = lib.types.listOf lib.types.str;
-          default = [ "from b" ];
-          description = "Calendar collections to sync";
-        };
-      };
-    });
-    default = { };
-    description = "Calendar sources to sync";
-  };
-
-  sync = {
-    frequency = lib.mkOption {
-      type = lib.types.str;
-      default = "5m";
-      description = "Sync frequency (systemd timer format)";
-    };
-
-    conflictResolution = lib.mkOption {
-      type = lib.types.enum [ "remote" "local" "newer" ];
-      default = "remote";
-      description = "How to resolve sync conflicts";
-    };
-  };
-
-  mcp = {
-    enable = lib.mkEnableOption "MCP server for AI calendar access" // {
-      default = true;
-    };
-
-    writeAccess = lib.mkOption {
-      type = lib.types.bool;
-      default = true;
-      description = "Allow AI to create/modify events (requires readWrite calendars)";
-    };
-  };
+# axios/flake.nix
+inputs.axios-dav = {
+  url = "github:kcalvelli/axios-dav";
+  inputs.nixpkgs.follows = "nixpkgs";
 };
 ```
 
-#### Generated vdirsyncer Config
-
-From the Nix configuration, generate `~/.config/vdirsyncer/config`:
-
-```ini
-# Auto-generated by axiOS - do not edit manually
-# Source: services.calendar in your NixOS configuration
-
-[general]
-status_path = "~/.local/share/vdirsyncer/status/"
-
-[pair personal]
-a = "personal_local"
-b = "personal_remote"
-collections = ["from b"]
-conflict_resolution = "b wins"
-
-[storage personal_local]
-type = "filesystem"
-path = "~/.local/share/calendars/personal/"
-fileext = ".ics"
-
-[storage personal_remote]
-type = "google_calendar"
-token_file = "/run/agenix/google-calendar-token"
-client_id.fetch = ["command", "cat", "/run/agenix/google-client-id"]
-client_secret.fetch = ["command", "cat", "/run/agenix/google-client-secret"]
-```
-
-### Phase 2: Two-Way Sync
-
-Enable bidirectional synchronization:
+### Module Import
 
 ```nix
-calendars.personal = {
-  type = "google";
-  tokenFile = config.age.secrets.google-calendar-token.path;
-  readWrite = true;  # ← Enables two-way sync
-};
+# lib/default.nix or modules/pim/default.nix
+imports = [
+  inputs.axios-dav.nixosModules.default
+];
 ```
 
-Changes to generated config:
-- `conflict_resolution = "newer wins"` instead of `"b wins"`
-- Local changes propagate to remote on next sync
-
-### Phase 3: MCP Calendar Server
-
-#### New Package: pkgs/mcp-calendar
-
-```
-pkgs/mcp-calendar/
-├── default.nix
-└── src/
-    ├── main.py
-    ├── local.py      # Read from ~/.local/share/calendars/ (khal library)
-    ├── caldav.py     # Direct CalDAV operations for writes
-    └── tools.py      # MCP tool definitions
-```
-
-#### MCP Tools
-
-```typescript
-// Tools exposed by mcp-calendar
-
-list_events(params: {
-  calendar?: string;      // Which calendar (default: all)
-  start?: string;         // ISO date (default: today)
-  end?: string;           // ISO date (default: +7 days)
-  limit?: number;         // Max events (default: 50)
-}): Event[];
-
-search_events(params: {
-  query: string;          // Search term in summary/description
-  calendar?: string;
-  start?: string;
-  end?: string;
-}): Event[];
-
-get_free_busy(params: {
-  start: string;          // ISO datetime
-  end: string;            // ISO datetime
-  calendars?: string[];   // Which calendars to check
-}): TimeslotStatus[];
-
-create_event(params: {
-  calendar: string;       // Must be readWrite calendar
-  summary: string;
-  start: string;          // ISO datetime
-  end: string;            // ISO datetime
-  description?: string;
-  location?: string;
-  attendees?: string[];   // Email addresses
-}): Event;
-
-update_event(params: {
-  calendar: string;
-  event_id: string;
-  summary?: string;
-  start?: string;
-  end?: string;
-  description?: string;
-  location?: string;
-}): Event;
-
-delete_event(params: {
-  calendar: string;
-  event_id: string;
-}): { success: boolean };
-```
-
-### Phase 4: AI Module Integration
-
-Add to `home/ai/mcp.nix`:
+### Home-Manager Module
 
 ```nix
-settings.servers.calendar = lib.mkIf (osConfig.services.calendar.mcp.enable or false) {
-  command = "${pkgs.mcp-calendar}/bin/mcp-calendar";
-  args = [
-    "--calendars-dir" "${config.home.homeDirectory}/.local/share/calendars"
-    "--config" "${config.home.homeDirectory}/.config/vdirsyncer/config"
-  ];
-};
+# home/default.nix
+imports = [
+  inputs.axios-dav.homeModules.default
+];
 ```
 
-## Configuration Example
+### Configuration Example
 
 ```nix
 {
-  # Enable calendar with declarative config
-  services.calendar = {
+  services.axios-dav = {
     enable = true;
 
-    calendars = {
-      personal = {
-        type = "google";
-        tokenFile = config.age.secrets.google-calendar-token.path;
-        readWrite = true;  # AI can create events
-      };
-
-      work = {
-        type = "caldav";
-        url = "https://caldav.fastmail.com/dav/calendars/user/me@fastmail.com/";
-        username = "me@fastmail.com";
-        passwordFile = config.age.secrets.fastmail-app-password.path;
-        readWrite = true;
-      };
-
-      holidays = {
-        type = "http";
-        icsUrl = "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics";
-        readWrite = false;  # Subscriptions are always read-only
-      };
-    };
-
-    mcp = {
+    calendar = {
       enable = true;
-      writeAccess = true;
+      defaultCalendar = "personal";
+
+      accounts = {
+        personal = {
+          type = "google";
+          tokenFile = config.age.secrets.google-calendar-token.path;
+          clientId = "your-client-id.apps.googleusercontent.com";
+          clientSecretFile = config.age.secrets.google-client-secret.path;
+        };
+      };
     };
+
+    contacts = {
+      enable = true;
+
+      accounts = {
+        personal = {
+          type = "google";
+          tokenFile = config.age.secrets.google-contacts-token.path;
+          clientId = "your-client-id.apps.googleusercontent.com";
+          clientSecretFile = config.age.secrets.google-client-secret.path;
+        };
+      };
+    };
+
+    sync.frequency = "5m";
+    mcp.enable = true;
   };
 }
 ```
 
-## Sample AI Interactions
+## Impact on axios
 
-```
-User: "What's on my calendar tomorrow?"
+### What to Remove from axios
 
-AI: [Uses mcp-calendar/list_events with start=tomorrow]
+1. `home/calendar/default.nix` - Replaced by axios-dav systemd services
+2. vdirsyncer from `modules/pim/default.nix` - Installed by axios-dav instead
 
-You have 3 events tomorrow:
-- 9:00 AM - 9:30 AM: Team standup (Work)
-- 12:00 PM - 1:00 PM: Lunch with Sarah @ Cafe Roma (Personal)
-- 3:00 PM - 4:00 PM: Dentist appointment (Personal)
-```
+### What axios Keeps
 
-```
-User: "Schedule a code review with Bob for Friday at 2pm"
-
-AI: [Uses mcp-calendar/create_event]
-
-Created event on your Work calendar:
-- "Code Review with Bob"
-- Friday, January 24 at 2:00 PM - 3:00 PM
-
-The event will sync to Google Calendar within 5 minutes.
-```
-
-## Impact Analysis
+1. DMS integration with khal widget (`enableCalendarEvents`)
+2. MCP server registration in `home/ai/mcp.nix` (conditional on axios-dav)
 
 ### Migration Path
 
-**Phase 1** (Declarative config):
-- Existing manual configs continue to work
-- Users can gradually migrate to declarative
-- No breaking changes
+1. **Phase 1**: Add axios-dav as flake input, test alongside existing setup
+2. **Phase 2**: Remove redundant calendar code from axios
+3. **Phase 3**: Update documentation
 
-**Phase 3** (MCP server):
-- New capability, additive only
-- Requires `readWrite = true` calendars for mutations
+## Dependencies
 
-### Dependencies
-
-- Phase 1: None
-- Phase 2: Phase 1
-- Phase 3: Phase 2, MCP infrastructure
-- Phase 4: Phase 3, AI module
+- axios-dav must be developed first (greenfield repository created)
+- OAuth setup documentation required for Google accounts
 
 ## Testing Requirements
 
-### Phase 1
-- [ ] Google Calendar config generation
-- [ ] CalDAV config generation
-- [ ] HTTP subscription config generation
-- [ ] agenix secret integration
-- [ ] systemd timer continues working
+### Integration Tests
 
-### Phase 2
-- [ ] Two-way sync with Google Calendar
-- [ ] Conflict resolution works
-- [ ] Local changes propagate to remote
+- [ ] axios-dav imports correctly as flake input
+- [ ] NixOS module options work
+- [ ] Home-manager module options work
+- [ ] MCP server registered in mcp-cli
+- [ ] Calendar tools accessible from Claude Code
+- [ ] Contacts tools accessible from Claude Code
 
-### Phase 3
-- [ ] list_events returns correct data
-- [ ] search_events filters properly
-- [ ] create_event creates valid ICS
-- [ ] update_event modifies existing
-- [ ] delete_event removes event
-- [ ] Read-only calendars reject writes
+## Timeline
 
-### Phase 4
-- [ ] MCP server appears in mcp-cli
-- [ ] Claude Code can use calendar tools
-- [ ] Gemini CLI can use calendar tools
-
-## Alternatives Considered
-
-### Alternative 1: Google Calendar API directly
-
-Skip vdirsyncer, talk directly to Google API.
-
-**Rejected**: Loses offline capability, doesn't support CalDAV/Nextcloud.
-
-### Alternative 2: Adopt clawdbot's gogcli
-
-Use clawdbot's Google Calendar plugin.
-
-**Rejected**: Google-only, doesn't integrate with MCP, separate plugin architecture.
-
-### Alternative 3: Evolution Data Server
-
-Use GNOME's EDS for calendar management.
-
-**Rejected**: Heavy dependency, previously removed from axios in favor of lighter stack.
+1. **axios-dav development**: See axios-dav greenfield proposal
+2. **axios integration**: After axios-dav has basic functionality
 
 ## References
 
-- Current calendar module: `home/calendar/default.nix`
+- axios-dav repository: `~/Projects/axios-dav`
+- axios-ai-mail (pattern to follow): `github:kcalvelli/axios-ai-mail`
 - vdirsyncer documentation: https://vdirsyncer.pimutils.org/
 - khal documentation: https://khal.readthedocs.io/
-- MCP specification: https://modelcontextprotocol.io/
+- khard documentation: https://khard.readthedocs.io/
