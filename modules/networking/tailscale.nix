@@ -35,7 +35,10 @@ let
         "tailscaled.service"
         "network-online.target"
       ];
-      wants = [ "tailscaled.service" ];
+      wants = [
+        "tailscaled.service"
+        "network-online.target"
+      ];
       wantedBy = [ "multi-user.target" ];
 
       # Wait for tailscaled to be fully ready
