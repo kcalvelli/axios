@@ -17,7 +17,6 @@ let
     "nimfmkdcckklbkhjjkmbjfcpaiifgamg" # Brave Talk
     "aomjjfmjlecjafonmbhlgochhaoplhmo" # 1Password
     "fcoeoabgfenejglbffodgkkbkcdhcgfn" # Claude
-    "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader - dark mode
   ];
 
   # Base arguments for all configurations
