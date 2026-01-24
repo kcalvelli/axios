@@ -65,7 +65,8 @@ pim = {
     description = ''
       PIM deployment role:
       - "server": Run axios-ai-mail backend service (requires AI module)
-      - "client": PWA desktop entry only (connects to server on tailnet)
+                  Auto-registers as axios-mail.<tailnet>.ts.net via Tailscale Services
+      - "client": PWA desktop entry only (connects to axios-mail.<tailnet>.ts.net)
     '';
   };
 
@@ -79,14 +80,6 @@ pim = {
   user = lib.mkOption {
     type = lib.types.str;
     description = "User to run axios-ai-mail service as (server role only)";
-  };
-
-  tailscaleServe = {
-    enable = lib.mkEnableOption "Expose axios-ai-mail via Tailscale HTTPS";
-    httpsPort = lib.mkOption {
-      type = lib.types.port;
-      default = 8443;
-    };
   };
 
   sync = {
@@ -105,32 +98,20 @@ pim = {
   # PWA options (both roles)
   pwa = {
     enable = lib.mkEnableOption "Generate axios-ai-mail PWA desktop entry";
-    serverHost = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      example = "edge";
-      description = ''
-        Hostname of axios-ai-mail server on tailnet.
-        - null: Use local hostname (for server role)
-        - "edge": Connect to edge.tailnet.ts.net (for client role)
-      '';
-    };
     tailnetDomain = lib.mkOption {
       type = lib.types.str;
       example = "taile0fb4.ts.net";
       description = ''
         Tailscale tailnet domain for PWA URL generation.
         Required when pwa.enable = true.
+        PWA points to: https://axios-mail.<tailnetDomain>/
       '';
-    };
-    httpsPort = lib.mkOption {
-      type = lib.types.port;
-      default = 8443;
-      description = "HTTPS port of the axios-ai-mail server";
     };
   };
 };
 ```
+
+> **Note**: Client role requires a server with `networking.tailscale.authMode = "authkey"` running on the tailnet. The server must be deployed first to register the Tailscale Service `axios-mail`.
 
 ### Home-Manager Module Options
 
@@ -229,11 +210,13 @@ PIM module SHALL support multi-host Tailnet deployments via role-based configura
 
 - **Given**: User has `modules.pim = true`
 - **And**: `pim.role = "client"`
-- **And**: `pim.pwa.serverHost = "edge"`
+- **And**: `pim.pwa.tailnetDomain = "taile0fb4.ts.net"`
 - **When**: NixOS configuration is evaluated
 - **Then**: axios-ai-mail service is NOT installed
 - **And**: AI module is NOT required
-- **And**: PWA desktop entry points to `https://edge.${tailnetDomain}:${httpsPort}/`
+- **And**: PWA desktop entry points to `https://axios-mail.${tailnetDomain}/`
+
+> **Note**: Client assumes a server with Tailscale Services is running. Deploy server first.
 
 ### Requirement: AI Module Dependency (Server Role Only)
 
@@ -311,42 +294,44 @@ axios-ai-mail SHALL provide automated background email synchronization.
 
 ### Requirement: Cross-Device Access
 
-axios-ai-mail SHALL support secure cross-device access via Tailscale.
+axios-ai-mail SHALL support secure cross-device access via Tailscale Services.
 
-#### Scenario: Tailscale serve enabled
+#### Scenario: Tailscale Services (server with authkey mode)
 
-- **Given**: `pim.tailscaleServe.enable = true`
+- **Given**: Server has `networking.tailscale.authMode = "authkey"`
+- **And**: `pim.role = "server"`
 - **And**: Device is connected to tailnet
-- **When**: User accesses `https://hostname.tailnet.ts.net:8443`
+- **When**: User accesses `https://axios-mail.<tailnet>.ts.net`
 - **Then**: User can access axios-ai-mail web UI securely
+- **And**: Service is auto-registered via Tailscale Services
 
 ### Requirement: PWA Desktop Entry
 
 Users SHALL be able to generate a desktop entry for axios-ai-mail.
 
-#### Scenario: PWA on server role (local hostname)
+#### Scenario: PWA on server role
 
 - **Given**: `pim.role = "server"`
 - **And**: `pim.pwa.enable = true`
 - **And**: `pim.pwa.tailnetDomain = "taile0fb4.ts.net"`
-- **And**: `pim.pwa.serverHost` is not set (null)
 - **When**: Home-manager activates
-- **Then**: Desktop entry is created for "Axios AI Mail"
-- **And**: URL is `https://${localHostname}.${tailnetDomain}:${httpsPort}/`
-- **And**: Icon is axios mail icon
-- **And**: StartupWMClass matches Brave app window
+- **Then**: Desktop entry is created for "Axios Mail"
+- **And**: URL is `https://axios-mail.${tailnetDomain}/`
+- **And**: Icon is axios-mail icon
+- **And**: StartupWMClass is "axios-mail"
 
-#### Scenario: PWA on client role (remote server)
+#### Scenario: PWA on client role
 
 - **Given**: `pim.role = "client"`
 - **And**: `pim.pwa.enable = true`
-- **And**: `pim.pwa.serverHost = "edge"`
 - **And**: `pim.pwa.tailnetDomain = "taile0fb4.ts.net"`
 - **When**: Home-manager activates
-- **Then**: Desktop entry is created for "Axios AI Mail"
-- **And**: URL is `https://edge.${tailnetDomain}:${httpsPort}/`
-- **And**: Icon is axios mail icon
-- **And**: StartupWMClass matches Brave app window
+- **Then**: Desktop entry is created for "Axios Mail"
+- **And**: URL is `https://axios-mail.${tailnetDomain}/`
+- **And**: Icon is axios-mail icon
+- **And**: StartupWMClass is "axios-mail"
+
+> **Note**: Both server and client use the same Tailscale Services URL. Client requires server to be deployed first.
 
 #### Scenario: PWA enabled without tailnet domain
 
@@ -356,21 +341,13 @@ Users SHALL be able to generate a desktop entry for axios-ai-mail.
 - **Then**: An assertion error is raised
 - **And**: Error message explains tailnetDomain is required
 
-#### Scenario: Client role without serverHost
-
-- **Given**: `pim.role = "client"`
-- **And**: `pim.pwa.serverHost` is not set (null)
-- **When**: NixOS configuration is evaluated
-- **Then**: An assertion error is raised
-- **And**: Error message explains serverHost is required for client role
-
 ## Constraints
 
 - **AI Module Required (Server Only)**: PIM server role requires `modules.ai = true` (enforced via assertion)
 - **Client Role Exempt**: PIM client role does NOT require AI module
 - **Ollama Required (Server Only)**: AI classification requires Ollama running on server
-- **Tailscale for Multi-Device**: Cross-device access requires Tailscale
-- **Client Requires serverHost**: Client role requires `pim.pwa.serverHost` to be set
+- **Tailscale Services**: Cross-device access uses Tailscale Services (`axios-mail.<tailnet>.ts.net`)
+- **Server First**: Client role requires server with `authMode = "authkey"` to be deployed first
 - **Secret Management**: Credentials MUST use file-based secrets (agenix, sops-nix)
 - **No Hardcoded Accounts**: Account configuration is user-defined
 
@@ -418,6 +395,6 @@ journalctl --user -u axios-ai-mail-sync
 
 - **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
   - Local port: 8080 (default)
-  - Tailscale port: 8443 (default)
+  - Tailscale Services: `axios-mail.<tailnet>.ts.net` (port 443)
 - **AI Module**: See `openspec/specs/ai/spec.md` for Ollama configuration
 - **Upstream**: [axios-ai-mail repository](https://github.com/kcalvelli/axios-ai-mail)

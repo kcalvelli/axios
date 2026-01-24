@@ -39,13 +39,16 @@ The local LLM stack supports server/client architecture for distributed inferenc
 - **Server Role** (`role = "server"`, default):
   - Run Ollama locally with GPU acceleration
   - Full ROCm stack installed (AMD GPUs)
-  - Can expose API via Tailscale serve for remote clients
+  - Auto-registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services
 
 - **Client Role** (`role = "client"`):
-  - Connect to remote Ollama server on tailnet
+  - Connect to remote Ollama server via Tailscale Services
   - No local GPU stack installed (lighter footprint)
-  - Sets `OLLAMA_HOST` environment variable for all tools
+  - Sets `OLLAMA_HOST` to `https://axios-ollama.<tailnet>.ts.net`
+  - Only requires `tailnetDomain` configuration
   - Ideal for lightweight laptops using a desktop as inference server
+
+> **Note**: Client role requires a server with `networking.tailscale.authMode = "authkey"` running on the tailnet. The server must be deployed first to register the Tailscale Services.
 
 **Default Models**: Minimal set for general use:
 - `mistral:7b` (4.4 GB) - General purpose, excellent quality/size ratio
@@ -60,7 +63,8 @@ The local LLM stack supports server/client architecture for distributed inferenc
 **Concurrency Limit**: Single model loading (`OLLAMA_MAX_LOADED_MODELS=1`) to prevent queue evictions.
 
 **Network Access**:
-- **Tailscale Serve** (recommended): `services.ai.local.tailscaleServe.enable = true` exposes Ollama API on port 8447 via Tailscale HTTPS.
+- **Tailscale Services** (default for authkey mode): Auto-registers as `axios-ollama.<tailnet>.ts.net` on port 443.
+- **Tailscale Serve** (legacy): `services.ai.local.tailscaleServe.enable = true` exposes on custom port (interactive auth mode only).
 - **Caddy Reverse Proxy** (deprecated): `services.ai.local.ollamaReverseProxy` - legacy path-based routing via Caddy.
 
 **Implementation**: `modules/ai/default.nix`
@@ -74,26 +78,24 @@ Web-based chat interface for interacting with local LLMs, exposed as a PWA.
 - **Server Role** (`role = "server"`, default):
   - Runs Open WebUI service locally
   - Connects to local Ollama instance
-  - Can expose via Tailscale serve for remote access
+  - Auto-registers as `axios-chat.<tailnet>.ts.net` via Tailscale Services
   - Privacy-preserving defaults (telemetry disabled)
 
 - **Client Role** (`role = "client"`):
   - No local service installed
-  - PWA desktop entry points to remote server
+  - PWA desktop entry points to `https://axios-chat.<tailnet>.ts.net`
+  - Only requires `tailnetDomain` configuration
   - Lightweight footprint for laptops
+
+> **Note**: Client role requires a server with `networking.tailscale.authMode = "authkey"` running on the tailnet. The server must be deployed first to register the Tailscale Services.
 
 **Configuration:**
 ```nix
+# Server role configuration
 services.ai.webui = {
   enable = true;
-  role = "server";  # or "client"
+  role = "server";
   port = 8081;      # Local port (default)
-
-  # Tailscale exposure (server role only)
-  tailscaleServe = {
-    enable = true;
-    httpsPort = 8444;
-  };
 
   # PWA desktop entry
   pwa = {
@@ -102,12 +104,10 @@ services.ai.webui = {
   };
 };
 
-# Client role configuration
+# Client role configuration (simplified - just needs tailnetDomain)
 services.ai.webui = {
   enable = true;
   role = "client";
-  serverHost = "edge";  # Remote server hostname
-  serverPort = 8444;    # Remote HTTPS port
   pwa = {
     enable = true;
     tailnetDomain = "taile0fb4.ts.net";
@@ -124,13 +124,13 @@ services.ai.webui = {
 
 **Access:**
 - Local: `http://localhost:8081`
-- Tailscale: `https://[hostname].[tailnet]:8444`
+- Tailscale Services: `https://axios-chat.<tailnet>.ts.net` (port 443)
 - PWA: "Axios AI Chat" desktop entry
 
 **Port Allocations:**
-| Service | Local Port | Tailscale Port |
-|---------|------------|----------------|
-| Open WebUI | 8081 | 8444 |
+| Service | Local Port | Tailscale Services |
+|---------|------------|-------------------|
+| Open WebUI | 8081 | axios-chat (443) |
 
 **Implementation**: `modules/ai/webui.nix`, `home/ai/webui.nix`
 
