@@ -294,7 +294,7 @@ in
     # Enable home-manager desktop modules
     home-manager.sharedModules = with homeModules; [
       desktop
-      calendar
+      # Calendar/contacts sync moved to axios-dav: https://github.com/kcalvelli/axios-dav
     ];
   };
 }

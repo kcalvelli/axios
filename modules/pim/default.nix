@@ -148,7 +148,7 @@ in
       "127.0.0.1" = [ "axios-mail.local" ];
     };
 
-    # Keep vdirsyncer for calendar sync (both roles)
-    environment.systemPackages = [ pkgs.vdirsyncer ];
+    # Calendar/contacts sync is handled by axios-dav
+    # See: https://github.com/kcalvelli/axios-dav
   };
 }
