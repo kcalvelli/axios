@@ -10,10 +10,21 @@ let
   # Get webui config from NixOS system config
   webuiCfg = osConfig.services.ai.webui or { };
   isEnabled = webuiCfg.enable or false;
+  isServer = (webuiCfg.role or "server") == "server";
 
-  # PWA URL: always uses Tailscale Services DNS name
+  # PWA URL differs based on role:
+  # - Server: Uses local domain (hairpinning restriction prevents VIP access)
+  # - Client: Uses Tailscale Services DNS name
   tailnetDomain = webuiCfg.pwa.tailnetDomain or "";
-  pwaUrl = "https://axios-ai-chat.${tailnetDomain}/";
+  localPort = webuiCfg.port or 8081;
+
+  pwaUrl =
+    if isServer then
+      # Server uses local domain via /etc/hosts (unique domain for app_id)
+      "http://axios-ai-chat.local:${toString localPort}/"
+    else
+      # Client uses Tailscale Services
+      "https://axios-ai-chat.${tailnetDomain}/";
 
   # Unique window class for this PWA
   # --class only works when combined with --user-data-dir (Chromium bug #118613)

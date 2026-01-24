@@ -251,6 +251,11 @@ in
         enable = true;
         backend = "http://127.0.0.1:11434";
       };
+
+      # Local hostname for server access (hairpinning workaround)
+      networking.hosts = {
+        "127.0.0.1" = [ "axios-ollama.local" ];
+      };
     })
 
     # Client role: Remote Ollama via Tailscale Services

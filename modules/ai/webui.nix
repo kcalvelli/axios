@@ -118,6 +118,13 @@ in
         enable = true;
         backend = "http://${cfg.host}:${toString cfg.port}";
       };
+
+      # Local hostname for server PWA (hairpinning workaround)
+      # Server can't access its own Tailscale Services VIPs, so we use a local domain
+      # This gives unique app_id for PWA icons on the server
+      networking.hosts = {
+        "127.0.0.1" = [ "axios-ai-chat.local" ];
+      };
     })
 
     # Client role: No service, just PWA desktop entry

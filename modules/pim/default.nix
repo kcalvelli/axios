@@ -141,6 +141,13 @@ in
       backend = "http://127.0.0.1:${toString cfg.port}";
     };
 
+    # Local hostname for server PWA (hairpinning workaround)
+    # Server can't access its own Tailscale Services VIPs, so we use a local domain
+    # This gives unique app_id for PWA icons on the server
+    networking.hosts = lib.mkIf isServer {
+      "127.0.0.1" = [ "axios-mail.local" ];
+    };
+
     # Keep vdirsyncer for calendar sync (both roles)
     environment.systemPackages = [ pkgs.vdirsyncer ];
   };

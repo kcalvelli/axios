@@ -13,9 +13,19 @@ let
   isEnabled = pimCfg.enable or false;
   isServer = (pimCfg.role or "server") == "server";
 
-  # PWA URL: always uses Tailscale Services DNS name
+  # PWA URL differs based on role:
+  # - Server: Uses local domain (hairpinning restriction prevents VIP access)
+  # - Client: Uses Tailscale Services DNS name
   tailnetDomain = pimCfg.pwa.tailnetDomain or "";
-  pwaUrl = "https://axios-mail.${tailnetDomain}/";
+  localPort = pimCfg.port or 8080;
+
+  pwaUrl =
+    if isServer then
+      # Server uses local domain via /etc/hosts (unique domain for app_id)
+      "http://axios-mail.local:${toString localPort}/"
+    else
+      # Client uses Tailscale Services
+      "https://axios-mail.${tailnetDomain}/";
 
   # Unique window class for this PWA
   # --class only works when combined with --user-data-dir (Chromium bug #118613)

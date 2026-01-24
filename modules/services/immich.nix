@@ -119,6 +119,13 @@ in
       backend = "http://127.0.0.1:${toString cfg.port}";
     };
 
+    # Local hostname for server PWA (hairpinning workaround)
+    # Server can't access its own Tailscale Services VIPs, so we use a local domain
+    # This gives unique app_id for PWA icons on the server
+    networking.hosts = {
+      "127.0.0.1" = [ "axios-immich.local" ];
+    };
+
     # GPU user groups for hardware acceleration
     users.users.immich.extraGroups = lib.optionals cfg.enableGpuAcceleration [
       "video"
