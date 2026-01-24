@@ -163,9 +163,9 @@ in
     })
 
     # Server role: Tailscale Services registration (when authMode = "authkey")
-    # This provides unique DNS name: axios-chat.<tailnet>.ts.net
+    # This provides unique DNS name: axios-ai-chat.<tailnet>.ts.net
     (lib.mkIf (aiCfg.enable && cfg.enable && isServer && useServices) {
-      networking.tailscale.services."axios-chat" = {
+      networking.tailscale.services."axios-ai-chat" = {
         enable = true;
         backend = "http://${cfg.host}:${toString cfg.port}";
       };

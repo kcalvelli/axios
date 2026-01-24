@@ -78,12 +78,12 @@ Web-based chat interface for interacting with local LLMs, exposed as a PWA.
 - **Server Role** (`role = "server"`, default):
   - Runs Open WebUI service locally
   - Connects to local Ollama instance
-  - Auto-registers as `axios-chat.<tailnet>.ts.net` via Tailscale Services
+  - Auto-registers as `axios-ai-chat.<tailnet>.ts.net` via Tailscale Services
   - Privacy-preserving defaults (telemetry disabled)
 
 - **Client Role** (`role = "client"`):
   - No local service installed
-  - PWA desktop entry points to `https://axios-chat.<tailnet>.ts.net`
+  - PWA desktop entry points to `https://axios-ai-chat.<tailnet>.ts.net`
   - Only requires `tailnetDomain` configuration
   - Lightweight footprint for laptops
 
@@ -124,13 +124,13 @@ services.ai.webui = {
 
 **Access:**
 - Local: `http://localhost:8081`
-- Tailscale Services: `https://axios-chat.<tailnet>.ts.net` (port 443)
+- Tailscale Services: `https://axios-ai-chat.<tailnet>.ts.net` (port 443)
 - PWA: "Axios AI Chat" desktop entry
 
 **Port Allocations:**
 | Service | Local Port | Tailscale Services |
 |---------|------------|-------------------|
-| Open WebUI | 8081 | axios-chat (443) |
+| Open WebUI | 8081 | axios-ai-chat (443) |
 
 **Implementation**: `modules/ai/webui.nix`, `home/ai/webui.nix`
 

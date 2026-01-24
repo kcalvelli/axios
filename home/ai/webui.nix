@@ -30,7 +30,7 @@ let
   pwaUrl =
     if useServiceDns then
       # Tailscale Services: unique DNS name per service
-      "https://axios-chat.${tailnetDomain}/"
+      "https://axios-ai-chat.${tailnetDomain}/"
     else
       # Legacy: hostname with port
       let

@@ -12,9 +12,6 @@
 
     # === Flatpak Utilities & Store ===
     environment.systemPackages = with pkgs; [
-      # The Store (Qt-based, native look)
-      kdePackages.discover
-
       # The Janitor (Manage remotes and delete leftover user data)
       warehouse
     ];

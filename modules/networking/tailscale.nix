@@ -129,7 +129,7 @@ in
           enable = true;
           backend = "http://127.0.0.1:8080";
         };
-        "axios-chat" = {
+        "axios-ai-chat" = {
           enable = true;
           backend = "http://127.0.0.1:8081";
         };
