@@ -130,6 +130,19 @@ let
         }/bin/axios-ai-mail";
         args = [ "mcp" ];
       };
+
+      # mcp-dav server for calendar and contacts access
+      # REQUIRES: services.pim.calendar.enable or services.pim.contacts.enable
+      # Provides: List/search events, create events, free/busy, contacts search
+      mcp-dav = {
+        command = "${
+          inputs.axios-dav.packages.${pkgs.stdenv.hostPlatform.system}.mcp-dav
+        }/bin/mcp-dav";
+        env = {
+          MCP_DAV_CALENDARS = "~/.calendars";
+          MCP_DAV_CONTACTS = "~/.contacts";
+        };
+      };
     }
     // {
       # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -244,6 +257,7 @@ in
     # Install MCP server packages
     home.packages = [
       inputs.axios-ai-mail.packages.${pkgs.stdenv.hostPlatform.system}.default
+      inputs.axios-dav.packages.${pkgs.stdenv.hostPlatform.system}.mcp-dav
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default

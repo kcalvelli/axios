@@ -144,6 +144,12 @@
       url = "github:kcalvelli/axios-ai-mail";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # CalDAV/CardDAV sync with MCP server for calendar/contacts access
+    axios-dav = {
+      url = "github:kcalvelli/axios-dav";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {
