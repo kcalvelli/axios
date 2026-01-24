@@ -102,16 +102,8 @@ in
               services.ai.webui.pwa.tailnetDomain = "taile0fb4.ts.net";
           '';
         }
-        # Client role requires serverHost
-        {
-          assertion = !(aiCfg.enable && cfg.enable && isClient) || cfg.serverHost != null;
-          message = ''
-            services.ai.webui.role = "client" requires serverHost to be set.
-
-            Example:
-              services.ai.webui.serverHost = "edge";
-          '';
-        }
+        # Client role requires tailnetDomain for Tailscale Services DNS
+        # (covered by pwa.enable assertion above when PWA is enabled)
         # Tailscale serve only for server role
         {
           assertion = !cfg.tailscaleServe.enable || isServer;

@@ -196,17 +196,7 @@ in
     # Assertions for role and configuration validation
     {
       assertions = [
-        # Client role requires serverHost
-        {
-          assertion = !(cfg.enable && cfg.local.enable && isClient) || cfg.local.serverHost != null;
-          message = ''
-            services.ai.local.role = "client" requires serverHost to be set.
-
-            Example:
-              services.ai.local.serverHost = "edge";  # hostname of your Ollama server
-          '';
-        }
-        # Client role requires tailnetDomain
+        # Client role requires tailnetDomain for Tailscale Services DNS
         {
           assertion = !(cfg.enable && cfg.local.enable && isClient) || cfg.local.tailnetDomain != null;
           message = ''

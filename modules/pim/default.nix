@@ -107,15 +107,8 @@ in
             pim.pwa.tailnetDomain = "taile0fb4.ts.net";
         '';
       }
-      {
-        assertion = cfg.role != "client" || cfg.pwa.serverHost != null;
-        message = ''
-          pim.role = "client" requires pim.pwa.serverHost to be set.
-
-          Example:
-            pim.pwa.serverHost = "edge";  # hostname of your PIM server
-        '';
-      }
+      # Client role requires tailnetDomain for Tailscale Services DNS
+      # (already covered by pwa.enable assertion above)
       {
         assertion = !isServer || cfg.user != "";
         message = ''
