@@ -15,15 +15,20 @@ let
 
   # Tailscale config for detecting Services mode
   tsCfg = osConfig.networking.tailscale or { };
-  useServices = (tsCfg.authMode or "interactive") == "authkey";
+  serverUsesServices = (tsCfg.authMode or "interactive") == "authkey";
+
+  # Use service DNS if:
+  # - Server with authkey mode (registers services locally)
+  # - Client role (assumes server uses Tailscale Services)
+  useServiceDns = serverUsesServices || isClient;
 
   # PWA URL generation
-  # When Tailscale Services enabled: use service DNS name (no port)
+  # When Tailscale Services: use service DNS name (no port)
   # Legacy mode: use hostname:port format
   tailnetDomain = webuiCfg.pwa.tailnetDomain or "";
 
   pwaUrl =
-    if useServices then
+    if useServiceDns then
       # Tailscale Services: unique DNS name per service
       "https://axios-chat.${tailnetDomain}/"
     else
