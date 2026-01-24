@@ -43,6 +43,11 @@ let
   #     OPTIONAL: Set C64_HOST environment variable (e.g., home.sessionVariables.C64_HOST = "192.168.x.x")
   #     Provides: Remote control, file management, video streaming, .prg execution
   #
+  # 📧 PIM TOOLS (Require services.pim.enable):
+  #   - axios-ai-mail: Email management via MCP
+  #     REQUIRES: services.pim.enable = true; and configured mail accounts
+  #     Provides: Email search, compose, send, folder management
+  #
   # DISABLING MCP SERVERS:
   #   Set services.ai.mcp.enable = false; in your NixOS configuration
 
@@ -110,6 +115,20 @@ let
           inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/mcp-ultimate";
         args = [ "--stdio" ];
+      };
+
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # PIM TOOLS (Require services.pim.enable)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+      # axios-ai-mail MCP server for email management
+      # REQUIRES: services.pim.enable = true; and configured mail accounts
+      # Provides: Email search, compose, send, folder management
+      axios-ai-mail = {
+        command = "${
+          inputs.axios-ai-mail.packages.${pkgs.stdenv.hostPlatform.system}.default
+        }/bin/axios-ai-mail";
+        args = [ "mcp" ];
       };
     }
     // {
@@ -224,6 +243,7 @@ in
 
     # Install MCP server packages
     home.packages = [
+      inputs.axios-ai-mail.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
