@@ -41,6 +41,12 @@ in
         };
       };
 
+      goose = {
+        enable = lib.mkEnableOption "Goose CLI (Block's open-source AI agent)" // {
+          default = true;
+        };
+      };
+
       # Unified system prompt
       systemPrompt = {
         enable = lib.mkEnableOption "unified system prompt for AI agents" // {
@@ -207,6 +213,11 @@ in
         ++ lib.optionals cfg.gemini.enable [
           gemini-cli-bin
           inputs.antigravity-nix.packages.x86_64-linux.default
+        ]
+        # Goose CLI (conditional on services.ai.goose.enable)
+        # Bleeding edge from llm-agents.nix for latest features
+        ++ lib.optionals cfg.goose.enable [
+          inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.goose-cli
         ];
     })
 

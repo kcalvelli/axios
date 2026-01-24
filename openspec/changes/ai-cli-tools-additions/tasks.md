@@ -12,21 +12,24 @@ This is a living task list for the blanket AI CLI tools proposal. Tasks are adde
 
 Block's open-source AI coding assistant with multi-provider support.
 
-- [ ] Verify goose-cli is available in nixpkgs
-- [ ] Add to `modules/ai/default.nix` package list
+- [x] Verify goose-cli is available in nixpkgs (using llm-agents.nix for bleeding edge)
+- [x] Add flake input for llm-agents.nix
+- [x] Add to `modules/ai/default.nix` package list (with services.ai.goose.enable option)
+- [x] Generate `~/.config/goose/config.yaml` with all MCP servers
+- [x] Add shell aliases (axios-goose, axgo)
 - [ ] Test basic functionality after rebuild
 - [ ] Update `openspec/specs/ai/spec.md` CLI Coding Agents section
-- [ ] Document any API key requirements
 
 **References:**
 - https://github.com/block/goose
 - https://block.github.io/goose/
+- https://github.com/numtide/llm-agents.nix
 
 ---
 
 ## Completed Additions
 
-_None yet_
+_None yet (goose-cli pending user testing)_
 
 ---
 

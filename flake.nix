@@ -150,6 +150,12 @@
       url = "github:kcalvelli/axios-dav";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Bleeding edge AI coding agents (goose-cli, etc.)
+    llm-agents = {
+      url = "github:numtide/llm-agents.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {

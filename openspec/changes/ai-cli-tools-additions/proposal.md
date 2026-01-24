@@ -35,7 +35,7 @@ When adding a new AI CLI tool:
 
 | Tool | Status | Date | Notes |
 |------|--------|------|-------|
-| goose-cli | Pending | - | Block's open-source AI coding assistant |
+| goose-cli | Implemented | 2025-01-24 | Block's AI agent via llm-agents.nix, MCP configured |
 
 ## Tool Categories
 

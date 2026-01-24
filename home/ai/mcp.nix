@@ -135,9 +135,7 @@ let
       # REQUIRES: services.pim.calendar.enable or services.pim.contacts.enable
       # Provides: List/search events, create events, free/busy, contacts search
       mcp-dav = {
-        command = "${
-          inputs.axios-dav.packages.${pkgs.stdenv.hostPlatform.system}.mcp-dav
-        }/bin/mcp-dav";
+        command = "${inputs.axios-dav.packages.${pkgs.stdenv.hostPlatform.system}.mcp-dav}/bin/mcp-dav";
         env = {
           MCP_DAV_CALENDARS = "~/.calendars";
           MCP_DAV_CONTACTS = "~/.contacts";
@@ -236,6 +234,10 @@ in
       # Gemini CLI: Uses GEMINI_SYSTEM_MD env var for system prompt
       axios-gemini = "gemini";
       axg = "gemini";
+
+      # Goose CLI: Block's open-source AI agent
+      axios-goose = "goose";
+      axgo = "goose";
     };
 
     programs.zsh.shellAliases = {
@@ -252,6 +254,10 @@ in
       # Gemini CLI: Uses GEMINI_SYSTEM_MD env var for system prompt
       axios-gemini = "gemini";
       axg = "gemini";
+
+      # Goose CLI: Block's open-source AI agent
+      axios-goose = "goose";
+      axgo = "goose";
     };
 
     # Install MCP server packages
@@ -270,10 +276,32 @@ in
         evaluatedServers =
           (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
 
-        # Filter out passwordCommand for tools that don't support it (Gemini)
-        # Claude Code supports passwordCommand, but Gemini only accepts env vars
+        # Filter out passwordCommand for tools that don't support it (Gemini, Goose)
+        # Claude Code supports passwordCommand, but Gemini/Goose only accept env vars
         filterPasswordCommand =
           servers: lib.mapAttrs (name: server: builtins.removeAttrs server [ "passwordCommand" ]) servers;
+
+        # Convert Claude Code MCP format to Goose extension format
+        # Claude: { command, args, env }
+        # Goose:  { name, cmd, args, enabled, envs, type, timeout }
+        toGooseExtension = name: server: {
+          name = name;
+          cmd = server.command;
+          args = server.args or [ ];
+          enabled = true;
+          envs = server.env or { };
+          type = "stdio";
+          timeout = 300;
+        };
+
+        # Convert all MCP servers to Goose extensions
+        gooseExtensions = lib.mapAttrs toGooseExtension (filterPasswordCommand evaluatedServers);
+
+        # Generate Goose config.yaml content
+        # Goose uses YAML for configuration at ~/.config/goose/config.yaml
+        gooseConfig = {
+          extensions = gooseExtensions;
+        };
 
         # Generate unified prompt from default + user's extraInstructions
         # Only generate if systemPrompt is enabled
@@ -314,6 +342,12 @@ in
             autoUpdate = false;
           };
         };
+
+        # Goose CLI MCP configuration (declarative)
+        # Generate extension configuration for Goose CLI
+        # Goose reads ~/.config/goose/config.yaml for configuration
+        # NOTE: Goose uses "extensions" terminology for MCP servers
+        ".config/goose/config.yaml".text = lib.generators.toYAML { } gooseConfig;
 
         # axiOS system prompts for AI agents
         # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)
