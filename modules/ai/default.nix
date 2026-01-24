@@ -328,10 +328,12 @@ in
     })
 
     # Client role: Remote Ollama via Tailscale
+    # Assumes server uses Tailscale Services (axios-ollama.<tailnet>.ts.net)
     (lib.mkIf (cfg.enable && cfg.local.enable && isClient) {
       # Set OLLAMA_HOST environment variable for all tools that use Ollama
+      # Uses Tailscale Services DNS name (no port needed)
       environment.sessionVariables = {
-        OLLAMA_HOST = "https://${cfg.local.serverHost}.${cfg.local.tailnetDomain}:${toString cfg.local.serverPort}";
+        OLLAMA_HOST = "https://axios-ollama.${cfg.local.tailnetDomain}";
       };
 
       # Client role packages (no GPU stack, lighter footprint)
