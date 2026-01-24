@@ -9,6 +9,7 @@
   binutils,
   gnutar,
   zstd,
+  imagemagick,
   # Runtime dependencies (Electron app)
   alsa-lib,
   at-spi2-atk,
@@ -63,6 +64,7 @@ let
       binutils # for ar
       gnutar
       zstd # data.tar is zstd compressed
+      imagemagick # for icon generation
     ];
 
     buildInputs = [
@@ -135,9 +137,16 @@ let
       mkdir -p $out/share/pixmaps
       cp usr/share/pixmaps/goose.png $out/share/pixmaps/goose-desktop.png
 
-      # Copy icon from resources for higher quality
-      mkdir -p $out/share/icons/hicolor/512x512/apps
-      cp usr/lib/goose/resources/images/icon.png $out/share/icons/hicolor/512x512/apps/goose-desktop.png
+      # Install SVG icon (scalable)
+      mkdir -p $out/share/icons/hicolor/scalable/apps
+      cp usr/lib/goose/resources/images/icon.svg $out/share/icons/hicolor/scalable/apps/goose-desktop.svg
+
+      # Generate multiple icon sizes from SVG for dock/panel compatibility
+      for size in 16 24 32 48 64 128 256 512; do
+        mkdir -p $out/share/icons/hicolor/''${size}x''${size}/apps
+        magick usr/lib/goose/resources/images/icon.svg -resize ''${size}x''${size} \
+          $out/share/icons/hicolor/''${size}x''${size}/apps/goose-desktop.png
+      done
 
       # Fix desktop file paths
       substituteInPlace $out/share/applications/goose-desktop.desktop \
