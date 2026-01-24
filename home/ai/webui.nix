@@ -26,11 +26,14 @@ let
       # Client uses Tailscale Services
       "https://axios-ai-chat.${tailnetDomain}/";
 
-  # Unique window class for this PWA
-  # --class only works when combined with --user-data-dir (Chromium bug #118613)
-  # Each PWA gets its own profile to enable unique window class
-  wmClass = "axios-ai-chat";
+  # PWA data directory for isolated profile
   pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/chat";
+
+  # Chromium/Brave on Wayland ignores --class and generates app_id from URL
+  # Pattern: brave-{domain}__-Default (port is ignored, path / becomes -)
+  # We must set StartupWMClass to match this generated app_id for dock icons to work
+  pwaHost = if isServer then "axios-ai-chat.local" else "axios-ai-chat.${tailnetDomain}";
+  wmClass = "brave-${pwaHost}__-Default";
 
   pwaEnabled = webuiCfg.pwa.enable or false;
 in

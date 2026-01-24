@@ -27,11 +27,14 @@ let
       # Client uses Tailscale Services
       "https://axios-mail.${tailnetDomain}/";
 
-  # Unique window class for this PWA
-  # --class only works when combined with --user-data-dir (Chromium bug #118613)
-  # Each PWA gets its own profile to enable unique window class
-  wmClass = "axios-mail";
+  # PWA data directory for isolated profile
   pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/mail";
+
+  # Chromium/Brave on Wayland ignores --class and generates app_id from URL
+  # Pattern: brave-{domain}__-Default (port is ignored, path / becomes -)
+  # We must set StartupWMClass to match this generated app_id for dock icons to work
+  pwaHost = if isServer then "axios-mail.local" else "axios-mail.${tailnetDomain}";
+  wmClass = "brave-${pwaHost}__-Default";
 in
 {
   # Import axios-ai-mail home module for server role (provides account config options)
