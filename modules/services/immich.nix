@@ -12,31 +12,48 @@ let
   selfHostedCfg = config.selfHosted;
   tailscaleDomain = config.networking.tailscale.domain;
   tsCfg = config.networking.tailscale;
+  isServer = cfg.role == "server";
+  isClient = cfg.role == "client";
 
   # Service domain: axios-immich.<tailnet>.ts.net
   serviceDomain = "axios-immich.${tailscaleDomain}";
 in
 {
   options.selfHosted.immich = {
-    enable = lib.mkEnableOption "Immich photo and video backup service";
+    enable = lib.mkEnableOption "Immich photo and video backup";
 
+    role = lib.mkOption {
+      type = lib.types.enum [
+        "server"
+        "client"
+      ];
+      default = "server";
+      description = ''
+        Immich deployment role:
+        - "server": Run Immich service locally
+                    Auto-registers as axios-immich.<tailnet>.ts.net via Tailscale Services
+        - "client": PWA desktop entry only (connects to axios-immich.<tailnet>.ts.net)
+      '';
+    };
+
+    # Server-only options
     port = lib.mkOption {
       type = lib.types.port;
       default = 2283;
-      description = "Internal port for Immich service.";
+      description = "Internal port for Immich service (server role only).";
     };
 
     mediaLocation = lib.mkOption {
       type = lib.types.path;
       default = "/var/lib/immich";
-      description = "Directory used to store uploaded media files.";
+      description = "Directory used to store uploaded media files (server role only).";
     };
 
     enableGpuAcceleration = lib.mkOption {
       type = lib.types.bool;
       default = false;
       description = ''
-        Enable GPU acceleration for video transcoding.
+        Enable GPU acceleration for video transcoding (server role only).
         Grants Immich access to all GPU devices (/dev/dri/*).
       '';
     };
@@ -51,11 +68,11 @@ in
       );
       default = null;
       description = ''
-        Type of GPU for acceleration. Used to configure appropriate user groups.
+        Type of GPU for acceleration. Used to configure appropriate user groups (server role only).
       '';
     };
 
-    # PWA configuration
+    # PWA configuration (both roles)
     pwa = {
       enable = lib.mkEnableOption "Generate Immich PWA desktop entry";
       tailnetDomain = lib.mkOption {
@@ -67,83 +84,107 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
-    assertions = [
+  config = lib.mkIf cfg.enable (
+    lib.mkMerge [
+      # Assertions for both roles
       {
-        assertion = selfHostedCfg.enable;
-        message = ''
-          selfHosted.immich requires selfHosted.enable = true.
+        assertions = [
+          # PWA requires tailnetDomain
+          {
+            assertion = !cfg.pwa.enable || cfg.pwa.tailnetDomain != null;
+            message = ''
+              selfHosted.immich.pwa.enable requires pwa.tailnetDomain to be set.
 
-          Add to your configuration:
-            selfHosted.enable = true;
-        '';
+              Example:
+                selfHosted.immich.pwa.tailnetDomain = "taile0fb4.ts.net";
+            '';
+          }
+        ];
       }
-      {
-        assertion = cfg.enableGpuAcceleration -> (cfg.gpuType != null);
-        message = ''
-          selfHosted.immich.gpuType must be set when enableGpuAcceleration is true.
 
-          Add to your configuration:
-            selfHosted.immich.gpuType = "amd";  # or "nvidia" or "intel"
-        '';
-      }
-      {
-        assertion = tailscaleDomain != null;
-        message = ''
-          selfHosted.immich requires networking.tailscale.domain to be set.
+      # Server role: Run Immich service
+      (lib.mkIf isServer {
+        assertions = [
+          {
+            assertion = selfHostedCfg.enable;
+            message = ''
+              selfHosted.immich (server role) requires selfHosted.enable = true.
 
-          Find your tailnet domain in the Tailscale admin console.
-          Example: networking.tailscale.domain = "taile0fb4.ts.net";
-        '';
-      }
-      {
-        assertion = tsCfg.authMode == "authkey";
-        message = ''
-          selfHosted.immich requires networking.tailscale.authMode = "authkey".
+              Add to your configuration:
+                selfHosted.enable = true;
+            '';
+          }
+          {
+            assertion = cfg.enableGpuAcceleration -> (cfg.gpuType != null);
+            message = ''
+              selfHosted.immich.gpuType must be set when enableGpuAcceleration is true.
 
-          Immich uses Tailscale Services for HTTPS, which requires tag-based identity.
-          Set up an auth key in the Tailscale admin console with appropriate tags.
-        '';
-      }
-    ];
+              Add to your configuration:
+                selfHosted.immich.gpuType = "amd";  # or "nvidia" or "intel"
+            '';
+          }
+          {
+            assertion = tailscaleDomain != null;
+            message = ''
+              selfHosted.immich requires networking.tailscale.domain to be set.
 
-    # Enable Immich service
-    services.immich = {
-      enable = true;
-      host = "127.0.0.1"; # Only listen locally, Tailscale Services handles external access
-      port = cfg.port;
-      mediaLocation = cfg.mediaLocation;
+              Find your tailnet domain in the Tailscale admin console.
+              Example: networking.tailscale.domain = "taile0fb4.ts.net";
+            '';
+          }
+          {
+            assertion = tsCfg.authMode == "authkey";
+            message = ''
+              selfHosted.immich (server role) requires networking.tailscale.authMode = "authkey".
 
-      # GPU acceleration
-      accelerationDevices = lib.mkIf cfg.enableGpuAcceleration null; # null = all devices
+              Immich uses Tailscale Services for HTTPS, which requires tag-based identity.
+              Set up an auth key in the Tailscale admin console with appropriate tags.
+            '';
+          }
+        ];
 
-      settings = {
-        newVersionCheck.enabled = false;
-        server.externalDomain = "https://${serviceDomain}";
-      };
-    };
+        # Enable Immich service
+        services.immich = {
+          enable = true;
+          host = "127.0.0.1"; # Only listen locally, Tailscale Services handles external access
+          port = cfg.port;
+          mediaLocation = cfg.mediaLocation;
 
-    # Tailscale Services registration
-    # Provides unique DNS name: axios-immich.<tailnet>.ts.net
-    networking.tailscale.services."axios-immich" = {
-      enable = true;
-      backend = "http://127.0.0.1:${toString cfg.port}";
-    };
+          # GPU acceleration
+          accelerationDevices = lib.mkIf cfg.enableGpuAcceleration null; # null = all devices
 
-    # Local hostname for server PWA (hairpinning workaround)
-    # Server can't access its own Tailscale Services VIPs, so we use a local domain
-    # This gives unique app_id for PWA icons on the server
-    networking.hosts = {
-      "127.0.0.1" = [ "axios-immich.local" ];
-    };
+          settings = {
+            newVersionCheck.enabled = false;
+            server.externalDomain = "https://${serviceDomain}";
+          };
+        };
 
-    # GPU user groups for hardware acceleration
-    users.users.immich.extraGroups = lib.optionals cfg.enableGpuAcceleration [
-      "video"
-      "render"
-    ];
+        # Tailscale Services registration
+        # Provides unique DNS name: axios-immich.<tailnet>.ts.net
+        networking.tailscale.services."axios-immich" = {
+          enable = true;
+          backend = "http://127.0.0.1:${toString cfg.port}";
+        };
 
-    # Redis requires vm.overcommit_memory = 1
-    boot.kernel.sysctl."vm.overcommit_memory" = lib.mkForce 1;
-  };
+        # Local hostname for server PWA (hairpinning workaround)
+        # Server can't access its own Tailscale Services VIPs, so we use a local domain
+        # This gives unique app_id for PWA icons on the server
+        networking.hosts = {
+          "127.0.0.1" = [ "axios-immich.local" ];
+        };
+
+        # GPU user groups for hardware acceleration
+        users.users.immich.extraGroups = lib.optionals cfg.enableGpuAcceleration [
+          "video"
+          "render"
+        ];
+
+        # Redis requires vm.overcommit_memory = 1
+        boot.kernel.sysctl."vm.overcommit_memory" = lib.mkForce 1;
+      })
+
+      # Client role: No service configuration needed
+      # PWA generation happens in home-manager module
+    ]
+  );
 }

@@ -10,19 +10,21 @@ let
   # Get immich config from NixOS system config
   immichCfg = osConfig.selfHosted.immich or { };
   isEnabled = immichCfg.enable or false;
+  isServer = (immichCfg.role or "server") == "server";
   pwaEnabled = immichCfg.pwa.enable or false;
 
-  # Server role uses local domain (hairpinning workaround)
-  # Immich is server-only, so we always use local domain when service is enabled
+  # PWA URL differs based on role:
+  # - Server: Uses local domain (hairpinning restriction prevents VIP access)
+  # - Client: Uses Tailscale Services DNS name
   tailnetDomain = immichCfg.pwa.tailnetDomain or "";
   localPort = immichCfg.port or 2283;
 
   pwaUrl =
-    if isEnabled then
+    if isServer then
       # Server uses local domain via /etc/hosts
       "http://axios-immich.local:${toString localPort}/"
     else
-      # Client uses Tailscale Services (if configured for client-only PWA)
+      # Client uses Tailscale Services
       "https://axios-immich.${tailnetDomain}/";
 
   # PWA data directory for isolated profile
@@ -31,11 +33,11 @@ let
   # Chromium/Brave on Wayland ignores --class and generates app_id from URL
   # Pattern: brave-{domain}__-Default (port is ignored, path / becomes -)
   # We must set StartupWMClass to match this generated app_id for dock icons to work
-  pwaHost = if isEnabled then "axios-immich.local" else "axios-immich.${tailnetDomain}";
+  pwaHost = if isServer then "axios-immich.local" else "axios-immich.${tailnetDomain}";
   wmClass = "brave-${pwaHost}__-Default";
 in
 {
-  config = lib.mkIf pwaEnabled {
+  config = lib.mkIf (isEnabled && pwaEnabled) {
     # PWA desktop entry
     xdg.desktopEntries.axios-immich = {
       name = "Axios Photos";
