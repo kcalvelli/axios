@@ -246,7 +246,7 @@ let
       coreModules = with self.nixosModules; [
         crashDiagnostics # Always available for extraConfig.hardware.crashDiagnostics
         hardware # Parent hardware module
-        services # Always available for selfHosted.caddy.routes (used by AI, Immich, etc.)
+        services # Always available for axios.immich (Tailscale Services integration)
       ];
 
       # Modules controlled by modules.X flags
@@ -354,13 +354,9 @@ let
             (lib.optionalAttrs ((hostCfg.modules.secrets or false) && (hostCfg ? secrets)) {
               secrets = hostCfg.secrets;
             })
-            # Enable selfHosted module if specified
-            (lib.optionalAttrs (hostCfg.modules.services or false) {
-              selfHosted.enable = true;
-            })
-            # Add selfHosted config only if module is enabled and config exists
-            (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? selfHosted)) {
-              selfHosted = hostCfg.selfHosted;
+            # Add axios config (immich, etc.) if module is enabled and config exists
+            (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? axios)) {
+              axios = hostCfg.axios;
             })
           ];
         in

@@ -1,5 +1,6 @@
 # Immich Service Module
 # Self-hosted photo and video backup solution with Tailscale Services HTTPS
+# Uses axios.immich namespace to avoid conflict with nixpkgs services.immich
 {
   config,
   lib,
@@ -8,8 +9,7 @@
 }:
 
 let
-  cfg = config.selfHosted.immich;
-  selfHostedCfg = config.selfHosted;
+  cfg = config.axios.immich;
   tailscaleDomain = config.networking.tailscale.domain;
   tsCfg = config.networking.tailscale;
   isServer = cfg.role == "server";
@@ -19,7 +19,7 @@ let
   serviceDomain = "axios-immich.${tailscaleDomain}";
 in
 {
-  options.selfHosted.immich = {
+  options.axios.immich = {
     enable = lib.mkEnableOption "Immich photo and video backup";
 
     role = lib.mkOption {
@@ -93,10 +93,10 @@ in
           {
             assertion = !cfg.pwa.enable || cfg.pwa.tailnetDomain != null;
             message = ''
-              selfHosted.immich.pwa.enable requires pwa.tailnetDomain to be set.
+              axios.immich.pwa.enable requires pwa.tailnetDomain to be set.
 
               Example:
-                selfHosted.immich.pwa.tailnetDomain = "taile0fb4.ts.net";
+                axios.immich.pwa.tailnetDomain = "taile0fb4.ts.net";
             '';
           }
         ];
@@ -106,27 +106,18 @@ in
       (lib.mkIf isServer {
         assertions = [
           {
-            assertion = selfHostedCfg.enable;
-            message = ''
-              selfHosted.immich (server role) requires selfHosted.enable = true.
-
-              Add to your configuration:
-                selfHosted.enable = true;
-            '';
-          }
-          {
             assertion = cfg.enableGpuAcceleration -> (cfg.gpuType != null);
             message = ''
-              selfHosted.immich.gpuType must be set when enableGpuAcceleration is true.
+              axios.immich.gpuType must be set when enableGpuAcceleration is true.
 
               Add to your configuration:
-                selfHosted.immich.gpuType = "amd";  # or "nvidia" or "intel"
+                axios.immich.gpuType = "amd";  # or "nvidia" or "intel"
             '';
           }
           {
             assertion = tailscaleDomain != null;
             message = ''
-              selfHosted.immich requires networking.tailscale.domain to be set.
+              axios.immich requires networking.tailscale.domain to be set.
 
               Find your tailnet domain in the Tailscale admin console.
               Example: networking.tailscale.domain = "taile0fb4.ts.net";
@@ -135,7 +126,7 @@ in
           {
             assertion = tsCfg.authMode == "authkey";
             message = ''
-              selfHosted.immich (server role) requires networking.tailscale.authMode = "authkey".
+              axios.immich (server role) requires networking.tailscale.authMode = "authkey".
 
               Immich uses Tailscale Services for HTTPS, which requires tag-based identity.
               Set up an auth key in the Tailscale admin console with appropriate tags.
@@ -143,7 +134,7 @@ in
           }
         ];
 
-        # Enable Immich service
+        # Enable nixpkgs Immich service
         services.immich = {
           enable = true;
           host = "127.0.0.1"; # Only listen locally, Tailscale Services handles external access

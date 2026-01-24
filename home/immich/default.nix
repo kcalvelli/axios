@@ -8,7 +8,7 @@
 }:
 let
   # Get immich config from NixOS system config
-  immichCfg = osConfig.selfHosted.immich or { };
+  immichCfg = osConfig.axios.immich or { };
   isEnabled = immichCfg.enable or false;
   isServer = (immichCfg.role or "server") == "server";
   pwaEnabled = immichCfg.pwa.enable or false;

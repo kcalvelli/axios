@@ -9,7 +9,7 @@
 }:
 let
   # Get PIM config from NixOS system config
-  pimCfg = osConfig.pim or { };
+  pimCfg = osConfig.services.pim or { };
   isEnabled = pimCfg.enable or false;
   isServer = (pimCfg.role or "server") == "server";
 

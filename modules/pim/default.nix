@@ -8,7 +8,7 @@
   ...
 }:
 let
-  cfg = config.pim;
+  cfg = config.services.pim;
   isServer = cfg.role == "server";
   tsCfg = config.networking.tailscale;
 in
@@ -17,7 +17,7 @@ in
   # This is always imported; the service is only enabled for server role
   imports = [ inputs.axios-ai-mail.nixosModules.default ];
 
-  options.pim = {
+  options.services.pim = {
     enable = lib.mkEnableOption "Personal Information Management (axios-ai-mail)";
 
     role = lib.mkOption {
@@ -77,19 +77,19 @@ in
       {
         assertion = !cfg.pwa.enable || cfg.pwa.tailnetDomain != null;
         message = ''
-          pim.pwa.enable requires pim.pwa.tailnetDomain to be set.
+          services.pim.pwa.enable requires pwa.tailnetDomain to be set.
 
           Example:
-            pim.pwa.tailnetDomain = "taile0fb4.ts.net";
+            services.pim.pwa.tailnetDomain = "taile0fb4.ts.net";
         '';
       }
       {
         assertion = !isServer || cfg.user != "";
         message = ''
-          pim.role = "server" requires pim.user to be set.
+          services.pim.role = "server" requires services.pim.user to be set.
 
           Example:
-            pim.user = "keith";
+            services.pim.user = "keith";
         '';
       }
       {
@@ -99,7 +99,7 @@ in
 
           You have:
             modules.pim = true
-            pim.role = "server"
+            services.pim.role = "server"
             modules.ai = false (or services.ai.enable = false)
 
           axios-ai-mail server requires Ollama for email classification.
@@ -107,13 +107,13 @@ in
           Fix by either:
             modules.ai = true;  # Enable AI module (default)
           Or:
-            pim.role = "client";  # Use client role (PWA only, no AI needed)
+            services.pim.role = "client";  # Use client role (PWA only, no AI needed)
         '';
       }
       {
         assertion = !isServer || tsCfg.authMode == "authkey";
         message = ''
-          pim.role = "server" requires networking.tailscale.authMode = "authkey".
+          services.pim.role = "server" requires networking.tailscale.authMode = "authkey".
 
           Server role uses Tailscale Services for HTTPS, which requires tag-based identity.
           Set up an auth key in the Tailscale admin console with appropriate tags.

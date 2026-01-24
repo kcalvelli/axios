@@ -6,18 +6,10 @@
   pkgs,
   ...
 }:
-
-let
-  cfg = config.selfHosted;
-in
 {
   imports = [
     ./immich.nix
   ];
 
-  options.selfHosted = {
-    enable = lib.mkEnableOption "self-hosted services with Tailscale Services HTTPS";
-  };
-
-  # No global config needed - services register with Tailscale Services individually
+  # No options needed - individual services (like axios.immich) define their own
 }
