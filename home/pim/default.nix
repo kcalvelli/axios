@@ -13,20 +13,35 @@ let
   isEnabled = pimCfg.enable or false;
   isServer = (pimCfg.role or "server") == "server";
 
+  # Tailscale config for detecting Services mode
+  tsCfg = osConfig.networking.tailscale or { };
+  useServices = (tsCfg.authMode or "interactive") == "authkey";
+
   # PWA URL generation
-  effectiveHost =
-    if pimCfg.pwa.serverHost or null != null then
-      pimCfg.pwa.serverHost
-    else
-      osConfig.networking.hostName or "localhost";
+  # When Tailscale Services enabled: use service DNS name (no port)
+  # Legacy mode: use hostname:port format
   tailnetDomain = pimCfg.pwa.tailnetDomain or "";
-  httpsPort = toString (pimCfg.pwa.httpsPort or 8443);
-  pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
+
+  pwaUrl =
+    if useServices then
+      # Tailscale Services: unique DNS name per service
+      "https://axios-mail.${tailnetDomain}/"
+    else
+      # Legacy: hostname with port
+      let
+        effectiveHost =
+          if pimCfg.pwa.serverHost or null != null then
+            pimCfg.pwa.serverHost
+          else
+            osConfig.networking.hostName or "localhost";
+        httpsPort = toString (pimCfg.pwa.httpsPort or 8443);
+      in
+      "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
   # Unique window class for this PWA
   # --class only works when combined with --user-data-dir (Chromium bug #118613)
   # Each PWA gets its own profile to enable unique window class
-  wmClass = "axios-ai-mail";
+  wmClass = "axios-mail";
   pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/mail";
 in
 {
@@ -37,11 +52,11 @@ in
 
   config = lib.mkIf isEnabled {
     # PWA desktop entry (both server and client roles)
-    xdg.desktopEntries.axios-ai-mail = lib.mkIf (pimCfg.pwa.enable or false) {
-      name = "Axios AI Mail";
+    xdg.desktopEntries.axios-mail = lib.mkIf (pimCfg.pwa.enable or false) {
+      name = "Axios Mail";
       comment = "AI-powered email management";
       exec = "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass} --app=${pwaUrl}";
-      icon = "axios-ai-mail";
+      icon = "axios-mail";
       terminal = false;
       categories = [
         "Network"
@@ -53,10 +68,10 @@ in
     };
 
     # Install PWA icon
-    home.file.".local/share/icons/hicolor/128x128/apps/axios-ai-mail.png" =
+    home.file.".local/share/icons/hicolor/128x128/apps/axios-mail.png" =
       lib.mkIf (pimCfg.pwa.enable or false)
         {
-          source = ../resources/pwa-icons/axios-ai-mail.png;
+          source = ../resources/pwa-icons/axios-mail.png;
         };
   };
 }

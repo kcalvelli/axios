@@ -10,7 +10,8 @@ let
   cfg = config.services.ai;
   isServer = cfg.local.role == "server";
   isClient = cfg.local.role == "client";
-
+  tsCfg = config.networking.tailscale;
+  useServices = tsCfg.authMode == "authkey";
 in
 {
   imports = [
@@ -347,29 +348,41 @@ in
         ++ lib.optional cfg.local.cli pkgs.opencode;
     })
 
-    # Tailscale serve for Ollama API (server role only)
-    (lib.mkIf (cfg.enable && cfg.local.enable && isServer && cfg.local.tailscaleServe.enable) {
-      # Systemd service to configure Tailscale serve
-      # Note: tailscale serve configuration persists until reset
-      systemd.services.tailscale-serve-ollama = {
-        description = "Configure Tailscale serve for Ollama API";
-        after = [
-          "network-online.target"
-          "tailscaled.service"
-          "ollama.service"
-        ];
-        wants = [
-          "network-online.target"
-          "tailscaled.service"
-        ];
-        wantedBy = [ "multi-user.target" ];
+    # Tailscale serve for Ollama API (server role only, legacy mode)
+    (lib.mkIf
+      (cfg.enable && cfg.local.enable && isServer && cfg.local.tailscaleServe.enable && !useServices)
+      {
+        # Systemd service to configure Tailscale serve
+        # Note: tailscale serve configuration persists until reset
+        systemd.services.tailscale-serve-ollama = {
+          description = "Configure Tailscale serve for Ollama API";
+          after = [
+            "network-online.target"
+            "tailscaled.service"
+            "ollama.service"
+          ];
+          wants = [
+            "network-online.target"
+            "tailscaled.service"
+          ];
+          wantedBy = [ "multi-user.target" ];
 
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --https ${toString cfg.local.tailscaleServe.httpsPort} http://127.0.0.1:11434";
-          ExecStop = "${pkgs.tailscale}/bin/tailscale serve --https ${toString cfg.local.tailscaleServe.httpsPort} off";
+          serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --https ${toString cfg.local.tailscaleServe.httpsPort} http://127.0.0.1:11434";
+            ExecStop = "${pkgs.tailscale}/bin/tailscale serve --https ${toString cfg.local.tailscaleServe.httpsPort} off";
+          };
         };
+      }
+    )
+
+    # Tailscale Services registration for Ollama (when authMode = "authkey")
+    # This provides unique DNS name: axios-ollama.<tailnet>.ts.net
+    (lib.mkIf (cfg.enable && cfg.local.enable && isServer && useServices) {
+      networking.tailscale.services."axios-ollama" = {
+        enable = true;
+        backend = "http://127.0.0.1:11434";
       };
     })
 

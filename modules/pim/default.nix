@@ -10,6 +10,8 @@
 let
   cfg = config.pim;
   isServer = cfg.role == "server";
+  tsCfg = config.networking.tailscale;
+  useServices = tsCfg.authMode == "authkey";
 in
 {
   # Import axios-ai-mail NixOS module (provides services.axios-ai-mail options)
@@ -150,7 +152,8 @@ in
       enable = true;
       port = cfg.port;
       user = cfg.user;
-      tailscaleServe = {
+      # Legacy tailscaleServe (only when NOT using Tailscale Services)
+      tailscaleServe = lib.mkIf (!useServices) {
         enable = cfg.tailscaleServe.enable;
         httpsPort = cfg.tailscaleServe.httpsPort;
       };
@@ -158,6 +161,13 @@ in
         enable = cfg.sync.enable;
         frequency = cfg.sync.frequency;
       };
+    };
+
+    # Tailscale Services registration (when authMode = "authkey")
+    # This provides unique DNS name: axios-mail.<tailnet>.ts.net
+    networking.tailscale.services."axios-mail" = lib.mkIf (isServer && useServices) {
+      enable = true;
+      backend = "http://127.0.0.1:${toString cfg.port}";
     };
 
     # Keep vdirsyncer for calendar sync (both roles)

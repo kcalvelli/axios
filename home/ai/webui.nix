@@ -13,23 +13,34 @@ let
   isServer = (webuiCfg.role or "server") == "server";
   isClient = (webuiCfg.role or "server") == "client";
 
-  # PWA URL generation
-  effectiveHost =
-    if isClient then
-      webuiCfg.serverHost or "localhost"
-    else
-      osConfig.networking.hostName or "localhost";
+  # Tailscale config for detecting Services mode
+  tsCfg = osConfig.networking.tailscale or { };
+  useServices = (tsCfg.authMode or "interactive") == "authkey";
 
+  # PWA URL generation
+  # When Tailscale Services enabled: use service DNS name (no port)
+  # Legacy mode: use hostname:port format
   tailnetDomain = webuiCfg.pwa.tailnetDomain or "";
 
-  # Use serverPort for client, tailscaleServe.httpsPort for server
-  httpsPort =
-    if isClient then
-      toString (webuiCfg.serverPort or 8444)
+  pwaUrl =
+    if useServices then
+      # Tailscale Services: unique DNS name per service
+      "https://axios-chat.${tailnetDomain}/"
     else
-      toString (webuiCfg.tailscaleServe.httpsPort or 8444);
-
-  pwaUrl = "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
+      # Legacy: hostname with port
+      let
+        effectiveHost =
+          if isClient then
+            webuiCfg.serverHost or "localhost"
+          else
+            osConfig.networking.hostName or "localhost";
+        httpsPort =
+          if isClient then
+            toString (webuiCfg.serverPort or 8444)
+          else
+            toString (webuiCfg.tailscaleServe.httpsPort or 8444);
+      in
+      "https://${effectiveHost}.${tailnetDomain}:${httpsPort}/";
 
   # Unique window class for this PWA
   # --class only works when combined with --user-data-dir (Chromium bug #118613)

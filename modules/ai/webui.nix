@@ -12,6 +12,8 @@ let
   aiCfg = config.services.ai;
   isServer = cfg.role == "server";
   isClient = cfg.role == "client";
+  tsCfg = config.networking.tailscale;
+  useServices = tsCfg.authMode == "authkey";
 in
 {
   options.services.ai.webui = {
@@ -144,8 +146,8 @@ in
       };
     })
 
-    # Server role: Tailscale serve
-    (lib.mkIf (aiCfg.enable && cfg.enable && isServer && cfg.tailscaleServe.enable) {
+    # Server role: Legacy Tailscale serve (only when NOT using Tailscale Services)
+    (lib.mkIf (aiCfg.enable && cfg.enable && isServer && cfg.tailscaleServe.enable && !useServices) {
       systemd.services.tailscale-serve-open-webui = {
         description = "Configure Tailscale serve for Open WebUI";
         after = [
@@ -165,6 +167,15 @@ in
           ExecStart = "${pkgs.tailscale}/bin/tailscale serve --bg --https ${toString cfg.tailscaleServe.httpsPort} http://${cfg.host}:${toString cfg.port}";
           ExecStop = "${pkgs.tailscale}/bin/tailscale serve --https ${toString cfg.tailscaleServe.httpsPort} off";
         };
+      };
+    })
+
+    # Server role: Tailscale Services registration (when authMode = "authkey")
+    # This provides unique DNS name: axios-chat.<tailnet>.ts.net
+    (lib.mkIf (aiCfg.enable && cfg.enable && isServer && useServices) {
+      networking.tailscale.services."axios-chat" = {
+        enable = true;
+        backend = "http://${cfg.host}:${toString cfg.port}";
       };
     })
 
