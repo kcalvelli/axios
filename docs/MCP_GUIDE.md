@@ -96,63 +96,75 @@ cat ~/.mcp.json | jq '.mcpServers | keys'
 ### How It Works
 
 ```
-┌─────────────────┐
-│   Claude Code   │
-│   (AI Agent)    │
-└────────┬────────┘
-         │
-         ├──────────┐
-         │          │
-    ┌────▼───┐  ┌──▼──────┐
-    │ Native │  │ mcp-cli │  Dynamic discovery
-    │  MCP   │  │ (Bash)  │  (99% token savings)
-    └────┬───┘  └──┬──────┘
-         │         │
-         └────┬────┘
-              │
-     ┌────────▼─────────┐
-     │  MCP Servers     │
-     │  (10 configured) │
-     └──────────────────┘
-              │
-     ┌────────▼─────────┐
-     │  External APIs   │
-     │  File System     │
-     │  System Services │
-     └──────────────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Claude Code   │     │   Claude.ai     │     │  Custom Apps    │
+│   (Native MCP)  │     │  (Integrations) │     │  (REST API)     │
+└────────┬────────┘     └────────┬────────┘     └────────┬────────┘
+         │                       │                       │
+         │                       └───────────┬───────────┘
+         │                                   │
+    ┌────▼───────────────────────────────────▼────┐
+    │              mcp-gateway                     │
+    │  - REST API (/api/tools/*)                  │
+    │  - MCP HTTP Transport (/mcp)                │
+    │  - Systemd user service                     │
+    └────────────────────┬────────────────────────┘
+                         │
+         ┌───────────────┼───────────────┐
+         │               │               │
+    ┌────▼───┐      ┌────▼───┐      ┌────▼───┐
+    │  git   │      │ github │      │  ...   │
+    │ server │      │ server │      │ 10 more│
+    └────────┘      └────────┘      └────────┘
 ```
 
 ### Configuration Files
 
-axiOS automatically generates these files:
+The mcp-gateway module (from `github.com/kcalvelli/mcp-gateway`) generates these files:
 
 - **`~/.mcp.json`**: Claude Code MCP configuration (native integration)
-- **`~/.config/mcp/mcp_servers.json`**: mcp-cli configuration (same servers)
+- **`~/.config/mcp/mcp_servers.json`**: mcp-gateway/mcp-cli configuration
+- **`~/.gemini/settings.json`**: Gemini CLI configuration
 - **`~/.config/ai/prompts/axios.md`**: Comprehensive system prompt
 - **`~/.claude.json`**: Claude Code config (auto-injected with axios prompt)
 
-All files are generated from a single source: `home/ai/mcp.nix`
-
 ### Declarative Configuration
 
-axiOS uses a declarative approach:
+axiOS uses a two-layer declarative approach:
+
+1. **mcp-gateway** (external repo) provides the home-manager module
+2. **axios** imports the module and defines servers with resolved package paths
 
 ```nix
-# home/ai/mcp.nix
-programs.claude-code.mcpServers = {
-  git = {
-    command = "${pkgs.nodejs}/bin/npx";
-    args = [ "-y" "@modelcontextprotocol/server-git" ];
+# axios: home/ai/mcp.nix
+{
+  imports = [ inputs.mcp-gateway.homeManagerModules.default ];
+
+  services.mcp-gateway = {
+    enable = true;
+    servers = {
+      git = {
+        enable = true;
+        command = "${pkgs.mcp-server-git}/bin/mcp-server-git";
+      };
+      github = {
+        enable = true;
+        command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
+        args = [ "stdio" ];
+        passwordCommand.GITHUB_PERSONAL_ACCESS_TOKEN = [ "gh" "auth" "token" ];
+      };
+      # ... more servers ...
+    };
   };
-  # ... more servers ...
-};
+}
 ```
 
 Benefits:
-- **Single source of truth**: Define once, use everywhere
-- **Nix-packaged**: No runtime downloads or version conflicts
+- **Single source of truth**: mcp-gateway owns all config generation
+- **Nix-packaged**: Pre-built MCP servers from `mcp-servers-nix` overlay
 - **Reproducible**: Same config across all machines
 - **Type-safe**: Nix validates configuration
+- **Multi-tool**: Generates configs for Claude Code, Gemini, and mcp-cli
 
 ## Available MCP Servers
 
@@ -206,18 +218,18 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 
 ### Adding New MCP Servers
 
-axiOS includes 100+ example MCP server configurations in `home/ai/mcp-examples.nix`. Here's how to add new servers:
+Server definitions live in `home/ai/mcp.nix`. Here's how to add new servers:
 
 #### Example: Add SQLite and Docker Servers
 
-Edit `home/ai/mcp.nix`:
+Edit `home/ai/mcp.nix` and add to the `servers` block:
 
 ```nix
-# Add to existing settings.servers block
-settings.servers = {
+services.mcp-gateway.servers = {
   # ... existing servers ...
 
   sqlite = {
+    enable = true;
     command = "${pkgs.nodejs}/bin/npx";
     args = [
       "-y"
@@ -228,6 +240,7 @@ settings.servers = {
   };
 
   docker = {
+    enable = true;
     command = "${pkgs.nodejs}/bin/npx";
     args = [
       "-y"
@@ -239,7 +252,7 @@ settings.servers = {
 
 Rebuild:
 ```bash
-home-manager switch
+sudo nixos-rebuild switch  # Or home-manager switch
 mcp-cli  # Verify new servers appear
 ```
 
@@ -247,6 +260,7 @@ mcp-cli  # Verify new servers appear
 
 ```nix
 notion = {
+  enable = true;
   command = "${pkgs.nodejs}/bin/npx";
   args = [
     "-y"
@@ -258,7 +272,7 @@ notion = {
 };
 ```
 
-Set the API key:
+Set the API key in your NixOS config:
 ```nix
 environment.sessionVariables = {
   NOTION_API_KEY = "your-notion-api-key";
@@ -271,6 +285,7 @@ environment.sessionVariables = {
 
 ```nix
 server-name = {
+  enable = true;
   command = "${pkgs.nodejs}/bin/npx";
   args = [
     "-y"  # Auto-confirm install
@@ -280,21 +295,32 @@ server-name = {
 };
 ```
 
+#### Pre-packaged Servers (from mcp-servers-nix)
+
+```nix
+# These are pre-built - no runtime npm install
+git = {
+  enable = true;
+  command = "${pkgs.mcp-server-git}/bin/mcp-server-git";
+};
+```
+
 #### Custom Binary Servers
 
 ```nix
 custom-server = {
+  enable = true;
   command = "${pkgs.myPackage}/bin/mcp-server";
   args = [ "--config" "/path/to/config" ];
 };
 ```
 
-#### Packaged Nix Servers
+#### Servers from External Flakes
 
 ```nix
-nix-server = {
-  command = "${inputs.some-mcp-server.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/server";
-  args = [];
+external-server = {
+  enable = true;
+  command = "${inputs.some-mcp-server.packages.${system}.default}/bin/server";
 };
 ```
 
@@ -514,6 +540,19 @@ For sensitive keys in production:
 cat ~/.mcp.json | jq '.mcpServers'
 ```
 
+**Check mcp-gateway service**:
+```bash
+systemctl --user status mcp-gateway
+journalctl --user -u mcp-gateway -f
+```
+
+**Test mcp-gateway API**:
+```bash
+curl http://localhost:8085/health
+curl http://localhost:8085/api/servers | jq
+curl http://localhost:8085/api/tools | jq 'length'
+```
+
 **Test a server manually**:
 ```bash
 npx -y @modelcontextprotocol/server-git
@@ -524,14 +563,44 @@ npx -y @modelcontextprotocol/server-git
 cat ~/.config/ai/prompts/axios.md | less
 ```
 
-**Verify home-manager service**:
+**Restart mcp-gateway after changes**:
 ```bash
-systemctl --user status home-manager.service
+systemctl --user restart mcp-gateway
 ```
+
+## MCP Gateway
+
+mcp-gateway provides additional access methods beyond native MCP:
+
+### REST API
+
+Access tools via HTTP:
+```bash
+# List all tools
+curl http://localhost:8085/api/tools | jq
+
+# Execute a tool
+curl -X POST http://localhost:8085/api/tools/git/git_status \
+  -H "Content-Type: application/json" \
+  -d '{"repo_path": "/home/user/project"}'
+```
+
+### MCP HTTP Transport
+
+For Claude.ai Integrations (when exposed via Tailscale):
+- Endpoint: `https://your-host.tailnet.ts.net:8085/mcp`
+- Protocol: MCP over HTTP/SSE (2025-06-18 spec)
+
+### Web UI
+
+Visual management at `http://localhost:8085`:
+- Server status overview
+- Tool browser with schema viewer
+- Tool testing interface
 
 ## Further Reading
 
-- **MCP Examples**: See `home/ai/mcp-examples.nix` for 100+ server configurations
+- **mcp-gateway Repository**: https://github.com/kcalvelli/mcp-gateway
 - **Quick Reference**: See `docs/MCP_REFERENCE.md` for command reference
 - **Anthropic Beta Features**: See `docs/advanced-tool-use.md` for upcoming API features
 - **System Prompts**: See `~/.config/ai/prompts/axios.md` for complete AI assistant guide
