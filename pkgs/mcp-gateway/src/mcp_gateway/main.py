@@ -95,6 +95,7 @@ app = FastAPI(
     description="REST API gateway for Model Context Protocol servers",
     version="0.1.0",
     lifespan=lifespan,
+    openapi_url=None,  # Disable built-in OpenAPI; we serve dynamic schema at /openapi.json
 )
 
 # CORS middleware for Open WebUI and other browser-based clients
