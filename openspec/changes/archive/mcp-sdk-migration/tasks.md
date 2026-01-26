@@ -31,20 +31,20 @@ Migrate axios MCP implementations to official SDK libraries.
 - [x] Update error handling
 
 ### Task 1.5: Test mcp-gateway
-- [ ] Test with git server (native binary)
-- [ ] Test with github server (native binary)
-- [ ] Test with filesystem server (npx)
-- [ ] Test with context7 server (npx)
-- [ ] Test with axios-ai-mail server
-- [ ] Test with mcp-dav server
-- [ ] Verify REST API endpoints work
-- [ ] Verify Orchestrator UI works
+- [x] Test with git server (native binary) - 12 tools
+- [x] Test with github server (native binary) - 40 tools
+- [x] Test with filesystem server (npx) - 14 tools
+- [x] Test with context7 server (npx) - 2 tools
+- [x] Test with axios-ai-mail server - 8 tools
+- [x] Test with mcp-dav server - 10 tools
+- [x] Verify REST API endpoints work
+- [x] Verify Orchestrator UI works
 
 ### Task 1.6: Deploy and Verify
-- [ ] Commit changes
-- [ ] Push to axios
-- [ ] Rebuild and test on live system
-- [ ] Verify Tailscale Services registration
+- [x] Commit changes
+- [x] Push to axios
+- [x] Rebuild and test on live system
+- [x] Verify Tailscale Services registration
 
 ---
 
@@ -67,9 +67,9 @@ Migrate axios MCP implementations to official SDK libraries.
 - [x] Remove old custom implementation (~320 lines removed)
 
 ### Task 2.4: Test mcp-dav
-- [ ] Test with Claude Code directly
-- [ ] Test with mcp-gateway
-- [ ] Test with mcp-cli
+- [x] Test with Claude Code directly
+- [x] Test with mcp-gateway (10 tools connected)
+- [x] Test with mcp-cli
 
 ### Task 2.5: Update axios-dav Flake
 - [x] Update package version
@@ -96,8 +96,8 @@ No migration needed - it was built with the SDK from the start.
 - [x] No custom JSON-RPC implementation
 
 ### Task 3.4: Test axios-ai-mail
-- [ ] Test with Claude Code
-- [ ] Test with mcp-gateway
+- [x] Test with Claude Code
+- [x] Test with mcp-gateway (8 tools connected)
 
 ### Task 3.5: Update axios-ai-mail Flake
 - [x] No changes needed - already using official SDK
@@ -107,11 +107,11 @@ No migration needed - it was built with the SDK from the start.
 ## Phase 4: Documentation and Cleanup
 
 ### Task 4.1: Update Specs
-- [ ] Update `openspec/specs/ai/spec.md` with SDK info
-- [ ] Document MCP SDK usage pattern
+- [x] Update `openspec/specs/ai/spec.md` with SDK info
+- [x] Document MCP SDK usage pattern
 
 ### Task 4.2: Archive Proposal
-- [ ] Move to `openspec/changes/archive/`
+- [x] Move to `openspec/changes/archive/`
 
 ---
 

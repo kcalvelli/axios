@@ -188,6 +188,22 @@ services.ai.mcpGateway = {
 
 **Implementation**: `modules/ai/mcp-gateway.nix`, `home/ai/mcp-gateway.nix`, `pkgs/mcp-gateway/`
 
+**SDK Architecture:**
+The MCP Gateway uses official MCP SDK libraries for protocol compliance:
+- **Client**: Uses `mcp` package (`mcp.client.stdio`, `ClientSession`) for connecting to MCP servers
+- **Servers**: axios MCP servers use `fastmcp` or `mcp.server.fastmcp` for the server side
+
+| Component | SDK | Package |
+|-----------|-----|---------|
+| mcp-gateway (client) | `mcp` | `python3Packages.mcp` |
+| mcp-dav (server) | `fastmcp` | `python3Packages.fastmcp` |
+| axios-ai-mail (server) | `mcp.server.fastmcp` | `python3Packages.mcp` |
+
+**Features:**
+- `passwordCommand` support for secure secret retrieval (e.g., `gh auth token`)
+- Automatic npx server support (bash, nodejs in service PATH)
+- Non-blocking auto-enable on startup
+
 ## Requirements
 
 ### Requirement: GPU Discovery Timeout Awareness
