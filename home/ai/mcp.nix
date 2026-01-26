@@ -68,11 +68,8 @@ let
       github = {
         command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
         args = [ "stdio" ];
-        env = {
-          GITHUB_TOKEN = "\${GITHUB_TOKEN}";
-        };
         passwordCommand = {
-          GITHUB_TOKEN = [
+          GITHUB_PERSONAL_ACCESS_TOKEN = [
             (lib.getExe config.programs.gh.package)
             "auth"
             "token"

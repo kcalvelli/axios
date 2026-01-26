@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 import os
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,28 @@ class MCPServerConnection:
         self._read_stream: Any = None
         self._write_stream: Any = None
 
+    def _resolve_password_commands(self) -> dict[str, str]:
+        """Execute passwordCommand entries to get secrets."""
+        secrets = {}
+        for env_var, command in self.config.password_command.items():
+            try:
+                result = subprocess.run(
+                    command,
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                if result.returncode == 0:
+                    secrets[env_var] = result.stdout.strip()
+                    logger.debug(f"Retrieved secret for {env_var}")
+                else:
+                    logger.warning(f"passwordCommand for {env_var} failed: {result.stderr}")
+            except subprocess.TimeoutExpired:
+                logger.warning(f"passwordCommand for {env_var} timed out")
+            except Exception as e:
+                logger.warning(f"passwordCommand for {env_var} error: {e}")
+        return secrets
+
     async def connect(self) -> bool:
         """Start the MCP server process and initialize connection."""
         if self._session is not None:
@@ -47,6 +70,11 @@ class MCPServerConnection:
             # Prepare environment - merge with current env
             env = os.environ.copy()
             env.update(self.config.env)
+
+            # Execute passwordCommand to get secrets
+            if self.config.password_command:
+                secrets = self._resolve_password_commands()
+                env.update(secrets)
 
             # Create server parameters
             server_params = StdioServerParameters(
@@ -175,6 +203,7 @@ class MCPServerManager:
                     command=config.get("command", ""),
                     args=config.get("args", []),
                     env=config.get("env", {}),
+                    password_command=config.get("passwordCommand", {}),
                 )
 
             logger.info(f"Loaded {len(self._configs)} server configurations")

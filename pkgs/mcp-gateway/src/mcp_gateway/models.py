@@ -21,6 +21,7 @@ class ServerConfig(BaseModel):
     command: str
     args: list[str] = Field(default_factory=list)
     env: dict[str, str] = Field(default_factory=dict)
+    password_command: dict[str, list[str]] = Field(default_factory=dict)
 
 
 class ServerInfo(BaseModel):
