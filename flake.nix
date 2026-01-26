@@ -98,14 +98,6 @@
       url = "github:kcalvelli/nix-devshell-mcp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    ultimate64-mcp = {
-      url = "github:kcalvelli/Ultimate64MCP";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    c64-stream-viewer = {
-      url = "github:kcalvelli/c64-stream-viewer";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     c64term = {
       url = "github:kcalvelli/c64term";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -148,12 +140,6 @@
     # CalDAV/CardDAV sync with MCP server for calendar/contacts access
     axios-dav = {
       url = "github:kcalvelli/axios-dav";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    # Bleeding edge AI coding agents (goose-cli, etc.)
-    llm-agents = {
-      url = "github:numtide/llm-agents.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

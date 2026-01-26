@@ -121,6 +121,9 @@ in
 
       # === BBS Access
       syncterm
+
+      # === Retro Terminal
+      inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64term
     ];
 
     # === Wayland Environment Variables ===

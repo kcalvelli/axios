@@ -8,28 +8,21 @@ This is a living task list for the blanket AI CLI tools proposal. Tasks are adde
 
 ## Pending Additions
 
-### goose-cli
-
-Block's open-source AI coding assistant with multi-provider support.
-
-- [x] Verify goose-cli is available in nixpkgs (using llm-agents.nix for bleeding edge)
-- [x] Add flake input for llm-agents.nix
-- [x] Add to `modules/ai/default.nix` package list (with services.ai.goose.enable option)
-- [x] Generate `~/.config/goose/config.yaml` with all MCP servers
-- [x] Add shell aliases (axios-goose, axgo)
-- [ ] Test basic functionality after rebuild
-- [ ] Update `openspec/specs/ai/spec.md` CLI Coding Agents section
-
-**References:**
-- https://github.com/block/goose
-- https://block.github.io/goose/
-- https://github.com/numtide/llm-agents.nix
+_None_
 
 ---
 
 ## Completed Additions
 
-_None yet (goose-cli pending user testing)_
+### goose-cli (REMOVED)
+
+Block's open-source AI coding assistant. Was added 2025-01-24 but removed 2025-01-26 as redundant with claude-code and gemini-cli. The tool quality was poor and didn't add value beyond existing tools.
+
+- [x] ~~Verify goose-cli is available in nixpkgs~~ (Removed)
+- [x] ~~Add flake input for llm-agents.nix~~ (Removed)
+- [x] ~~Add to modules/ai/default.nix~~ (Removed)
+- [x] ~~Generate goose config~~ (Removed)
+- [x] ~~Add shell aliases~~ (Removed)
 
 ---
 

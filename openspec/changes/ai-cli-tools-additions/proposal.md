@@ -35,14 +35,13 @@ When adding a new AI CLI tool:
 
 | Tool | Status | Date | Notes |
 |------|--------|------|-------|
-| goose-cli | Implemented | 2025-01-24 | Block's AI agent via llm-agents.nix, MCP configured |
+| goose-cli | Removed | 2025-01-26 | Removed - redundant with claude-code and gemini-cli |
 
 ## Tool Categories
 
 ### CLI Coding Agents
 General-purpose AI assistants for coding tasks:
 - claude-code, gemini-cli-bin, antigravity (existing)
-- goose-cli (pending)
 
 ### Workflow Tools
 Specialized tools for specific AI workflows:

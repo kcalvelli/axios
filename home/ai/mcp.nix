@@ -37,12 +37,6 @@ let
   #        environment.sessionVariables.BRAVE_API_KEY = "your-api-key";
   #     Alternatively: export BRAVE_API_KEY="your-api-key" in your shell
   #
-  # 🎮 COMMODORE 64 INTEGRATION:
-  #   - ultimate64: Ultimate64 C64 emulator control
-  #     REQUIRES: Ultimate64 hardware on local network
-  #     OPTIONAL: Set C64_HOST environment variable (e.g., home.sessionVariables.C64_HOST = "192.168.x.x")
-  #     Provides: Remote control, file management, video streaming, .prg execution
-  #
   # 📧 PIM TOOLS (Require services.pim.enable):
   #   - axios-ai-mail: Email management via MCP
   #     REQUIRES: services.pim.enable = true; and configured mail accounts
@@ -102,19 +96,6 @@ let
         command = "${
           inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
         }/bin/nix-devshell-mcp";
-      };
-
-      # Ultimate64 C64 emulator control
-      # REQUIRES: Ultimate64 hardware on local network
-      # Provides: Remote control, file management, video streaming
-      # OPTIONAL: Configure C64_HOST in your downstream config:
-      #   home.sessionVariables.C64_HOST = "192.168.x.x";
-      #   Or use 'ultimate_set_connection' tool at runtime
-      ultimate64 = {
-        command = "${
-          inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-        }/bin/mcp-ultimate";
-        args = [ "--stdio" ];
       };
 
       # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -234,10 +215,6 @@ in
       # Gemini CLI: Uses GEMINI_SYSTEM_MD env var for system prompt
       axios-gemini = "gemini";
       axg = "gemini";
-
-      # Goose CLI: Block's open-source AI agent
-      axios-goose = "goose";
-      axgo = "goose";
     };
 
     programs.zsh.shellAliases = {
@@ -254,10 +231,6 @@ in
       # Gemini CLI: Uses GEMINI_SYSTEM_MD env var for system prompt
       axios-gemini = "gemini";
       axg = "gemini";
-
-      # Goose CLI: Block's open-source AI agent
-      axios-goose = "goose";
-      axgo = "goose";
     };
 
     # Install MCP server packages
@@ -266,7 +239,6 @@ in
       inputs.axios-dav.packages.${pkgs.stdenv.hostPlatform.system}.mcp-dav
       inputs.mcp-journal.packages.${pkgs.stdenv.hostPlatform.system}.default
       inputs.nix-devshell-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
-      inputs.ultimate64-mcp.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
 
     # Evaluate MCP servers once (single source of truth for all AI tools)
@@ -276,32 +248,10 @@ in
         evaluatedServers =
           (inputs.mcp-servers-nix.lib.evalModule pkgs claude-code-servers).config.settings.servers;
 
-        # Filter out passwordCommand for tools that don't support it (Gemini, Goose)
-        # Claude Code supports passwordCommand, but Gemini/Goose only accept env vars
+        # Filter out passwordCommand for tools that don't support it (Gemini)
+        # Claude Code supports passwordCommand, but Gemini only accepts env vars
         filterPasswordCommand =
           servers: lib.mapAttrs (name: server: builtins.removeAttrs server [ "passwordCommand" ]) servers;
-
-        # Convert Claude Code MCP format to Goose extension format
-        # Claude: { command, args, env }
-        # Goose:  { name, cmd, args, enabled, envs, type, timeout }
-        toGooseExtension = name: server: {
-          name = name;
-          cmd = server.command;
-          args = server.args or [ ];
-          enabled = true;
-          envs = server.env or { };
-          type = "stdio";
-          timeout = 300;
-        };
-
-        # Convert all MCP servers to Goose extensions
-        gooseExtensions = lib.mapAttrs toGooseExtension (filterPasswordCommand evaluatedServers);
-
-        # Generate Goose config.yaml content
-        # Goose uses YAML for configuration at ~/.config/goose/config.yaml
-        gooseConfig = {
-          extensions = gooseExtensions;
-        };
 
         # Generate unified prompt from default + user's extraInstructions
         # Only generate if systemPrompt is enabled
@@ -342,12 +292,6 @@ in
             autoUpdate = false;
           };
         };
-
-        # Goose CLI MCP configuration (declarative)
-        # Generate extension configuration for Goose CLI
-        # Goose reads ~/.config/goose/config.yaml for configuration
-        # NOTE: Goose uses "extensions" terminology for MCP servers
-        ".config/goose/config.yaml".text = lib.generators.toYAML { } gooseConfig;
 
         # axiOS system prompts for AI agents
         # Comprehensive prompt covering all axiOS AI features (mcp-cli, MCP servers, NixOS guidance)

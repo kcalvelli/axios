@@ -18,6 +18,5 @@
     ai = ./ai;
     secrets = ./secrets;
     services = ./services;
-    c64 = ./c64;
   };
 }
