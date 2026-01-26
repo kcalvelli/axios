@@ -20,6 +20,7 @@ python3Packages.buildPythonApplication rec {
     jinja2
     pydantic
     httpx
+    mcp
   ];
 
   # Copy templates to the package

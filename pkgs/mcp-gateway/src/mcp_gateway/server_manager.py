@@ -1,12 +1,18 @@
-"""MCP Server Manager - handles lifecycle and communication with MCP servers."""
+"""MCP Server Manager - handles lifecycle and communication with MCP servers.
+
+Uses the official MCP Python SDK for protocol compliance.
+"""
 
 import asyncio
 import json
 import logging
 import os
-import time
 from pathlib import Path
 from typing import Any
+
+from mcp import ClientSession
+from mcp.client.stdio import StdioServerParameters, stdio_client
+from mcp.types import CallToolResult, TextContent
 
 from .models import ServerConfig, ServerInfo, ServerStatus, ToolSchema
 
@@ -14,47 +20,51 @@ logger = logging.getLogger(__name__)
 
 
 class MCPServerConnection:
-    """Manages connection to a single MCP server via stdio."""
+    """Manages connection to a single MCP server via stdio using MCP SDK."""
 
     def __init__(self, server_id: str, config: ServerConfig):
         self.server_id = server_id
         self.config = config
-        self.process: asyncio.subprocess.Process | None = None
         self.status = ServerStatus.DISCONNECTED
         self.error: str | None = None
         self.tools: dict[str, ToolSchema] = {}
-        self._request_id = 0
-        self._pending_requests: dict[int, asyncio.Future] = {}
-        self._read_task: asyncio.Task | None = None
+        # SDK context managers
+        self._stdio_context: Any = None
+        self._session_context: Any = None
+        self._session: ClientSession | None = None
+        self._read_stream: Any = None
+        self._write_stream: Any = None
 
     async def connect(self) -> bool:
         """Start the MCP server process and initialize connection."""
-        if self.process is not None:
+        if self._session is not None:
             return True
 
         self.status = ServerStatus.CONNECTING
         self.error = None
 
         try:
-            # Prepare environment
+            # Prepare environment - merge with current env
             env = os.environ.copy()
             env.update(self.config.env)
 
-            # Start the process
-            self.process = await asyncio.create_subprocess_exec(
-                self.config.command,
-                *self.config.args,
-                stdin=asyncio.subprocess.PIPE,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE,
+            # Create server parameters
+            server_params = StdioServerParameters(
+                command=self.config.command,
+                args=self.config.args,
                 env=env,
             )
 
-            # Start reading responses
-            self._read_task = asyncio.create_task(self._read_responses())
+            # Enter stdio_client context manager
+            self._stdio_context = stdio_client(server_params)
+            self._read_stream, self._write_stream = await self._stdio_context.__aenter__()
+
+            # Enter ClientSession context manager
+            self._session_context = ClientSession(self._read_stream, self._write_stream)
+            self._session = await self._session_context.__aenter__()
 
             # Initialize MCP connection
-            await self._initialize()
+            await self._session.initialize()
 
             # List available tools
             await self._list_tools()
@@ -72,151 +82,71 @@ class MCPServerConnection:
 
     async def disconnect(self):
         """Stop the MCP server process."""
-        if self._read_task:
-            self._read_task.cancel()
+        # Exit session context
+        if self._session_context:
             try:
-                await self._read_task
-            except asyncio.CancelledError:
-                pass
-            self._read_task = None
+                await self._session_context.__aexit__(None, None, None)
+            except Exception as e:
+                logger.debug(f"Error closing session for {self.server_id}: {e}")
+            self._session_context = None
+            self._session = None
 
-        if self.process:
+        # Exit stdio context
+        if self._stdio_context:
             try:
-                self.process.terminate()
-                await asyncio.wait_for(self.process.wait(), timeout=5.0)
-            except asyncio.TimeoutError:
-                self.process.kill()
-            except Exception:
-                pass
-            self.process = None
+                await self._stdio_context.__aexit__(None, None, None)
+            except Exception as e:
+                logger.debug(f"Error closing stdio for {self.server_id}: {e}")
+            self._stdio_context = None
+            self._read_stream = None
+            self._write_stream = None
 
         self.status = ServerStatus.DISCONNECTED
         self.tools = {}
-        self._pending_requests.clear()
         logger.info(f"Disconnected from MCP server: {self.server_id}")
 
     async def call_tool(self, tool_name: str, arguments: dict[str, Any]) -> Any:
         """Execute a tool and return the result."""
-        if self.status != ServerStatus.CONNECTED:
+        if self.status != ServerStatus.CONNECTED or self._session is None:
             raise RuntimeError(f"Server {self.server_id} is not connected")
 
-        response = await self._send_request(
-            "tools/call",
-            {"name": tool_name, "arguments": arguments},
-        )
+        try:
+            result: CallToolResult = await self._session.call_tool(tool_name, arguments)
 
-        if "error" in response:
-            raise RuntimeError(response["error"].get("message", "Unknown error"))
+            # Extract content from result
+            content_list = []
+            for content in result.content:
+                if isinstance(content, TextContent):
+                    content_list.append({"type": "text", "text": content.text})
+                else:
+                    # Handle other content types
+                    content_list.append({"type": content.type, "data": str(content)})
 
-        return response.get("result", {}).get("content", [])
+            return content_list
 
-    async def _initialize(self):
-        """Send MCP initialize request."""
-        response = await self._send_request(
-            "initialize",
-            {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {},
-                "clientInfo": {"name": "mcp-gateway", "version": "0.1.0"},
-            },
-        )
-
-        if "error" in response:
-            raise RuntimeError(f"Initialize failed: {response['error']}")
-
-        # Send initialized notification
-        await self._send_notification("notifications/initialized", {})
+        except Exception as e:
+            raise RuntimeError(f"Tool call failed: {e}") from e
 
     async def _list_tools(self):
         """Fetch available tools from the server."""
-        response = await self._send_request("tools/list", {})
-
-        if "error" in response:
-            logger.warning(f"Failed to list tools for {self.server_id}: {response['error']}")
-            return
-
-        tools = response.get("result", {}).get("tools", [])
-        self.tools = {
-            tool["name"]: ToolSchema(
-                name=tool["name"],
-                description=tool.get("description", ""),
-                input_schema=tool.get("inputSchema", {}),
-            )
-            for tool in tools
-        }
-        logger.info(f"Server {self.server_id} has {len(self.tools)} tools")
-
-    async def _send_request(self, method: str, params: dict[str, Any]) -> dict[str, Any]:
-        """Send a JSON-RPC request and wait for response."""
-        if not self.process or not self.process.stdin:
-            raise RuntimeError("Process not running")
-
-        self._request_id += 1
-        request_id = self._request_id
-
-        request = {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "method": method,
-            "params": params,
-        }
-
-        # Create future for response
-        future: asyncio.Future = asyncio.Future()
-        self._pending_requests[request_id] = future
-
-        # Send request
-        message = json.dumps(request) + "\n"
-        self.process.stdin.write(message.encode())
-        await self.process.stdin.drain()
-
-        # Wait for response with timeout
-        try:
-            return await asyncio.wait_for(future, timeout=30.0)
-        except asyncio.TimeoutError:
-            self._pending_requests.pop(request_id, None)
-            raise RuntimeError(f"Request {method} timed out")
-
-    async def _send_notification(self, method: str, params: dict[str, Any]):
-        """Send a JSON-RPC notification (no response expected)."""
-        if not self.process or not self.process.stdin:
-            raise RuntimeError("Process not running")
-
-        notification = {
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": params,
-        }
-
-        message = json.dumps(notification) + "\n"
-        self.process.stdin.write(message.encode())
-        await self.process.stdin.drain()
-
-    async def _read_responses(self):
-        """Background task to read responses from the server."""
-        if not self.process or not self.process.stdout:
+        if self._session is None:
             return
 
         try:
-            while True:
-                line = await self.process.stdout.readline()
-                if not line:
-                    break
+            result = await self._session.list_tools()
 
-                try:
-                    response = json.loads(line.decode())
-                    request_id = response.get("id")
-                    if request_id and request_id in self._pending_requests:
-                        self._pending_requests.pop(request_id).set_result(response)
-                except json.JSONDecodeError:
-                    continue
+            self.tools = {
+                tool.name: ToolSchema(
+                    name=tool.name,
+                    description=tool.description or "",
+                    input_schema=tool.inputSchema if hasattr(tool, "inputSchema") else {},
+                )
+                for tool in result.tools
+            }
+            logger.info(f"Server {self.server_id} has {len(self.tools)} tools")
 
-        except asyncio.CancelledError:
-            raise
         except Exception as e:
-            logger.error(f"Error reading from {self.server_id}: {e}")
-            self.status = ServerStatus.ERROR
-            self.error = str(e)
+            logger.warning(f"Failed to list tools for {self.server_id}: {e}")
 
 
 class MCPServerManager:
