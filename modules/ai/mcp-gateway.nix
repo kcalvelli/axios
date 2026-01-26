@@ -109,6 +109,9 @@ in
         wantedBy = [ "default.target" ];
         after = [ "network.target" ];
 
+        # npx-based MCP servers need bash/sh in PATH
+        path = [ pkgs.bash pkgs.coreutils ];
+
         environment = {
           MCP_GATEWAY_HOST = cfg.host;
           MCP_GATEWAY_PORT = toString cfg.port;
