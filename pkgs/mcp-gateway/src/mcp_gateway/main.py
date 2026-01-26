@@ -95,7 +95,8 @@ app = FastAPI(
     description="REST API gateway for Model Context Protocol servers",
     version="0.1.0",
     lifespan=lifespan,
-    openapi_url=None,  # Disable built-in OpenAPI; we serve dynamic schema at /openapi.json
+    # Native OpenAPI at /openapi.json for gateway management API
+    # Tool-specific OpenAPI at /tools/openapi.json for Open WebUI
 )
 
 # CORS middleware for Open WebUI and other browser-based clients
@@ -528,9 +529,16 @@ def _generate_tool_openapi_schema() -> dict:
     }
 
 
-@app.get("/openapi.json", include_in_schema=False)
-async def custom_openapi():
-    """Serve dynamic OpenAPI schema with per-tool endpoints."""
+@app.get("/tools/openapi.json", include_in_schema=False)
+async def tools_openapi():
+    """
+    Serve dynamic OpenAPI schema with per-tool endpoints.
+
+    Open WebUI and other tool clients should connect to this endpoint
+    to discover available MCP tools as individual API operations.
+
+    Gateway management clients should use /openapi.json (FastAPI native).
+    """
     return JSONResponse(content=_generate_tool_openapi_schema())
 
 
