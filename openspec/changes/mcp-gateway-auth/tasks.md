@@ -1,8 +1,8 @@
 # Tasks: mcp-gateway OAuth2 Authentication
 
 **Prerequisites:**
-- [ ] `mcp-gateway-repo-split` completed (new repo exists)
-- [ ] `mcp-gateway-http-transport` completed (MCP protocol works)
+- [x] `mcp-gateway-repo-split` completed (new repo exists)
+- [x] `mcp-gateway-http-transport` completed (MCP protocol works)
 
 ## Phase 1: GitHub OAuth App Setup
 
@@ -20,7 +20,7 @@
 
 ## Phase 2: Core Auth Implementation
 
-- [ ] **2.1 Add dependencies**
+- [x] **2.1 Add dependencies**
   ```toml
   # pyproject.toml
   "authlib>=1.3.0"
@@ -28,7 +28,7 @@
   "python-jose[cryptography]>=3.3.0"
   ```
 
-- [ ] **2.2 Create auth module structure**
+- [x] **2.2 Create auth module structure**
   ```
   src/mcp_gateway/auth/
   ├── __init__.py
@@ -42,31 +42,31 @@
       └── github.py
   ```
 
-- [ ] **2.3 Implement configuration**
+- [x] **2.3 Implement configuration**
   - Environment variable parsing
   - Secret loading (env or file)
   - Optional user allowlist
 
-- [ ] **2.4 Implement JWT tokens**
+- [x] **2.4 Implement JWT tokens**
   - Token generation with claims
   - Token validation
   - Refresh token support
 
-- [ ] **2.5 Implement GitHub provider**
+- [x] **2.5 Implement GitHub provider**
   - OAuth2 authorization URL
   - Token exchange
   - User info fetching
 
 ## Phase 3: OAuth Endpoints
 
-- [ ] **3.1 Implement OAuth metadata endpoint**
+- [x] **3.1 Implement OAuth metadata endpoint**
   ```
   GET /.well-known/oauth-authorization-server
   ```
   - Return RFC 8414 compliant metadata
   - Include all supported endpoints
 
-- [ ] **3.2 Implement authorization endpoint**
+- [x] **3.2 Implement authorization endpoint**
   ```
   GET /oauth/authorize
   ```
@@ -74,7 +74,7 @@
   - Support PKCE (code_challenge)
   - Redirect to GitHub OAuth
 
-- [ ] **3.3 Implement callback endpoint**
+- [x] **3.3 Implement callback endpoint**
   ```
   GET /oauth/callback
   ```
@@ -84,7 +84,7 @@
   - Check user allowlist (if configured)
   - Generate authorization code
 
-- [ ] **3.4 Implement token endpoint**
+- [x] **3.4 Implement token endpoint**
   ```
   POST /oauth/token
   ```
@@ -92,7 +92,7 @@
   - Support refresh_token grant
   - Return JWT access token
 
-- [ ] **3.5 Implement client registration (optional)**
+- [x] **3.5 Implement client registration (optional)**
   ```
   POST /oauth/register
   ```
@@ -101,21 +101,21 @@
 
 ## Phase 4: Auth Middleware
 
-- [ ] **4.1 Create auth middleware**
+- [x] **4.1 Create auth middleware**
   - Extract Bearer token from Authorization header
   - Validate JWT signature and claims
   - Attach user to request state
 
-- [ ] **4.2 Define public vs protected routes**
+- [x] **4.2 Define public vs protected routes**
   - Public: `/.well-known/*`, `/oauth/*`, `/health`
   - Protected: `/mcp`, `/api/*`, `/tools/*`
   - Web UI: Session-based (cookie)
 
-- [ ] **4.3 Apply middleware to FastAPI app**
+- [x] **4.3 Apply middleware to FastAPI app**
   - Add dependency to protected routes
   - Handle 401/403 responses
 
-- [ ] **4.4 Update MCP transport**
+- [x] **4.4 Update MCP transport**
   - Validate auth before processing messages
   - Include user in session info
 

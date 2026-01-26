@@ -28,14 +28,15 @@ in
 
       # Pass through gateway settings from NixOS config
       port = osConfig.services.ai.mcpGateway.port or 8085;
-      autoEnable = osConfig.services.ai.mcpGateway.autoEnable or [
-        "git"
-        "github"
-        "filesystem"
-        "context7"
-        "mcp-dav"
-        "axios-ai-mail"
-      ];
+      autoEnable =
+        osConfig.services.ai.mcpGateway.autoEnable or [
+          "git"
+          "github"
+          "filesystem"
+          "context7"
+          "mcp-dav"
+          "axios-ai-mail"
+        ];
 
       # System prompt configuration
       systemPrompt = {
