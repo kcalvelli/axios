@@ -1,5 +1,6 @@
 """MCP Gateway - FastAPI application exposing MCP servers via REST."""
 
+import asyncio
 import logging
 import os
 import time
@@ -32,11 +33,32 @@ logger = logging.getLogger(__name__)
 # Global server manager
 manager: MCPServerManager | None = None
 
+# Background task for auto-enable
+_auto_enable_task: asyncio.Task | None = None
+
+
+async def _auto_enable_servers(server_ids: list[str]):
+    """Background task to auto-enable servers without blocking startup."""
+    global manager
+    if not manager:
+        return
+
+    for server_id in server_ids:
+        server_id = server_id.strip()
+        if server_id and server_id in manager.get_server_ids():
+            logger.info(f"Auto-enabling server: {server_id}")
+            try:
+                await manager.enable_server(server_id)
+            except Exception as e:
+                logger.error(f"Failed to auto-enable {server_id}: {e}")
+
+    logger.info("Auto-enable complete")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan - initialize and cleanup."""
-    global manager
+    global manager, _auto_enable_task
 
     config_path = os.environ.get(
         "MCP_GATEWAY_CONFIG", os.path.expanduser("~/.config/mcp/mcp_servers.json")
@@ -44,15 +66,22 @@ async def lifespan(app: FastAPI):
     manager = MCPServerManager(config_path)
     await manager.load_config()
 
-    # Auto-enable servers from environment
+    # Auto-enable servers in background (non-blocking)
     auto_enable = os.environ.get("MCP_GATEWAY_AUTO_ENABLE", "").split(",")
-    for server_id in auto_enable:
-        server_id = server_id.strip()
-        if server_id and server_id in manager.get_server_ids():
-            logger.info(f"Auto-enabling server: {server_id}")
-            await manager.enable_server(server_id)
+    auto_enable = [s.strip() for s in auto_enable if s.strip()]
+    if auto_enable:
+        logger.info(f"Starting background auto-enable for: {auto_enable}")
+        _auto_enable_task = asyncio.create_task(_auto_enable_servers(auto_enable))
 
     yield
+
+    # Cancel auto-enable task if still running
+    if _auto_enable_task and not _auto_enable_task.done():
+        _auto_enable_task.cancel()
+        try:
+            await _auto_enable_task
+        except asyncio.CancelledError:
+            pass
 
     # Cleanup
     if manager:
