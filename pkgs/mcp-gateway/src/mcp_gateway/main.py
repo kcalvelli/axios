@@ -10,7 +10,8 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.openapi.utils import get_openapi
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -390,6 +391,146 @@ async def health_check():
         "servers_configured": len(manager.get_server_ids()) if manager else 0,
         "servers_enabled": len(manager.enabled_servers) if manager else 0,
     }
+
+
+# =============================================================================
+# Dynamic Tool Endpoints (OpenAPI-compatible for Open WebUI)
+# =============================================================================
+
+
+@app.post("/tools/{server_id}/{tool_name}")
+async def execute_tool(server_id: str, tool_name: str, request: Request):
+    """
+    Execute an MCP tool directly.
+
+    This endpoint provides OpenAPI-compatible tool access for Open WebUI
+    and other clients that expect individual tool endpoints.
+    """
+    if not manager:
+        raise HTTPException(status_code=503, detail="Server manager not initialized")
+
+    # Parse request body - accept both direct args and wrapped format
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+
+    # Support both {"arguments": {...}} and direct {...} formats
+    if "arguments" in body:
+        arguments = body["arguments"]
+    else:
+        arguments = body
+
+    start_time = time.time()
+
+    try:
+        result = await manager.call_tool(server_id, tool_name, arguments)
+        duration_ms = (time.time() - start_time) * 1000
+
+        # Return result directly for OpenAPI compatibility
+        # Open WebUI expects the result, not a wrapper
+        return {"result": result, "success": True, "duration_ms": duration_ms}
+    except Exception as e:
+        duration_ms = (time.time() - start_time) * 1000
+        logger.error(f"Tool call failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# Dynamic OpenAPI Schema Generation
+# =============================================================================
+
+
+def _generate_tool_openapi_schema() -> dict:
+    """
+    Generate a dynamic OpenAPI schema with individual operations for each MCP tool.
+
+    This allows Open WebUI and other OpenAPI clients to discover and call
+    each tool as a separate endpoint with proper parameter schemas.
+    """
+    if not manager:
+        return get_openapi(
+            title="MCP Gateway",
+            version="0.1.0",
+            description="REST API gateway for Model Context Protocol servers",
+            routes=app.routes,
+        )
+
+    # Start with base paths for gateway management
+    paths = {
+        "/health": {
+            "get": {
+                "summary": "Health Check",
+                "operationId": "health_check",
+                "responses": {"200": {"description": "Gateway health status"}},
+                "tags": ["Gateway"],
+            }
+        },
+    }
+
+    # Add tool-specific paths
+    for server_id, schema in manager.get_all_tools():
+        path = f"/tools/{server_id}/{schema.name}"
+        operation_id = f"{server_id}_{schema.name}".replace("-", "_")
+
+        # Build request body schema from tool's input schema
+        request_schema = {
+            "type": "object",
+            "properties": schema.input_schema.get("properties", {}),
+        }
+        if "required" in schema.input_schema:
+            request_schema["required"] = schema.input_schema["required"]
+
+        paths[path] = {
+            "post": {
+                "summary": schema.name.replace("_", " ").title(),
+                "description": schema.description,
+                "operationId": operation_id,
+                "tags": [server_id],
+                "requestBody": {
+                    "required": bool(schema.input_schema.get("required")),
+                    "content": {
+                        "application/json": {
+                            "schema": request_schema,
+                        }
+                    },
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tool execution result",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "result": {"description": "Tool output"},
+                                        "success": {"type": "boolean"},
+                                        "duration_ms": {"type": "number"},
+                                    },
+                                }
+                            }
+                        },
+                    },
+                    "500": {"description": "Tool execution error"},
+                },
+            }
+        }
+
+    return {
+        "openapi": "3.1.0",
+        "info": {
+            "title": "MCP Gateway - Tool API",
+            "description": "Dynamic API exposing MCP server tools. Each tool is available as a separate endpoint.",
+            "version": "0.1.0",
+        },
+        "paths": paths,
+    }
+
+
+@app.get("/openapi.json", include_in_schema=False)
+async def custom_openapi():
+    """Serve dynamic OpenAPI schema with per-tool endpoints."""
+    return JSONResponse(content=_generate_tool_openapi_schema())
 
 
 def main():
