@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - MCP Gateway{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 24px;">Dashboard</h2>
+
+<div class="grid" style="margin-bottom: 32px;">
+    <div class="card stat-card">
+        <div class="stat-value">{{ servers|length }}</div>
+        <div class="stat-label">Configured Servers</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-value">{{ servers|selectattr('enabled')|list|length }}</div>
+        <div class="stat-label">Enabled Servers</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-value">{{ tools_count }}</div>
+        <div class="stat-label">Available Tools</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Server Status</h3>
+        <a href="/servers" class="btn btn-secondary">Manage Servers</a>
+    </div>
+
+    <div class="tool-list">
+        {% for server in servers %}
+        <div class="tool-item">
+            <div>
+                <div class="tool-name">{{ server.id }}</div>
+                <div class="tool-server">{{ server.tools|length }} tools</div>
+            </div>
+            <span class="status-badge status-{{ server.status.value }}">
+                {{ server.status.value }}
+            </span>
+        </div>
+        {% else %}
+        <p style="color: var(--text-secondary); padding: 20px; text-align: center;">
+            No servers configured. Check your <code>~/.config/mcp/mcp_servers.json</code> file.
+        </p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Quick Actions</h3>
+    </div>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="/tools" class="btn btn-primary">Browse Tools</a>
+        <a href="/api/openwebui/functions" class="btn btn-secondary" target="_blank">Export for Open WebUI</a>
+        <a href="/api/servers" class="btn btn-secondary" target="_blank">API: Servers</a>
+        <a href="/api/tools" class="btn btn-secondary" target="_blank">API: Tools</a>
+    </div>
+</div>
+{% endblock %}

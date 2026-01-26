@@ -32,7 +32,8 @@ This document defines port allocations for axios services. All services follow a
 | Service | Local Port | Tailscale Port | Module | Status |
 |---------|------------|----------------|--------|--------|
 | Ollama API | 11434 | 8447 | `ai.local` | Active |
-| *Reserved* | — | 8448-8449 | — | Future APIs |
+| MCP Gateway | 8085 | 8448 | `ai.mcpGateway` | In Progress |
+| *Reserved* | — | 8449 | — | Future APIs |
 
 ### Media Services
 

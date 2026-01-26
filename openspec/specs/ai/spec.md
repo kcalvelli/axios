@@ -134,6 +134,60 @@ services.ai.webui = {
 
 **Implementation**: `modules/ai/webui.nix`, `home/ai/webui.nix`
 
+### MCP Gateway (axios-mcp-gateway)
+
+REST API gateway that exposes axios MCP servers via OpenAPI endpoints, with a web-based orchestrator UI.
+
+**Purpose**: Bridge the gap between the axios MCP ecosystem and tools that don't natively support MCP (Open WebUI, custom apps, mobile clients).
+
+**Deployment Roles:**
+
+- **Server Role** (`role = "server"`, default):
+  - Runs MCP Gateway service locally on port 8085
+  - Connects to configured MCP servers via stdio
+  - Exposes tools via REST API endpoints
+  - Auto-registers as `axios-mcp-gateway.<tailnet>.ts.net` via Tailscale Services
+
+- **Client Role** (`role = "client"`):
+  - No local service installed
+  - PWA desktop entry points to `https://axios-mcp-gateway.<tailnet>.ts.net`
+
+**API Endpoints:**
+- `GET /api/servers` - List all configured MCP servers
+- `PATCH /api/servers/{id}` - Enable/disable a server
+- `GET /api/tools` - List all available tools
+- `GET /api/tools/{server}/{tool}` - Get tool JSON schema
+- `POST /api/tools/{server}/{tool}` - Execute a tool
+- `GET /api/openwebui/functions` - Generate Open WebUI function code
+
+**Orchestrator UI:**
+- Dashboard with server status overview
+- Server management (enable/disable toggle)
+- Tool browser with schema viewer
+- Tool testing interface
+
+**Configuration:**
+```nix
+services.ai.mcpGateway = {
+  enable = true;
+  role = "server";
+  port = 8085;
+  autoEnable = [ "filesystem" "git" "github" ];  # Auto-connect on startup
+
+  pwa = {
+    enable = true;
+    tailnetDomain = "taile0fb4.ts.net";
+  };
+};
+```
+
+**Port Allocations:**
+| Service | Local Port | Tailscale Services |
+|---------|------------|-------------------|
+| MCP Gateway | 8085 | axios-mcp-gateway (443) |
+
+**Implementation**: `modules/ai/mcp-gateway.nix`, `home/ai/mcp-gateway.nix`, `pkgs/mcp-gateway/`
+
 ## Requirements
 
 ### Requirement: GPU Discovery Timeout Awareness

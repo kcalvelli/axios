@@ -4,6 +4,24 @@
 
 Create an MCP Gateway service that exposes axios MCP servers via OpenAPI REST endpoints, with a web-based orchestrator UI for enabling/disabling servers. This bridges the gap between the axios MCP ecosystem and tools that don't natively support MCP (Open WebUI, custom apps, mobile clients).
 
+## Architecture Decision
+
+**Location**: Part of axios (not a separate repo)
+
+**Rationale**: Unlike axios-ai-mail and axios-dav which have standalone value, mcp-gateway:
+- Is tightly coupled to axios's MCP configuration (`home/ai/mcp.nix`)
+- Has no value without axios's MCP server definitions
+- Follows the mcp-cli pattern (also in `pkgs/mcp-cli/`)
+- Is infrastructure for axios, not a standalone service
+
+**Structure**:
+```
+axios/
+├── modules/ai/mcp-gateway.nix    # NixOS module
+├── pkgs/mcp-gateway/             # FastAPI service package
+└── home/ai/mcp-gateway.nix       # PWA desktop entry
+```
+
 ## Motivation
 
 ### Problem Statement

@@ -6,6 +6,7 @@
   imports = [
     ./mcp.nix
     ./webui.nix
+    ./mcp-gateway.nix
   ];
 
   # Additional AI configuration can go here

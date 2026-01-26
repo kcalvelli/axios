@@ -16,6 +16,7 @@ in
 {
   imports = [
     ./webui.nix
+    ./mcp-gateway.nix
   ];
 
   options = {

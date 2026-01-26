@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Servers - MCP Gateway{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom: 24px;">MCP Servers</h2>
+
+<div class="grid">
+    {% for server in servers %}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">{{ server.id }}</h3>
+            <div class="toggle {% if server.enabled %}active{% endif %}"
+                 onclick="toggleServer('{{ server.id }}', {{ 'false' if server.enabled else 'true' }})"
+                 title="{% if server.enabled %}Click to disable{% else %}Click to enable{% endif %}">
+            </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span class="status-badge status-{{ server.status.value }}">
+                {{ server.status.value }}
+            </span>
+            <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                {{ server.tools|length }} tools
+            </span>
+        </div>
+
+        {% if server.error %}
+        <div class="error-message">
+            {{ server.error }}
+        </div>
+        {% endif %}
+
+        {% if server.tools %}
+        <div style="margin-top: 16px;">
+            <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 8px;">Available tools:</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                {% for tool in server.tools[:5] %}
+                <code>{{ tool }}</code>
+                {% endfor %}
+                {% if server.tools|length > 5 %}
+                <span style="color: var(--text-secondary); font-size: 0.85rem;">
+                    +{{ server.tools|length - 5 }} more
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 48px;">
+        <h3 style="margin-bottom: 12px;">No Servers Configured</h3>
+        <p style="color: var(--text-secondary);">
+            MCP servers are configured in <code>~/.config/mcp/mcp_servers.json</code>
+        </p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
