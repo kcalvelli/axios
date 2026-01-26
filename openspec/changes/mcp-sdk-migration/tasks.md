@@ -51,20 +51,20 @@ Migrate axios MCP implementations to official SDK libraries.
 ## Phase 2: mcp-dav Server Migration (axios-dav repo)
 
 ### Task 2.1: Research FastMCP
-- [ ] Review fastmcp documentation
-- [ ] Understand `@mcp.tool()` decorator pattern
-- [ ] Check nixpkgs for `fastmcp` package
+- [x] Review fastmcp documentation
+- [x] Understand `@mcp.tool()` decorator pattern
+- [x] Check nixpkgs for `fastmcp` package (v2.14.3 available)
 
 ### Task 2.2: Update Dependencies
-- [ ] Add `fastmcp` to pyproject.toml
-- [ ] Update default.nix
-- [ ] Verify package builds
+- [x] Add `fastmcp` to pyproject.toml
+- [x] Update flake.nix (package defined inline)
+- [x] Verify package builds
 
 ### Task 2.3: Rewrite Server
-- [ ] Create new FastMCP-based server
-- [ ] Migrate calendar tools (list_events, search_events, create_event, get_free_busy)
-- [ ] Migrate contact tools (list_contacts, search_contacts, get_contact, create_contact, update_contact, delete_contact)
-- [ ] Remove old custom implementation
+- [x] Create new FastMCP-based server
+- [x] Migrate calendar tools (list_events, search_events, create_event, get_free_busy)
+- [x] Migrate contact tools (list_contacts, search_contacts, get_contact, create_contact, update_contact, delete_contact)
+- [x] Remove old custom implementation (~320 lines removed)
 
 ### Task 2.4: Test mcp-dav
 - [ ] Test with Claude Code directly
@@ -72,33 +72,35 @@ Migrate axios MCP implementations to official SDK libraries.
 - [ ] Test with mcp-cli
 
 ### Task 2.5: Update axios-dav Flake
-- [ ] Update package version
-- [ ] Commit and push
+- [x] Update package version
+- [x] Commit and push (bd56206)
 
 ---
 
 ## Phase 3: axios-ai-mail Server Migration (axios-ai-mail repo)
 
+**NOTE**: axios-ai-mail was ALREADY using the official MCP SDK (`mcp.server.fastmcp`).
+No migration needed - it was built with the SDK from the start.
+
 ### Task 3.1: Research Current Implementation
-- [ ] Review current MCP mode implementation
-- [ ] Identify all MCP tools exposed
+- [x] Review current MCP mode implementation
+- [x] Identify all MCP tools exposed (8 tools: list_accounts, search_emails, read_email, compose_email, send_email, reply_to_email, mark_read, delete_email)
 
 ### Task 3.2: Update Dependencies
-- [ ] Add `fastmcp` to pyproject.toml
-- [ ] Update Nix packaging
+- [x] Already using `mcp>=1.0.0` in pyproject.toml
+- [x] Already using `mcp` in flake.nix
 
-### Task 3.3: Rewrite MCP Mode
-- [ ] Create FastMCP-based server
-- [ ] Migrate all email tools
-- [ ] Remove old custom implementation
+### Task 3.3: Verify Implementation
+- [x] Already using `mcp.server.fastmcp.FastMCP`
+- [x] All tools use `@mcp.tool()` decorators
+- [x] No custom JSON-RPC implementation
 
 ### Task 3.4: Test axios-ai-mail
 - [ ] Test with Claude Code
 - [ ] Test with mcp-gateway
 
 ### Task 3.5: Update axios-ai-mail Flake
-- [ ] Update package version
-- [ ] Commit and push
+- [x] No changes needed - already using official SDK
 
 ---
 
