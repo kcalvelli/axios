@@ -27,8 +27,8 @@ Integrates advanced AI agents and local inference capabilities into the develope
 ### Model Context Protocol (MCP)
 - **Token Reduction Strategy**: Uses `mcp-cli` for dynamic tool discovery, reducing context window usage by up to 99%.
 - **Servers**: Git, GitHub, Filesystem, Journal, Nix-devshell, etc.
-- **Configuration**: Declarative via `programs.claude-code.mcpServers`.
-- **Implementation**: `home/ai/mcp.nix`
+- **Configuration**: Declarative via `services.mcp-gateway` (from external mcp-gateway repo).
+- **Implementation**: Server definitions in `home/ai/mcp.nix`, module logic in `github.com/kcalvelli/mcp-gateway`
 
 ### Local Inference Stack (Ollama)
 
@@ -134,49 +134,76 @@ services.ai.webui = {
 
 **Implementation**: `modules/ai/webui.nix`, `home/ai/webui.nix`
 
-### MCP Gateway (axios-mcp-gateway)
+### MCP Gateway (External Repository)
 
-REST API gateway that exposes axios MCP servers via OpenAPI endpoints, with a web-based orchestrator UI.
+REST API gateway that exposes axios MCP servers via OpenAPI endpoints and MCP HTTP transport.
 
-**Purpose**: Bridge the gap between the axios MCP ecosystem and tools that don't natively support MCP (Open WebUI, custom apps, mobile clients).
+**Repository**: `github.com/kcalvelli/mcp-gateway`
 
-**Deployment Roles:**
+**Purpose**:
+- Bridge between axios MCP ecosystem and tools that don't natively support MCP
+- Provide MCP HTTP transport for Claude.ai Integrations and Claude Desktop
+- Own the declarative MCP configuration module (single source of truth)
 
-- **Server Role** (`role = "server"`, default):
-  - Runs MCP Gateway service locally on port 8085
-  - Connects to configured MCP servers via stdio
-  - Exposes tools via REST API endpoints
-  - Auto-registers as `axios-mcp-gateway.<tailnet>.ts.net` via Tailscale Services
+**Architecture:**
 
-- **Client Role** (`role = "client"`):
-  - No local service installed
-  - PWA desktop entry points to `https://axios-mcp-gateway.<tailnet>.ts.net`
+mcp-gateway is a standalone repository that provides:
+- **Package**: `mcp-gateway` Python FastAPI application
+- **Home-Manager Module**: Declarative MCP server configuration
+- **System Prompts**: `axios.md` and `mcp-cli.md`
+- **OpenSpec Commands**: `/proposal`, `/apply`, `/archive`
+
+axios imports mcp-gateway's module and provides server definitions with resolved package paths:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   axios (home/ai/mcp.nix)                       │
+│  - Imports mcp-gateway's home-manager module                    │
+│  - Provides server definitions with resolved nix store paths    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    mcp-gateway module                           │
+│  - Evaluates server declarations                                │
+│  - Generates config files                                       │
+│  - Configures systemd service                                   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+        ~/.mcp.json    mcp_servers.json   axios.md
+        (Claude Code)  (mcp-gateway)      (prompt)
+```
 
 **API Endpoints:**
 - `GET /api/servers` - List all configured MCP servers
 - `PATCH /api/servers/{id}` - Enable/disable a server
 - `GET /api/tools` - List all available tools
-- `GET /api/tools/{server}/{tool}` - Get tool JSON schema
 - `POST /api/tools/{server}/{tool}` - Execute a tool
-- `GET /api/openwebui/functions` - Generate Open WebUI function code
+- `GET /health` - Health check
+- `GET /mcp` - MCP HTTP transport endpoint (SSE)
+- `POST /mcp/message` - MCP message endpoint
 
-**Orchestrator UI:**
-- Dashboard with server status overview
-- Server management (enable/disable toggle)
-- Tool browser with schema viewer
-- Tool testing interface
-
-**Configuration:**
+**Configuration** (via mcp-gateway home-manager module):
 ```nix
-services.ai.mcpGateway = {
+services.mcp-gateway = {
   enable = true;
-  role = "server";
   port = 8085;
-  autoEnable = [ "filesystem" "git" "github" ];  # Auto-connect on startup
+  autoEnable = [ "git" "github" "filesystem" "context7" ];
 
-  pwa = {
-    enable = true;
-    tailnetDomain = "taile0fb4.ts.net";
+  servers = {
+    git = {
+      enable = true;
+      command = "${pkgs.mcp-server-git}/bin/mcp-server-git";
+    };
+    github = {
+      enable = true;
+      command = "${pkgs.github-mcp-server}/bin/github-mcp-server";
+      args = [ "stdio" ];
+      passwordCommand.GITHUB_PERSONAL_ACCESS_TOKEN = [ "gh" "auth" "token" ];
+    };
+    # ... more servers
   };
 };
 ```
@@ -186,7 +213,9 @@ services.ai.mcpGateway = {
 |---------|------------|-------------------|
 | MCP Gateway | 8085 | axios-mcp-gateway (443) |
 
-**Implementation**: `modules/ai/mcp-gateway.nix`, `home/ai/mcp-gateway.nix`, `pkgs/mcp-gateway/`
+**Implementation**:
+- Repository: `github.com/kcalvelli/mcp-gateway`
+- axios integration: `home/ai/mcp.nix`
 
 **SDK Architecture:**
 The MCP Gateway uses official MCP SDK libraries for protocol compliance:
@@ -201,8 +230,10 @@ The MCP Gateway uses official MCP SDK libraries for protocol compliance:
 
 **Features:**
 - `passwordCommand` support for secure secret retrieval (e.g., `gh auth token`)
+- MCP HTTP transport for Claude.ai Integrations
 - Automatic npx server support (bash, nodejs in service PATH)
 - Non-blocking auto-enable on startup
+- Generates configs for Claude Code, Gemini CLI, and mcp-cli
 
 ## Requirements
 

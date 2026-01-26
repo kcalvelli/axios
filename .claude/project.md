@@ -239,7 +239,7 @@ inputs.something.packages.${system}.package-name
 
 - Home modules mirror NixOS module structure
 - Use `osConfig.services.ai.enable or false` to check system-level config
-- Declarative MCP server configuration via `programs.claude-code.mcpServers`
+- MCP server configuration via `services.mcp-gateway` (from mcp-gateway repo)
 
 ## Important Inputs
 
@@ -247,7 +247,8 @@ inputs.something.packages.${system}.package-name
 inputs = {
   nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
   home-manager;
-  mcp-servers-nix;   # MCP server configuration library and packages
+  mcp-gateway;       # MCP Gateway with declarative config module
+  mcp-servers-nix;   # MCP server packages (git, github, filesystem, etc.)
   dankMaterialShell; # DMS/Niri shell
   mcp-journal;       # MCP server for journal access
   agenix;            # Secrets management
@@ -395,8 +396,8 @@ All workflows use:
 The `services.ai.enable` module provides:
 - **Tools**: claude-code, gemini-cli, claude-monitor, mcp-cli, and other AI assistants
 - **MCP Servers** (optional): Enable with `services.ai.mcp.enable = true` (default: true)
+- **MCP Gateway**: REST API and MCP HTTP transport for tool access
 - **Dynamic Discovery**: mcp-cli for just-in-time tool discovery (99% token reduction)
-- **Architecture**: Uses `mcp-servers-nix` library for declarative MCP server configuration
 
 ### MCP Configuration
 
@@ -409,15 +410,39 @@ The `services.ai.enable` module provides:
 ```
 
 **Architecture**:
-- **Declarative**: MCP servers configured in `home/ai/mcp.nix`
-- **Library-based**: Uses `inputs.mcp-servers-nix.lib.evalModule` to generate tool-specific configs
-- **Multi-tool ready**: Can generate configs for Claude Code
+
+MCP configuration is owned by the **mcp-gateway** external repository (`github.com/kcalvelli/mcp-gateway`). This provides a single source of truth for MCP server definitions:
+
+- **mcp-gateway** provides the home-manager module (`services.mcp-gateway`)
+- **axios** imports mcp-gateway's module and provides server definitions with resolved package paths
+- **Config generation**: mcp-gateway generates `~/.mcp.json`, `~/.config/mcp/mcp_servers.json`, and system prompts
 - **Pre-packaged servers**: MCP servers from `mcp-servers-nix` overlay (no runtime downloads)
 - **Security**: Supports `passwordCommand` for secrets (e.g., GitHub token via `gh auth token`)
 
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   axios (home/ai/mcp.nix)                       │
+│  - Imports mcp-gateway's home-manager module                    │
+│  - Provides server definitions with resolved nix store paths    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    mcp-gateway module                           │
+│  - Evaluates server declarations                                │
+│  - Generates config files                                       │
+│  - Configures systemd service                                   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┼───────────────┐
+              ▼               ▼               ▼
+        ~/.mcp.json    mcp_servers.json   axios.md
+        (Claude Code)  (mcp-gateway)      (prompt)
+```
+
 ### MCP Server Categories
 
-**All MCP server requirements are documented in `home/ai/mcp.nix`**
+**Server definitions are in `home/ai/mcp.nix`, module logic is in mcp-gateway**
 
 1. **Core Tools** (no setup required): git, github†, filesystem, time, journal, nix-devshell-mcp, ultimate64‡
 2. **AI Enhancement** (no setup required): sequential-thinking, context7
@@ -487,12 +512,13 @@ echo '{"query": "test"}' | mcp-cli server/tool -
 
 **Integration:**
 
-mcp-cli is **automatically enabled** when `services.ai.enable = true`. axios automatically generates:
+mcp-cli is **automatically enabled** when `services.ai.enable = true`. The mcp-gateway module generates:
 - `~/.mcp.json` - Claude Code native MCP configuration
-- `~/.config/mcp/mcp_servers.json` - mcp-cli configuration (same server definitions)
+- `~/.config/mcp/mcp_servers.json` - mcp-gateway/mcp-cli configuration
 - `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
+- `~/.gemini/settings.json` - Gemini CLI configuration
 
-Both MCP config files use the same declarative server configuration from `home/ai/mcp.nix`.
+All config files are generated from the same server definitions in `home/ai/mcp.nix`.
 
 **Zero Configuration Required:**
 - After system rebuild, the axios prompt is automatically injected into `~/.claude.json`
@@ -574,14 +600,51 @@ This approach dramatically reduces context window usage and enables using many m
 - ✅ No configuration needed - works automatically with existing MCP setup
 - ✅ Complements (not replaces) native Claude Code MCP integration
 
+### MCP Gateway
+
+**What is mcp-gateway?**
+
+mcp-gateway is a REST API gateway that exposes axios MCP servers via OpenAPI endpoints and MCP HTTP transport. It's maintained in its own repository (`github.com/kcalvelli/mcp-gateway`) and provides:
+
+- **REST API** - Tool management and execution via `/api/tools/{server}/{tool}`
+- **MCP HTTP Transport** - Native MCP protocol for Claude.ai Integrations and Claude Desktop
+- **Web UI Orchestrator** - Visual management interface at `http://localhost:8085`
+- **Declarative Config Module** - Generates all MCP configuration files
+
+**Systemd Service:**
+
+mcp-gateway runs as a user service, auto-starting configured MCP servers:
+
+```bash
+# Check status
+systemctl --user status mcp-gateway
+
+# View logs
+journalctl --user -u mcp-gateway -f
+
+# Restart after config changes
+systemctl --user restart mcp-gateway
+```
+
+**API Endpoints:**
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/servers` | List all configured MCP servers |
+| `PATCH /api/servers/{id}` | Enable/disable a server |
+| `GET /api/tools` | List all available tools |
+| `POST /api/tools/{server}/{tool}` | Execute a tool |
+| `GET /health` | Health check |
+| `GET /mcp` | MCP HTTP transport (for Claude.ai) |
+
 **References:**
-- Package: `pkgs/mcp-cli/default.nix`
-- Configuration: `home/ai/mcp.nix:230-268`
-- **System Prompts:**
-  - `home/ai/prompts/axios-system-prompt.md` → `~/.config/ai/prompts/axios.md` (comprehensive, auto-injected)
-  - `home/ai/prompts/mcp-cli-system-prompt.md` → `~/.config/ai/prompts/mcp-cli.md` (mcp-cli only)
-- Auto-injection: `home/ai/mcp.nix:242-268` (home.activation.injectAxiosPrompt)
-- Upstream: https://github.com/philschmid/mcp-cli
+- **mcp-gateway repository**: `github.com/kcalvelli/mcp-gateway`
+- **Server definitions**: `home/ai/mcp.nix` (axios provides paths, mcp-gateway provides module)
+- **System Prompts** (owned by mcp-gateway):
+  - `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
+  - `~/.config/ai/prompts/mcp-cli.md` - mcp-cli specific prompt
+- **OpenSpec commands** (owned by mcp-gateway): `~/.claude/commands/openspec/`
+- mcp-cli upstream: https://github.com/philschmid/mcp-cli
 
 ## Common Patterns
 
