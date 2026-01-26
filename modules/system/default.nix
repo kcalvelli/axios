@@ -3,6 +3,7 @@
   lib,
   pkgs,
   self,
+  inputs,
   ...
 }:
 {
@@ -25,8 +26,14 @@
   ];
 
   config = lib.mkIf config.axios.system.enable {
-    # Apply axios overlay to system pkgs
-    nixpkgs.overlays = [ self.overlays.default ];
+    # Apply overlays to system pkgs (makes packages available to home-manager via useGlobalPkgs)
+    nixpkgs.overlays = [
+      self.overlays.default
+      # mcp-servers-nix overlay provides pre-built MCP servers (mcp-server-git, etc.)
+      inputs.mcp-servers-nix.overlays.default
+      # mcp-gateway overlay provides the gateway package
+      inputs.mcp-gateway.overlays.default
+    ];
 
     # Configure home-manager to use system pkgs (with overlays)
     home-manager.useGlobalPkgs = true;
