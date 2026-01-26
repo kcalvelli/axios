@@ -24,6 +24,7 @@ from .models import (
     ToolSchema,
 )
 from .server_manager import MCPServerManager
+from . import mcp_transport
 
 # Configure logging
 logging.basicConfig(
@@ -107,6 +108,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# MCP Streamable HTTP transport for Claude.ai and other MCP clients
+# Provides /mcp endpoint for native MCP protocol access
+mcp_router = mcp_transport.create_router(lambda: manager)
+app.include_router(mcp_router)
 
 # Templates directory (will be set by Nix)
 templates_dir = Path(__file__).parent / "templates"

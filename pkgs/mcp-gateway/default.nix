@@ -21,6 +21,7 @@ python3Packages.buildPythonApplication rec {
     pydantic
     httpx
     mcp
+    sse-starlette
   ];
 
   # Copy templates to the package
