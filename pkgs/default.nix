@@ -40,6 +40,8 @@ in
           # Warning about "github-mcp-server has been removed" is informational:
           # The package was removed from mcp-servers-nix because it's now in nixpkgs 25.11
           inputs.mcp-servers-nix.overlays.default
+          # mcp-gateway overlay provides the gateway package
+          inputs.mcp-gateway.overlays.default
         ];
       };
     };

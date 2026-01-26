@@ -142,6 +142,12 @@
       url = "github:kcalvelli/axios-dav";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # MCP Gateway - Universal MCP server aggregator
+    mcp-gateway = {
+      url = "github:kcalvelli/mcp-gateway";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {

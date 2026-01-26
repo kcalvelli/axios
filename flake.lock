@@ -573,6 +573,27 @@
         "type": "github"
       }
     },
+    "mcp-gateway": {
+      "inputs": {
+        "mcp-servers-nix": "mcp-servers-nix",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1769457439,
+        "narHash": "sha256-uPqr8sJpi84K4yHJ9208NCBlLE28COIk/vDJsNAsQzE=",
+        "owner": "kcalvelli",
+        "repo": "mcp-gateway",
+        "rev": "357c676dec07066e383cdc9b9fb8c82ab47454c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kcalvelli",
+        "repo": "mcp-gateway",
+        "type": "github"
+      }
+    },
     "mcp-journal": {
       "inputs": {
         "flake-utils": "flake-utils_5",
@@ -595,6 +616,27 @@
       }
     },
     "mcp-servers-nix": {
+      "inputs": {
+        "nixpkgs": [
+          "mcp-gateway",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1768874504,
+        "narHash": "sha256-uJJlU24jbuqv2Iyaep+56uLrtO5w3r1BO4wSvGGMr+o=",
+        "owner": "natsukium",
+        "repo": "mcp-servers-nix",
+        "rev": "86387b519df7151a0b40eb50d953b16ecfcef83c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "natsukium",
+        "repo": "mcp-servers-nix",
+        "type": "github"
+      }
+    },
+    "mcp-servers-nix_2": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
@@ -809,8 +851,9 @@
         "flake-utils": "flake-utils_4",
         "home-manager": "home-manager_3",
         "lanzaboote": "lanzaboote",
+        "mcp-gateway": "mcp-gateway",
         "mcp-journal": "mcp-journal",
-        "mcp-servers-nix": "mcp-servers-nix",
+        "mcp-servers-nix": "mcp-servers-nix_2",
         "niri": "niri",
         "nix-devshell-mcp": "nix-devshell-mcp",
         "nixos-hardware": "nixos-hardware",
