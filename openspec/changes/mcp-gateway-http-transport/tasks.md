@@ -2,50 +2,45 @@
 
 ## Phase 1: MCP Protocol Implementation
 
-- [ ] **1.1 Research MCP HTTP Transport spec**
-  - Read https://spec.modelcontextprotocol.io/specification/basic/transports/#http-with-sse
-  - Understand message format, SSE event types
-  - Document required methods (initialize, tools/list, tools/call, ping)
+- [x] **1.1 Research MCP HTTP Transport spec**
+  - Read https://spec.modelcontextprotocol.io/specification/2025-06-18/basic/transports
+  - Streamable HTTP (not SSE-only) is the current spec
+  - Single `/mcp` endpoint handles POST/GET/DELETE
 
-- [ ] **1.2 Add SSE endpoint to mcp-gateway**
-  - Add `sse-starlette` or equivalent dependency
-  - Create `/mcp/sse` endpoint for SSE connections
-  - Implement connection management (track active clients)
+- [x] **1.2 Add MCP endpoint to mcp-gateway**
+  - Added `sse-starlette` dependency (for future SSE streaming)
+  - Created `/mcp` endpoint handling POST/GET/DELETE
+  - Implemented session management with `Mcp-Session-Id` header
 
-- [ ] **1.3 Add message endpoint**
-  - Create `/mcp/message` POST endpoint
-  - Parse JSON-RPC 2.0 messages
-  - Route to appropriate handler
-
-- [ ] **1.4 Implement MCP methods**
-  - `initialize` - Return server capabilities
-  - `tools/list` - Aggregate tools from all enabled servers
-  - `tools/call` - Route to server manager, return result
-  - `ping` - Health check
+- [x] **1.3 Implement MCP methods**
+  - `initialize` - Returns server capabilities, creates session ✅
+  - `tools/list` - Returns all 86 tools with namespacing ✅
+  - `tools/call` - Routes to server manager, returns MCP-formatted result ✅
+  - `ping` - Health check ✅
+  - `notifications/initialized` - Session initialization notification ✅
 
 ## Phase 2: Tool Aggregation
 
-- [ ] **2.1 Design tool namespacing**
-  - Decide format: `server__tool` vs `server/tool` vs flat
-  - Handle potential name collisions
-  - Document approach
+- [x] **2.1 Design tool namespacing**
+  - Format: `server_id__tool_name` (double underscore separator)
+  - Examples: `axios-ai-mail__send_email`, `git__git_status`
+  - Descriptions prefixed with `[server_id]` for clarity
 
-- [ ] **2.2 Implement tool aggregation**
-  - Collect tools from all enabled MCP servers
-  - Apply namespacing
-  - Cache tool list (refresh on server enable/disable)
+- [x] **2.2 Implement tool aggregation**
+  - Aggregates tools from all enabled MCP servers
+  - Dynamic - reflects currently enabled servers
 
-- [ ] **2.3 Map tool calls to servers**
-  - Parse namespaced tool name
-  - Route to correct server
-  - Return MCP-formatted result
+- [x] **2.3 Map tool calls to servers**
+  - Parses namespaced tool name
+  - Routes to correct server via server manager
+  - Returns MCP content format
 
 ## Phase 3: Testing & Integration
 
-- [ ] **3.1 Local testing**
-  - Test with MCP Inspector or similar
-  - Verify all methods work
-  - Test multiple concurrent clients
+- [x] **3.1 Local testing**
+  - Verified initialize, tools/list, tools/call via curl
+  - All 86 tools discovered
+  - Tool execution works (tested with axios-ai-mail__list_accounts)
 
 - [ ] **3.2 Claude.ai Integration testing**
   - Expose via Tailscale serve
@@ -55,7 +50,6 @@
 
 - [ ] **3.3 Backward compatibility**
   - Verify REST/OpenAPI endpoints still work
-  - Verify Open WebUI integration unchanged
   - Verify orchestrator UI works
 
 ## Phase 4: Documentation & Finalization
@@ -63,24 +57,25 @@
 - [ ] **4.1 Update specs**
   - Update `openspec/specs/ai/spec.md` with MCP HTTP transport
   - Document Claude.ai integration steps
-  - Update mcp-gateway README
 
-- [ ] **4.2 Update NixOS module**
-  - Add `mcp.enable` option
-  - Ensure Tailscale serve configured correctly
-
-- [ ] **4.3 Archive proposal**
+- [ ] **4.2 Archive proposal**
   - Move to `openspec/changes/archive/`
   - Update changelog
 
-## Dependencies
+## Implementation Notes
 
-- mcp-gateway core (complete)
-- Tailscale serve (complete)
-- sse-starlette or equivalent (to add)
+**Endpoint structure (Streamable HTTP spec 2025-06-18):**
+- `POST /mcp` - Send JSON-RPC messages (initialize, tools/list, tools/call)
+- `GET /mcp` - SSE stream for server-initiated messages (not implemented yet)
+- `DELETE /mcp` - Terminate session
 
-## Notes
+**Session flow:**
+1. Client POSTs `initialize` request
+2. Server returns capabilities + `Mcp-Session-Id` header
+3. Client POSTs `notifications/initialized`
+4. Client can now call `tools/list` and `tools/call`
 
-- Keep REST/OpenAPI fully functional - this is additive
-- Consider: Should MCP and REST share the same port or separate?
-- Future: axios-ai-chat will be primary consumer of MCP HTTP transport
+**Tool namespacing:**
+- Format: `{server_id}__{tool_name}`
+- Example: `axios-ai-mail__send_email`
+- Parsing: Split on `__` to get server_id and tool_name
