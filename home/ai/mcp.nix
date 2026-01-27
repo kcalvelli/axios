@@ -203,16 +203,8 @@ in
       ".claude/commands/openspec/archive.md".source = ./commands/openspec/archive.md;
     };
 
-    # Shell aliases for AI tools (fish is the default axios shell)
-    programs.fish.shellAliases = {
-      cm = "claude-monitor";
-      cmonitor = "claude-monitor";
-      ccm = "claude-monitor";
-      axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
-      axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
-      axios-gemini = "gemini";
-      axg = "gemini";
-    };
+    # Note: Shell aliases (axc, axios-claude, axg, axios-gemini) are defined
+    # in home/terminal/fish.nix as fish abbreviations (abbr)
 
     # Environment variable for Gemini CLI system prompt
     home.sessionVariables = lib.mkIf systemPromptEnabled {
