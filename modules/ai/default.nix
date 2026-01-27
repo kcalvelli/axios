@@ -82,6 +82,19 @@ in
           default = true;
         };
 
+        domain = lib.mkOption {
+          type = lib.types.nullOr lib.types.str;
+          default = null;
+          example = "chat.taile0fb4.ts.net";
+          description = ''
+            XMPP domain for the chat server.
+            Defaults to <hostname>.<tailnet> (e.g., edge.taile0fb4.ts.net).
+
+            If you want a custom domain like "chat.taile0fb4.ts.net", you must
+            configure DNS to resolve it to this machine's Tailscale IP.
+          '';
+        };
+
         xmppPasswordFile = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
           default = null;
@@ -371,26 +384,31 @@ in
     })
 
     # axios-chat: Family XMPP chat with AI assistant
-    (lib.mkIf (cfg.enable && chatCfg.enable) {
-      # Enable Prosody XMPP server (Tailnet-only)
-      services.axios-chat.prosody = {
-        enable = true;
-        domain = "chat.${tsCfg.domain}";
-        # Tailscale IP will be auto-detected or must be configured
-        # Users should set this if auto-detection fails
-        admins = [ "ai@chat.${tsCfg.domain}" ];
-      };
+    (lib.mkIf (cfg.enable && chatCfg.enable) (
+      let
+        chatDomain = if chatCfg.domain != null then chatCfg.domain else "chat.${tsCfg.domain}";
+      in
+      {
+        # Enable Prosody XMPP server (Tailnet-only)
+        services.axios-chat.prosody = {
+          enable = true;
+          domain = chatDomain;
+          # Uses Tailscale serve by default - creates chat.<tailnet>.ts.net
+          tailscaleServe.enable = true;
+          admins = [ "ai@${chatDomain}" ];
+        };
 
-      # Enable AI bot
-      services.axios-chat.bot = {
-        enable = true;
-        xmppDomain = "chat.${tsCfg.domain}";
-        xmppPasswordFile = chatCfg.xmppPasswordFile;
-        claudeApiKeyFile = chatCfg.claudeApiKeyFile;
-        # mcp-gateway runs on localhost:8085 by default
-        mcpGatewayUrl = "http://localhost:8085";
-        systemPromptFile = chatCfg.systemPromptFile;
-      };
-    })
+        # Enable AI bot
+        services.axios-chat.bot = {
+          enable = true;
+          xmppDomain = chatDomain;
+          xmppPasswordFile = chatCfg.xmppPasswordFile;
+          claudeApiKeyFile = chatCfg.claudeApiKeyFile;
+          # mcp-gateway runs on localhost:8085 by default
+          mcpGatewayUrl = "http://localhost:8085";
+          systemPromptFile = chatCfg.systemPromptFile;
+        };
+      }
+    ))
   ];
 }
