@@ -8,6 +8,7 @@
 
 let
   cfg = config.services.ai;
+  chatCfg = cfg.chat;
   isServer = cfg.local.role == "server";
   isClient = cfg.local.role == "client";
   tsCfg = config.networking.tailscale;
@@ -20,7 +21,7 @@ let
 in
 {
   imports = [
-    ./webui.nix
+    inputs.axios-ai-chat.nixosModules.default
   ];
 
   options = {
@@ -72,6 +73,39 @@ in
             - Prefer functional patterns
             - Always add comprehensive error handling
           '';
+        };
+      };
+
+      # axios-ai-chat: Family XMPP chat with AI assistant
+      chat = {
+        enable = lib.mkEnableOption "axios-ai-chat (XMPP + AI bot)" // {
+          default = true;
+        };
+
+        xmppPasswordFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          example = "/run/agenix/xmpp-bot-password";
+          description = ''
+            Path to file containing XMPP password for the AI bot.
+            Typically points to an agenix-managed secret.
+          '';
+        };
+
+        anthropicKeyFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          example = "/run/agenix/anthropic-api-key";
+          description = ''
+            Path to file containing Anthropic API key.
+            Typically points to an agenix-managed secret.
+          '';
+        };
+
+        systemPromptFile = lib.mkOption {
+          type = lib.types.nullOr lib.types.path;
+          default = null;
+          description = "Optional custom system prompt file for the AI bot.";
         };
       };
 
@@ -169,6 +203,46 @@ in
             services.ai.local.role = "server" requires networking.tailscale.authMode = "authkey".
 
             Server role uses Tailscale Services for HTTPS, which requires tag-based identity.
+            Set up an auth key in the Tailscale admin console with appropriate tags.
+          '';
+        }
+        # axios-chat requires tailnet domain
+        {
+          assertion = !(cfg.enable && chatCfg.enable) || tsCfg.domain != null;
+          message = ''
+            services.ai.chat.enable requires networking.tailscale.domain to be set.
+
+            Example:
+              networking.tailscale.domain = "taile0fb4.ts.net";
+          '';
+        }
+        # axios-chat requires xmppPasswordFile
+        {
+          assertion = !(cfg.enable && chatCfg.enable) || chatCfg.xmppPasswordFile != null;
+          message = ''
+            services.ai.chat.enable requires xmppPasswordFile to be set.
+
+            Example using agenix:
+              services.ai.chat.xmppPasswordFile = config.age.secrets.xmpp-bot-password.path;
+          '';
+        }
+        # axios-chat requires anthropicKeyFile
+        {
+          assertion = !(cfg.enable && chatCfg.enable) || chatCfg.anthropicKeyFile != null;
+          message = ''
+            services.ai.chat.enable requires anthropicKeyFile to be set.
+
+            Example using agenix:
+              services.ai.chat.anthropicKeyFile = config.age.secrets.anthropic-api-key.path;
+          '';
+        }
+        # axios-chat requires authkey mode for Tailscale (Prosody binds to Tailscale IP)
+        {
+          assertion = !(cfg.enable && chatCfg.enable) || useServices;
+          message = ''
+            services.ai.chat.enable requires networking.tailscale.authMode = "authkey".
+
+            axios-chat uses Prosody bound to Tailscale IP, which requires tag-based identity.
             Set up an auth key in the Tailscale admin console with appropriate tags.
           '';
         }
@@ -294,6 +368,29 @@ in
           uv # Python package manager for uvx
         ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
+    })
+
+    # axios-chat: Family XMPP chat with AI assistant
+    (lib.mkIf (cfg.enable && chatCfg.enable) {
+      # Enable Prosody XMPP server (Tailnet-only)
+      services.axios-chat.prosody = {
+        enable = true;
+        domain = "chat.${tsCfg.domain}";
+        # Tailscale IP will be auto-detected or must be configured
+        # Users should set this if auto-detection fails
+        admins = [ "ai@chat.${tsCfg.domain}" ];
+      };
+
+      # Enable AI bot
+      services.axios-chat.bot = {
+        enable = true;
+        xmppDomain = "chat.${tsCfg.domain}";
+        xmppPasswordFile = chatCfg.xmppPasswordFile;
+        anthropicKeyFile = chatCfg.anthropicKeyFile;
+        # mcp-gateway runs on localhost:8085 by default
+        mcpGatewayUrl = "http://localhost:8085";
+        systemPromptFile = chatCfg.systemPromptFile;
+      };
     })
   ];
 }
