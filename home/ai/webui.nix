@@ -43,7 +43,8 @@ in
     xdg.desktopEntries.axios-ai-chat = {
       name = "Axios AI Chat";
       comment = "AI chat interface powered by local LLMs";
-      exec = "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass} --app=${pwaUrl}";
+      # --disable-features=BraveAdBlock needed for External Tools to connect to mcp-gateway
+      exec = "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass} --disable-features=BraveAdBlock --app=${pwaUrl}";
       icon = "axios-ai-chat";
       terminal = false;
       categories = [
