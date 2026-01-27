@@ -6,14 +6,14 @@
 
 ## Phase 1: GitHub OAuth App Setup
 
-- [ ] **1.1 Create GitHub OAuth App**
+- [x] **1.1 Create GitHub OAuth App**
   - Go to GitHub → Settings → Developer settings → OAuth Apps
   - Application name: `mcp-gateway`
-  - Homepage URL: `https://edge.taile0fb4.ts.net:8448`
-  - Callback URL: `https://edge.taile0fb4.ts.net:8448/oauth/callback`
+  - Homepage URL: `https://axios-mcp-gateway.taile0fb4.ts.net`
+  - Callback URL: `https://axios-mcp-gateway.taile0fb4.ts.net/oauth/callback`
   - Save Client ID
 
-- [ ] **1.2 Store secrets with agenix**
+- [x] **1.2 Store secrets with agenix**
   - Create `secrets/mcp-gateway-github-client-secret.age`
   - Create `secrets/mcp-gateway-jwt-secret.age` (generate random)
   - Update secrets.nix with age identities
@@ -121,25 +121,25 @@
 
 ## Phase 5: Web UI Auth
 
-- [ ] **5.1 Add login flow**
+- [x] **5.1 Add login flow**
   - Login button redirects to GitHub
   - Callback sets session cookie
   - Session stored server-side
 
-- [ ] **5.2 Update templates**
+- [x] **5.2 Update templates**
   - Show login/logout button
   - Display current user
   - Protect tool execution
 
 ## Phase 6: Testing
 
-- [ ] **6.1 Local testing**
+- [x] **6.1 Local testing**
   - Test OAuth flow manually
   - Test token validation
   - Test protected endpoints return 401 without token
 
 - [ ] **6.2 Claude.ai integration testing**
-  - Enable Tailscale Funnel
+  - Enable Tailscale Funnel (or use Tailscale Services)
   - Add connector in Claude.ai
   - Verify OAuth popup works
   - Verify tool execution with token
@@ -164,27 +164,47 @@
 - [ ] **7.3 Update openspec**
   - Add auth spec to specs/gateway/
 
-## Phase 8: Finalization
+## Phase 8: NixOS Integration & Finalization
 
-- [ ] **8.1 Enable Tailscale Funnel**
-  ```bash
-  tailscale funnel --bg --https=8448 http://localhost:8085
-  ```
+- [x] **8.1 Standalone NixOS module**
+  - Move module to mcp-gateway repo
+  - Add OAuth config options
+  - Add Tailscale Services integration
+  - Add PWA options
 
-- [ ] **8.2 Test end-to-end**
-  - Claude.ai → OAuth → GitHub → mcp-gateway → tools
+- [x] **8.2 Tailscale Services (replaces Funnel)**
+  - Use `networking.tailscale.services` from axios
+  - Unique DNS: `axios-mcp-gateway.<tailnet>.ts.net`
+  - No port suffix needed (uses 443)
 
-- [ ] **8.3 Archive proposal**
+- [x] **8.3 PWA desktop entry**
+  - Follow axios-ai-mail pattern
+  - Local URL for server (hairpinning workaround)
+  - Icon created
+
+- [x] **8.4 Test end-to-end**
+  - OAuth flow works via Tailscale URL
+  - Web UI login/logout works
+
+- [ ] **8.5 Archive proposal**
   - Move to `openspec/changes/archive/`
+
+## Known Issues
+
+- **Local PWA + OAuth**: OAuth flow requires Tailscale URL for callback.
+  When accessing via `.local` URL, user must complete OAuth on Tailscale
+  URL first, then session cookie is set on that domain. Consider:
+  - Always use Tailscale URL for PWA on server
+  - Or skip OAuth for localhost access
 
 ## Implementation Notes
 
 **OAuth metadata (RFC 8414):**
 ```json
 {
-  "issuer": "https://edge.taile0fb4.ts.net:8448",
-  "authorization_endpoint": "https://edge.taile0fb4.ts.net:8448/oauth/authorize",
-  "token_endpoint": "https://edge.taile0fb4.ts.net:8448/oauth/token",
+  "issuer": "https://axios-mcp-gateway.taile0fb4.ts.net",
+  "authorization_endpoint": "https://axios-mcp-gateway.taile0fb4.ts.net/oauth/authorize",
+  "token_endpoint": "https://axios-mcp-gateway.taile0fb4.ts.net/oauth/token",
   "response_types_supported": ["code"],
   "grant_types_supported": ["authorization_code", "refresh_token"],
   "code_challenge_methods_supported": ["S256"],
@@ -192,23 +212,14 @@
 }
 ```
 
-**FastAPI middleware pattern:**
-```python
-from fastapi import Depends, HTTPException
-from fastapi.security import HTTPBearer
-
-oauth2_scheme = HTTPBearer(auto_error=False)
-
-async def get_current_user(token: str = Depends(oauth2_scheme)):
-    if token is None:
-        raise HTTPException(401, "Not authenticated")
-    # Validate and return user
-    return validate_token(token.credentials)
-
-# Apply to routes
-@app.post("/mcp", dependencies=[Depends(get_current_user)])
-async def mcp_post(...):
-    ...
+**Tailscale Services pattern (replaces Funnel):**
+```nix
+# In mcp-gateway NixOS module
+networking.tailscale.services.${cfg.tailscaleServe.serviceName} = mkIf cfg.tailscaleServe.enable {
+  enable = true;
+  backend = "http://127.0.0.1:${toString cfg.port}";
+  port = cfg.tailscaleServe.httpsPort;  # default 443
+};
 ```
 
 **GitHub OAuth URLs:**
