@@ -51,11 +51,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769554576,
-        "narHash": "sha256-8oXG4FZx1QAHWrvbiJurBUDQLbiTx5Wt6YhqRtkOTQA=",
+        "lastModified": 1769555997,
+        "narHash": "sha256-+lZpq8uCJuIL3+qsho007yZZ/2EIVqNtlJdNeTyt5sY=",
         "owner": "kcalvelli",
         "repo": "axios-ai-chat",
-        "rev": "445305e510ad68e17af8e8c862381f2f9007fa4e",
+        "rev": "225f13db52011e7db1aa019425f7f9d75b7832ea",
         "type": "github"
       },
       "original": {
@@ -601,11 +601,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769547981,
-        "narHash": "sha256-iguL0ZLSSIqmlTYA5SU6HbiGYBEd+vfjI12gcrF5ZxY=",
+        "lastModified": 1769556149,
+        "narHash": "sha256-Vqz94u4fulOC26f727yWqYojIkGIMOLVnU8r/m4dfdI=",
         "owner": "kcalvelli",
         "repo": "mcp-gateway",
-        "rev": "204e2f8654931054cb1f85bcb275e63bd4be5ef7",
+        "rev": "22770ae3189cfb151bf73aef87ce3ff387104bcc",
         "type": "github"
       },
       "original": {
