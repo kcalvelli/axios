@@ -3,7 +3,7 @@
 # the MCP servers using axios's flake inputs.
 #
 # mcp-gateway owns the declarative config module and generates all config files.
-# axios just provides the server definitions with resolved paths from inputs.
+# axios provides server definitions, prompts, commands, and aliases.
 {
   config,
   lib,
@@ -14,6 +14,18 @@
 }:
 let
   system = pkgs.stdenv.hostPlatform.system;
+
+  # System prompt configuration from NixOS
+  systemPromptEnabled = osConfig.services.ai.systemPrompt.enable or true;
+  extraInstructions = osConfig.services.ai.systemPrompt.extraInstructions or "";
+
+  # Generate unified prompt
+  unifiedPrompt =
+    let
+      defaultPrompt = builtins.readFile ./prompts/axios-system-prompt.md;
+      hasExtra = extraInstructions != "";
+    in
+    defaultPrompt + (if hasExtra then "\n\n${extraInstructions}\n" else "");
 in
 {
   # Import mcp-gateway's home-manager module
@@ -43,10 +55,10 @@ in
           "axios-ai-mail"
         ];
 
-      # System prompt configuration
-      systemPrompt = {
-        enable = osConfig.services.ai.systemPrompt.enable or true;
-        extraInstructions = osConfig.services.ai.systemPrompt.extraInstructions or "";
+      # Gemini configuration
+      gemini = {
+        model = "gemini-2.0-flash-thinking-exp-01-21";
+        contextSize = 32768;
       };
 
       # MCP Server Definitions
@@ -173,5 +185,48 @@ in
       inputs.mcp-journal.packages.${system}.default
       inputs.nix-devshell-mcp.packages.${system}.default
     ];
+
+    # System prompts and OpenSpec commands (axios-specific content)
+    home.file = {
+      # System prompts
+      ".config/ai/prompts/axios.md" = lib.mkIf systemPromptEnabled {
+        text = unifiedPrompt;
+      };
+
+      ".config/ai/prompts/mcp-cli.md" = lib.mkIf systemPromptEnabled {
+        source = ./prompts/mcp-cli-system-prompt.md;
+      };
+
+      # OpenSpec commands for Claude Code
+      ".claude/commands/openspec/proposal.md".source = ./commands/openspec/proposal.md;
+      ".claude/commands/openspec/apply.md".source = ./commands/openspec/apply.md;
+      ".claude/commands/openspec/archive.md".source = ./commands/openspec/archive.md;
+    };
+
+    # Shell aliases for AI tools
+    programs.bash.shellAliases = {
+      cm = "claude-monitor";
+      cmonitor = "claude-monitor";
+      ccm = "claude-monitor";
+      axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axios-gemini = "gemini";
+      axg = "gemini";
+    };
+
+    programs.zsh.shellAliases = {
+      cm = "claude-monitor";
+      cmonitor = "claude-monitor";
+      ccm = "claude-monitor";
+      axios-claude = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axc = "claude --system-prompt ~/.config/ai/prompts/axios.md";
+      axios-gemini = "gemini";
+      axg = "gemini";
+    };
+
+    # Environment variable for Gemini CLI system prompt
+    home.sessionVariables = lib.mkIf systemPromptEnabled {
+      GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/axios.md";
+    };
   };
 }

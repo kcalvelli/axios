@@ -150,30 +150,27 @@ REST API gateway that exposes axios MCP servers via OpenAPI endpoints and MCP HT
 mcp-gateway is a standalone repository that provides:
 - **Package**: `mcp-gateway` Python FastAPI application
 - **Home-Manager Module**: Declarative MCP server configuration
-- **System Prompts**: `axios.md` and `mcp-cli.md`
-- **OpenSpec Commands**: `/proposal`, `/apply`, `/archive`
 
-axios imports mcp-gateway's module and provides server definitions with resolved package paths:
+axios imports mcp-gateway's module and layers on axios-specific features:
+- **System Prompts**: `axios.md` and `mcp-cli.md` (in `home/ai/prompts/`)
+- **OpenSpec Commands**: `/proposal`, `/apply`, `/archive` (in `home/ai/commands/`)
+- **Shell Aliases**: `axc`, `axios-claude`, `axg`, `axios-gemini`
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                   axios (home/ai/mcp.nix)                       │
 │  - Imports mcp-gateway's home-manager module                    │
 │  - Provides server definitions with resolved nix store paths    │
+│  - Adds system prompts, commands, and shell aliases             │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    mcp-gateway module                           │
 │  - Evaluates server declarations                                │
-│  - Generates config files                                       │
+│  - Generates config files (~/.mcp.json, ~/.gemini/settings.json)│
 │  - Configures systemd service                                   │
 └─────────────────────────────────────────────────────────────────┘
-                              │
-              ┌───────────────┼───────────────┐
-              ▼               ▼               ▼
-        ~/.mcp.json    mcp_servers.json   axios.md
-        (Claude Code)  (mcp-gateway)      (prompt)
 ```
 
 **API Endpoints:**
