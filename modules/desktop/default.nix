@@ -44,7 +44,6 @@ in
       dbeaver-bin # Universal database tool (supports PostgreSQL, MySQL, SQLite, etc.)
 
       # === Media Creation & Editing ===
-      kdePackages.kdenlive # Video editor (professional-grade, industry standard)
       krita # Digital art studio (professional raster graphics)
       inkscape # Vector graphics editor
 

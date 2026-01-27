@@ -41,7 +41,6 @@ This document provides a comprehensive list of all applications included in axiO
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
-| **Kdenlive** (KDE) | Professional video editor | Industry-standard open-source video editor with stability |
 | **Krita** (KDE) | Digital art studio | Professional-grade raster graphics for digital artists |
 | **Inkscape** | Professional vector graphics editor | Best open-source vector editor, cross-platform standard |
 | **OBS Studio** | Screen recording and live streaming software | Industry standard for streaming and recording |

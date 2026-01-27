@@ -179,7 +179,7 @@ axiOS includes **GNOME Software** with **Flathub** pre-configured as the primary
 Popular apps available on Flathub:
 - **Browsers**: Firefox, Chrome, Edge, Opera
 - **Communication**: Slack, Discord, Telegram, Signal
-- **Media**: Spotify, VLC, Audacity, GIMP, Kdenlive
+- **Media**: Spotify, VLC, Audacity, GIMP
 - **Productivity**: LibreOffice, OnlyOffice, Thunderbird
 - **Development**: Postman, MongoDB Compass, Beekeeper Studio
 - **And thousands more...**
