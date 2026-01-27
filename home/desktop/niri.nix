@@ -346,10 +346,10 @@
 
           # IM-style: tall and narrow
           default-column-width = {
-            fixed = 420;
+            fixed = 1024;
           };
           default-window-height = {
-            fixed = 800;
+            fixed = 768;
           };
 
           # Pin to right side of screen
