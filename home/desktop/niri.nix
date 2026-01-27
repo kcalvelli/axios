@@ -333,6 +333,32 @@
             fixed = 768;
           };
         }
+
+        # Psi+ XMPP client: float, right side, IM-style tall narrow window
+        {
+          matches = [
+            { app-id = "^Psi-plus$"; }
+          ];
+
+          # Override global maximized rule
+          open-maximized = false;
+          open-floating = true;
+
+          # IM-style: tall and narrow
+          default-column-width = {
+            fixed = 420;
+          };
+          default-window-height = {
+            fixed = 800;
+          };
+
+          # Pin to right side of screen
+          default-floating-position = {
+            x = 10;
+            y = 50;
+            relative-to = "top-right";
+          };
+        }
       ];
 
     };
