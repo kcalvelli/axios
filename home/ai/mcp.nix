@@ -28,27 +28,21 @@ let
   calendarPaths =
     let
       defaultPath = "~/.calendars";
-      customPaths = lib.unique (lib.filter (p: p != null && !lib.hasPrefix defaultPath p) (
+      # Collect non-null external paths
+      externalPaths = lib.unique (lib.filter (p: p != null) (
         lib.mapAttrsToList (name: account:
-          if account.localPath or null != null
-          then
-            # Get the parent dir for non-default paths (e.g., ~/.calendars-external from ~/.calendars-external/orthodox/)
-            let
-              path = account.localPath;
-              # Remove trailing slash and get parent of parent for subdirs
-              cleanPath = lib.removeSuffix "/" path;
-              # Extract ~/.calendars-external from ~/.calendars-external/orthodox_feasts_fasts_gregorian/
-              parts = lib.splitString "/" cleanPath;
-              # Find the "external" parent (second-to-last if path has multiple components)
-            in
-            if lib.hasPrefix "~/.calendars-external" cleanPath
-            then "~/.calendars-external"
-            else null
+          let
+            path = account.localPath or null;
+            cleanPath = if path != null then lib.removeSuffix "/" path else null;
+          in
+          # Check for external calendar directories
+          if cleanPath != null && lib.hasPrefix "~/.calendars-external" cleanPath
+          then "~/.calendars-external"
           else null
         ) calendarAccounts
       ));
     in
-    lib.concatStringsSep ":" ([ defaultPath ] ++ customPaths);
+    lib.concatStringsSep ":" ([ defaultPath ] ++ externalPaths);
 
   # Generate unified prompt
   unifiedPrompt =
