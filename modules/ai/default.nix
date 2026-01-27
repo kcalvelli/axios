@@ -20,6 +20,7 @@ let
   isNvidiaGpu = gpuType == "nvidia";
 in
 {
+  # Import axios-ai-chat module for Prosody + bot service options
   imports = [
     inputs.axios-ai-chat.nixosModules.default
   ];
@@ -77,10 +78,9 @@ in
       };
 
       # axios-ai-chat: Family XMPP chat with AI assistant
+      # Optional - requires XMPP infrastructure and Claude API key
       chat = {
-        enable = lib.mkEnableOption "axios-ai-chat (XMPP + AI bot)" // {
-          default = true;
-        };
+        enable = lib.mkEnableOption "axios-ai-chat (XMPP + AI bot)";
 
         domain = lib.mkOption {
           type = lib.types.nullOr lib.types.str;
