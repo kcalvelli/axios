@@ -581,11 +581,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769525609,
-        "narHash": "sha256-5lne5zD3Zjknl5OBTTnefVl/r8QKjKzA800ZjiRSij4=",
+        "lastModified": 1769527200,
+        "narHash": "sha256-FGIbMICkLC9qW2N2asrdmLaJmbM30SGWgtLF5PfWJ5Y=",
         "owner": "kcalvelli",
         "repo": "mcp-gateway",
-        "rev": "7b38349b4a1b52a0d7eae5d6d95fe090918de59d",
+        "rev": "c66208ffcccbb1abd581133b2a42978db90b5abb",
         "type": "github"
       },
       "original": {
