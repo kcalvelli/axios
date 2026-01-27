@@ -389,6 +389,9 @@ in
         chatDomain = if chatCfg.domain != null then chatCfg.domain else "chat.${tsCfg.domain}";
       in
       {
+        # Apply axios-ai-chat overlay to make axios-ai-bot package available
+        nixpkgs.overlays = [ inputs.axios-ai-chat.overlays.default ];
+
         # Enable Prosody XMPP server (Tailnet-only)
         services.axios-chat.prosody = {
           enable = true;
