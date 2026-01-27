@@ -12,6 +12,11 @@ let
   isClient = cfg.local.role == "client";
   tsCfg = config.networking.tailscale;
   useServices = tsCfg.authMode == "authkey";
+
+  # GPU type detection (follows graphics module pattern)
+  gpuType = config.axios.hardware.gpuType or null;
+  isAmdGpu = gpuType == "amd";
+  isNvidiaGpu = gpuType == "nvidia";
 in
 {
   imports = [
@@ -212,37 +217,48 @@ in
 
     # Server role: Local Ollama with GPU acceleration
     (lib.mkIf (cfg.enable && cfg.local.enable && isServer) {
-      # Ollama service with ROCm acceleration
-      services.ollama = {
-        enable = true;
-        package = pkgs.ollama-rocm;
-        rocmOverrideGfx = cfg.local.rocmOverrideGfx;
-        environmentVariables = {
-          # 32K context window for agentic tool use
-          OLLAMA_NUM_CTX = "32768";
-          # Unload models after inactivity to prevent GPU memory exhaustion
-          # Addresses: AMDGPU memory eviction warnings and system freezes
-          OLLAMA_KEEP_ALIVE = cfg.local.keepAlive;
-          # Prevent concurrent model loads to reduce GPU queue pressure
-          OLLAMA_MAX_LOADED_MODELS = "1";
-        };
-        loadModels = cfg.local.models;
-      };
+      # Ollama service with GPU acceleration (vendor-specific)
+      services.ollama = lib.mkMerge [
+        {
+          enable = true;
+          # Use ollama-rocm for AMD, standard ollama (with CUDA) for Nvidia
+          package = if isAmdGpu then pkgs.ollama-rocm else pkgs.ollama;
+          environmentVariables = {
+            # 32K context window for agentic tool use
+            OLLAMA_NUM_CTX = "32768";
+            # Unload models after inactivity to prevent GPU memory exhaustion
+            # Addresses: AMDGPU memory eviction warnings and system freezes
+            OLLAMA_KEEP_ALIVE = cfg.local.keepAlive;
+            # Prevent concurrent model loads to reduce GPU queue pressure
+            OLLAMA_MAX_LOADED_MODELS = "1";
+          }
+          // lib.optionalAttrs isAmdGpu {
+            # Disable Flash Attention for AMD ROCm - causes assertion failures on RDNA 2 (gfx1030)
+            # Error: GGML_ASSERT(max_blocks_per_sm > 0) failed in fattn-common.cuh
+            # See: https://github.com/ollama/ollama/issues/6953
+            OLLAMA_FLASH_ATTENTION = "0";
+          };
+          loadModels = cfg.local.models;
+        }
+        # AMD-specific: ROCm architecture override
+        (lib.mkIf isAmdGpu {
+          rocmOverrideGfx = cfg.local.rocmOverrideGfx;
+        })
+      ];
 
-      # Ensure amdgpu kernel module loads at boot
-      boot.kernelModules = [ "amdgpu" ];
+      # Kernel modules (AMD-specific)
+      boot.kernelModules = lib.optionals isAmdGpu [ "amdgpu" ];
 
       # Server role packages (GPU stack + LLM tools)
       environment.systemPackages =
         with pkgs;
         [
-          # ROCm debugging
-          rocmPackages.rocminfo
-
           # MCP server runtimes (nodejs already in base config)
           python3
           uv # Python package manager for uvx
         ]
+        # AMD-specific: ROCm debugging tools
+        ++ lib.optionals isAmdGpu [ rocmPackages.rocminfo ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
 
       # Tailscale Services registration

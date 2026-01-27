@@ -38,7 +38,7 @@ The local LLM stack supports server/client architecture for distributed inferenc
 
 - **Server Role** (`role = "server"`, default):
   - Run Ollama locally with GPU acceleration
-  - Full ROCm stack installed (AMD GPUs)
+  - Supports both AMD (ROCm) and Nvidia (CUDA) GPUs
   - Auto-registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services
 
 - **Client Role** (`role = "client"`):
@@ -54,7 +54,25 @@ The local LLM stack supports server/client architecture for distributed inferenc
 - `mistral:7b` (4.4 GB) - General purpose, excellent quality/size ratio
 - `nomic-embed-text` (274 MB) - For RAG/semantic search
 
-**Acceleration**: ROCm for AMD GPUs (default gfx1030/10.3.0 override) - server role only.
+**Multi-Vendor GPU Support:**
+
+The server role automatically detects GPU vendor from the host's `hardware.gpu` configuration:
+
+| Aspect | AMD | Nvidia |
+|--------|-----|--------|
+| Package | `ollama-rocm` | `ollama` (CUDA) |
+| Flash Attention | Disabled | Enabled |
+| Architecture Override | `rocmOverrideGfx` | N/A |
+| Kernel Modules | `amdgpu` | (via nixos-hardware) |
+| Debug Tools | `rocmPackages.rocminfo` | N/A |
+
+```nix
+# Host config determines GPU vendor (no additional AI module config needed)
+{ hardware.gpu = "amd"; }   # Uses ollama-rocm, disables Flash Attention
+{ hardware.gpu = "nvidia"; } # Uses ollama with CUDA, Flash Attention enabled
+```
+
+**Acceleration**: Vendor-specific GPU acceleration (server role only).
 
 **Context Window**: Configured for 32K tokens (`OLLAMA_NUM_CTX`) to support agentic workflows.
 
@@ -259,6 +277,7 @@ Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configure
 - **GPU Memory**: Long-running inference workloads may cause VRAM exhaustion; `keepAlive` option mitigates this by unloading idle models.
 - **Model Size**: Models larger than available VRAM trigger CPU offload, causing ROCm queue evictions and degraded performance.
 - **GPU Discovery**: ROCm GPU discovery has a hardcoded 3-second timeout in Ollama; this cannot be configured and may cause stale memory fallback under load.
+- **Flash Attention (AMD)**: Flash Attention is disabled for AMD ROCm GPUs (`OLLAMA_FLASH_ATTENTION=0`) due to assertion failures on RDNA 2 (gfx1030) architecture. Nvidia GPUs are unaffected. GPU vendor is determined by the host's `hardware.gpu` configuration.
 
 ## Model Size Guidance
 
@@ -300,6 +319,23 @@ services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
 1. Ensure `OLLAMA_MAX_LOADED_MODELS=1` (default in axiOS)
 2. Avoid models that require CPU offload
 3. Check `amd_smi` or `rocm-smi` for VRAM usage before loading large models
+
+### Symptoms: "GGML_ASSERT(max_blocks_per_sm > 0) failed" / Ollama crash on chat
+
+**Cause**: Flash Attention auto-enabled on AMD GPU that doesn't support it.
+
+**Applies to**: AMD ROCm only (Nvidia unaffected)
+
+**Error Pattern**:
+```
+llama_context: Flash Attention was auto, set to enabled
+fattn-common.cuh:903: GGML_ASSERT(max_blocks_per_sm > 0) failed
+SIGABRT: abort
+```
+
+**Fix**: axiOS automatically disables Flash Attention when `hardware.gpu = "amd"`. If you see this error, verify your host config has the correct GPU vendor set.
+
+**Note**: Flash Attention primarily benefits larger models (30B+) with very long contexts. For 7B-14B models typical in axiOS, the performance difference is negligible.
 
 ## References
 
