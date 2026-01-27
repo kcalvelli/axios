@@ -92,12 +92,12 @@ in
           '';
         };
 
-        anthropicKeyFile = lib.mkOption {
+        claudeApiKeyFile = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
           default = null;
-          example = "/run/agenix/anthropic-api-key";
+          example = "/run/agenix/claude-api-key";
           description = ''
-            Path to file containing Anthropic API key.
+            Path to file containing Claude/Anthropic API key.
             Typically points to an agenix-managed secret.
           '';
         };
@@ -226,14 +226,14 @@ in
               services.ai.chat.xmppPasswordFile = config.age.secrets.xmpp-bot-password.path;
           '';
         }
-        # axios-chat requires anthropicKeyFile
+        # axios-chat requires claudeApiKeyFile
         {
-          assertion = !(cfg.enable && chatCfg.enable) || chatCfg.anthropicKeyFile != null;
+          assertion = !(cfg.enable && chatCfg.enable) || chatCfg.claudeApiKeyFile != null;
           message = ''
-            services.ai.chat.enable requires anthropicKeyFile to be set.
+            services.ai.chat.enable requires claudeApiKeyFile to be set.
 
             Example using agenix:
-              services.ai.chat.anthropicKeyFile = config.age.secrets.anthropic-api-key.path;
+              services.ai.chat.claudeApiKeyFile = config.age.secrets.claude-api-key.path;
           '';
         }
         # axios-chat requires authkey mode for Tailscale (Prosody binds to Tailscale IP)
@@ -386,7 +386,7 @@ in
         enable = true;
         xmppDomain = "chat.${tsCfg.domain}";
         xmppPasswordFile = chatCfg.xmppPasswordFile;
-        anthropicKeyFile = chatCfg.anthropicKeyFile;
+        claudeApiKeyFile = chatCfg.claudeApiKeyFile;
         # mcp-gateway runs on localhost:8085 by default
         mcpGatewayUrl = "http://localhost:8085";
         systemPromptFile = chatCfg.systemPromptFile;
