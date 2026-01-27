@@ -26,14 +26,15 @@ in
     services.mcp-gateway = {
       enable = true;
 
-      # Let NixOS manage the systemd service when mcpGateway is enabled
+      # Let NixOS manage the systemd service when mcp-gateway NixOS module is enabled
       # (NixOS module handles OAuth secrets via agenix)
-      manageService = !(osConfig.services.ai.mcpGateway.enable or false);
+      manageService = !(osConfig.services.mcp-gateway.enable or false);
 
-      # Pass through gateway settings from NixOS config
-      port = osConfig.services.ai.mcpGateway.port or 8085;
+      # Pass through gateway settings from NixOS config (if using NixOS module)
+      # Otherwise use defaults
+      port = osConfig.services.mcp-gateway.port or 8085;
       autoEnable =
-        osConfig.services.ai.mcpGateway.autoEnable or [
+        osConfig.services.mcp-gateway.autoEnable or [
           "git"
           "github"
           "filesystem"
