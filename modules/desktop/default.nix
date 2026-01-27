@@ -36,7 +36,7 @@ in
 
       # === Communication ===
       discord # Communication platform
-      psi-plus # XMPP client (Qt, no CSD, OMEMO encryption)
+      gajim # XMPP client
       profanity # XMPP client (terminal, OTR/OMEMO, great for SSH)
 
       # === Productivity Applications ===

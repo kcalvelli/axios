@@ -334,10 +334,10 @@
           };
         }
 
-        # Psi+ XMPP client: float, right side, IM-style tall narrow window
+        # Gajim XMPP client: float, right side, IM-style tall narrow window
         {
           matches = [
-            { app-id = "^Psi-plus$"; }
+            { app-id = "^org\\.gajim\\.Gajim$"; }
           ];
 
           # Override global maximized rule
