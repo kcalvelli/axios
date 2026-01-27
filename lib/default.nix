@@ -237,6 +237,8 @@ let
         inputs.home-manager.nixosModules.home-manager
         inputs.lanzaboote.nixosModules.lanzaboote
         inputs.vscode-server.nixosModules.default
+        # Standalone project modules (like axios-ai-mail pattern)
+        inputs.mcp-gateway.nixosModules.default
       ];
 
       hwModules = hardwareModules hostCfg.hardware;
