@@ -34,8 +34,12 @@ in
       kdePackages.kio-extras # Extra protocols for Dolphin
       kdePackages.kdegraphics-thumbnailers # Thumbnails for graphics files
 
-      # === Productivity Applications ===
+      # === Communication ===
       discord # Communication platform
+      psi-plus # XMPP client (Qt, no CSD, OMEMO encryption)
+      profanity # XMPP client (terminal, OTR/OMEMO, great for SSH)
+
+      # === Productivity Applications ===
       kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
       dbeaver-bin # Universal database tool (supports PostgreSQL, MySQL, SQLite, etc.)
 
