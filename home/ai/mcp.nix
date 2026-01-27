@@ -19,6 +19,37 @@ let
   systemPromptEnabled = osConfig.services.ai.systemPrompt.enable or true;
   extraInstructions = osConfig.services.ai.systemPrompt.extraInstructions or "";
 
+  # PIM configuration for calendar paths
+  pimCfg = osConfig.services.pim or { };
+  calendarAccounts = pimCfg.calendar.accounts or { };
+
+  # Extract unique parent directories from calendar account localPaths
+  # Default to ~/.calendars, plus any custom paths like ~/.calendars-external/...
+  calendarPaths =
+    let
+      defaultPath = "~/.calendars";
+      customPaths = lib.unique (lib.filter (p: p != null && !lib.hasPrefix defaultPath p) (
+        lib.mapAttrsToList (name: account:
+          if account.localPath or null != null
+          then
+            # Get the parent dir for non-default paths (e.g., ~/.calendars-external from ~/.calendars-external/orthodox/)
+            let
+              path = account.localPath;
+              # Remove trailing slash and get parent of parent for subdirs
+              cleanPath = lib.removeSuffix "/" path;
+              # Extract ~/.calendars-external from ~/.calendars-external/orthodox_feasts_fasts_gregorian/
+              parts = lib.splitString "/" cleanPath;
+              # Find the "external" parent (second-to-last if path has multiple components)
+            in
+            if lib.hasPrefix "~/.calendars-external" cleanPath
+            then "~/.calendars-external"
+            else null
+          else null
+        ) calendarAccounts
+      ));
+    in
+    lib.concatStringsSep ":" ([ defaultPath ] ++ customPaths);
+
   # Generate unified prompt
   unifiedPrompt =
     let
@@ -115,7 +146,9 @@ in
           enable = true;
           command = "${inputs.axios-dav.packages.${system}.mcp-dav}/bin/mcp-dav";
           env = {
-            MCP_DAV_CALENDARS = "~/.calendars";
+            # Dynamic calendar paths from services.pim.calendar.accounts
+            # Supports multiple paths separated by colons (e.g., ~/.calendars:~/.calendars-external)
+            MCP_DAV_CALENDARS = calendarPaths;
             MCP_DAV_CONTACTS = "~/.contacts";
           };
         };
