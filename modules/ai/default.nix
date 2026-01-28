@@ -105,110 +105,10 @@ in
           '';
         };
 
-        # LLM Backend selection
-        llmBackend = lib.mkOption {
-          type = lib.types.enum [ "anthropic" "ollama" ];
-          default = "anthropic";
-          description = ''
-            LLM backend to use for AI responses:
-            - "anthropic": Use Claude API (requires claudeApiKeyFile)
-            - "ollama": Use local Ollama server (requires ollamaUrl)
-          '';
-        };
-
-        # Anthropic/Claude options
-        claudeApiKeyFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          example = "/run/agenix/claude-api-key";
-          description = ''
-            Path to file containing Claude/Anthropic API key.
-            Required when llmBackend = "anthropic".
-          '';
-        };
-
-        # Ollama options
-        ollamaUrl = lib.mkOption {
-          type = lib.types.str;
-          default = "http://localhost:11434";
-          description = "Ollama API endpoint URL.";
-        };
-
-        ollamaModel = lib.mkOption {
-          type = lib.types.str;
-          default = "qwen3:14b-q4_K_M";
-          description = ''
-            Ollama model to use. Recommended models for tool calling:
-            - qwen3:14b-q4_K_M (best balance, ~8GB VRAM)
-            - qwen3:32b-q4_K_M (higher quality, ~18GB VRAM)
-            - qwen3:8b-q4_K_M (faster, less accurate, ~5GB VRAM)
-          '';
-        };
-
-        ollamaTemperature = lib.mkOption {
-          type = lib.types.float;
-          default = 0.2;
-          description = ''
-            Temperature for Ollama responses. Lower = more deterministic.
-            0.2 is recommended for reliable tool calling.
-          '';
-        };
-
-        systemPromptFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          description = "Optional custom system prompt file for the AI bot.";
-        };
-
-        # Per-user location configuration
-        users = lib.mkOption {
-          type = lib.types.attrsOf (
-            lib.types.submodule {
-              options = {
-                location = lib.mkOption {
-                  type = lib.types.str;
-                  example = "Raleigh, NC";
-                  description = "User's location for local search and weather queries.";
-                };
-                timezone = lib.mkOption {
-                  type = lib.types.str;
-                  default = "America/New_York";
-                  example = "America/New_York";
-                  description = "User's timezone (IANA format).";
-                };
-              };
-            }
-          );
-          default = { };
-          example = lib.literalExpression ''
-            {
-              "keith@localhost" = {
-                location = "Raleigh, NC";
-                timezone = "America/New_York";
-              };
-            }
-          '';
-          description = ''
-            Per-user configuration for location-aware responses.
-            Keys are JIDs (e.g., "user@domain").
-          '';
-        };
-
-        defaultLocation = lib.mkOption {
-          type = lib.types.str;
-          default = "";
-          example = "New York, NY";
-          description = ''
-            Default location for users not specified in the users config.
-            Leave empty to disable location awareness for unknown users.
-          '';
-        };
-
-        defaultTimezone = lib.mkOption {
-          type = lib.types.str;
-          default = "America/New_York";
-          description = "Default timezone for users not specified in the users config.";
-        };
+        # LLM and bot settings are configured directly via services.axios-chat.bot.*
+        # See axios-ai-chat flake for available options:
+        # - llmBackend, claudeApiKeyFile, ollamaUrl, ollamaModel, ollamaTemperature
+        # - systemPromptFile, users, defaultLocation, defaultTimezone
       };
 
       local = {
@@ -326,19 +226,6 @@ in
 
             Example using agenix:
               services.ai.chat.xmppPasswordFile = config.age.secrets.xmpp-bot-password.path;
-          '';
-        }
-        # axios-chat requires claudeApiKeyFile when using anthropic backend
-        {
-          assertion = !(cfg.enable && chatCfg.enable && chatCfg.llmBackend == "anthropic") || chatCfg.claudeApiKeyFile != null;
-          message = ''
-            services.ai.chat with llmBackend = "anthropic" requires claudeApiKeyFile to be set.
-
-            Example using agenix:
-              services.ai.chat.claudeApiKeyFile = config.age.secrets.claude-api-key.path;
-
-            Or switch to local Ollama:
-              services.ai.chat.llmBackend = "ollama";
           '';
         }
         # axios-chat requires authkey mode for Tailscale (Prosody binds to Tailscale IP)
@@ -493,24 +380,13 @@ in
           admins = [ "ai@${chatDomain}" ];
         };
 
-        # Enable AI bot
+        # Enable AI bot (LLM settings configured via services.axios-chat.bot.*)
         services.axios-chat.bot = {
           enable = true;
           xmppDomain = chatDomain;
           xmppPasswordFile = chatCfg.xmppPasswordFile;
-          # LLM backend configuration
-          llmBackend = chatCfg.llmBackend;
-          claudeApiKeyFile = chatCfg.claudeApiKeyFile;
-          ollamaUrl = chatCfg.ollamaUrl;
-          ollamaModel = chatCfg.ollamaModel;
-          ollamaTemperature = chatCfg.ollamaTemperature;
           # mcp-gateway runs on localhost:8085 by default
           mcpGatewayUrl = "http://localhost:8085";
-          systemPromptFile = chatCfg.systemPromptFile;
-          # Per-user location configuration
-          users = chatCfg.users;
-          defaultLocation = chatCfg.defaultLocation;
-          defaultTimezone = chatCfg.defaultTimezone;
         };
       }
     ))
