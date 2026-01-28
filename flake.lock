@@ -51,11 +51,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769629964,
-        "narHash": "sha256-uFEMdS489y3kVYAf+jNEyZM0s022fvIwRd3ioVAG4fU=",
+        "lastModified": 1769630246,
+        "narHash": "sha256-cvivo5VJhGmezZ8vMaRAz8XZnBSuvJ+lJuOdrdUEuwI=",
         "owner": "kcalvelli",
         "repo": "axios-ai-chat",
-        "rev": "9ab85f3a42467efaa5f815f5dac42d93fc08f542",
+        "rev": "b7a5ea245ccd2f2261051269e62adfa81907a6f7",
         "type": "github"
       },
       "original": {
