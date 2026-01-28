@@ -107,8 +107,8 @@ in
 
         # LLM and bot settings are configured directly via services.axios-chat.bot.*
         # See axios-ai-chat flake for available options:
-        # - llmBackend, claudeApiKeyFile, ollamaUrl, ollamaModel, ollamaTemperature
-        # - systemPromptFile, users, defaultLocation, defaultTimezone
+        # - claudeApiKeyFile, systemPromptFile
+        # - users, defaultLocation, defaultTimezone
       };
 
       local = {
@@ -378,6 +378,8 @@ in
           # Uses Tailscale serve by default - creates chat.<tailnet>.ts.net
           tailscaleServe.enable = true;
           admins = [ "ai@${chatDomain}" ];
+          # HTTP file sharing for images, documents (XEP-0363)
+          httpFileShare.enable = true;
         };
 
         # Enable AI bot (LLM settings configured via services.axios-chat.bot.*)
