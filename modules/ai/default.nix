@@ -159,6 +159,56 @@ in
           default = null;
           description = "Optional custom system prompt file for the AI bot.";
         };
+
+        # Per-user location configuration
+        users = lib.mkOption {
+          type = lib.types.attrsOf (
+            lib.types.submodule {
+              options = {
+                location = lib.mkOption {
+                  type = lib.types.str;
+                  example = "Raleigh, NC";
+                  description = "User's location for local search and weather queries.";
+                };
+                timezone = lib.mkOption {
+                  type = lib.types.str;
+                  default = "America/New_York";
+                  example = "America/New_York";
+                  description = "User's timezone (IANA format).";
+                };
+              };
+            }
+          );
+          default = { };
+          example = lib.literalExpression ''
+            {
+              "keith@localhost" = {
+                location = "Raleigh, NC";
+                timezone = "America/New_York";
+              };
+            }
+          '';
+          description = ''
+            Per-user configuration for location-aware responses.
+            Keys are JIDs (e.g., "user@domain").
+          '';
+        };
+
+        defaultLocation = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          example = "New York, NY";
+          description = ''
+            Default location for users not specified in the users config.
+            Leave empty to disable location awareness for unknown users.
+          '';
+        };
+
+        defaultTimezone = lib.mkOption {
+          type = lib.types.str;
+          default = "America/New_York";
+          description = "Default timezone for users not specified in the users config.";
+        };
       };
 
       local = {
@@ -457,6 +507,10 @@ in
           # mcp-gateway runs on localhost:8085 by default
           mcpGatewayUrl = "http://localhost:8085";
           systemPromptFile = chatCfg.systemPromptFile;
+          # Per-user location configuration
+          users = chatCfg.users;
+          defaultLocation = chatCfg.defaultLocation;
+          defaultTimezone = chatCfg.defaultTimezone;
         };
       }
     ))
