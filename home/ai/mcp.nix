@@ -78,6 +78,8 @@ in
           "context7"
           "mcp-dav"
           "axios-ai-mail"
+          "time"
+          "brave-search"
         ];
 
       # Gemini configuration
