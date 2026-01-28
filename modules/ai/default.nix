@@ -78,7 +78,7 @@ in
       };
 
       # axios-ai-chat: Family XMPP chat with AI assistant
-      # Optional - requires XMPP infrastructure and Claude API key
+      # Optional - requires XMPP infrastructure and LLM backend (Claude API or Ollama)
       chat = {
         enable = lib.mkEnableOption "axios-ai-chat (XMPP + AI bot)";
 
@@ -105,13 +105,52 @@ in
           '';
         };
 
+        # LLM Backend selection
+        llmBackend = lib.mkOption {
+          type = lib.types.enum [ "anthropic" "ollama" ];
+          default = "anthropic";
+          description = ''
+            LLM backend to use for AI responses:
+            - "anthropic": Use Claude API (requires claudeApiKeyFile)
+            - "ollama": Use local Ollama server (requires ollamaUrl)
+          '';
+        };
+
+        # Anthropic/Claude options
         claudeApiKeyFile = lib.mkOption {
           type = lib.types.nullOr lib.types.path;
           default = null;
           example = "/run/agenix/claude-api-key";
           description = ''
             Path to file containing Claude/Anthropic API key.
-            Typically points to an agenix-managed secret.
+            Required when llmBackend = "anthropic".
+          '';
+        };
+
+        # Ollama options
+        ollamaUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "http://localhost:11434";
+          description = "Ollama API endpoint URL.";
+        };
+
+        ollamaModel = lib.mkOption {
+          type = lib.types.str;
+          default = "qwen3:14b-q4_K_M";
+          description = ''
+            Ollama model to use. Recommended models for tool calling:
+            - qwen3:14b-q4_K_M (best balance, ~8GB VRAM)
+            - qwen3:32b-q4_K_M (higher quality, ~18GB VRAM)
+            - qwen3:8b-q4_K_M (faster, less accurate, ~5GB VRAM)
+          '';
+        };
+
+        ollamaTemperature = lib.mkOption {
+          type = lib.types.float;
+          default = 0.2;
+          description = ''
+            Temperature for Ollama responses. Lower = more deterministic.
+            0.2 is recommended for reliable tool calling.
           '';
         };
 
@@ -239,14 +278,17 @@ in
               services.ai.chat.xmppPasswordFile = config.age.secrets.xmpp-bot-password.path;
           '';
         }
-        # axios-chat requires claudeApiKeyFile
+        # axios-chat requires claudeApiKeyFile when using anthropic backend
         {
-          assertion = !(cfg.enable && chatCfg.enable) || chatCfg.claudeApiKeyFile != null;
+          assertion = !(cfg.enable && chatCfg.enable && chatCfg.llmBackend == "anthropic") || chatCfg.claudeApiKeyFile != null;
           message = ''
-            services.ai.chat.enable requires claudeApiKeyFile to be set.
+            services.ai.chat with llmBackend = "anthropic" requires claudeApiKeyFile to be set.
 
             Example using agenix:
               services.ai.chat.claudeApiKeyFile = config.age.secrets.claude-api-key.path;
+
+            Or switch to local Ollama:
+              services.ai.chat.llmBackend = "ollama";
           '';
         }
         # axios-chat requires authkey mode for Tailscale (Prosody binds to Tailscale IP)
@@ -406,7 +448,12 @@ in
           enable = true;
           xmppDomain = chatDomain;
           xmppPasswordFile = chatCfg.xmppPasswordFile;
+          # LLM backend configuration
+          llmBackend = chatCfg.llmBackend;
           claudeApiKeyFile = chatCfg.claudeApiKeyFile;
+          ollamaUrl = chatCfg.ollamaUrl;
+          ollamaModel = chatCfg.ollamaModel;
+          ollamaTemperature = chatCfg.ollamaTemperature;
           # mcp-gateway runs on localhost:8085 by default
           mcpGatewayUrl = "http://localhost:8085";
           systemPromptFile = chatCfg.systemPromptFile;
