@@ -198,7 +198,8 @@ in
             BRAVE_API_KEY = [
               "${pkgs.bash}/bin/bash"
               "-c"
-              "${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/brave-api-key 2>/dev/null | ${pkgs.coreutils}/bin/tr -d '\\n' || echo \${BRAVE_API_KEY}"
+              # Check NixOS agenix path first, then home-manager agenix, then env var
+              "${pkgs.coreutils}/bin/cat /run/agenix/brave-api-key 2>/dev/null || ${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/brave-api-key 2>/dev/null | ${pkgs.coreutils}/bin/tr -d '\\n' || echo \${BRAVE_API_KEY}"
             ];
           };
         };
