@@ -71,11 +71,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769722055,
-        "narHash": "sha256-f6uR7DLITIEwgzlSf2VlQS/m8WR09OoNg4Z79iDr7ag=",
+        "lastModified": 1769723784,
+        "narHash": "sha256-ajPRkrWwT3ArCz3z3uUjaHakw5DTeQRWe22ecYKnzzU=",
         "owner": "kcalvelli",
         "repo": "axios-ai-mail",
-        "rev": "e38460f5aed843d59f0c0426500730b32fdb5ba5",
+        "rev": "9c9f9a56bb1e21b0253e8c97afaf6708b5fbebfc",
         "type": "github"
       },
       "original": {
@@ -555,11 +555,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1769721561,
-        "narHash": "sha256-6phPPX4lP+7RtiOtFGFRJSyNAaIgTcvl3Whgylebt4w=",
+        "lastModified": 1769723138,
+        "narHash": "sha256-kgkwjs33YfJasADIrHjHcTIDs3wNX0xzJhnUP+oldEw=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "5786e425304ea2788a1cdc2533dd4c53583591bd",
+        "rev": "175532b6275b34598a0ceb1aef4b9b4006dd4073",
         "type": "github"
       },
       "original": {
