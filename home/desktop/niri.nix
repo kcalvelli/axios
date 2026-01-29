@@ -261,7 +261,7 @@
         }
         # Drop-down Ghostty: float, matches panel width, short height, stick to the top center
         {
-          matches = [ { app-id = "^com\\.kc\\.dropterm$"; } ];
+          matches = [ { app-id = "^com\\.github\\.kcalvelli\\.axios\\.dropterm$"; } ];
 
           open-floating = true;
 
@@ -331,6 +331,23 @@
           };
           default-window-height = {
             fixed = 768;
+          };
+        }
+
+        # Flatpak installer: small floating window for transparent installation
+        {
+          matches = [
+            { app-id = "^com\\.github\\.kcalvelli\\.axios\\.flatpak-install$"; }
+          ];
+
+          open-maximized = false;
+          open-floating = true;
+
+          default-column-width = {
+            fixed = 800;
+          };
+          default-window-height = {
+            fixed = 400;
           };
         }
 

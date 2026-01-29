@@ -144,7 +144,7 @@ Check out these example configurations:
 
 - **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell with widgets, Ghostty terminal, GPU-accelerated browsers (AMD/NVIDIA), idle management, Google Drive sync
 - **Development**: Rust, Zig, Python, Node.js toolchains with LSP support
-- **Applications**: 80+ apps including productivity, media, and utilities - see [Application Catalog](docs/APPLICATIONS.md)
+- **Applications**: Curated set of productivity, media, and development tools — see [Application Catalog](docs/APPLICATIONS.md)
 - **PWAs**: Progressive Web Apps integrated as native applications
 - **Virtualization**: libvirt, QEMU, Podman support (optional)
 - **Gaming**: Steam, GameMode, Proton (optional)
@@ -159,52 +159,45 @@ Check out these example configurations:
 
 ## Installing Additional Applications
 
-### For Most Users: Use Flathub (Recommended) 📦
+### Flatpak via Flathub (Recommended) 📦
 
-axiOS includes **GNOME Software** with **Flathub** pre-configured as the primary way to install additional applications. This is the **recommended approach for most users**:
+axiOS ships with **Flathub** pre-configured and a built-in **one-click installer**. Visit [flathub.org](https://flathub.org), click "Install" on any app, and a terminal window opens showing the installation progress.
 
 **Why Flathub?**
-- ✅ **Sandboxed applications** - Better security isolation
-- ✅ **Latest versions** - Apps update independently of NixOS
-- ✅ **Graphical interface** - Browse and install via GNOME Software
-- ✅ **Large ecosystem** - Thousands of desktop applications
-- ✅ **Theme integration** - Apps automatically use your GTK theme
-- ✅ **No system rebuilds** - Install/remove apps instantly
+- ✅ **Sandboxed applications** — Better security isolation
+- ✅ **Latest versions** — Apps update independently of NixOS
+- ✅ **One-click install** — Click "Install" on flathub.org, confirm in terminal
+- ✅ **Large ecosystem** — Thousands of desktop applications
+- ✅ **Theme integration** — Apps automatically use your GTK theme
+- ✅ **No system rebuilds** — Install/remove apps instantly
 
 **To install apps:**
-1. Open **GNOME Software** from your applications
-2. Browse or search for applications
-3. Click "Install" - that's it!
+1. Visit [flathub.org](https://flathub.org) in your browser
+2. Find an app and click **Install**
+3. A small terminal window opens — confirm with `y` and watch it install
 
-Popular apps available on Flathub:
-- **Browsers**: Firefox, Chrome, Edge, Opera
-- **Communication**: Slack, Discord, Telegram, Signal
-- **Media**: Spotify, VLC, Audacity, GIMP
-- **Productivity**: LibreOffice, OnlyOffice, Thunderbird
-- **Development**: Postman, MongoDB Compass, Beekeeper Studio
-- **And thousands more...**
+You can also manage installed Flatpaks with **Warehouse** (included).
 
-### For Technical Users: Declarative NixOS Packages
+### Declarative NixOS Packages
 
-If you prefer declarative configuration, add packages to your `extraConfig` in your host configuration:
+For system-level tools or reproducible setups, add packages to `extraConfig` in your host configuration:
 
 ```nix
 extraConfig = {
   environment.systemPackages = with pkgs; [
     firefox
-    slack
+    inkscape  # Apps removed from defaults are still available
     # your packages here
   ];
 };
 ```
 
 **When to use NixOS packages instead of Flathub:**
-- You need packages for system services (not desktop apps)
-- You want reproducible builds across multiple machines
-- You need packages that integrate deeply with the system
-- You're building a custom configuration to share
+- System services and CLI tools (not desktop apps)
+- Reproducible builds across multiple machines
+- Packages that integrate deeply with the system
 
-**Note**: Most desktop applications work better as Flatpaks due to sandboxing and independent updates. Reserve NixOS packages for system-level tools, command-line utilities, and development environments.
+**Note**: Most desktop applications work well as Flatpaks due to sandboxing and independent updates. Reserve NixOS packages for system-level tools, command-line utilities, and development environments.
 
 ## Why axiOS?
 

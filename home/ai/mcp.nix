@@ -29,18 +29,22 @@ let
     let
       defaultPath = "~/.calendars";
       # Collect non-null external paths
-      externalPaths = lib.unique (lib.filter (p: p != null) (
-        lib.mapAttrsToList (name: account:
-          let
-            path = account.localPath or null;
-            cleanPath = if path != null then lib.removeSuffix "/" path else null;
-          in
-          # Check for external calendar directories
-          if cleanPath != null && lib.hasPrefix "~/.calendars-external" cleanPath
-          then "~/.calendars-external"
-          else null
-        ) calendarAccounts
-      ));
+      externalPaths = lib.unique (
+        lib.filter (p: p != null) (
+          lib.mapAttrsToList (
+            name: account:
+            let
+              path = account.localPath or null;
+              cleanPath = if path != null then lib.removeSuffix "/" path else null;
+            in
+            # Check for external calendar directories
+            if cleanPath != null && lib.hasPrefix "~/.calendars-external" cleanPath then
+              "~/.calendars-external"
+            else
+              null
+          ) calendarAccounts
+        )
+      );
     in
     lib.concatStringsSep ":" ([ defaultPath ] ++ externalPaths);
 

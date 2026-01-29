@@ -23,7 +23,6 @@
       # === Editors & IDEs ===
       vim
       vscode
-      code-nautilus # VSCode integration with Nautilus
       bun # Required for VSCode material theme updates
 
       # === API Development & Testing ===

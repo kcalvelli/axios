@@ -43,16 +43,16 @@
   '';
 
   # Create desktop entry for drop-down terminal to use Ghostty's icon
-  xdg.dataFile."applications/com.kc.dropterm.desktop".text = ''
+  xdg.dataFile."applications/com.github.kcalvelli.axios.dropterm.desktop".text = ''
     [Desktop Entry]
     Type=Application
     Name=Ghostty Drop-down Terminal
     Comment=Drop-down terminal using Ghostty
     Icon=com.mitchellh.ghostty
-    Exec=${pkgs.ghostty}/bin/ghostty --class=com.kc.dropterm
+    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.axios.dropterm
     Terminal=false
     Categories=System;TerminalEmulator;
-    StartupWMClass=com.kc.dropterm
+    StartupWMClass=com.github.kcalvelli.axios.dropterm
     NoDisplay=true
   '';
 }

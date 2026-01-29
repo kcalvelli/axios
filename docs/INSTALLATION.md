@@ -416,7 +416,7 @@ By using axios as a library, you automatically get:
 - Niri compositor with DankMaterialShell
 - Ghostty terminal
 - Modern applications (Firefox, etc.)
-- Flatpak support via GNOME Software
+- Flatpak support with one-click Flathub installer
 
 ✅ **Development Tools:**
 - VSCode with extensions

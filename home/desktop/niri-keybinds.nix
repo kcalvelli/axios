@@ -23,7 +23,7 @@ let
     │ Mod + E           Launch File Manager (Dolphin)                  │
     │ Mod + G           Launch Google Messages (PWA)                   │
     │ Mod + Shift + V   Launch VS Code                                 │
-    │ Mod + Shift + T   Launch Text Editor (Kate)                      │
+    │ Mod + Shift + T   Launch Text Editor (Mousepad)                   │
     │ Mod + Shift + C   Launch Calculator (Qalculate)                  │
     │ Mod + `           Toggle Drop-down Terminal (Quake-style)        │
     └──────────────────────────────────────────────────────────────────┘
@@ -216,7 +216,7 @@ in
       "--app=https://messages.google.com/web"
     ];
     "Mod+Shift+V".action.spawn = [ "code" ]; # MOVED from Mod+C (was conflicting)
-    "Mod+Shift+T".action.spawn = [ "kate" ];
+    "Mod+Shift+T".action.spawn = [ "mousepad" ];
     "Mod+Shift+C".action.spawn = [ "focus-or-spawn-qalculate" ];
 
     # --- NIRI DEFAULTS: Workspace jump directly (1..9) ---
@@ -458,7 +458,7 @@ in
       "-c"
       ''
         # Get dropterm window ID if it exists
-        dropterm_id=$(niri msg windows | ${pkgs.gnugrep}/bin/grep -B2 'App ID: "com.kc.dropterm"' | ${pkgs.gnugrep}/bin/grep 'Window ID' | ${pkgs.gawk}/bin/awk '{print $3}' | ${pkgs.gnused}/bin/sed 's/://')
+        dropterm_id=$(niri msg windows | ${pkgs.gnugrep}/bin/grep -B2 'App ID: "com.github.kcalvelli.axios.dropterm"' | ${pkgs.gnugrep}/bin/grep 'Window ID' | ${pkgs.gawk}/bin/awk '{print $3}' | ${pkgs.gnused}/bin/sed 's/://')
 
         if [ -n "$dropterm_id" ]; then
           # Check if it's focused
@@ -473,7 +473,7 @@ in
           # Spawn new window using resident daemon (instant)
           ${pkgs.ghostty}/bin/ghostty \
             --gtk-single-instance=true \
-            --class=com.kc.dropterm \
+            --class=com.github.kcalvelli.axios.dropterm \
             --window-decoration=none &
         fi
       ''

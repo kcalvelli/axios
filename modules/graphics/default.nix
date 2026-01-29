@@ -169,7 +169,6 @@ in
         clinfo
         wayland-utils
         vulkan-tools # vulkaninfo, vkcube - useful for verifying GPU setup
-        renderdoc # Graphics debugging and frame capture
       ]
       ++ lib.optionals isAmd [
         # AMD GPU tools

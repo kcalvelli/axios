@@ -34,25 +34,23 @@ This document provides a comprehensive list of all applications included in axiO
 | **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
 | **LibreOffice** (Qt6 backend) | Full office suite (Writer, Calc, Impress, Draw) | Qt6 backend ensures consistent theming with desktop |
-| **Kate** (KDE) | Advanced text editor | Developer-tier features (LSP, minimap, plugins) in a fast editor |
-| **1Password** | Password manager and secure digital vault 
+| **Mousepad** (Xfce) | Simple text editor | Lightweight with syntax highlighting, no CSD |
+| **1Password** | Password manager and secure digital vault |
 
 ### Media Creation & Editing
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Krita** (KDE) | Digital art studio | Professional-grade raster graphics for digital artists |
-| **Inkscape** | Professional vector graphics editor | Best open-source vector editor, cross-platform standard |
 | **OBS Studio** | Screen recording and live streaming software | Industry standard for streaming and recording |
 
 ### Media Viewing & Playback
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
-| **DigiKam** (KDE) | Professional photo manager | Asset management far beyond basic organization |
-| **Loupe** (GNOME) | Fast and lightweight image viewer | Superior speed and touchpad gestures, clean UI |
+| **Gwenview** (KDE) | Full-featured image viewer | SSD-compatible, thumbnail browsing, KDE integration |
 | **Haruna** (KDE) | Video player (MPV frontend) | Excellent MPV frontend with built-in youtube-dl support |
-| **Amberol** (GNOME) | Minimalist music player | Focuses purely on music playback with great UI |
+| **Elisa** (KDE) | Music player | Clean UI, SSD-compatible, library management |
 
 ### System Utilities
 
@@ -65,8 +63,7 @@ This document provides a comprehensive list of all applications included in axiO
 | **Qalculate!** (Qt) | Advanced calculator with unit conversion | Modern Qt port with better theming than GTK version |
 | **CoreCtrl** | Hardware control and monitoring (GPU/CPU) | Essential for GPU overclocking and fan control |
 | **KDE Connect** | Sync and control your phone from desktop | Best Linux-phone integration available |
-| **LocalSend** | Local network file sharing (AirDrop alternative) | Cross-platform local file sharing without cloud |
-| **GNOME Software** | Software center for Flatpak apps | Better Flatpak handling in non-Plasma environments |
+| **Flatpak Handler** | One-click Flatpak installation from Flathub | Terminal-based transparent install flow |
 
 ### Communication & PIM
 
@@ -111,7 +108,6 @@ See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale configuration.
 | **playerctl** | Media player control | Control playback from any app |
 | **pavucontrol** | PulseAudio volume control | Advanced audio settings |
 | **wtype** | Wayland keyboard automation | Simulate keypresses |
-| **wayvnc** | VNC server for Wayland | Remote desktop access |
 
 ---
 
@@ -427,7 +423,7 @@ Provided by DankMaterialShell:
 
 | Category | Count | Module |
 |----------|-------|--------|
-| Desktop Applications | 30+ | `desktop` |
+| Desktop Applications | 25+ | `desktop` |
 | Development Tools | 15+ | `development` |
 | Terminal Applications | 10+ | `desktop`/`development` |
 | Gaming | 8 | `gaming` |

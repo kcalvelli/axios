@@ -18,19 +18,6 @@ axiOS now relies primarily on DMS's built-in template management system for appl
 - Browsers (Firefox via pywalfox)
 - Other apps (vesktop, equibop, dgop, niri)
 
-**axios-Only Theming:**
-
-- Kate syntax highlighting (code editor text styles - not redundant with DMS).  This is currently disabled as it conflicts with DMS.  TODO: Bring it back
-
-### Reverting to axios-Managed Templates
-
-If DMS template management fails, you can revert to the legacy axios-managed system:
-
-1. Add to your home-manager configuration:
-   ```nix
-   axios.theming.useAxiosTemplates = true;
-   ```
-
 ## DankMaterialShell Features
 
 - Material Design-inspired theming

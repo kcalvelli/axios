@@ -255,4 +255,4 @@ When updating documentation:
 
 ---
 
-**Last Updated**: October 2025
+**Last Updated**: January 2026

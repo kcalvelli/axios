@@ -204,9 +204,5 @@ in
 
     # Generate systemd services for Tailscale Services
     systemd.services = lib.mkMerge (lib.mapAttrsToList mkTailscaleService cfg.services);
-
-    environment = {
-      systemPackages = with pkgs; [ trayscale ];
-    };
   };
 }

@@ -25,7 +25,6 @@ in
     # === Wayland Packages ===
     environment.systemPackages = with pkgs; [
       # System desktop applications
-      wayvnc
       xwayland-satellite
 
       # File manager
@@ -41,19 +40,16 @@ in
 
       # === Productivity Applications ===
       kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
-      dbeaver-bin # Universal database tool (supports PostgreSQL, MySQL, SQLite, etc.)
 
       # === Media Creation & Editing ===
       krita # Digital art studio (professional raster graphics)
-      inkscape # Vector graphics editor
 
       # === Media Viewing & Playback ===
-      digikam # Photo manager (professional asset management)
-      loupe # Image viewer (fast, clean UI, great touchpad gestures)
+      kdePackages.gwenview # Image viewer (Qt, SSD, KDE integration, thumbnail browsing)
       haruna # Video player (excellent MPV frontend)
       mpv # Media player (CLI, UDP streaming, hardware acceleration)
       ffmpeg # Video/audio processing, conversion, streaming
-      amberol # Music player (simple, focused on music playback)
+      kdePackages.elisa # Music player (Qt, SSD, clean UI, library management)
 
       # === System Utilities ===
       kdePackages.filelight # Disk usage analyzer (superior radial visualization)
@@ -64,7 +60,7 @@ in
       swaybg # Wallpaper setter
       imagemagick # Image processing
       libnotify # Desktop notifications
-      kdePackages.kate # Text editor (LSP, minimap, plugins, dev-tier features)
+      mousepad # Text editor (simple, syntax highlighting, no CSD)
 
       # === Wayland Tools ===
       pipewire # Required for Qt6 multimedia symbols (Dolphin, etc.)
@@ -116,8 +112,6 @@ in
           '';
         }
       )
-      v4l-utils # Camera debugging (v4l2-ctl --list-formats-ext)
-
       # === Implements freedesktops's Desktop Menu Specification
       kdePackages.plasma-workspace
       kdePackages.kservice
@@ -189,10 +183,6 @@ in
       seahorse.enable = true; # Password and encryption key manager (GNOME Keyring integration)
       corectrl.enable = true;
       kdeconnect.enable = true;
-      localsend = {
-        enable = true;
-        openFirewall = true;
-      };
       _1password.enable = true;
       _1password-gui.enable = true;
     };
