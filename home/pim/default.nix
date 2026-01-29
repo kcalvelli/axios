@@ -49,7 +49,7 @@ in
       comment = "AI-powered email management";
       exec =
         "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass}"
-        + lib.optionalString isServer " --unsafely-treat-insecure-origin-as-secure=http://axios-mail.local:${toString localPort}"
+        + lib.optionalString isServer " --test-type --unsafely-treat-insecure-origin-as-secure=http://axios-mail.local:${toString localPort}"
         + " --app=${pwaUrl}";
       icon = "axios-mail";
       terminal = false;

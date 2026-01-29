@@ -296,13 +296,10 @@
   };
 
   # Configure Dolphin to use Ghostty as terminal emulator
-  xdg.configFile."dolphinrc" = {
-    text = ''
-      [General]
-      TerminalApplication=ghostty
-    '';
-    force = true;
-  };
+  # Uses kwriteconfig6 to set only this key, preserving color scheme and other settings
+  home.activation.configureDolphinTerminal = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file dolphinrc --group General --key TerminalApplication ghostty
+  '';
 
   # Mask KDE Activity Manager (axiOS uses Niri workspaces, not KDE Activities)
   # This removes the "Activities" context menu item from Dolphin and other KDE apps
