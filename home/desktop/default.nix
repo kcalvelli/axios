@@ -96,7 +96,7 @@
 
   services.kdeconnect = {
     enable = true;
-    indicator = true;
+    indicator = false; # DMS now has a built in indicator
   };
 
   # Default application associations for all installed apps
