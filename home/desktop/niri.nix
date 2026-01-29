@@ -17,6 +17,16 @@
       niri = {
         enableKeybinds = false; # Keybinds provided via KDL includes (dms/binds.kdl)
         enableSpawn = true; # DMS spawns when Niri starts (eliminates race conditions)
+        includes.filesToInclude = [
+          "alttab"
+          "binds"
+          "colors"
+          "cursor"
+          "layout"
+          "outputs"
+          "windowrules"
+          "wpblur"
+        ];
       };
     };
     niri.settings = {
