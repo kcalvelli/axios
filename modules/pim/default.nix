@@ -136,16 +136,11 @@ in
 
     # Tailscale Services registration
     # Provides unique DNS name: axios-mail.<tailnet>.ts.net
+    # loopbackProxy: nginx on 127.0.0.1:443 with LE cert for secure context (Web Push)
     networking.tailscale.services."axios-mail" = lib.mkIf isServer {
       enable = true;
       backend = "http://127.0.0.1:${toString cfg.port}";
-    };
-
-    # Local hostname for server PWA (hairpinning workaround)
-    # Server can't access its own Tailscale Services VIPs, so we use a local domain
-    # This gives unique app_id for PWA icons on the server
-    networking.hosts = lib.mkIf isServer {
-      "127.0.0.1" = [ "axios-mail.local" ];
+      loopbackProxy.enable = true;
     };
 
     # Calendar/contacts sync is handled by axios-dav

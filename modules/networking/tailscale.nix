@@ -24,6 +24,10 @@ let
         default = 443;
         description = "HTTPS port for the service (default: 443)";
       };
+
+      loopbackProxy = {
+        enable = lib.mkEnableOption "local nginx HTTPS proxy for secure context";
+      };
     };
   };
 
@@ -67,6 +71,92 @@ let
 
   # Collect all enabled services
   enabledServices = lib.filterAttrs (_: svc: svc.enable) cfg.services;
+
+  # Collect services with loopback proxy enabled
+  loopbackServices = lib.filterAttrs (_: svc: svc.enable && svc.loopbackProxy.enable) cfg.services;
+  hasLoopbackServices = loopbackServices != { };
+
+  # Certificate paths
+  certDir = "/var/lib/tailscale/certs";
+  mkFqdn = name: "${name}.${cfg.domain}";
+  mkCertPath = name: "${certDir}/${mkFqdn name}.crt";
+  mkKeyPath = name: "${certDir}/${mkFqdn name}.key";
+
+  # Shared preStart script for waiting on Tailscale
+  tailscaleWaitScript = ''
+    for i in $(seq 1 30); do
+      status=$(${pkgs.tailscale}/bin/tailscale status --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.BackendState // "NoState"')
+      if [ "$status" = "Running" ]; then
+        break
+      fi
+      echo "Waiting for Tailscale to be ready (attempt $i/30, state: $status)..."
+      sleep 2
+    done
+  '';
+
+  # Generate cert sync systemd service for a loopback-proxied service
+  mkCertSyncService = name: _svc: {
+    "tailscale-cert-${name}" = {
+      description = "Tailscale certificate sync for ${mkFqdn name}";
+      after = [
+        "tailscaled.service"
+        "network-online.target"
+      ];
+      wants = [
+        "tailscaled.service"
+        "network-online.target"
+      ];
+      wantedBy = [ "multi-user.target" ];
+
+      preStart = tailscaleWaitScript;
+
+      serviceConfig = {
+        Type = "oneshot";
+        ExecStart = "${pkgs.tailscale}/bin/tailscale cert --cert-file ${mkCertPath name} --key-file ${mkKeyPath name} ${mkFqdn name}";
+        ExecStartPost = [
+          "${pkgs.coreutils}/bin/chmod 640 ${mkKeyPath name}"
+          "${pkgs.systemd}/bin/systemctl reload-or-restart nginx.service"
+        ];
+      };
+    };
+  };
+
+  # Generate cert sync timer for a loopback-proxied service
+  mkCertSyncTimer = name: _svc: {
+    "tailscale-cert-${name}" = {
+      description = "Daily certificate renewal for ${mkFqdn name}";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar = "daily";
+        Persistent = true;
+      };
+    };
+  };
+
+  # Generate nginx virtualHost for a loopback-proxied service
+  mkNginxVhost = name: svc: {
+    "${mkFqdn name}" = {
+      listen = [
+        {
+          addr = "127.0.0.1";
+          port = 443;
+          ssl = true;
+        }
+      ];
+      sslCertificate = mkCertPath name;
+      sslCertificateKey = mkKeyPath name;
+      locations."/" = {
+        proxyPass = svc.backend;
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        '';
+      };
+    };
+  };
 in
 {
   options.networking.tailscale = {
@@ -177,6 +267,18 @@ in
           Set authMode = "authkey" and provide an auth key with appropriate tags.
         '';
       }
+      {
+        assertion = !hasLoopbackServices || cfg.domain != null;
+        message = ''
+          Tailscale loopbackProxy requires networking.tailscale.domain to be set.
+
+          At least one Tailscale service has loopbackProxy.enable = true, but
+          networking.tailscale.domain is not configured.
+
+          Example:
+            networking.tailscale.domain = "example-tailnet.ts.net";
+        '';
+      }
     ];
 
     # Configure firewall settings for Tailscale
@@ -184,6 +286,11 @@ in
       firewall = {
         trustedInterfaces = [ config.services.tailscale.interfaceName ]; # Allow Tailscale interface through the firewall
         allowedUDPPorts = [ config.services.tailscale.port ]; # Allow UDP ports used by Tailscale
+      };
+
+      # Map loopback-proxied service FQDNs to 127.0.0.1
+      hosts = lib.mkIf hasLoopbackServices {
+        "127.0.0.1" = lib.mapAttrsToList (name: _: mkFqdn name) loopbackServices;
       };
     };
 
@@ -200,9 +307,28 @@ in
         # Auth key authentication (for server/tag-based identity)
         authKeyFile = lib.mkIf isAuthKey cfg.authKeyFile;
       };
+
+      # Enable nginx for loopback proxy (only if needed)
+      nginx = lib.mkIf hasLoopbackServices {
+        enable = true;
+        virtualHosts = lib.mkMerge (lib.mapAttrsToList mkNginxVhost loopbackServices);
+      };
     };
 
-    # Generate systemd services for Tailscale Services
-    systemd.services = lib.mkMerge (lib.mapAttrsToList mkTailscaleService cfg.services);
+    # Certificate directory
+    systemd.tmpfiles.rules = lib.mkIf hasLoopbackServices [
+      "d ${certDir} 0750 root nginx - -"
+    ];
+
+    # Generate systemd services: Tailscale Services + cert sync services
+    systemd.services = lib.mkMerge (
+      (lib.mapAttrsToList mkTailscaleService cfg.services)
+      ++ (lib.mapAttrsToList mkCertSyncService loopbackServices)
+    );
+
+    # Generate cert sync timers
+    systemd.timers = lib.mkIf hasLoopbackServices (
+      lib.mkMerge (lib.mapAttrsToList mkCertSyncTimer loopbackServices)
+    );
   };
 }

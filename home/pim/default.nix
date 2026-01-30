@@ -13,19 +13,11 @@ let
   isEnabled = pimCfg.enable or false;
   isServer = (pimCfg.role or "server") == "server";
 
-  # PWA URL differs based on role:
-  # - Server: Uses local domain (hairpinning restriction prevents VIP access)
-  # - Client: Uses Tailscale Services DNS name
+  # PWA URL: always HTTPS via Tailscale Services FQDN
+  # Server uses loopback proxy (nginx on 127.0.0.1:443 with LE cert)
+  # Client resolves via Tailscale DNS to the VIP
   tailnetDomain = pimCfg.pwa.tailnetDomain or "";
-  localPort = pimCfg.port or 8080;
-
-  pwaUrl =
-    if isServer then
-      # Server uses local domain via /etc/hosts (unique domain for app_id)
-      "http://axios-mail.local:${toString localPort}/"
-    else
-      # Client uses Tailscale Services
-      "https://axios-mail.${tailnetDomain}/";
+  pwaUrl = "https://axios-mail.${tailnetDomain}/";
 
   # PWA data directory for isolated profile
   pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/mail";
@@ -33,7 +25,7 @@ let
   # Chromium/Brave on Wayland ignores --class and generates app_id from URL
   # Pattern: brave-{domain}__-Default (port is ignored, path / becomes -)
   # We must set StartupWMClass to match this generated app_id for dock icons to work
-  pwaHost = if isServer then "axios-mail.local" else "axios-mail.${tailnetDomain}";
+  pwaHost = "axios-mail.${tailnetDomain}";
   wmClass = "brave-${pwaHost}__-Default";
 in
 {
@@ -48,9 +40,7 @@ in
       name = "Axios Mail";
       comment = "AI-powered email management";
       exec =
-        "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass}"
-        + lib.optionalString isServer " --test-type --unsafely-treat-insecure-origin-as-secure=http://axios-mail.local:${toString localPort}"
-        + " --app=${pwaUrl}";
+        "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass}" + " --app=${pwaUrl}";
       icon = "axios-mail";
       terminal = false;
       categories = [
