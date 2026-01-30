@@ -39,9 +39,83 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 - See `openspec/specs/pim/spec.md` for full documentation
 
 ### Application Management
-- **PWA support**: Dedicated builder for Progressive Web Apps.
+- **PWA support**: Dedicated builder for Progressive Web Apps with configurable browser backend (Chromium, Brave, Chrome).
 - **Add-PWA Script**: Automated tool (`scripts/add-pwa.sh`) that installs icons, registers manifest categories, and inserts configuration into `home/desktop/pwa-apps.nix` with auto-formatting.
 - **Implementation**: `modules/desktop/default.nix`, `home/desktop/pwa-apps.nix`, `scripts/add-pwa.sh`
+
+### Requirement: Configurable PWA Backend
+
+The PWA system SHALL allow selecting the underlying browser engine to balance privacy, open-source compliance, and feature support (DRM, Push API). A global default can be set, and individual apps can override it.
+
+#### Scenario: Default Configuration (Chromium)
+
+- **Given**: User does not specify a PWA browser
+- **When**: PWA apps are generated
+- **Then**: `pkgs.chromium` is used as the backend
+- **And**: Push notifications work out-of-the-box (standard Chromium)
+- **And**: WMClass is `chrome-{domain}-Default` (Chromium uses `chrome` prefix internally)
+
+#### Scenario: Brave Preference
+
+- **Given**: User sets `axios.pwa.browser = "brave"`
+- **When**: PWA apps are generated
+- **Then**: `pkgs.brave` is used
+- **And**: WMClass is `brave-{domain}-Default`
+- **And**: User accepts manual push notification configuration (per profile)
+
+#### Scenario: Chrome Preference
+
+- **Given**: User sets `axios.pwa.browser = "google-chrome"`
+- **When**: PWA apps are generated
+- **Then**: `pkgs.google-chrome` is used
+- **And**: WMClass is `chrome-{domain}-Default`
+
+#### Scenario: Per-App Browser Override
+
+- **Given**: User sets `axios.pwa.apps.youtube-music.browser = "brave"`
+- **And**: Global `axios.pwa.browser` is `"chromium"`
+- **When**: PWA apps are generated
+- **Then**: YouTube Music uses `pkgs.brave` (Widevine DRM support)
+- **And**: All other apps use `pkgs.chromium`
+- **And**: Both browser packages are installed automatically
+
+### Requirement: PWA Launcher Scripts
+
+Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybinds and desktop entries from browser selection.
+
+#### Scenario: Launching via keybind
+
+- **Given**: `axios.pwa.apps.google-messages` is defined
+- **When**: User presses `Mod+G` (bound to `pwa-google-messages`)
+- **Then**: Google Messages opens in the configured browser
+- **And**: Changing `axios.pwa.browser` automatically updates the launcher
+
+#### Scenario: Desktop entry exec
+
+- **Given**: A PWA desktop entry is generated
+- **When**: User launches the app from the application menu
+- **Then**: `Exec=pwa-{appId}` is used (not a raw browser command)
+- **And**: The launcher respects per-app browser overrides
+
+### Requirement: Centralized PWA Definition
+
+PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axios.pwa.apps` option to ensure consistency.
+
+#### Scenario: Module Registration
+
+- **Given**: `pim` module is enabled
+- **When**: Configuration is evaluated
+- **Then**: `pim` module sets `axios.pwa.apps.axios-mail`
+- **And**: `desktop` module consumes this definition to generate the desktop entry and launcher
+- **And**: `desktop` module applies the global or per-app browser setting
+
+#### Scenario: Unified URL Generation
+
+- **Given**: `immich` module is enabled (server role)
+- **When**: PWA definition is created
+- **Then**: URL is `https://axios-immich.<tailnet>/` (unified via loopback proxy)
+- **And**: Desktop entry uses this URL, ensuring consistent app_id across devices
+
 
 ### Wallpaper & Theming
 - **Features**: Curated collection at `~/Pictures/Wallpapers`, blurred background effects, and Base16/Dank16 support for VSCode.

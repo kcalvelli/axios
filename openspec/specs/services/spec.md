@@ -19,7 +19,8 @@ Manages network connectivity and self-hosted application infrastructure using a 
 ### Immich (Photo Backup)
 - **Features**: Subdomain support (`selfHosted.immich.subdomain`), custom media location, and GPU acceleration.
 - **Acceleration**: Optional AMD/Nvidia/Intel GPU support for video transcoding.
-- **Reverse Proxy**: Registered as a catch-all route (priority 1000) on its own domain/subdomain.
+- **Networking**: Uses **Tailscale Services** (`axios-immich.<tailnet>.ts.net`) for secure, magic-dns addressed access.
+- **PWA Strategy**: Uses `loopbackProxy` for unified HTTPS access (`https://axios-immich.<tailnet>/`) on both server and client.
 - **Implementation**: `modules/services/immich.nix`
 
 ### Local AI (Ollama)

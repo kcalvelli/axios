@@ -316,43 +316,39 @@ axios-ai-mail SHALL support secure cross-device access via Tailscale Services.
 - **And**: The browser has a valid HTTPS secure context
 - **And**: Web Push notifications (`PushManager.subscribe()`) succeed
 
-### Requirement: PWA Desktop Entry
+### Requirement: Centralized PWA Registration
 
-Users SHALL be able to generate a desktop entry for axios-ai-mail.
+PIM module SHALL register its PWA via the `axios.pwa.apps` option, delegating desktop entry generation to the desktop module.
 
-#### Scenario: PWA on server role
-
-- **Given**: `pim.role = "server"`
-- **And**: `pim.pwa.enable = true`
-- **And**: `pim.pwa.tailnetDomain` is set
-- **When**: Home-manager activates
-- **Then**: Desktop entry is created for "Axios Mail"
-- **And**: URL is `https://axios-mail.${tailnetDomain}/` (same as client)
-- **And**: Icon is axios-mail icon
-- **And**: StartupWMClass is `brave-axios-mail.${tailnetDomain}__-Default`
-- **And**: No `--unsafely-treat-insecure-origin-as-secure` flag is present
-- **And**: No `--test-type` flag is present
-
-#### Scenario: PWA on client role
-
-- **Given**: `pim.role = "client"`
-- **And**: `pim.pwa.enable = true`
-- **And**: `pim.pwa.tailnetDomain` is set
-- **When**: Home-manager activates
-- **Then**: Desktop entry is created for "Axios Mail"
-- **And**: URL is `https://axios-mail.${tailnetDomain}/`
-- **And**: Icon is axios-mail icon
-- **And**: StartupWMClass is `brave-axios-mail.${tailnetDomain}__-Default`
-
-> **Note**: Both server and client use the same HTTPS URL. Server resolves via `/etc/hosts` to the loopback proxy; client resolves via Tailscale DNS to the VIP. Client requires server to be deployed first.
-
-#### Scenario: PWA enabled without tailnet domain
+#### Scenario: PWA Registration
 
 - **Given**: `pim.pwa.enable = true`
-- **And**: `pim.pwa.tailnetDomain` is not set
-- **When**: NixOS configuration is evaluated
-- **Then**: An assertion error is raised
-- **And**: Error message explains tailnetDomain is required
+- **When**: Configuration is evaluated
+- **Then**: `axios.pwa.apps.axios-mail` is defined
+- **And**: `url` is `https://axios-mail.<tailnetDomain>/`
+- **And**: `isolated` is `true` (uses dedicated profile)
+- **And**: Browser selection is handled by `axios.pwa.browser` (global setting)
+
+### Requirement: Unified URL Strategy
+
+PIM PWA SHALL use the same HTTPS URL for both server and client roles.
+
+#### Scenario: Server URL Resolution
+
+- **Given**: `pim.role = "server"`
+- **And**: User launches PWA (`https://axios-mail.<tailnet>/`)
+- **When**: Request is made
+- **Then**: `/etc/hosts` resolves domain to `127.0.0.1` (loopback proxy)
+- **And**: Connection is secure (HTTPS)
+
+#### Scenario: Client URL Resolution
+
+- **Given**: `pim.role = "client"`
+- **And**: User launches PWA
+- **When**: Request is made
+- **Then**: Tailscale DNS resolves domain to server VIP
+- **And**: Connection is secure (HTTPS)
+
 
 ### Requirement: Tailscale Service Registration (Server)
 

@@ -45,7 +45,7 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 
 ### Requirement: Configurable PWA Backend
 
-The PWA system SHALL allow selecting the underlying browser engine to balance privacy, open-source compliance, and feature support (Push API).
+The PWA system SHALL allow selecting the underlying browser engine to balance privacy, open-source compliance, and feature support (DRM, Push API). A global default can be set, and individual apps can override it.
 
 #### Scenario: Default Configuration (Chromium)
 
@@ -53,7 +53,7 @@ The PWA system SHALL allow selecting the underlying browser engine to balance pr
 - **When**: PWA apps are generated
 - **Then**: `pkgs.chromium` is used as the backend
 - **And**: Push notifications work out-of-the-box (standard Chromium)
-- **And**: WMClass is `chromium-{domain}-Default`
+- **And**: WMClass is `chrome-{domain}-Default` (Chromium uses `chrome` prefix internally)
 
 #### Scenario: Brave Preference
 
@@ -70,6 +70,33 @@ The PWA system SHALL allow selecting the underlying browser engine to balance pr
 - **Then**: `pkgs.google-chrome` is used
 - **And**: WMClass is `chrome-{domain}-Default`
 
+#### Scenario: Per-App Browser Override
+
+- **Given**: User sets `axios.pwa.apps.youtube-music.browser = "brave"`
+- **And**: Global `axios.pwa.browser` is `"chromium"`
+- **When**: PWA apps are generated
+- **Then**: YouTube Music uses `pkgs.brave` (Widevine DRM support)
+- **And**: All other apps use `pkgs.chromium`
+- **And**: Both browser packages are installed automatically
+
+### Requirement: PWA Launcher Scripts
+
+Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybinds and desktop entries from browser selection.
+
+#### Scenario: Launching via keybind
+
+- **Given**: `axios.pwa.apps.google-messages` is defined
+- **When**: User presses `Mod+G` (bound to `pwa-google-messages`)
+- **Then**: Google Messages opens in the configured browser
+- **And**: Changing `axios.pwa.browser` automatically updates the launcher
+
+#### Scenario: Desktop entry exec
+
+- **Given**: A PWA desktop entry is generated
+- **When**: User launches the app from the application menu
+- **Then**: `Exec=pwa-{appId}` is used (not a raw browser command)
+- **And**: The launcher respects per-app browser overrides
+
 ### Requirement: Centralized PWA Definition
 
 PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axios.pwa.apps` option to ensure consistency.
@@ -79,8 +106,8 @@ PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axi
 - **Given**: `pim` module is enabled
 - **When**: Configuration is evaluated
 - **Then**: `pim` module sets `axios.pwa.apps.axios-mail`
-- **And**: `desktop` module consumes this definition to generate the desktop entry
-- **And**: `desktop` module applies the global `axios.pwa.browser` setting
+- **And**: `desktop` module consumes this definition to generate the desktop entry and launcher
+- **And**: `desktop` module applies the global or per-app browser setting
 
 #### Scenario: Unified URL Generation
 
