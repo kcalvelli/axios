@@ -8,31 +8,43 @@
 let
   cfg = config.axios.pwa;
 
-  # Browser package and binary mapping
-  browserPkg =
+  # Browser type shared between global option and per-app option
+  browserEnum = lib.types.enum [
+    "brave"
+    "chromium"
+    "google-chrome"
+  ];
+
+  # Browser resolution helpers
+  browserPkgFor =
+    browser:
     {
       brave = pkgs.brave;
       chromium = pkgs.chromium;
       google-chrome = pkgs.google-chrome;
     }
-    .${cfg.browser};
-  browserBin = lib.getExe browserPkg;
+    .${browser};
+
+  browserBinFor = browser: lib.getExe (browserPkgFor browser);
+
   # Chromium uses "chrome" internally for WM_CLASS, not "chromium"
-  browserWmPrefix =
+  wmPrefixFor =
+    browser:
     {
       brave = "brave";
       chromium = "chrome";
       google-chrome = "chrome";
     }
-    .${cfg.browser};
+    .${browser};
 
   # Convert URL to browser's app_id format for WM_CLASS matching
   # Format: {browserPrefix}-{domain}{path}-Default
   # Path conversion: first slash -> __, subsequent slashes -> _
   # Port numbers are stripped from the domain
   urlToAppId =
-    url:
+    browser: url:
     let
+      wmPrefix = wmPrefixFor browser;
       withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
       parts = lib.splitString "/" withoutProtocol;
       domainWithPort = lib.head parts;
@@ -40,7 +52,15 @@ let
       pathParts = lib.tail parts;
       path = if pathParts == [ ] then "" else "__" + (lib.concatStringsSep "_" pathParts);
     in
-    "${browserWmPrefix}-${domain}${path}-Default";
+    "${wmPrefix}-${domain}${path}-Default";
+
+  # Resolve effective browser for an app (per-app override or global default)
+  effectiveBrowser = app: if app.browser != null then app.browser else cfg.browser;
+
+  # Collect unique browser packages needed across all apps
+  allBrowserPkgs = lib.unique (
+    lib.mapAttrsToList (_: app: browserPkgFor (effectiveBrowser app)) cfg.apps
+  );
 
   # PWA app submodule type
   pwaAppType = lib.types.submodule {
@@ -102,6 +122,12 @@ let
         default = null;
         description = "Description for the desktop entry comment field";
       };
+
+      browser = lib.mkOption {
+        type = lib.types.nullOr browserEnum;
+        default = null;
+        description = "Browser override for this app. When null, uses the global axios.pwa.browser setting.";
+      };
     };
   };
 in
@@ -110,13 +136,9 @@ in
     enable = lib.mkEnableOption "PWA apps with configurable browser backend";
 
     browser = lib.mkOption {
-      type = lib.types.enum [
-        "brave"
-        "chromium"
-        "google-chrome"
-      ];
+      type = browserEnum;
       default = "chromium";
-      description = "Browser to use for PWA app mode";
+      description = "Default browser to use for PWA app mode. Can be overridden per app.";
     };
 
     includeDefaults = lib.mkOption {
@@ -143,6 +165,12 @@ in
             categories = [ "Graphics" "Photography" ];
             isolated = true;
           };
+          youtube-music = {
+            name = "YouTube Music";
+            url = "https://music.youtube.com/";
+            icon = "youtube-music";
+            browser = "brave";  # Widevine DRM support
+          };
         }
       '';
       description = "PWA app definitions to generate desktop entries for";
@@ -162,24 +190,27 @@ in
             actions = def.actions or { };
             isolated = false; # Default apps share browser profile
             description = null;
+            browser = null; # Use global default
           }
         ) (import ../../pkgs/pwa-apps/pwa-defs.nix);
       })
 
-      # Part 2: Desktop entries, icons, and browser package
+      # Part 2: Desktop entries, icons, and browser packages
       {
-        home.packages = [ browserPkg ];
+        home.packages = allBrowserPkgs;
 
         xdg.desktopEntries = lib.mapAttrs (
           appId: app:
           let
-            wmClass = urlToAppId app.url;
+            browser = effectiveBrowser app;
+            bin = browserBinFor browser;
+            wmClass = urlToAppId browser app.url;
             dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
             execCmd =
               if app.isolated then
-                ''${browserBin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}"''
+                ''${bin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}"''
               else
-                ''${browserBin} "--app=${app.url}"'';
+                ''${bin} "--app=${app.url}"'';
           in
           {
             name = app.name;
@@ -194,9 +225,9 @@ in
               name = action.name;
               exec =
                 if app.isolated then
-                  ''${browserBin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${action.url}"''
+                  ''${bin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${action.url}"''
                 else
-                  ''${browserBin} "--app=${action.url}"'';
+                  ''${bin} "--app=${action.url}"'';
             }) app.actions;
           }
         ) cfg.apps;
