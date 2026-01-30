@@ -17,10 +17,11 @@ let
     }
     .${cfg.browser};
   browserBin = lib.getExe browserPkg;
+  # Chromium uses "chrome" internally for WM_CLASS, not "chromium"
   browserWmPrefix =
     {
       brave = "brave";
-      chromium = "chromium";
+      chromium = "chrome";
       google-chrome = "chrome";
     }
     .${cfg.browser};
