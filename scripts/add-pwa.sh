@@ -498,7 +498,7 @@ Add this configuration:
   axios.pwa = {
     enable = true;
     iconPath = ${REL_ICON_PATH};
-    extraApps = {
+    apps = {
       ${PWA_ID} = {
         name = "${PWA_NAME}";
         url = "${PWA_URL}";
@@ -517,7 +517,7 @@ ${YELLOW}Create: ${CONFIG_DIR:-.}/pwa.nix${NC}
   axios.pwa = {
     enable = true;
     iconPath = ${REL_ICON_PATH};
-    extraApps = {
+    apps = {
       ${PWA_ID} = {
         name = "${PWA_NAME}";
         url = "${PWA_URL}";
@@ -559,7 +559,7 @@ ${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━
 ${YELLOW}Tips${NC}
 ${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}
 
-• ${BLUE}Add more PWAs:${NC} Extend the extraApps block
+• ${BLUE}Add more PWAs:${NC} Extend the apps block
 • ${BLUE}Disable defaults:${NC} Set includeDefaults = false
 • ${BLUE}Documentation:${NC} See docs/PWA_GUIDE.md for examples
 
@@ -622,7 +622,7 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
 
     if [[ "$AUTO_UPDATE" =~ ^[Yy]$ ]]; then
         # Check if already exists
-        if grep -q "extraApps.${PWA_ID}" "$CONFIG_FILE" || grep -q "\"${PWA_ID}\" =" "$CONFIG_FILE"; then
+        if grep -q "apps.${PWA_ID}" "$CONFIG_FILE" || grep -q "\"${PWA_ID}\" =" "$CONFIG_FILE"; then
             print_info "PWA '${PWA_ID}' seems to already exist in the config. Skipping auto-update."
         else
             print_info "Updating configuration..."
@@ -636,7 +636,7 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
 
             if [ "$HAS_PWA_BLOCK" = "yes" ]; then
                 read -r -d '' INSERT_BLOCK << EOM || true
-  axios.pwa.extraApps.${PWA_ID} = {
+  axios.pwa.apps.${PWA_ID} = {
     name = "${PWA_NAME}";
     url = "${PWA_URL}";
     icon = "${PWA_ID}";
@@ -676,7 +676,7 @@ EOM
   # Generated PWA: ${PWA_NAME}
   axios.pwa.enable = lib.mkDefault true;
   axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
-  axios.pwa.extraApps.${PWA_ID} = {
+  axios.pwa.apps.${PWA_ID} = {
     name = "${PWA_NAME}";
     url = "${PWA_URL}";
     icon = "${PWA_ID}";

@@ -1,4 +1,4 @@
-# PIM Home Module: axios-ai-mail user configuration and PWA desktop entry
+# PIM Home Module: axios-ai-mail user configuration and PWA registration
 {
   config,
   lib,
@@ -18,15 +18,6 @@ let
   # Client resolves via Tailscale DNS to the VIP
   tailnetDomain = pimCfg.pwa.tailnetDomain or "";
   pwaUrl = "https://axios-mail.${tailnetDomain}/";
-
-  # PWA data directory for isolated profile
-  pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/mail";
-
-  # Chromium/Brave on Wayland ignores --class and generates app_id from URL
-  # Pattern: brave-{domain}__-Default (port is ignored, path / becomes -)
-  # We must set StartupWMClass to match this generated app_id for dock icons to work
-  pwaHost = "axios-mail.${tailnetDomain}";
-  wmClass = "brave-${pwaHost}__-Default";
 in
 {
   # Import axios-ai-mail home module for server role (provides account config options)
@@ -35,28 +26,17 @@ in
   ) inputs.axios-ai-mail.homeManagerModules.default;
 
   config = lib.mkIf isEnabled {
-    # PWA desktop entry (both server and client roles)
-    xdg.desktopEntries.axios-mail = lib.mkIf (pimCfg.pwa.enable or false) {
+    # Register PWA via central generator
+    axios.pwa.apps.axios-mail = lib.mkIf (pimCfg.pwa.enable or false) {
       name = "Axios Mail";
-      comment = "AI-powered email management";
-      exec =
-        "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass}" + " --app=${pwaUrl}";
+      url = pwaUrl;
       icon = "axios-mail";
-      terminal = false;
       categories = [
         "Network"
         "Email"
       ];
-      settings = {
-        StartupWMClass = wmClass;
-      };
+      isolated = true;
+      description = "AI-powered email management";
     };
-
-    # Install PWA icon
-    home.file.".local/share/icons/hicolor/128x128/apps/axios-mail.png" =
-      lib.mkIf (pimCfg.pwa.enable or false)
-        {
-          source = ../resources/pwa-icons/axios-mail.png;
-        };
   };
 }

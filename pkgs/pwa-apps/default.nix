@@ -1,10 +1,6 @@
 {
   lib,
   stdenv,
-  #brave,
-  brave,
-  makeDesktopItem,
-  symlinkJoin,
   extraDefs ? { },
   extraIconPaths ? [ ],
 }:
@@ -13,110 +9,45 @@ let
   baseDefs = import ./pwa-defs.nix;
   pwaDefs = baseDefs // extraDefs;
   baseIconPath = ../../home/resources/pwa-icons;
+in
+stdenv.mkDerivation {
+  pname = "pwa-apps-icons";
+  version = "1.0.0";
 
-  # Helper to convert URL to Brave's app-id format for WM_CLASS matching
-  # Brave's format: brave-{domain}{path}-Default
-  # Path conversion: first slash → __, subsequent slashes → _
-  # Note: Port numbers are stripped from the domain
-  urlToAppId =
-    url:
-    let
-      withoutProtocol = lib.removePrefix "https://" (lib.removePrefix "http://" url);
-      # Split into domain and path at first slash
-      parts = lib.splitString "/" withoutProtocol;
-      domainWithPort = lib.head parts;
-      # Strip port number if present (e.g., "host:8443" -> "host")
-      domain = lib.head (lib.splitString ":" domainWithPort);
-      pathParts = lib.tail parts;
-      # Join path parts: first slash (after domain) → __, rest → _
-      path = if pathParts == [ ] then "" else "__" + (lib.concatStringsSep "_" pathParts);
-    in
-    "brave-${domain}${path}-Default";
+  dontUnpack = true;
+  dontBuild = true;
 
-  # Helper to generate a PWA launcher script
-  makePWALauncher = pwaId: pwa: ''
-    cat > $out/bin/pwa-${pwaId} << 'LAUNCHER'
-    #!/usr/bin/env bash
-    # PWA Launcher for ${pwa.name}
-    # Launches as a proper web app using Brave's app mode
-    exec ${lib.getExe brave} --app=${pwa.url} "$@"
-    LAUNCHER
-    chmod +x $out/bin/pwa-${pwaId}
+  installPhase = ''
+    runHook preInstall
+
+    mkdir -p $out/share/icons/hicolor/128x128/apps
+
+    # Install icons from base path and extra paths
+    ${lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (pwaId: pwa: ''
+        icon_found=false
+        # Check base icon path first
+        if [ -f ${baseIconPath}/${pwa.icon}.png ]; then
+          cp ${baseIconPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+          icon_found=true
+        fi
+        # Check extra icon paths if not found
+        ${lib.concatStringsSep "\n" (
+          map (extraPath: ''
+            if [ "$icon_found" = false ] && [ -f ${extraPath}/${pwa.icon}.png ]; then
+              cp ${extraPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
+              icon_found=true
+            fi
+          '') extraIconPaths
+        )}
+      '') pwaDefs
+    )}
+
+    runHook postInstall
   '';
 
-  # Create desktop entry for a PWA using makeDesktopItem
-  makePWADesktopItem =
-    pwaId: pwa:
-    makeDesktopItem {
-      name = pwaId;
-      desktopName = pwa.name;
-      comment = "Launch ${pwa.name} as a PWA";
-      exec = "pwa-${pwaId}";
-      icon = pwaId;
-      terminal = false;
-      type = "Application";
-      categories = pwa.categories or [ "Network" ];
-      mimeTypes = pwa.mimeTypes or [ ];
-      startupWMClass = urlToAppId pwa.url;
-      actions = lib.mapAttrs (_actionId: action: {
-        name = action.name;
-        exec = ''${lib.getExe brave} --app="${action.url}"'';
-      }) (pwa.actions or { });
-    };
-
-  # Create launchers package
-  launchers = stdenv.mkDerivation {
-    pname = "pwa-apps-launchers";
-    version = "1.0.0";
-
-    dontUnpack = true;
-    dontBuild = true;
-
-    installPhase = ''
-      runHook preInstall
-
-      # Create directories
-      mkdir -p $out/bin
-      mkdir -p $out/share/icons/hicolor/128x128/apps
-
-      # Install icons from base path and extra paths
-      ${lib.concatStringsSep "\n" (
-        lib.mapAttrsToList (pwaId: pwa: ''
-          icon_found=false
-          # Check base icon path first
-          if [ -f ${baseIconPath}/${pwa.icon}.png ]; then
-            cp ${baseIconPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
-            icon_found=true
-          fi
-          # Check extra icon paths if not found
-          ${lib.concatStringsSep "\n" (
-            map (extraPath: ''
-              if [ "$icon_found" = false ] && [ -f ${extraPath}/${pwa.icon}.png ]; then
-                cp ${extraPath}/${pwa.icon}.png $out/share/icons/hicolor/128x128/apps/${pwaId}.png
-                icon_found=true
-              fi
-            '') extraIconPaths
-          )}
-        '') pwaDefs
-      )}
-
-      # Generate launcher scripts
-      ${lib.concatStringsSep "\n" (lib.mapAttrsToList makePWALauncher pwaDefs)}
-
-      runHook postInstall
-    '';
-  };
-
-  # Create list of desktop items
-  desktopItems = lib.mapAttrsToList makePWADesktopItem pwaDefs;
-
-in
-symlinkJoin {
-  name = "pwa-apps";
-  paths = [ launchers ] ++ desktopItems;
-
-  meta = with lib; {
-    description = "Progressive Web App collection with bundled icons and launchers";
-    platforms = platforms.linux;
+  meta = {
+    description = "PWA icon collection for axiOS";
+    platforms = lib.platforms.linux;
   };
 }
