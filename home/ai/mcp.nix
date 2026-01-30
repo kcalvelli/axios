@@ -86,12 +86,6 @@ in
           "brave-search"
         ];
 
-      # Gemini configuration
-      gemini = {
-        model = "gemini-2.0-flash-thinking-exp-01-21";
-        contextSize = 32768;
-      };
-
       # MCP Server Definitions
       # All servers with fully resolved paths from axios inputs
       servers = {
