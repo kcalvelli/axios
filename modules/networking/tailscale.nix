@@ -98,6 +98,7 @@ let
   mkCertSyncService = name: _svc: {
     "tailscale-cert-${name}" = {
       description = "Tailscale certificate sync for ${mkFqdn name}";
+      before = [ "nginx.service" ];
       after = [
         "tailscaled.service"
         "network-online.target"
@@ -112,10 +113,13 @@ let
 
       serviceConfig = {
         Type = "oneshot";
+        RemainAfterExit = true;
         ExecStart = "${pkgs.tailscale}/bin/tailscale cert --cert-file ${mkCertPath name} --key-file ${mkKeyPath name} ${mkFqdn name}";
         ExecStartPost = [
           "${pkgs.coreutils}/bin/chmod 640 ${mkKeyPath name}"
-          "${pkgs.systemd}/bin/systemctl reload-or-restart nginx.service"
+          # Only reload nginx if it is already running (skip on initial boot —
+          # nginx.service has an After= dependency on this unit so it starts later)
+          "+${pkgs.bash}/bin/bash -c '${pkgs.systemd}/bin/systemctl is-active --quiet nginx.service && ${pkgs.systemd}/bin/systemctl reload nginx.service || true'"
         ];
       };
     };
