@@ -98,9 +98,10 @@ Tailscale services SHALL support an optional local HTTPS reverse proxy for secur
 - **When**: The system boots
 - **Then**: The cert sync service waits for `tailscaled.service` to reach Running state
 - **And**: The cert sync service runs `tailscale cert` with the correct FQDN
-- **And**: Certificate and key files are written to `/var/lib/tailscale/certs/`
-- **And**: Key file permissions are set so nginx can read them (0640, group nginx)
-- **And**: nginx is reloaded after cert renewal
+- **And**: Certificate and key files are written to `/var/lib/tailscale-certs/`
+- **And**: File ownership is set to `root:nginx` on both cert and key
+- **And**: Cert file permissions are `0644`, key file permissions are `0640`
+- **And**: nginx is reloaded if running, restarted if in failed state, skipped if not yet started
 
 #### Scenario: Remote clients unaffected
 
@@ -127,6 +128,8 @@ The Tailscale service submodule SHALL include a `loopbackProxy` option group.
 ## Constraints
 
 - **Loopback Only**: nginx listens exclusively on `127.0.0.1:443` to avoid conflicting with `tailscale serve` on the Tailscale interface
+- **onlySSL Required**: nginx virtualHosts must set `onlySSL = true` to trigger SSL certificate rendering; the explicit `listen` directive overrides onlySSL's default listeners
+- **Cert Directory**: Certificates are stored in `/var/lib/tailscale-certs/` (NOT under `/var/lib/tailscale/` which is `0700 root:root` and inaccessible to nginx)
 - **Real Certificates**: Uses Let's Encrypt certificates via `tailscale cert` — no self-signed certificates
 - **Generic Pattern**: The loopback proxy logic iterates over `cfg.services`; no service names are hardcoded
 - **Opt-In**: `loopbackProxy.enable` defaults to `false`; services must explicitly opt in

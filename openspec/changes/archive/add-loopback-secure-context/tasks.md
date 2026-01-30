@@ -21,7 +21,7 @@
   ```
 
 - [x] **1.3** Create certificate directory via `systemd.tmpfiles.rules`
-  - Path: `/var/lib/tailscale/certs/`
+  - Path: `/var/lib/tailscale-certs/` (NOT under `/var/lib/tailscale/` — that dir is `0700 root:root`)
   - Permissions: `0750 root nginx`
   - Only created when at least one service has `loopbackProxy.enable = true`
 
@@ -29,8 +29,10 @@
   - Service name: `tailscale-cert-<service>`
   - After/Wants: `tailscaled.service`, `network-online.target`
   - PreStart: Wait for Tailscale to reach Running state (same pattern as existing `mkTailscaleService`)
-  - ExecStart: `tailscale cert --cert-file /var/lib/tailscale/certs/<fqdn>.crt --key-file /var/lib/tailscale/certs/<fqdn>.key <fqdn>`
-  - ExecStartPost: `chmod 640 /var/lib/tailscale/certs/<fqdn>.key` and `systemctl reload-or-restart nginx`
+  - Before: `nginx.service` (certs must exist before nginx starts)
+  - ExecStart: `tailscale cert --cert-file /var/lib/tailscale-certs/<fqdn>.crt --key-file /var/lib/tailscale-certs/<fqdn>.key <fqdn>`
+  - ExecStartPost: `chown root:nginx` both files, `chmod 644` cert, `chmod 640` key, then reload/restart nginx conditionally
+  - RemainAfterExit: true
   - WantedBy: `multi-user.target`
 
 - [x] **1.5** Generate systemd daily timer per loopback-proxied service
@@ -43,8 +45,9 @@
   - Per-service virtualHost:
     - `serverName = "<service>.${cfg.domain}"`
     - `listen = [{ addr = "127.0.0.1"; port = 443; ssl = true; }]`
-    - `sslCertificate = "/var/lib/tailscale/certs/<fqdn>.crt"`
-    - `sslCertificateKey = "/var/lib/tailscale/certs/<fqdn>.key"`
+    - `onlySSL = true` (triggers ssl_certificate rendering; explicit listen overrides default listeners)
+    - `sslCertificate = "/var/lib/tailscale-certs/<fqdn>.crt"`
+    - `sslCertificateKey = "/var/lib/tailscale-certs/<fqdn>.key"`
     - `locations."/" = { proxyPass = svc.backend; proxyWebsockets = true; }`
     - Headers: `proxy_set_header Host $host`, `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`
 
@@ -114,20 +117,23 @@
 
 - [x] **6.1** Push changes to remote (`git push`)
 
-- [ ] **6.2** Rebuild NixOS on server host
+- [x] **6.2** Rebuild NixOS on server host
 
-- [ ] **6.3** Verify nginx starts on `127.0.0.1:443` with valid LE cert
+- [x] **6.3** Verify nginx starts on `127.0.0.1:443` with valid LE cert
   ```bash
   curl -v https://axios-mail.<tailnet>/api/version
   ```
+  - TLS 1.3, LE cert (issuer E8), HTTP/2, 200 OK ✅
 
-- [ ] **6.4** Verify PWA opens with HTTPS URL and green lock icon
+- [x] **6.4** Verify PWA opens with HTTPS URL and green lock icon
 
-- [ ] **6.5** Verify Push notifications can be enabled (PushManager.subscribe() succeeds)
+- [x] **6.5** Verify Push notifications can be enabled (PushManager.subscribe() succeeds)
+  - Requires Brave "Use Google services for push messaging" enabled per profile
+  - Future: consider switching PWA browser to Chromium (separate change)
 
-- [ ] **6.6** Verify remote client access via Tailscale Services VIP is unaffected
+- [x] **6.6** Verify remote client access via Tailscale Services VIP is unaffected
 
-- [ ] **6.7** Verify `tailscale serve status` shows the service registered normally
+- [x] **6.7** Verify `tailscale serve status` shows the service registered normally
 
 ## Notes
 
