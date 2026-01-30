@@ -122,9 +122,11 @@ let
           "${pkgs.coreutils}/bin/chown root:nginx ${mkCertPath name} ${mkKeyPath name}"
           "${pkgs.coreutils}/bin/chmod 644 ${mkCertPath name}"
           "${pkgs.coreutils}/bin/chmod 640 ${mkKeyPath name}"
-          # Reload nginx if running, restart if failed, skip if not yet started
-          # (on initial boot nginx.service has an After= on this unit so it starts later)
-          "+${pkgs.bash}/bin/bash -c 'if ${pkgs.systemd}/bin/systemctl is-active --quiet nginx.service; then ${pkgs.systemd}/bin/systemctl reload nginx.service; elif ${pkgs.systemd}/bin/systemctl is-failed --quiet nginx.service; then ${pkgs.systemd}/bin/systemctl restart nginx.service; fi'"
+          # Reload nginx if running, restart if failed, skip if not yet started.
+          # --no-block prevents a deadlock during nixos-rebuild: this unit has
+          # before=nginx.service, so a blocking reload would wait for nginx
+          # which in turn waits for multi-user.target which waits for us.
+          "+${pkgs.bash}/bin/bash -c 'if ${pkgs.systemd}/bin/systemctl is-active --quiet nginx.service; then ${pkgs.systemd}/bin/systemctl reload --no-block nginx.service; elif ${pkgs.systemd}/bin/systemctl is-failed --quiet nginx.service; then ${pkgs.systemd}/bin/systemctl restart --no-block nginx.service; fi'"
         ];
       };
     };
