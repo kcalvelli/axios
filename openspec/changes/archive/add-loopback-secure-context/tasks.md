@@ -100,20 +100,19 @@
 
 ## Phase 5: Spec Finalization
 
-- [ ] **5.1** Merge networking spec delta into `openspec/specs/networking/`
-  - If `openspec/specs/networking/spec.md` does not exist, create it from the delta
-  - If it exists, merge the ADDED/MODIFIED requirements
+- [x] **5.1** Merge networking spec delta into `openspec/specs/networking/`
+  - Created `openspec/specs/networking/spec.md` from the delta (file did not exist)
 
-- [ ] **5.2** Update `openspec/specs/pim/spec.md` with the MODIFIED/REMOVED requirements from the delta
+- [x] **5.2** Update `openspec/specs/pim/spec.md` with the MODIFIED/REMOVED requirements from the delta
 
-- [ ] **5.3** Archive the change directory
+- [x] **5.3** Archive the change directory
   ```bash
   mv openspec/changes/add-loopback-secure-context openspec/changes/archive/
   ```
 
 ## Phase 6: Deploy and Verify
 
-- [ ] **6.1** Push changes to remote (`git push`)
+- [x] **6.1** Push changes to remote (`git push`)
 
 - [ ] **6.2** Rebuild NixOS on server host
 

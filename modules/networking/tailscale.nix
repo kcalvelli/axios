@@ -140,6 +140,10 @@ let
   # Generate nginx virtualHost for a loopback-proxied service
   mkNginxVhost = name: svc: {
     "${mkFqdn name}" = {
+      # onlySSL triggers ssl_certificate rendering in the generated nginx.conf.
+      # The explicit listen directive below overrides onlySSL's default listeners,
+      # ensuring nginx only binds to 127.0.0.1 (not 0.0.0.0).
+      onlySSL = true;
       listen = [
         {
           addr = "127.0.0.1";
