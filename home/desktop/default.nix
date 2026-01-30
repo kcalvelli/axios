@@ -277,6 +277,31 @@
     };
   };
 
+  # Override mousepad desktop entry to add StartupWMClass
+  # The upstream desktop file is named org.xfce.mousepad.desktop but the GTK3 app
+  # reports app-id "mousepad" on Wayland, so the dock can't match without this hint.
+  xdg.desktopEntries."org.xfce.mousepad" = {
+    name = "Mousepad";
+    comment = "Simple Text Editor";
+    genericName = "Text Editor";
+    exec = "mousepad %U";
+    icon = "org.xfce.mousepad";
+    terminal = false;
+    categories = [
+      "Utility"
+      "TextEditor"
+      "GTK"
+    ];
+    mimeType = [
+      "text/plain"
+      "application/x-zerosize"
+    ];
+    settings = {
+      StartupNotify = "true";
+      StartupWMClass = "mousepad";
+    };
+  };
+
   # Flatpak install handler desktop entry
   # Opens .flatpakref files in a small Ghostty terminal window for transparent installation
   xdg.dataFile."applications/com.github.kcalvelli.axios.flatpak-install.desktop".text = ''
