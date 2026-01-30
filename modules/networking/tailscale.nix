@@ -121,9 +121,9 @@ let
           "${pkgs.coreutils}/bin/chown root:nginx ${mkCertPath name} ${mkKeyPath name}"
           "${pkgs.coreutils}/bin/chmod 644 ${mkCertPath name}"
           "${pkgs.coreutils}/bin/chmod 640 ${mkKeyPath name}"
-          # Only reload nginx if it is already running (skip on initial boot —
-          # nginx.service has an After= dependency on this unit so it starts later)
-          "+${pkgs.bash}/bin/bash -c '${pkgs.systemd}/bin/systemctl is-active --quiet nginx.service && ${pkgs.systemd}/bin/systemctl reload nginx.service || true'"
+          # Reload nginx if running, restart if failed, skip if not yet started
+          # (on initial boot nginx.service has an After= on this unit so it starts later)
+          "+${pkgs.bash}/bin/bash -c 'if ${pkgs.systemd}/bin/systemctl is-active --quiet nginx.service; then ${pkgs.systemd}/bin/systemctl reload nginx.service; elif ${pkgs.systemd}/bin/systemctl is-failed --quiet nginx.service; then ${pkgs.systemd}/bin/systemctl restart nginx.service; fi'"
         ];
       };
     };
