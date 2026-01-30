@@ -176,9 +176,9 @@ in
             dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
             execCmd =
               if app.isolated then
-                "${browserBin} --user-data-dir=${dataDir} --class=${wmClass} --app=${app.url}"
+                ''${browserBin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}"''
               else
-                "${browserBin} --app=${app.url}";
+                ''${browserBin} "--app=${app.url}"'';
           in
           {
             name = app.name;
@@ -193,9 +193,9 @@ in
               name = action.name;
               exec =
                 if app.isolated then
-                  "${browserBin} --user-data-dir=${dataDir} --class=${wmClass} --app=${action.url}"
+                  ''${browserBin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${action.url}"''
                 else
-                  "${browserBin} --app=${action.url}";
+                  ''${browserBin} "--app=${action.url}"'';
             }) app.actions;
           }
         ) cfg.apps;
