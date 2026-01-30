@@ -13,6 +13,8 @@ Integrates advanced AI agents and local inference capabilities into the develope
     - `claude-desktop`: Desktop integration layer.
 - **Gemini Ecosystem**:
     - `gemini-cli-bin`: Multimodal CLI agent.
+    - **Authentication**: Uses an OAuth flow for Pro accounts (`gemini auth login`). API keys are not recommended for Pro users as they bypass the subscription.
+    - **Configuration**: System prompt is managed via the `GEMINI_SYSTEM_MD` environment variable, set declaratively in `home/ai/mcp.nix`.
     - `antigravity`: Advanced agentic assistant for axiOS development.
 - **Workflow Tools**:
     - `whisper-cpp`: Speech-to-text.
@@ -173,6 +175,7 @@ axios imports mcp-gateway's module and layers on axios-specific features:
 - **System Prompts**: `axios.md` and `mcp-cli.md` (in `home/ai/prompts/`)
 - **OpenSpec Commands**: `/proposal`, `/apply`, `/archive` (in `home/ai/commands/`)
 - **Shell Aliases**: `axc`, `axios-claude`, `axg`, `axios-gemini`
+    - `axios-gemini` and `axg` now directly invoke `gemini-cli`.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -272,7 +275,7 @@ Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configure
 - **And**: Ollama falls back to stale memory values (may cause oversubscription)
 
 ## Constraints
-- **Secrets**: API keys (e.g., `BRAVE_API_KEY`) MUST be set via environment variables, not `agenix`.
+- **Secrets**: API keys (e.g., `BRAVE_API_KEY`) SHOULD be set via `agenix` for security. Fallback to environment variables is provided. `gemini-cli` Pro accounts should use OAuth (`gemini auth login`) instead of API keys.
 - **GPU Recovery**: AMD GPU hang recovery enabled by default via graphics module; prevents hard freezes from GPU hangs.
 - **GPU Memory**: Long-running inference workloads may cause VRAM exhaustion; `keepAlive` option mitigates this by unloading idle models.
 - **Model Size**: Models larger than available VRAM trigger CPU offload, causing ROCm queue evictions and degraded performance.

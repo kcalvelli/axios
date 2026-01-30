@@ -237,12 +237,12 @@ in
       ".claude/commands/openspec/archive.md".source = ./commands/openspec/archive.md;
     };
 
-    # Note: Shell aliases (axc, axios-claude, axg, axios-gemini) are defined
-    # in home/terminal/fish.nix as fish abbreviations (abbr)
-
     # Environment variable for Gemini CLI system prompt
-    home.sessionVariables = lib.mkIf systemPromptEnabled {
+    home.sessionVariables = lib.mkIf (osConfig.services.ai.gemini.enable and systemPromptEnabled) {
       GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/axios.md";
     };
+
+    # Note: Shell aliases (axc, axios-claude, axg, axios-gemini) are defined
+    # in home/terminal/fish.nix as fish abbreviations (abbr)
   };
 }
