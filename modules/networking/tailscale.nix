@@ -116,6 +116,10 @@ let
         RemainAfterExit = true;
         ExecStart = "${pkgs.tailscale}/bin/tailscale cert --cert-file ${mkCertPath name} --key-file ${mkKeyPath name} ${mkFqdn name}";
         ExecStartPost = [
+          # tailscale cert creates files as root:root — fix ownership and
+          # permissions so the nginx user (in the nginx group) can read them.
+          "${pkgs.coreutils}/bin/chown root:nginx ${mkCertPath name} ${mkKeyPath name}"
+          "${pkgs.coreutils}/bin/chmod 644 ${mkCertPath name}"
           "${pkgs.coreutils}/bin/chmod 640 ${mkKeyPath name}"
           # Only reload nginx if it is already running (skip on initial boot —
           # nginx.service has an After= dependency on this unit so it starts later)
