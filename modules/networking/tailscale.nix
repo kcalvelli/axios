@@ -76,8 +76,9 @@ let
   loopbackServices = lib.filterAttrs (_: svc: svc.enable && svc.loopbackProxy.enable) cfg.services;
   hasLoopbackServices = loopbackServices != { };
 
-  # Certificate paths
-  certDir = "/var/lib/tailscale/certs";
+  # Certificate paths — NOT under /var/lib/tailscale/ because that directory
+  # is 0700 root:root (Tailscale's state dir) and nginx can't traverse it.
+  certDir = "/var/lib/tailscale-certs";
   mkFqdn = name: "${name}.${cfg.domain}";
   mkCertPath = name: "${certDir}/${mkFqdn name}.crt";
   mkKeyPath = name: "${certDir}/${mkFqdn name}.key";
