@@ -238,7 +238,7 @@ in
     };
 
     # Environment variable for Gemini CLI system prompt
-    home.sessionVariables = lib.mkIf (osConfig.services.ai.gemini.enable and systemPromptEnabled) {
+    home.sessionVariables = lib.mkIf (osConfig.services.ai.gemini.enable && systemPromptEnabled) {
       GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/axios.md";
     };
 
