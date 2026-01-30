@@ -62,6 +62,22 @@ let
     lib.mapAttrsToList (_: app: browserPkgFor (effectiveBrowser app)) cfg.apps
   );
 
+  # Generate launcher script for a PWA app
+  makeLauncher =
+    appId: app:
+    let
+      browser = effectiveBrowser app;
+      bin = browserBinFor browser;
+      wmClass = urlToAppId browser app.url;
+      dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
+    in
+    pkgs.writeShellScriptBin "pwa-${appId}" (
+      if app.isolated then
+        ''exec ${bin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}" "$@"''
+      else
+        ''exec ${bin} "--app=${app.url}" "$@"''
+    );
+
   # PWA app submodule type
   pwaAppType = lib.types.submodule {
     options = {
@@ -197,7 +213,7 @@ in
 
       # Part 2: Desktop entries, icons, and browser packages
       {
-        home.packages = allBrowserPkgs;
+        home.packages = allBrowserPkgs ++ lib.mapAttrsToList makeLauncher cfg.apps;
 
         xdg.desktopEntries = lib.mapAttrs (
           appId: app:
@@ -206,16 +222,11 @@ in
             bin = browserBinFor browser;
             wmClass = urlToAppId browser app.url;
             dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
-            execCmd =
-              if app.isolated then
-                ''${bin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}"''
-              else
-                ''${bin} "--app=${app.url}"'';
           in
           {
             name = app.name;
             comment = if app.description != null then app.description else "Launch ${app.name} as a PWA";
-            exec = execCmd;
+            exec = "pwa-${appId}";
             icon = appId;
             terminal = false;
             categories = app.categories;

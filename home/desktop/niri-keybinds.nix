@@ -211,10 +211,7 @@ in
     "Mod+D".action.spawn = [ "discord" ]; # OK - DMS uses Mod+Space for launcher
     "Mod+E".action.spawn = [ "dolphin" ];
     "Mod+Return".action.spawn = "ghostty"; # Alternative terminal binding
-    "Mod+G".action.spawn = [
-      "chromium"
-      "--app=https://messages.google.com/web"
-    ];
+    "Mod+G".action.spawn = [ "pwa-google-messages" ];
     "Mod+Shift+V".action.spawn = [ "code" ]; # MOVED from Mod+C (was conflicting)
     "Mod+Shift+T".action.spawn = [ "mousepad" ];
     "Mod+Shift+C".action.spawn = [ "focus-or-spawn-qalculate" ];
