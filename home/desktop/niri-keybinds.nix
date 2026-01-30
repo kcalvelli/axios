@@ -212,7 +212,7 @@ in
     "Mod+E".action.spawn = [ "dolphin" ];
     "Mod+Return".action.spawn = "ghostty"; # Alternative terminal binding
     "Mod+G".action.spawn = [
-      "brave"
+      "chromium"
       "--app=https://messages.google.com/web"
     ];
     "Mod+Shift+V".action.spawn = [ "code" ]; # MOVED from Mod+C (was conflicting)
