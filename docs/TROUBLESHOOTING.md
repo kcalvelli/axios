@@ -107,6 +107,22 @@ nix-collect-garbage --delete-older-than 30d
 - **Impact:** NixOS module not imported, daemon still works
 - **Future:** Can re-enable when FlakeHub-free version available
 
+### DMS Keybindings Stop Working After `rebuild-switch`
+
+- **Status:** KNOWN LIMITATION
+- **Affects:** DMS-provided keybindings (Mod+Space, Mod+V, media keys, etc.)
+- **Does NOT affect:** axiOS keybindings (Mod+B, Mod+T, etc.) or Niri window management keys
+
+**Symptom:** After running `rebuild-switch` (or `nixos-rebuild switch`), DMS keybindings like the application launcher (Mod+Space), clipboard manager (Mod+V), and media keys stop responding. axiOS and Niri keybindings continue to work normally.
+
+**Cause:** DMS keybindings work by invoking `dms ipc call ...`, which discovers the running DMS instance via a quickshell IPC socket keyed to the nix store path. After a rebuild, the `dms` CLI updates to a new store path but the running DMS instance is still registered under the old path. The CLI can't find the running instance:
+
+```
+No running instances for "/nix/store/<new-hash>-dms-shell-.../share/quickshell/dms/shell.qml"
+```
+
+**Workaround:** Log out and back in (or reboot). This restarts DMS with the new store path so the CLI and running instance match.
+
 ## Hardware-Specific Issues
 
 axiOS provides generic hardware support (CPU/GPU types, form factors), but vendor-specific quirks belong in your downstream configuration via the `extraConfig` section.
