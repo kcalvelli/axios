@@ -174,15 +174,14 @@ mcp-gateway is a standalone repository that provides:
 axios imports mcp-gateway's module and layers on axios-specific features:
 - **System Prompts**: `axios.md` and `mcp-cli.md` (in `home/ai/prompts/`)
 - **OpenSpec Commands**: `/proposal`, `/apply`, `/archive` (in `home/ai/commands/`)
-- **Shell Aliases**: `axc`, `axios-claude`, `axg`, `axios-gemini`
-    - `axios-gemini` and `axg` now directly invoke `gemini-cli`.
+- **Global CLAUDE.md**: `~/.claude/CLAUDE.md` with `@import` of axios prompt
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                   axios (home/ai/mcp.nix)                       │
 │  - Imports mcp-gateway's home-manager module                    │
 │  - Provides server definitions with resolved nix store paths    │
-│  - Adds system prompts, commands, and shell aliases             │
+│  - Adds system prompts, commands, and ~/.claude/CLAUDE.md       │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
@@ -275,7 +274,7 @@ Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configure
 - **And**: Ollama falls back to stale memory values (may cause oversubscription)
 
 ## Constraints
-- **Secrets**: API keys (e.g., `BRAVE_API_KEY`) SHOULD be set via `agenix` for security. Fallback to environment variables is provided. `gemini-cli` Pro accounts should use OAuth (`gemini auth login`) instead of API keys.
+- **Secrets**: API keys (e.g., `BRAVE_API_KEY`) SHOULD be set via `agenix` for security. Fallback to environment variables is provided. `gemini` Pro accounts should use OAuth (`gemini auth login`) instead of API keys.
 - **GPU Recovery**: AMD GPU hang recovery enabled by default via graphics module; prevents hard freezes from GPU hangs.
 - **GPU Memory**: Long-running inference workloads may cause VRAM exhaustion; `keepAlive` option mitigates this by unloading idle models.
 - **Model Size**: Models larger than available VRAM trigger CPU offload, causing ROCm queue evictions and degraded performance.

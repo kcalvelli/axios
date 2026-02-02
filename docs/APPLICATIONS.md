@@ -255,7 +255,7 @@ Included when `services.ai.enable = true`:
 | **claude-code-acp** | Anthropic | Claude Code Agent Communication Protocol |
 | **claude-code-router** | Anthropic | Claude Code request router |
 | **copilot-cli** | GitHub/OpenAI | CLI agent with GitHub ecosystem integration |
-| **gemini-cli** | Google | Multimodal CLI agent with free tier |
+| **gemini** | Google | Multimodal CLI agent with free tier |
 
 **Workflow & Support Tools**:
 

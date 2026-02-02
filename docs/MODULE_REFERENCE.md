@@ -285,7 +285,7 @@ virt = {
      - **claude-code-acp** - Claude Code Agent Communication Protocol
      - **claude-code-router** - Claude Code request router
      - **copilot-cli** - GitHub/OpenAI CLI agent with GitHub integration
-     - **gemini-cli** - Google's multimodal CLI agent with free tier
+     - **gemini** - Google's multimodal CLI agent with free tier
    - **Workflow & Support Tools**:
      - **spec-kit** - Spec-driven development framework
      - **claude-monitor** - Real-time AI session resource monitoring

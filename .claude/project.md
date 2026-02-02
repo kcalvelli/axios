@@ -394,7 +394,7 @@ All workflows use:
 ## AI Module Specifics
 
 The `services.ai.enable` module provides:
-- **Tools**: claude-code, gemini-cli, claude-monitor, mcp-cli, and other AI assistants
+- **Tools**: claude-code, gemini, claude-monitor, mcp-cli, and other AI assistants
 - **MCP Servers** (optional): Enable with `services.ai.mcp.enable = true` (default: true)
 - **MCP Gateway**: REST API and MCP HTTP transport for tool access
 - **Dynamic Discovery**: mcp-cli for just-in-time tool discovery (99% token reduction)
@@ -521,9 +521,9 @@ mcp-cli is **automatically enabled** when `services.ai.enable = true`. The mcp-g
 All config files are generated from the same server definitions in `home/ai/mcp.nix`.
 
 **Zero Configuration Required:**
-- After system rebuild, the axios prompt is automatically injected into `~/.claude.json`
-- Just restart Claude Code to pick up the new system prompt
-- No manual setup or configuration needed!
+- Claude Code: prompt auto-loaded via `~/.claude/CLAUDE.md` (`@import`)
+- Gemini: prompt auto-loaded via `GEMINI_SYSTEM_MD` env var
+- Just run `claude` or `gemini` — no flags or aliases needed
 
 **axiOS System Prompt for AI Agents:**
 
@@ -536,52 +536,23 @@ axios provides a comprehensive system prompt at `~/.config/ai/prompts/axios.md` 
 
 **Claude Code: AUTOMATIC INTEGRATION**
 
-The axios prompt is **automatically injected** into `~/.claude.json` when you rebuild your system. No manual setup required!
+The axios prompt is automatically loaded via `~/.claude/CLAUDE.md`, which `@imports` the prompt file. No flags or aliases needed — just run `claude`.
 
-**How it works:**
-- During `home-manager switch`, an activation script checks `~/.claude.json`
-- If the axios prompt isn't present, it's automatically appended to `customInstructions`
-- If you already have custom instructions, axios adds its prompt after a separator (`---`)
-- Restart Claude Code after rebuild to pick up the new prompt
+**Gemini: AUTOMATIC INTEGRATION**
+
+The `GEMINI_SYSTEM_MD` environment variable is set declaratively to point at the axios prompt. Just run `gemini`.
 
 **View the prompt:**
 ```bash
 cat ~/.config/ai/prompts/axios.md
 ```
 
-**Gemini CLI:**
-Use the `--system-instruction` flag:
-```bash
-gemini-cli --system-instruction ~/.config/ai/prompts/axios.md
-
-# Or create an alias
-alias gemini='gemini-cli --system-instruction ~/.config/ai/prompts/axios.md'
-```
-
 **Adding Your Own Custom Instructions:**
 
-**Method 1: Edit axios prompt directly** (recommended)
+Edit the axios prompt to add your custom instructions:
 ```bash
-# Edit the axios prompt to add your custom instructions
 $EDITOR ~/.config/ai/prompts/axios.md
 # Add your instructions under "## Custom User Instructions" section at the bottom
-# Next rebuild will inject the updated prompt into ~/.claude.json
-```
-
-**Method 2: Edit ~/.claude.json directly**
-```bash
-# Manually edit Claude Code config (bypasses auto-injection)
-$EDITOR ~/.claude.json
-# Add your custom instructions to the "customInstructions" field
-# Note: axios activation script won't modify if axios prompt is already present
-```
-
-**Method 3: Merge prompts for other AI agents**
-```bash
-# Create a combined prompt file for Gemini CLI or other tools
-cat ~/.config/ai/prompts/axios.md > ~/my-ai-prompt.md
-echo "" >> ~/my-ai-prompt.md
-cat ~/my-custom-instructions.md >> ~/my-ai-prompt.md
 ```
 
 **Usage in AI Agents:**
