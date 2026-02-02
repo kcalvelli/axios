@@ -166,6 +166,37 @@ in
 
         # Redis requires vm.overcommit_memory = 1
         boot.kernel.sysctl."vm.overcommit_memory" = lib.mkForce 1;
+
+        # Auto-refresh PostgreSQL collation versions after glibc updates.
+        # Prevents repeated journal warnings when glibc is bumped during a NixOS rebuild.
+        # The ALTER DATABASE command is idempotent — safe to run on every boot.
+        systemd.services.postgresql-collation-refresh = {
+          description = "Refresh PostgreSQL collation versions";
+          after = [ "postgresql.service" ];
+          requires = [ "postgresql.service" ];
+          wantedBy = [ "multi-user.target" ];
+          serviceConfig = {
+            Type = "oneshot";
+            User = "postgres";
+            Group = "postgres";
+            ExecStart =
+              let
+                script = pkgs.writeShellScript "pg-collation-refresh" ''
+                  # Refresh collation version on all connectable, non-template databases
+                  dbs=$(${config.services.postgresql.package}/bin/psql -AtqX \
+                    -c "SELECT datname FROM pg_database WHERE datallowconn AND NOT datistemplate;")
+                  for db in $dbs; do
+                    ${config.services.postgresql.package}/bin/psql -d "$db" \
+                      -c "ALTER DATABASE \"$db\" REFRESH COLLATION VERSION;" 2>&1 || true
+                  done
+                  # Also refresh template1 (template0 has NULL collation version, skip it)
+                  ${config.services.postgresql.package}/bin/psql -d template1 \
+                    -c "ALTER DATABASE template1 REFRESH COLLATION VERSION;" 2>&1 || true
+                '';
+              in
+              "${script}";
+          };
+        };
       })
 
       # Client role: No service configuration needed
