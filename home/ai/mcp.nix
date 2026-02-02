@@ -221,10 +221,6 @@ in
         text = unifiedPrompt;
       };
 
-      ".config/ai/prompts/mcp-cli.md" = lib.mkIf systemPromptEnabled {
-        source = ./prompts/mcp-cli-system-prompt.md;
-      };
-
       # Global CLAUDE.md — auto-loaded by Claude Code on every launch
       ".claude/CLAUDE.md" = lib.mkIf systemPromptEnabled {
         text = ''

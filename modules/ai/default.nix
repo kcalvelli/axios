@@ -259,7 +259,6 @@ in
           whisper-cpp # Speech-to-text
           nodejs # For npx MCP servers
           claude-monitor # Real-time Claude Code usage monitoring
-          mcp-cli # Dynamic MCP tool discovery for reduced context usage
           spec-kit # Spec-driven development framework
           openspec # OpenSpec CLI tool for SDD workflow
         ]

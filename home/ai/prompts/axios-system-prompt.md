@@ -1,15 +1,5 @@
 # axiOS System Prompt for AI Agents
 
-## MCP Tools via mcp-cli
-```bash
-mcp-cli                                   # List servers and tools
-mcp-cli info <server> -d                  # Show tools with descriptions
-mcp-cli info <server>/<tool>              # Get JSON schema
-mcp-cli call <server>/<tool> '<json>'     # Execute tool
-mcp-cli grep "<pattern>"                  # Search tools
-```
-Always use `info` to inspect and `call` to execute. Quote JSON in single quotes.
-
 ## Calendar & Contacts (mcp-dav)
 
 Available when `services.pim.calendar.enable` or `services.pim.contacts.enable` is set.
