@@ -23,12 +23,14 @@ Integrates advanced AI agents and local inference capabilities into the develope
 - **Implementation**: `modules/ai/default.nix`, `home/ai/`
 
 ### System Prompt Management
-- **Unified Prompt**: axiOS provides a comprehensive system prompt at `~/.config/ai/prompts/axios.md`.
+- **Unified Prompt**: axiOS provides a system prompt at `~/.config/ai/prompts/axios.md` containing PIM domain hints and custom user instructions.
 - **Auto-Injection**: Automatically injected into `~/.claude.json` during system activation.
 - **Customization**: Users can append instructions via `services.ai.systemPrompt.extraInstructions`.
 
 ### Model Context Protocol (MCP)
-- **Token Reduction Strategy**: Uses `mcp-cli` for dynamic tool discovery, reducing context window usage by up to 99%.
+- **Token Reduction Strategy**: Claude Code uses built-in tools only; MCP servers are accessed on-demand via the `/mcp-cli` skill, reducing context window usage by up to 99%.
+- **No Native MCP**: `~/.mcp.json` generation is disabled by default (`generateClaudeConfig = false`). Claude Code does not spawn MCP servers natively.
+- **mcp-cli**: Binary and `/mcp-cli` skill are provided by the mcp-gateway module (not axios).
 - **Servers**: Git, GitHub, Filesystem, Journal, Nix-devshell, etc.
 - **Configuration**: Declarative via `services.mcp-gateway` (from external mcp-gateway repo).
 - **Implementation**: Server definitions in `home/ai/mcp.nix`, module logic in `github.com/kcalvelli/mcp-gateway`
@@ -173,7 +175,7 @@ mcp-gateway is a standalone repository that provides:
 - **Home-Manager Module**: Declarative MCP server configuration
 
 axios imports mcp-gateway's module and layers on axios-specific features:
-- **System Prompts**: `axios.md` and `mcp-cli.md` (in `home/ai/prompts/`)
+- **System Prompts**: `axios.md` (in `home/ai/prompts/`) — PIM domain hints and custom user instructions
 - **OpenSpec Commands**: `/proposal`, `/apply`, `/archive` (in `home/ai/commands/`)
 - **Global CLAUDE.md**: `~/.claude/CLAUDE.md` with `@import` of axios prompt
 
@@ -182,14 +184,15 @@ axios imports mcp-gateway's module and layers on axios-specific features:
 │                   axios (home/ai/mcp.nix)                       │
 │  - Imports mcp-gateway's home-manager module                    │
 │  - Provides server definitions with resolved nix store paths    │
-│  - Adds system prompts, commands, and ~/.claude/CLAUDE.md       │
+│  - Adds system prompts (PIM hints), commands, ~/.claude/CLAUDE.md│
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    mcp-gateway module                           │
 │  - Evaluates server declarations                                │
-│  - Generates config files (~/.mcp.json, ~/.gemini/settings.json)│
+│  - Generates ~/.config/mcp/mcp_servers.json                     │
+│  - Installs mcp-cli binary + /mcp-cli skill for Claude Code    │
 │  - Configures systemd service                                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -251,7 +254,10 @@ The MCP Gateway uses official MCP SDK libraries for protocol compliance:
 - MCP HTTP transport for Claude.ai Integrations
 - Automatic npx server support (bash, nodejs in service PATH)
 - Non-blocking auto-enable on startup
-- Generates configs for Claude Code, Gemini CLI, and mcp-cli
+- Generates configs for Gemini CLI and mcp-cli (`~/.config/mcp/mcp_servers.json`)
+- `generateClaudeConfig` (default: `false`) — controls `~/.mcp.json` generation
+- `generateClaudeSkill` (default: `true`) — installs `/mcp-cli` skill to `~/.claude/commands/mcp-cli.md`
+- Provides `mcp-cli` binary via `home.packages`
 
 ## Requirements
 
