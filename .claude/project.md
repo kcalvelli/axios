@@ -652,6 +652,8 @@ environment.systemPackages = with pkgs; [
   claude-code-acp
   claude-code-router
   gemini-cli-bin
+  antigravity
+  openspec
   spec-kit
   opencode  # For local LLM integration
 ];

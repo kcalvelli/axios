@@ -17,6 +17,7 @@ Integrates advanced AI agents and local inference capabilities into the develope
     - **Configuration**: System prompt is managed via the `GEMINI_SYSTEM_MD` environment variable, set declaratively in `home/ai/mcp.nix`.
     - `antigravity`: Advanced agentic assistant for axiOS development.
 - **Workflow Tools**:
+    - `openspec`: OpenSpec SDD workflow CLI for spec-driven development.
     - `whisper-cpp`: Speech-to-text.
     - `claude-monitor`: Resource monitoring for AI sessions.
 - **Implementation**: `modules/ai/default.nix`, `home/ai/`

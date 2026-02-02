@@ -247,20 +247,21 @@ Available in development shells (`nix develop .#<shell>`):
 
 Included when `services.ai.enable = true`:
 
-**CLI Coding Agents** (3 distinct AI ecosystems):
+**CLI Coding Agents** (4 agents across 3 AI ecosystems):
 
 | Tool | Provider | Description |
 |------|----------|-------------|
 | **claude-code** | Anthropic | CLI agent with MCP support and deep integration |
 | **claude-code-acp** | Anthropic | Claude Code Agent Communication Protocol |
 | **claude-code-router** | Anthropic | Claude Code request router |
-| **copilot-cli** | GitHub/OpenAI | CLI agent with GitHub ecosystem integration |
 | **gemini** | Google | Multimodal CLI agent with free tier |
+| **antigravity** | Google | Advanced agentic assistant for axiOS development |
 
 **Workflow & Support Tools**:
 
 | Tool | Description |
 |------|-------------|
+| **openspec** | OpenSpec SDD workflow CLI for spec-driven development |
 | **spec-kit** | Spec-driven development framework (used by axiOS) |
 | **claude-monitor** | Real-time AI session resource monitoring |
 | **whisper-cpp** | Local speech-to-text transcription |
@@ -275,10 +276,8 @@ Included when `services.ai.local.enable = true`:
 | **OpenCode** | Agentic CLI for coding tasks | Full file editing with MCP integration |
 
 **Default Models** (Ollama):
-- `qwen3-coder:30b` - Primary agentic coding (MoE architecture, ~4GB VRAM)
-- `qwen3:14b` - General reasoning (~10GB VRAM)
-- `deepseek-coder-v2:16b` - Multilingual coding (~11GB VRAM)
-- `qwen3:4b` - Fast completions (~3GB VRAM)
+- `mistral:7b` - General purpose, excellent quality/size ratio (~4.4GB)
+- `nomic-embed-text` - Embeddings for RAG/semantic search (~274MB)
 
 **Features:**
 - 32K context window for agentic tool use
@@ -301,11 +300,12 @@ Model Context Protocol servers for enhanced AI context:
 - `git` - Understand repository structure and history
 - `github` - Read issues, PRs, and repository data
 - `time` - Time zone operations and conversions
-
-**NixOS Integration:**
-- `mcp-nixos` - Search NixOS packages and options
 - `journal` - Read systemd journal logs
 - `nix-devshell-mcp` - Nix development shell integration
+
+**PIM Integration:**
+- `axios-ai-mail` - AI-powered email access and management
+- `mcp-dav` - Calendar and contacts via CalDAV/CardDAV
 
 **AI Enhancement:**
 - `sequential-thinking` - Multi-step reasoning for complex problems
@@ -313,7 +313,6 @@ Model Context Protocol servers for enhanced AI context:
 
 **Search (requires API keys):**
 - `brave-search` - Web search via Brave API
-- `tavily` - Advanced web search and research
 
 **See:** [SECRETS_MODULE.md](SECRETS_MODULE.md) for configuring API keys
 

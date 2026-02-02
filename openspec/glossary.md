@@ -163,7 +163,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Definition**: A service that provides context to AI assistants via the Model Context Protocol
 
 **Usage**: Extend AI assistant capabilities
-- Examples: mcp-journal (systemd logs), mcp-nixos (package search), github
+- Examples: mcp-journal (systemd logs), mcp-dav (calendar/contacts), github
 - Configuration: Declarative via `programs.claude-code.mcpServers`
 
 **Related Terms**: MCP, Claude Code, Context Provider
@@ -458,7 +458,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Definition**: Text-based interface for commands
 
 **Usage**: Terminal tools, AI assistants
-- Examples: claude-code CLI, copilot-cli
+- Examples: claude-code CLI, gemini CLI
 - Context: Terminal module
 
 **Evidence**: modules/ai/, home/terminal/

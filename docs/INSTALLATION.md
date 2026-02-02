@@ -439,7 +439,7 @@ By using axios as a library, you automatically get:
 ✅ **Optional Modules:**
 - **Gaming**: Steam, game launchers, performance tools
 - **Virtualization**: Libvirt/QEMU, Podman containers
-- **AI Tools**: claude-code, copilot-cli, MCP servers
+- **AI Tools**: claude-code, gemini, antigravity, MCP servers
 - **Secrets**: agenix for encrypted secrets management
 
 ---

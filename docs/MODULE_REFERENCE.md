@@ -280,13 +280,14 @@ virt = {
 **Two-Tier Architecture:**
 
 1. **Base AI Tools** (always included when `services.ai.enable = true`):
-   - **CLI Coding Agents** (3 distinct AI ecosystems):
+   - **CLI Coding Agents** (4 agents across 3 AI ecosystems):
      - **claude-code** - Anthropic's CLI agent with MCP support
      - **claude-code-acp** - Claude Code Agent Communication Protocol
      - **claude-code-router** - Claude Code request router
-     - **copilot-cli** - GitHub/OpenAI CLI agent with GitHub integration
      - **gemini** - Google's multimodal CLI agent with free tier
+     - **antigravity** - Advanced agentic assistant for axiOS development
    - **Workflow & Support Tools**:
+     - **openspec** - OpenSpec SDD workflow CLI for spec-driven development
      - **spec-kit** - Spec-driven development framework
      - **claude-monitor** - Real-time AI session resource monitoring
      - **whisper-cpp** - Local speech-to-text transcription
@@ -319,12 +320,10 @@ services.ai.local = {
   enable = true;
   role = "server";  # Default - runs Ollama locally with GPU
 
-  # Model management
+  # Model management (defaults: mistral:7b + nomic-embed-text)
   models = [
-    "qwen3-coder:30b"        # Primary agentic coding (~4GB VRAM)
-    "qwen3:14b"              # General reasoning (~10GB VRAM)
-    "deepseek-coder-v2:16b"  # Multilingual coding (~11GB VRAM)
-    "qwen3:4b"               # Fast completions (~3GB VRAM)
+    "mistral:7b"             # General purpose (~4.4GB)
+    "nomic-embed-text"       # Embeddings for RAG (~274MB)
   ];
 
   # AMD GPU configuration
@@ -377,7 +376,7 @@ services.ai.local = {
 
 ```bash
 # Ollama CLI (server or client)
-ollama run qwen3-coder:30b "Write a function to..."
+ollama run mistral:7b "Write a function to..."
 
 # OpenCode CLI (works with both roles)
 opencode "implement feature X with tests"
@@ -412,11 +411,12 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 - `git` - Repository structure and history
 - `github` - Issues, PRs, and repository data (requires token)
 - `time` - Time zone operations
-
-**NixOS Integration:**
-- `mcp-nixos` - Search packages and options
 - `journal` - systemd journal logs
 - `nix-devshell-mcp` - Nix development shell integration
+
+**PIM Integration:**
+- `axios-ai-mail` - AI-powered email access and management
+- `mcp-dav` - Calendar and contacts via CalDAV/CardDAV
 
 **AI Enhancement:**
 - `sequential-thinking` - Multi-step reasoning
@@ -424,7 +424,6 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 
 **Search (requires API keys):**
 - `brave-search` - Web search via Brave API
-- `tavily` - Advanced research
 
 **Configuration:** MCP servers are automatically configured for Claude Code. API keys can be stored securely using the `secrets` module.
 
