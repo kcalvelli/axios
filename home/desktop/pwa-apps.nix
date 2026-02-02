@@ -2,11 +2,17 @@
   config,
   lib,
   pkgs,
+  osConfig ? { },
   ...
 }:
 
 let
   cfg = config.axios.pwa;
+
+  # Hardware acceleration flags from NixOS desktop module (GPU-aware)
+  browserArgs = osConfig.desktop.browserArgs or { };
+  argsFor = browser: browserArgs.${browser} or [ ];
+  argsStr = browser: lib.concatStringsSep " " (argsFor browser);
 
   # Browser type shared between global option and per-app option
   browserEnum = lib.types.enum [
@@ -70,12 +76,14 @@ let
       bin = browserBinFor browser;
       wmClass = urlToAppId browser app.url;
       dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
+      flags = argsStr browser;
+      flagsPrefix = if flags != "" then "${flags} " else "";
     in
     pkgs.writeShellScriptBin "pwa-${appId}" (
       if app.isolated then
-        ''exec ${bin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}" "$@"''
+        ''exec ${bin} ${flagsPrefix}--user-data-dir=${dataDir} --class=${wmClass} "--app=${app.url}" "$@"''
       else
-        ''exec ${bin} "--app=${app.url}" "$@"''
+        ''exec ${bin} ${flagsPrefix}"--app=${app.url}" "$@"''
     );
 
   # PWA app submodule type
@@ -232,14 +240,19 @@ in
             categories = app.categories;
             mimeType = app.mimeTypes;
             settings.StartupWMClass = wmClass;
-            actions = lib.mapAttrs (_: action: {
-              name = action.name;
-              exec =
-                if app.isolated then
-                  ''${bin} --user-data-dir=${dataDir} --class=${wmClass} "--app=${action.url}"''
-                else
-                  ''${bin} "--app=${action.url}"'';
-            }) app.actions;
+            actions =
+              let
+                flags = argsStr browser;
+                flagsPrefix = if flags != "" then "${flags} " else "";
+              in
+              lib.mapAttrs (_: action: {
+                name = action.name;
+                exec =
+                  if app.isolated then
+                    ''${bin} ${flagsPrefix}--user-data-dir=${dataDir} --class=${wmClass} "--app=${action.url}"''
+                  else
+                    ''${bin} ${flagsPrefix}"--app=${action.url}"'';
+              }) app.actions;
           }
         ) cfg.apps;
 

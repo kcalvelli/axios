@@ -60,7 +60,20 @@ in
   # Import NixOS module from flake
   imports = [ inputs.brave-browser-previews.nixosModules.default ];
 
+  options.desktop.browserArgs = lib.mkOption {
+    type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+    readOnly = true;
+    description = "Computed browser command-line arguments (GPU-aware). Read-only, consumed by PWA launcher generation.";
+  };
+
   config = lib.mkIf config.desktop.enable {
+
+    # Expose computed args so home-manager modules (pwa-apps.nix) can read via osConfig
+    desktop.browserArgs = {
+      brave = braveArgs;
+      chromium = chromeArgs;
+      google-chrome = chromeArgs;
+    };
 
     # === Brave Nightly Configuration (System) ===
     programs.brave-nightly = {
@@ -82,6 +95,10 @@ in
 
           programs.google-chrome = {
             enable = true;
+            commandLineArgs = chromeArgs;
+          };
+
+          programs.chromium = {
             commandLineArgs = chromeArgs;
           };
         }
