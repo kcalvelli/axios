@@ -62,6 +62,8 @@ stdenv.mkDerivation {
   pname = "mcp-cli";
   inherit version src;
 
+  patches = [ ./passwordCommand-support.patch ];
+
   nativeBuildInputs = [ bun ];
 
   buildPhase = ''
