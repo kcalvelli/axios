@@ -28,7 +28,7 @@
 
   # Configure sudo to use GUI password prompt
   home.sessionVariables = {
-    SUDO_ASKPASS = "${pkgs.kdePackages.ksshaskpass}/bin/ksshaskpass";
+    SUDO_ASKPASS = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
   };
 
   # DankMaterialShell configuration

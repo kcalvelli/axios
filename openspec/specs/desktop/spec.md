@@ -268,7 +268,7 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
   - Media creation (Krita for drawing, OBS for recording)
   - Communication (Discord, Gajim, Profanity, Syncterm)
   - Productivity (Okular, Qalculate-qt, Swappy)
-  - System utilities (ksshaskpass, pavucontrol, ImageMagick, libnotify)
+  - System utilities (lxqt-openssh-askpass, pavucontrol, ImageMagick, libnotify)
   - Wayland tools (Fuzzel, wtype, playerctl, wf-recorder, slurp, swaybg)
 - **And**: Database tools (DBeaver) are NOT included by default
 - **And**: Heavy photo managers (DigiKam) are NOT included by default
