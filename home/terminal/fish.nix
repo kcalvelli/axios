@@ -78,10 +78,6 @@
       abbr -a gb  'git switch -c'
       abbr -a gl  'git log --oneline --graph --decorate -20'
       abbr -a mkcd 'mkdir -p && cd'
-
-      # AI tool shortcuts
-      abbr -a axc 'claude'
-      abbr -a axg 'gemini-cli'
     '';
     plugins = [
       # { name = "fzf"; src = pkgs.fishPlugins.fzf.src; }
