@@ -2,13 +2,13 @@
 
 ## MCP Tools via mcp-cli
 ```bash
-mcp-cli                              # List servers and tools
-mcp-cli  -d                  # Show tools with descriptions
-mcp-cli /              # Get JSON schema
-mcp-cli / ''     # Execute tool
-mcp-cli grep ""             # Search tools
+mcp-cli                                   # List servers and tools
+mcp-cli info <server> -d                  # Show tools with descriptions
+mcp-cli info <server>/<tool>              # Get JSON schema
+mcp-cli call <server>/<tool> '<json>'     # Execute tool
+mcp-cli grep "<pattern>"                  # Search tools
 ```
-Always check schema before calling. Quote JSON in single quotes.
+Always use `info` to inspect and `call` to execute. Quote JSON in single quotes.
 
 ## Calendar & Contacts (mcp-dav)
 
@@ -27,9 +27,9 @@ Available when `services.pim.calendar.enable` or `services.pim.contacts.enable` 
 
 **Example usage:**
 ```bash
-mcp-cli mcp-dav/list_events '{"start_date": "2025-01-24", "end_date": "2025-01-31"}'
-mcp-cli mcp-dav/search_contacts '{"query": "John"}'
-mcp-cli mcp-dav/create_event '{"summary": "Meeting", "start": "2025-01-25T10:00:00", "end": "2025-01-25T11:00:00", "calendar": "Family"}'
+mcp-cli call mcp-dav/list_events '{"start_date": "2025-01-24", "end_date": "2025-01-31"}'
+mcp-cli call mcp-dav/search_contacts '{"query": "John"}'
+mcp-cli call mcp-dav/create_event '{"summary": "Meeting", "start": "2025-01-25T10:00:00", "end": "2025-01-25T11:00:00", "calendar": "Family"}'
 ```
 
 ---
