@@ -225,6 +225,13 @@ in
         source = ./prompts/mcp-cli-system-prompt.md;
       };
 
+      # Global CLAUDE.md — auto-loaded by Claude Code on every launch
+      ".claude/CLAUDE.md" = lib.mkIf systemPromptEnabled {
+        text = ''
+          @~/.config/ai/prompts/axios.md
+        '';
+      };
+
       # OpenSpec commands for Claude Code
       ".claude/commands/openspec/proposal.md".source = ./commands/openspec/proposal.md;
       ".claude/commands/openspec/apply.md".source = ./commands/openspec/apply.md;
@@ -236,7 +243,6 @@ in
       GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/axios.md";
     };
 
-    # Note: Shell aliases (axc, axios-claude, axg, axios-gemini) are defined
-    # in home/terminal/fish.nix as fish abbreviations (abbr)
+    # Note: Shell abbreviations (axc, axg) are defined in home/terminal/fish.nix
   };
 }

@@ -79,13 +79,8 @@
       abbr -a gl  'git log --oneline --graph --decorate -20'
       abbr -a mkcd 'mkdir -p && cd'
 
-      # AI tool shortcuts with unified system prompt
-      # Claude Code: Direct call with system prompt flag
-      abbr -a axios-claude 'claude --system-prompt ~/.config/ai/prompts/axios.md'
-      abbr -a axc 'claude --system-prompt ~/.config/ai/prompts/axios.md'
-
-      # Gemini CLI
-      abbr -a axios-gemini 'gemini-cli'
+      # AI tool shortcuts
+      abbr -a axc 'claude'
       abbr -a axg 'gemini-cli'
     '';
     plugins = [
