@@ -18,6 +18,7 @@ let
   # System prompt configuration from NixOS
   systemPromptEnabled = osConfig.services.ai.systemPrompt.enable or true;
   extraInstructions = osConfig.services.ai.systemPrompt.extraInstructions or "";
+  hasExtraInstructions = extraInstructions != "";
 
   # PIM configuration for calendar paths
   pimCfg = osConfig.services.pim or { };
@@ -48,13 +49,6 @@ let
     in
     lib.concatStringsSep ":" ([ defaultPath ] ++ externalPaths);
 
-  # Generate unified prompt
-  unifiedPrompt =
-    let
-      defaultPrompt = builtins.readFile ./prompts/axios-system-prompt.md;
-      hasExtra = extraInstructions != "";
-    in
-    defaultPrompt + (if hasExtra then "\n\n${extraInstructions}\n" else "");
 in
 {
   # Import mcp-gateway's home-manager module
@@ -216,15 +210,17 @@ in
 
     # System prompts and OpenSpec commands (axios-specific content)
     home.file = {
-      # System prompts
-      ".config/ai/prompts/axios.md" = lib.mkIf systemPromptEnabled {
-        text = unifiedPrompt;
+      # User-provided extra instructions (only generated if extraInstructions is set)
+      ".config/ai/prompts/axios.md" = lib.mkIf (systemPromptEnabled && hasExtraInstructions) {
+        text = extraInstructions;
       };
 
       # Global CLAUDE.md — auto-loaded by Claude Code on every launch
+      # Imports both axios.md (user instructions) and mcp-dav.md (from axios-dav)
       ".claude/CLAUDE.md" = lib.mkIf systemPromptEnabled {
         text = ''
           @~/.config/ai/prompts/axios.md
+          @~/.config/ai/prompts/mcp-dav.md
         '';
       };
 
@@ -235,10 +231,9 @@ in
     };
 
     # Environment variable for Gemini CLI system prompt
+    # Points to mcp-dav.md which is always generated (axios.md is optional)
     home.sessionVariables = lib.mkIf (osConfig.services.ai.gemini.enable && systemPromptEnabled) {
-      GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/axios.md";
+      GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/mcp-dav.md";
     };
-
-    # Note: Shell abbreviations (axc, axg) are defined in home/terminal/fish.nix
   };
 }
