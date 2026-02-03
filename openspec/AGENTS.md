@@ -17,6 +17,22 @@ axiOS uses the **OpenSpec** framework for SDD. This means:
 5. **Execute**: Implement the code changes as defined in the tasks.
 6. **Finalize**: Once verified, update the main `openspec/specs/` with the new versions and move the change directory to `openspec/changes/archive/`.
 
+### Defect Tracking
+
+Defects are tracked separately from proposals in `openspec/discovery/defects.md`. This provides lightweight tracking that accumulates context over time.
+
+**Workflow:**
+1. **Log defect**: Add entry to `defects.md` with symptoms, context, and component
+2. **Triage**: Determine if it's upstream, wontfix, or needs a fix
+3. **Plan fix**: When ready to fix, create a proposal in `openspec/changes/` and reference the defect ID
+4. **Resolve**: Update defect status and add resolution notes
+
+**When to use defects.md vs proposals:**
+- **Defects.md**: Initial logging, investigation, tracking upstream issues, accumulating context
+- **Proposals**: When actively planning and implementing a fix
+
+This separation keeps the change process focused while preserving all defect history as context for future work.
+
 ## axiOS Specific Constraints
 
 ### Constitution Compliance
