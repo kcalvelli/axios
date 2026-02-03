@@ -71,11 +71,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770127420,
-        "narHash": "sha256-zozg2yNZ/JGRVoDNgh+Q9Com9K64QenVfg9lqyYDKks=",
+        "lastModified": 1770132200,
+        "narHash": "sha256-kiKuXbxP0W9lwGdGFLEc4yWXvAG4FLphJlvc84QZqQE=",
         "owner": "kcalvelli",
         "repo": "axios-ai-mail",
-        "rev": "b638f753e558a6c47bb4f350d2ba56e10fe02e22",
+        "rev": "d0f8b949043d615796328a667df24b61febf7045",
         "type": "github"
       },
       "original": {
@@ -190,11 +190,11 @@
         "quickshell": "quickshell"
       },
       "locked": {
-        "lastModified": 1770067799,
-        "narHash": "sha256-x2RlBiAP03i1DFMNDwTrdekoQAZZP/6zl0cGfIKnFlE=",
+        "lastModified": 1770129395,
+        "narHash": "sha256-xPF/YbbaYcGHz1bVpV81r9+WhsVpXrG1Bglqrp7CaUQ=",
         "owner": "AvengeMedia",
         "repo": "DankMaterialShell",
-        "rev": "a97409dfd70caa3a29f95950c7b76fce018bf727",
+        "rev": "22ab5b96605a0de5a965663437937ff07656e8bf",
         "type": "github"
       },
       "original": {
