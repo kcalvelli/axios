@@ -62,8 +62,16 @@ in
       libnotify # Desktop notifications
       mousepad # Text editor (simple, syntax highlighting, no CSD)
 
+      # === GStreamer (Qt6 multimedia backend) ===
+      # Qt6 apps use GStreamer for audio/video playback (native PipeWire backend doesn't work on NixOS)
+      gst_all_1.gstreamer
+      gst_all_1.gst-plugins-base
+      gst_all_1.gst-plugins-good # Includes PipeWire support
+      gst_all_1.gst-plugins-bad # Additional codecs
+      gst_all_1.gst-plugins-ugly # Patent-encumbered codecs
+      gst_all_1.gst-libav # FFmpeg codecs
+
       # === Wayland Tools ===
-      pipewire # Required for Qt6 multimedia symbols (Dolphin, etc.)
       fuzzel # Application launcher
       wtype # Wayland key automation
       playerctl # Media player control
@@ -140,6 +148,17 @@ in
       # === Portal Configuration ===
       # NOTE: No portal-specific environment variables - portals auto-detect based on XDG_CURRENT_DESKTOP
       # Niri uses xdg-desktop-portal-gnome and xdg-desktop-portal-gtk (official requirement)
+
+      # === GStreamer Plugin Discovery ===
+      # Required for Qt6 multimedia (Elisa, Dolphin previews, etc.) to find audio/video plugins
+      GST_PLUGIN_SYSTEM_PATH_1_0 = lib.makeSearchPath "lib/gstreamer-1.0" [
+        pkgs.gst_all_1.gstreamer
+        pkgs.gst_all_1.gst-plugins-base
+        pkgs.gst_all_1.gst-plugins-good
+        pkgs.gst_all_1.gst-plugins-bad
+        pkgs.gst_all_1.gst-plugins-ugly
+        pkgs.gst_all_1.gst-libav
+      ];
     };
 
     # === Binary Cache Configuration ===
