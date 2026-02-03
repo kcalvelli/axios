@@ -149,6 +149,10 @@ in
       # NOTE: No portal-specific environment variables - portals auto-detect based on XDG_CURRENT_DESKTOP
       # Niri uses xdg-desktop-portal-gnome and xdg-desktop-portal-gtk (official requirement)
 
+      # === Qt6 Multimedia Backend ===
+      # Force GStreamer backend (native PipeWire backend uses dlopen which fails on NixOS)
+      QT_MEDIA_BACKEND = "gstreamer";
+
       # === GStreamer Plugin Discovery ===
       # Required for Qt6 multimedia (Elisa, Dolphin previews, etc.) to find audio/video plugins
       GST_PLUGIN_SYSTEM_PATH_1_0 = lib.makeSearchPath "lib/gstreamer-1.0" [
