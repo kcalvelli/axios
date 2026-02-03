@@ -15,11 +15,6 @@
 let
   system = pkgs.stdenv.hostPlatform.system;
 
-  # System prompt configuration from NixOS
-  systemPromptEnabled = osConfig.services.ai.systemPrompt.enable or true;
-  extraInstructions = osConfig.services.ai.systemPrompt.extraInstructions or "";
-  hasExtraInstructions = extraInstructions != "";
-
   # PIM configuration for calendar paths
   pimCfg = osConfig.services.pim or { };
   calendarAccounts = pimCfg.calendar.accounts or { };
@@ -208,32 +203,11 @@ in
       inputs.nix-devshell-mcp.packages.${system}.default
     ];
 
-    # System prompts and OpenSpec commands (axios-specific content)
+    # OpenSpec commands for Claude Code
     home.file = {
-      # User-provided extra instructions (only generated if extraInstructions is set)
-      ".config/ai/prompts/axios.md" = lib.mkIf (systemPromptEnabled && hasExtraInstructions) {
-        text = extraInstructions;
-      };
-
-      # Global CLAUDE.md — auto-loaded by Claude Code on every launch
-      # Imports both axios.md (user instructions) and mcp-dav.md (from axios-dav)
-      ".claude/CLAUDE.md" = lib.mkIf systemPromptEnabled {
-        text = ''
-          @~/.config/ai/prompts/axios.md
-          @~/.config/ai/prompts/mcp-dav.md
-        '';
-      };
-
-      # OpenSpec commands for Claude Code
       ".claude/commands/openspec/proposal.md".source = ./commands/openspec/proposal.md;
       ".claude/commands/openspec/apply.md".source = ./commands/openspec/apply.md;
       ".claude/commands/openspec/archive.md".source = ./commands/openspec/archive.md;
-    };
-
-    # Environment variable for Gemini CLI system prompt
-    # Points to mcp-dav.md which is always generated (axios.md is optional)
-    home.sessionVariables = lib.mkIf (osConfig.services.ai.gemini.enable && systemPromptEnabled) {
-      GEMINI_SYSTEM_MD = "${config.home.homeDirectory}/.config/ai/prompts/mcp-dav.md";
     };
   };
 }
