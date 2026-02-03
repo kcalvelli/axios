@@ -71,11 +71,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770132200,
-        "narHash": "sha256-kiKuXbxP0W9lwGdGFLEc4yWXvAG4FLphJlvc84QZqQE=",
+        "lastModified": 1770135380,
+        "narHash": "sha256-LEpwghJo+nOKRsIF2ju9HIhYW8CN2thBIrr0UKd/WGA=",
         "owner": "kcalvelli",
         "repo": "axios-ai-mail",
-        "rev": "d0f8b949043d615796328a667df24b61febf7045",
+        "rev": "59183284dd1ed1615dbb95ee4931e7f1d3f07306",
         "type": "github"
       },
       "original": {
@@ -190,11 +190,11 @@
         "quickshell": "quickshell"
       },
       "locked": {
-        "lastModified": 1770129395,
-        "narHash": "sha256-xPF/YbbaYcGHz1bVpV81r9+WhsVpXrG1Bglqrp7CaUQ=",
+        "lastModified": 1770134613,
+        "narHash": "sha256-YjwlcLT/Of9MLIlQeWZ5XBHW4GbKRV1nUB5zGcYZznE=",
         "owner": "AvengeMedia",
         "repo": "DankMaterialShell",
-        "rev": "22ab5b96605a0de5a965663437937ff07656e8bf",
+        "rev": "3c4749ead0ef30237330cc56437990164b575c76",
         "type": "github"
       },
       "original": {
@@ -690,11 +690,11 @@
         "xwayland-satellite-unstable": "xwayland-satellite-unstable"
       },
       "locked": {
-        "lastModified": 1770095660,
-        "narHash": "sha256-fWm0lhe+ebOUOKLsuk0r+XcNTd60RR5HaujSIvdT4zc=",
+        "lastModified": 1770133761,
+        "narHash": "sha256-3/2F3IfdyEz9ot0NytsVymt5Ma54EBBWcAc3CJKQFPE=",
         "owner": "sodiboo",
         "repo": "niri-flake",
-        "rev": "a0db8b047eb7132f6175d15cc5bc73135d8d0a98",
+        "rev": "c44eff590edaff58ef9e34ecf38f6fbccb1be647",
         "type": "github"
       },
       "original": {
