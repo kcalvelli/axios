@@ -86,11 +86,13 @@
     programs.command-not-found.enable = false;
     programs.vim = {
       enable = true;
-      package = (pkgs.vim.overrideAttrs (old: {
-        postInstall = (old.postInstall or "") + ''
-          rm -f $out/share/applications/gvim.desktop
-        '';
-      }));
+      package = (
+        pkgs.vim.overrideAttrs (old: {
+          postInstall = (old.postInstall or "") + ''
+            rm -f $out/share/applications/gvim.desktop
+          '';
+        })
+      );
       defaultEditor = true;
     };
   };
