@@ -76,29 +76,38 @@ The neovim preset SHALL automatically configure LSP based on language detection.
 - **And** a non-intrusive message SHOULD indicate rust-analyzer is not available
 - **And** syntax highlighting via treesitter still works
 
-### Requirement: AI-Powered Coding (Conditional)
+### Requirement: Module Enable Guard
 
-AI coding features SHALL be enabled only when the system AI module is active, using avante.nvim for a Cursor-like experience.
+The neovim IDE preset SHALL be opt-in via an enable flag.
 
-#### Scenario: AI module enabled
-- **Given** the system has `services.ai.enable = true`
-- **And** `AXIOS_AI_ENABLED=1` is set in the environment
+#### Scenario: Enable neovim preset
+- **Given** the user sets `axios.terminal.neovim.enable = true`
+- **When** home-manager activates
+- **Then** the neovim IDE preset MUST be configured
+- **And** all features are available
+
+#### Scenario: Disable neovim preset
+- **Given** the user does not set `axios.terminal.neovim.enable`
+- **When** home-manager activates
+- **Then** the neovim IDE preset MUST NOT be configured
+- **And** home-manager's default neovim behavior applies
+
+### Requirement: First-Launch Behavior
+
+The neovim preset SHALL download plugins on first launch via lazy.nvim.
+
+#### Scenario: First launch with internet
+- **Given** a fresh neovim installation
+- **And** internet connectivity is available
+- **When** the user starts neovim for the first time
+- **Then** lazy.nvim MUST download plugins from GitHub
+- **And** plugins are cached in `~/.local/share/nvim/lazy/`
+
+#### Scenario: Subsequent launches
+- **Given** plugins have been downloaded previously
 - **When** the user starts neovim
-- **Then** avante.nvim MUST be available via `<leader>a` keymaps
-- **And** Claude SHALL be the default AI provider
-
-#### Scenario: AI module disabled
-- **Given** the system has `services.ai.enable = false`
-- **And** `AXIOS_AI_ENABLED` is not set
-- **When** the user starts neovim
-- **Then** avante.nvim SHALL NOT be loaded
-- **And** `<leader>a` keymaps MUST NOT be registered
-
-#### Scenario: Claude auth_type configuration
-- **Given** the user configures `ai.claude.auth_type = "max"` in setup
-- **When** avante.nvim initializes
-- **Then** it MUST use the Claude Max subscription authentication
-- **And** benefit from higher rate limits
+- **Then** startup MUST NOT require internet
+- **And** cached plugins are used
 
 ### Requirement: Plugin Lazy-Loading
 
@@ -174,10 +183,6 @@ Devshells SHALL configure neovim for their tech stack automatically.
 | `<leader>ds` | Step over | DAP |
 | `<leader>di` | Step into | DAP |
 | `<leader>dr` | Open REPL | DAP |
-| `<leader>aa` | Toggle Avante panel | avante |
-| `<leader>ae` | Edit with AI | avante |
-| `<leader>ar` | Refresh Avante | avante |
-| `<leader>af` | Focus Avante | avante |
 | `<leader>tt` | Toggle terminal | toggleterm |
 | `gd` | Go to definition | LSP |
 | `gr` | Go to references | LSP |

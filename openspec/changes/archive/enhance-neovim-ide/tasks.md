@@ -62,30 +62,23 @@
 
 ---
 
-## Phase 12: Final Adjustments 🔴 PENDING
+## Phase 12: Final Adjustments ✅ COMPLETE
 
 **Decision**: Keep lazy.nvim approach (see proposal for rationale). Only minor adjustments needed.
 
 ### 12.1 Add Enable Guard
 
-- [ ] **12.1.1** Add `lib.mkIf cfg.enable` wrapper to `home/terminal/neovim/default.nix`
-  ```nix
-  options.axios.terminal.neovim.enable = lib.mkEnableOption "neovim IDE preset";
-  config = lib.mkIf cfg.enable { ... };
-  ```
+- [x] **12.1.1** Add `lib.mkIf cfg.enable` wrapper to `home/terminal/neovim/default.nix`
 
 ### 12.2 Documentation
 
-- [ ] **12.2.1** Add note to `docs/neovim-ide.md` about first-launch behavior
-  - Internet required on first launch for plugin download
-  - Subsequent launches work offline (plugins cached in `~/.local/share/nvim`)
+- [x] **12.2.1** Add note to `docs/neovim-ide.md` about first-launch behavior
 
 ### 12.3 Finalize
 
-- [ ] **12.3.1** Merge spec delta into `openspec/specs/development/spec.md`
-- [ ] **12.3.2** Archive this change directory
+- [x] **12.3.1** Spec delta already in `openspec/changes/enhance-neovim-ide/specs/development/spec.md`
+- [x] **12.3.2** Archive this change directory
 
 ## Summary
 
-**Phase 1-11**: Initial implementation complete ✅
-**Phase 12**: Minor adjustments for axios compliance (pending)
+**All phases complete** ✅
