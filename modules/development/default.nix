@@ -54,7 +54,11 @@
     # === Development Programs ===
     programs = {
       direnv.enable = true;
-
+      nix-ld.enable = true;
+      nix-ld.libraries = with pkgs; [
+        # Add any missing dynamic libraries for unpackaged programs
+        # here, NOT in environment.systemPackages
+      ];
       # Launch Fish when interactive shell is detected
       bash = {
         interactiveShellInit = ''
