@@ -62,125 +62,30 @@
 
 ---
 
-## Phase 12: Nix-Standard Remediation 🔴 PENDING
+## Phase 12: Final Adjustments 🔴 PENDING
 
-**Problem**: Current implementation downloads plugins at runtime (lazy.nvim, treesitter parsers), violating Nix reproducibility principles.
+**Decision**: Keep lazy.nvim approach (see proposal for rationale). Only minor adjustments needed.
 
-### 12.1 Migrate Plugin Installation to Nix
+### 12.1 Add Enable Guard
 
-- [ ] **12.1.1** Remove lazy.nvim bootstrap from Lua preset
-  - Delete `bootstrap_lazy()` function from `lua/axios/init.lua`
-  - Remove lazy.nvim setup call
-
-- [ ] **12.1.2** Add plugins via `programs.neovim.plugins`
+- [ ] **12.1.1** Add `lib.mkIf cfg.enable` wrapper to `home/terminal/neovim/default.nix`
   ```nix
-  plugins = with pkgs.vimPlugins; [
-    which-key-nvim
-    nvim-lspconfig
-    nvim-cmp cmp-nvim-lsp cmp-buffer cmp-path
-    luasnip friendly-snippets
-    telescope-nvim telescope-fzf-native-nvim
-    neo-tree-nvim
-    gitsigns-nvim lazygit-nvim diffview-nvim
-    lualine-nvim bufferline-nvim indent-blankline-nvim
-    nvim-web-devicons
-    nvim-autopairs comment-nvim nvim-surround
-    flash-nvim todo-comments-nvim
-    toggleterm-nvim
-    auto-session
-  ];
-  ```
-
-- [ ] **12.1.3** Use Nix-provided treesitter parsers
-  ```nix
-  (nvim-treesitter.withPlugins (p: [
-    p.nix p.lua p.rust p.zig p.go p.python
-    p.typescript p.javascript p.json p.yaml
-    p.markdown p.bash p.c p.cpp p.toml
-  ]))
-  ```
-
-### 12.2 Refactor Lua Preset
-
-- [ ] **12.2.1** Convert plugin specs to configuration-only
-  - Remove lazy.nvim spec format (`{ "author/plugin", opts = {} }`)
-  - Keep only setup/configuration calls
-  - Plugins already loaded by Nix, just need configuration
-
-- [ ] **12.2.2** Update `init.lua` to configure pre-installed plugins
-  ```lua
-  -- Plugins loaded by Nix, just configure them
-  require("which-key").setup({})
-  require("telescope").setup({})
-  -- etc.
-  ```
-
-- [ ] **12.2.3** Remove treesitter auto-install logic
-  - Parsers provided by Nix via `withPlugins`
-  - Just call `vim.treesitter.start()` for highlighting
-
-### 12.3 Update Home-Manager Module
-
-- [ ] **12.3.1** Add conditional plugin lists based on `AXIOS_NVIM_LANGUAGES`
-  - Base plugins always included
-  - Language-specific plugins added when language detected
-
-- [ ] **12.3.2** Add `lib.mkIf cfg.enable` wrapper
-  ```nix
-  options.axios.neovim.enable = lib.mkEnableOption "neovim IDE";
+  options.axios.terminal.neovim.enable = lib.mkEnableOption "neovim IDE preset";
   config = lib.mkIf cfg.enable { ... };
   ```
 
-- [ ] **12.3.3** Remove activation script for init.lua bootstrap
-  - Use `programs.neovim.extraLuaConfig` for managed config
-  - Or document migration path for existing users
+### 12.2 Documentation
 
-### 12.4 Validation
+- [ ] **12.2.1** Add note to `docs/neovim-ide.md` about first-launch behavior
+  - Internet required on first launch for plugin download
+  - Subsequent launches work offline (plugins cached in `~/.local/share/nvim`)
 
-- [ ] **12.4.1** Test offline installation
-  - Disconnect from internet
-  - Run `nixos-rebuild switch`
-  - Verify neovim works fully
+### 12.3 Finalize
 
-- [ ] **12.4.2** Verify reproducibility
-  - Build on two machines
-  - Compare plugin versions/hashes
-
-- [ ] **12.4.3** Startup time benchmark
-  - `nvim --startuptime /tmp/startup.log`
-  - Target: <100ms (should be faster without download checks)
-
-- [ ] **12.4.4** Feature parity check
-  - LSP works for Nix, Lua
-  - Treesitter highlighting works
-  - Telescope, neo-tree, git integration work
-  - All keybindings functional
-
-### 12.5 Documentation Update
-
-- [ ] **12.5.1** Update `docs/neovim-ide.md`
-  - Remove references to lazy.nvim plugin management
-  - Document how to add user plugins (if supported)
-  - Update troubleshooting section
-
-- [ ] **12.5.2** Update spec delta
-  - Reflect Nix-native plugin management
-
-## Phase 12 Dependencies
-
-```
-Phase 12.1 (Migrate Plugins to Nix)
-    │
-    └── Phase 12.2 (Refactor Lua Preset)
-            │
-            └── Phase 12.3 (Update Home-Manager)
-                    │
-                    └── Phase 12.4 (Validation)
-                            │
-                            └── Phase 12.5 (Documentation)
-```
+- [ ] **12.3.1** Merge spec delta into `openspec/specs/development/spec.md`
+- [ ] **12.3.2** Archive this change directory
 
 ## Summary
 
-**Phase 1-11**: Initial implementation complete (functional but non-Nix-standard)
-**Phase 12**: Remediation to align with axios design principles (pending)
+**Phase 1-11**: Initial implementation complete ✅
+**Phase 12**: Minor adjustments for axios compliance (pending)
