@@ -8,5 +8,6 @@
     ./fish.nix
     ./git.nix
     ./tools.nix
+    ./neovim.nix
   ];
 }
