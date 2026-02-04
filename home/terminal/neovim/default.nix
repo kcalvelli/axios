@@ -66,8 +66,8 @@ in
 
     # Add axios preset to runtimepath via wrapper (doesn't touch user's init.lua)
     extraWrapperArgs = [
-      "--cmd"
-      "set runtimepath^=${pkgs.axios-nvim-preset}"
+      "--add-flags"
+      "--cmd 'set runtimepath^=${pkgs.axios-nvim-preset}'"
     ];
   };
 
