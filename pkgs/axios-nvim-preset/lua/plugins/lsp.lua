@@ -1,5 +1,148 @@
 -- LSP Configuration
 
+-- Check if a binary exists in PATH
+local function executable(name)
+  return vim.fn.executable(name) == 1
+end
+
+-- Language server configurations
+local servers = {
+  -- Always enabled
+  nix = {
+    name = "nil_ls",
+    binary = "nil",
+    config = {
+      settings = {
+        ["nil"] = {
+          formatting = {
+            command = { "nixfmt" },
+          },
+        },
+      },
+    },
+  },
+
+  lua = {
+    name = "lua_ls",
+    binary = "lua-language-server",
+    config = {
+      settings = {
+        Lua = {
+          workspace = { checkThirdParty = false },
+          completion = { callSnippet = "Replace" },
+          telemetry = { enable = false },
+          diagnostics = { globals = { "vim" } },
+        },
+      },
+    },
+  },
+
+  -- Devshell languages
+  rust = {
+    name = "rust_analyzer",
+    binary = "rust-analyzer",
+    config = {
+      settings = {
+        ["rust-analyzer"] = {
+          cargo = { allFeatures = true, loadOutDirsFromCheck = true, runBuildScripts = true },
+          checkOnSave = { allFeatures = true, command = "clippy", extraArgs = { "--no-deps" } },
+          procMacro = { enable = true },
+        },
+      },
+    },
+  },
+
+  zig = {
+    name = "zls",
+    binary = "zls",
+    config = {},
+  },
+
+  go = {
+    name = "gopls",
+    binary = "gopls",
+    config = {
+      settings = {
+        gopls = {
+          gofumpt = true,
+          usePlaceholders = true,
+          completeUnimported = true,
+          staticcheck = true,
+          semanticTokens = true,
+        },
+      },
+    },
+  },
+
+  python = {
+    name = "pyright",
+    binary = "pyright-langserver",
+    config = {
+      settings = {
+        python = {
+          analysis = { autoSearchPaths = true, diagnosticMode = "openFilesOnly", useLibraryCodeForTypes = true },
+        },
+      },
+    },
+  },
+
+  typescript = {
+    name = "ts_ls",
+    binary = "typescript-language-server",
+    config = {},
+  },
+
+  cpp = {
+    name = "clangd",
+    binary = "clangd",
+    config = {
+      cmd = { "clangd", "--background-index", "--clang-tidy", "--header-insertion=iwyu" },
+    },
+  },
+
+  cs = {
+    name = "omnisharp",
+    binary = "OmniSharp",
+    config = {},
+  },
+}
+
+-- Setup LSP servers based on detected languages
+local function setup_servers(lspconfig, capabilities, on_attach)
+  local axios = require("axios")
+  local detected_langs = axios.get_languages()
+  local user_overrides = axios.config.lsp.servers or {}
+
+  for lang, enabled in pairs(detected_langs) do
+    if enabled then
+      local server_config = servers[lang]
+
+      if server_config then
+        local lsp_name = server_config.name
+        local binary = server_config.binary
+
+        -- Check if LSP binary exists
+        if executable(binary) then
+          -- Merge default config with user overrides
+          local config = vim.tbl_deep_extend("force", {}, server_config.config or {})
+
+          -- Apply user overrides
+          if user_overrides[lsp_name] then
+            config = vim.tbl_deep_extend("force", config, user_overrides[lsp_name])
+          end
+
+          -- Add capabilities and on_attach
+          config.capabilities = capabilities
+          config.on_attach = on_attach
+
+          -- Setup the server
+          lspconfig[lsp_name].setup(config)
+        end
+      end
+    end
+  end
+end
+
 return {
   -- LSP Config
   {
@@ -7,7 +150,7 @@ return {
     event = { "BufReadPost", "BufNewFile" },
     dependencies = {
       "hrsh7th/cmp-nvim-lsp",
-      { "folke/neodev.nvim", opts = {} }, -- Lua dev setup for neovim
+      { "folke/neodev.nvim", opts = {} },
     },
     config = function()
       local lspconfig = require("lspconfig")
@@ -17,11 +160,7 @@ return {
       vim.diagnostic.config({
         underline = true,
         update_in_insert = false,
-        virtual_text = {
-          spacing = 4,
-          source = "if_many",
-          prefix = "●",
-        },
+        virtual_text = { spacing = 4, source = "if_many", prefix = "●" },
         severity_sort = true,
         signs = {
           text = {
@@ -74,9 +213,8 @@ return {
         end
       end
 
-      -- Load language configurations
-      local languages = require("axios.languages")
-      languages.setup(lspconfig, capabilities, on_attach)
+      -- Setup all detected language servers
+      setup_servers(lspconfig, capabilities, on_attach)
     end,
   },
 
@@ -111,7 +249,6 @@ return {
         zig = { "zigfmt" },
       },
       format_on_save = function(bufnr)
-        -- Disable with a global or buffer-local variable
         if vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then
           return
         end
@@ -119,7 +256,6 @@ return {
       end,
     },
     init = function()
-      -- Toggle autoformat command
       vim.api.nvim_create_user_command("FormatDisable", function(args)
         if args.bang then
           vim.b.disable_autoformat = true
