@@ -54,10 +54,13 @@ axiOS provides a full-featured neovim IDE experience out of the box. This guide 
 
 ```bash
 cd ~/Projects/my-repo
-nvim
+nvim .
 ```
 
-The session plugin will restore your previous workspace if you've opened this directory before.
+Opening with `.` starts neovim in the current directory, which:
+- Opens the file explorer showing your project
+- Sets the working directory for telescope searches
+- Enables session restore for this directory
 
 ### Basic Navigation
 
