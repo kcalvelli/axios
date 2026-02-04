@@ -50,7 +50,7 @@
       killall
       wget
       curl
-      vim-minimal # Basic editor always available
+      vim # Basic editor always available
 
       # Filesystem and mount tools
       sshfs
