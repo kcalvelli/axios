@@ -21,5 +21,5 @@
     fzf.enable = true;
     gh.enable = true;
     zoxide.enable = true;
-  };  
+  };
 }

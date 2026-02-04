@@ -14,6 +14,14 @@ in
 mkShell {
   name = "zig";
 
+  # Neovim IDE integration - enables Zig LSP
+  env = [
+    {
+      name = "AXIOS_NVIM_LANGUAGES";
+      value = "zig";
+    }
+  ];
+
   packages = [
     zigPkgs.zig
     pkgs.zls

@@ -12,6 +12,14 @@ in
 mkShell {
   name = "rust";
 
+  # Neovim IDE integration - enables Rust LSP and debugging
+  env = [
+    {
+      name = "AXIOS_NVIM_LANGUAGES";
+      value = "rust,toml";
+    }
+  ];
+
   # IMPORTANT: do NOT add a separate rust-analyzer here if the toolchain includes it.
   packages = [
     toolchain
