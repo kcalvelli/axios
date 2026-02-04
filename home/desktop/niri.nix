@@ -361,6 +361,23 @@
           };
         }
 
+        # OpenSSH passphrase prompt: float, centered, compact dialog size
+        {
+          matches = [
+            { title = "^OpenSSH Authentication Passphrase request$"; }
+          ];
+
+          open-maximized = false;
+          open-floating = true;
+
+          default-column-width = {
+            fixed = 500;
+          };
+          default-window-height = {
+            fixed = 200;
+          };
+        }
+
         # Gajim XMPP client: float, right side, IM-style tall narrow window
         {
           matches = [
