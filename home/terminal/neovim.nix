@@ -34,18 +34,11 @@
 
     -- Setup plugins
     require("lazy").setup({
-      -- Colorscheme
-      {
-        "catppuccin/nvim",
-        name = "catppuccin",
-        priority = 1000,
-        config = function()
-          vim.cmd.colorscheme("catppuccin-mocha")
-        end,
-      },
-
       -- Add your plugins here
     })
+
+    -- Use DMS-generated colorscheme (from ~/.config/nvim/colors/dankshell.vim)
+    vim.cmd.colorscheme("dankshell")
 
     -- Basic settings
     vim.opt.number = true
