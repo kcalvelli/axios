@@ -39,7 +39,7 @@ in
       lua-language-server
 
       # Formatters
-      nixfmt-rfc-style
+      nixfmt
       stylua
 
       # Tools needed by plugins
