@@ -2,13 +2,9 @@
   config,
   lib,
   pkgs,
-  osConfig ? { },
   ...
 }:
 let
-  # Check if AI module is enabled at system level
-  aiEnabled = osConfig.services.ai.enable or false;
-
   # Template for user's init.lua
   initLuaTemplate = ''
     -- axiOS Neovim Configuration
@@ -22,13 +18,6 @@ let
     require("axios").setup({
       -- Use DMS-generated colorscheme
       colorscheme = "dankshell",
-
-      -- AI configuration (uncomment and modify as needed)
-      -- ai = {
-      --   claude = {
-      --     auth_type = "api",  -- "api", "pro", or "max"
-      --   },
-      -- },
     })
 
     -- Add your custom configuration below:
@@ -70,14 +59,6 @@ in
       "--cmd 'set runtimepath^=${pkgs.axios-nvim-preset}'"
     ];
   };
-
-  # Set environment variables for the preset
-  home.sessionVariables = lib.mkMerge [
-    # AI enabled flag
-    (lib.mkIf aiEnabled {
-      AXIOS_AI_ENABLED = "1";
-    })
-  ];
 
   # Bootstrap init.lua if it doesn't exist (user-owned, not managed by home-manager)
   home.activation.neovimAxiosBootstrap = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

@@ -18,14 +18,6 @@ M.defaults = {
   lsp = {
     servers = {}, -- Override server settings
   },
-
-  -- AI configuration (only used when AXIOS_AI_ENABLED is set)
-  ai = {
-    provider = "claude",
-    claude = {
-      auth_type = "api", -- "api", "pro", or "max"
-    },
-  },
 }
 
 -- Merge user config with defaults (deep merge)
@@ -48,11 +40,6 @@ end
 -- Check if a plugin is disabled
 function M.is_disabled(plugin_name)
   return vim.tbl_contains(M.config.plugins.disabled, plugin_name)
-end
-
--- Check if AI features are enabled
-function M.ai_enabled()
-  return os.getenv("AXIOS_AI_ENABLED") == "1"
 end
 
 -- Get detected languages from environment

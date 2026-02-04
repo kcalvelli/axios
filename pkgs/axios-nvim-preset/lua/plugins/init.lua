@@ -43,9 +43,4 @@ add_plugins("debug")
 -- Session
 add_plugins("session")
 
--- AI (conditional)
-if axios.ai_enabled() then
-  add_plugins("ai")
-end
-
 return plugins
