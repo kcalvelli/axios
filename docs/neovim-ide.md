@@ -2,6 +2,15 @@
 
 axiOS provides a full-featured neovim IDE experience out of the box. This guide covers what's included and how to use it effectively.
 
+## Prerequisites
+
+**Internet on first launch**: The first time you start neovim after a fresh install, it will download plugins from GitHub via lazy.nvim. This requires an internet connection and may take a minute. Subsequent launches are instant as plugins are cached in `~/.local/share/nvim/lazy/`.
+
+**Enable the module**: Add to your home-manager config:
+```nix
+axios.terminal.neovim.enable = true;
+```
+
 ## What's Included
 
 ### Core Features
