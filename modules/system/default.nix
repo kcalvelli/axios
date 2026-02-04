@@ -50,7 +50,12 @@
       killall
       wget
       curl
-      vim # Basic editor always available
+      # Basic editor always available (override removes gvim.desktop since GUI isn't included)
+      (vim.overrideAttrs (old: {
+        postInstall = (old.postInstall or "") + ''
+          rm -f $out/share/applications/gvim.desktop
+        '';
+      }))
 
       # Filesystem and mount tools
       sshfs
