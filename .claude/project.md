@@ -468,7 +468,7 @@ echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
 ```nix
 {
   # Enable secrets
-  secrets.enable = true;
+  axios.secrets.enable = true;
 
   # Register API key secret
   age.secrets.brave-api-key = {

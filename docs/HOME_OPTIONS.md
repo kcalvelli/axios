@@ -9,7 +9,7 @@ This document lists all axiOS home-manager options available for user configurat
 | `axios.terminal.neovim.enable` | bool | `false` | Enable neovim IDE preset |
 | `axios.pwa.enable` | bool | `false` | Enable PWA app generation |
 | `axios.wallpapers.enable` | bool | `false` | Enable curated wallpaper collection |
-| `secrets.enable` | bool | auto | Enable age-encrypted secrets |
+| `axios.secrets.enable` | bool | auto | Enable age-encrypted secrets |
 | `axios.home.enableDefaults` | bool | `true` | Enable default home configuration |
 
 ---
@@ -111,18 +111,18 @@ axios.wallpapers = {
 
 ## Secrets
 
-### secrets
+### axios.secrets
 
 Age-encrypted secrets management for home-manager (powered by agenix).
 
 ```nix
-secrets = {
+axios.secrets = {
   enable = true;
   identityPaths = [ "/home/user/.ssh/id_ed25519" ];
   secretsDir = ./secrets;
 };
 
-# Define secrets
+# Define secrets (agenix options, not axios)
 age.secrets.my-api-key = {
   file = ./secrets/my-api-key.age;
 };
@@ -132,9 +132,9 @@ age.secrets.my-api-key = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `enable` | bool | auto | Enable secrets (auto-enabled if system secrets enabled) |
-| `identityPaths` | list | `[]` | SSH keys for decryption |
-| `secretsDir` | path | `null` | Directory containing .age files |
+| `axios.secrets.enable` | bool | auto | Enable secrets (auto-enabled if system secrets enabled) |
+| `axios.secrets.identityPaths` | list | `[]` | SSH keys for decryption |
+| `axios.secrets.secretsDir` | path | `null` | Directory containing .age files |
 
 **See:** [SECRETS_MODULE.md](SECRETS_MODULE.md) for complete guide
 
@@ -194,7 +194,7 @@ Complete example showing all home-manager options:
   axios.wallpapers.enable = true;
 
   # Secrets (if you have API keys)
-  secrets.enable = true;
+  axios.secrets.enable = true;
   age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
 }
 ```

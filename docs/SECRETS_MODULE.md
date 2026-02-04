@@ -78,7 +78,7 @@ systemd.services.myapp = {
 ### In Home-Manager (User Secrets)
 ```nix
 # In your home-manager config
-secrets = {
+axios.secrets = {
   secretsDir = ./home-secrets;  # Separate folder for user secrets
 };
 
@@ -164,12 +164,21 @@ agenix --rekey
 
 ## Configuration Options
 
+### NixOS (System-Level)
+
 | Option | Default | Description |
 |--------|---------|-------------|
 | `secrets.enable` | false | Enable secrets module |
 | `secrets.secretsDir` | null | Auto-discover `.age` files from this directory |
 | `secrets.installCLI` | true | Install agenix CLI tool |
-| `secrets.identityPaths` | System SSH keys | Which private keys to use for decryption |
+
+### Home-Manager (User-Level)
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `axios.secrets.enable` | auto | Enable user secrets (auto-enabled if system secrets enabled) |
+| `axios.secrets.secretsDir` | null | Auto-discover `.age` files for this user |
+| `axios.secrets.identityPaths` | User SSH keys | Which private keys to use for decryption |
 
 
 ## Troubleshooting
