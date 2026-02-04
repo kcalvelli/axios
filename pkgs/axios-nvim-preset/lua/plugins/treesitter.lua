@@ -14,10 +14,9 @@ return {
       { "<c-space>", desc = "Increment selection" },
       { "<bs>", desc = "Decrement selection", mode = "x" },
     },
-    main = "nvim-treesitter.configs",
-    opts = function()
+    config = function()
       -- Base options
-      local base_opts = {
+      local opts = {
         highlight = { enable = true },
         indent = { enable = true },
         ensure_installed = {
@@ -122,15 +121,15 @@ return {
           local parsers = lang_parsers[lang]
           if parsers then
             for _, parser in ipairs(parsers) do
-              if not vim.tbl_contains(base_opts.ensure_installed, parser) then
-                table.insert(base_opts.ensure_installed, parser)
+              if not vim.tbl_contains(opts.ensure_installed, parser) then
+                table.insert(opts.ensure_installed, parser)
               end
             end
           end
         end
       end
 
-      return base_opts
+      require("nvim-treesitter.configs").setup(opts)
     end,
   },
 
