@@ -90,6 +90,109 @@ Nix support is always enabled (nil LSP, nix treesitter). Other languages activat
 4. Users can override any default with their own lua config
 5. AI features only load when `services.ai.enable = true`
 
+---
+
+## Phase 2: Nix-Standard Remediation
+
+### Problem
+
+The initial implementation (Phase 1) delivered a working IDE but violated core Nix principles:
+
+| Issue | Violation |
+|-------|-----------|
+| lazy.nvim git-cloned at runtime | Non-reproducible |
+| Plugins downloaded from GitHub at runtime | Non-reproducible, requires internet |
+| Treesitter parsers downloaded via `:TSInstall` | Non-reproducible |
+| No hash verification of downloads | No integrity guarantees |
+
+This contradicts the proposal's stated goal of "leveraging Nix's reproducibility" and design decision D2 which rejected Mason for being "non-reproducible."
+
+### Remediation Approach
+
+Migrate to home-manager's native plugin management:
+
+```nix
+programs.neovim = {
+  plugins = with pkgs.vimPlugins; [
+    # Core
+    which-key-nvim
+
+    # LSP & Completion
+    nvim-lspconfig
+    nvim-cmp
+    cmp-nvim-lsp
+    cmp-buffer
+    cmp-path
+    luasnip
+
+    # Treesitter with pre-built parsers
+    (nvim-treesitter.withPlugins (p: [
+      p.nix p.lua p.rust p.zig p.go p.python
+      p.typescript p.javascript p.json p.yaml p.markdown
+      p.bash p.c p.cpp
+    ]))
+    nvim-treesitter-context
+
+    # Navigation
+    telescope-nvim
+    telescope-fzf-native-nvim
+    neo-tree-nvim
+
+    # Git
+    gitsigns-nvim
+    lazygit-nvim
+    diffview-nvim
+
+    # UI
+    lualine-nvim
+    bufferline-nvim
+    indent-blankline-nvim
+    nvim-web-devicons
+
+    # Editor
+    nvim-autopairs
+    comment-nvim
+    nvim-surround
+    flash-nvim
+    todo-comments-nvim
+
+    # Terminal
+    toggleterm-nvim
+
+    # Session
+    auto-session
+  ];
+
+  extraLuaConfig = ''
+    require("axios").setup({})
+  '';
+};
+```
+
+### Benefits of Remediation
+
+1. **Reproducible**: Same plugins across all machines via nix flake.lock
+2. **Offline**: Works without internet after initial build
+3. **Deterministic**: Hash-verified plugins from nixpkgs
+4. **Fast startup**: Plugins pre-installed, no download checks
+5. **Consistent with axiOS**: Follows same patterns as other modules
+
+### Migration Strategy
+
+1. Keep `axios-nvim-preset` for Lua configuration (keymaps, options, plugin setup)
+2. Move plugin installation from lazy.nvim to `programs.neovim.plugins`
+3. lazy.nvim removed - plugins managed entirely by Nix
+4. Treesitter parsers provided by Nix via `withPlugins`, no runtime downloads
+5. User customization via `extraLuaConfig` or managed init.lua
+
+### Updated Success Criteria (Phase 2)
+
+1. All plugins installed via Nix, zero runtime downloads
+2. Works fully offline after `nixos-rebuild`
+3. Neovim starts in <100ms
+4. LSP, treesitter, and all features work identically to Phase 1
+5. Users can still customize via their init.lua
+
 ## Related Specs
 
 - `openspec/specs/development/spec.md` - Development environment spec (to be extended)
