@@ -1,0 +1,34 @@
+schema: spec-driven
+
+context: |
+  axiOS is a modular NixOS framework and library for building reproducible
+  NixOS systems. It provides reusable NixOS and home-manager modules.
+
+  Tech Stack:
+  - Languages: Nix (primary), Bash (helper scripts)
+  - Frameworks: NixOS, home-manager, flake-parts
+  - Tools: Nix flakes, nixfmt-rfc-style, devshell, agenix, lanzaboote
+
+  Key Constraints:
+  - This is a library, NOT a personal configuration
+  - Modules MUST be independently importable
+  - All packages/configs MUST be inside lib.mkIf cfg.enable blocks
+  - No regional defaults - users MUST set timezone explicitly
+  - Use pkgs.stdenv.hostPlatform.system not system
+  - File naming: kebab-case, Option naming: camelCase
+  - Formatter: nixfmt-rfc-style (run nix fmt . after changes)
+
+  Key ADRs:
+  - ADR-004: Use pkgs.stdenv.hostPlatform.system instead of system
+  - ADR-007: Services register reverse proxy routes via selfHosted.caddy.routes.<name>
+  - ADR-008: ALL flake inputs MUST follow the main nixpkgs input
+
+rules:
+  proposal:
+    - Follow existing module patterns in modules/*/default.nix
+    - Keep packages inline within mkIf blocks, not in separate files
+    - Never add hardcoded personal details or regional defaults
+  tasks:
+    - Run nix fmt . after any Nix file modifications
+    - Register new modules in both modules/default.nix and lib/default.nix
+    - Documentation MUST NOT expose personal info (use placeholders like example-tailnet.ts.net)

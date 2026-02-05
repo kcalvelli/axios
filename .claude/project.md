@@ -1,41 +1,21 @@
 # axiOS Project Context
 
-## 📋 OpenSpec SDD Workflow
+## OpenSpec Workflow
 
-**IMPORTANT**: This project follows a **Spec-Driven Development (SDD)** workflow using **OpenSpec**. All work must be planned as a delta before implementation.
+This project uses **OpenSpec** for Spec-Driven Development (SDD). Use `/opsx:*` skills for changes.
 
-### Source of Truth Documentation
+**Key Resources:**
+- `openspec/config.yaml` - Project context and rules
+- `openspec/specs/` - Feature specifications
+- `openspec/changes/` - Active changes (deltas)
+- `openspec/discovery/` - Discovery reports and unknowns
+- `openspec/glossary.md` - Domain terminology
 
-**Primary Reference**: The `openspec/` directory contains the authoritative state of the project:
-
-- **[project.md](../openspec/project.md)** - Project goals, tech stack, and the Constitution (rules).
-- **[AGENTS.md](../openspec/AGENTS.md)** - Specific instructions for AI agents.
-- **[specs/](../openspec/specs/)** - Modular specifications for all system features.
-- **[glossary.md](../openspec/glossary.md)** - Domain terminology and NixOS concepts.
-- **[discovery/](../openspec/discovery/)** - Historical discovery reports and tracked unknowns.
-
-### Workflow for Changes (The Delta Process)
-
-**1. Discovery & Planning:**
-- Read `openspec/specs/` to understand the current state.
-- Create a new directory in `openspec/changes/[change-name]/`.
-- Stage updated spec files and a `tasks.md` implementation plan.
-
-**2. Implementation:**
-- Execute the tasks defined in `tasks.md`.
-- Ensure all code complies with the Constitution in `openspec/project.md`.
-
-**3. Finalization:**
-- Merge the delta specs into the main `openspec/specs/` directory.
-- Move the change directory to `openspec/changes/archive/`.
-
-### Quick Reference for AI Assistants
-
-When asked to work on axiOS:
-- **Core Rules & Goals** → `openspec/project.md`
-- **Your Workflow** → `openspec/AGENTS.md`
-- **Feature Specs** → `openspec/specs/[feature]/spec.md`
-- **Terminology** → `openspec/glossary.md`
+**Common Skills:**
+- `/opsx:new` - Start a new change
+- `/opsx:continue` - Create the next artifact
+- `/opsx:apply` - Implement tasks
+- `/opsx:archive` - Archive completed change
 
 ## Overview
 
@@ -614,7 +594,7 @@ systemctl --user restart mcp-gateway
 - **System Prompts** (owned by mcp-gateway):
   - `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
   - `~/.config/ai/prompts/mcp-cli.md` - mcp-cli specific prompt
-- **OpenSpec commands** (owned by mcp-gateway): `~/.claude/commands/openspec/`
+- **OpenSpec skills**: `.claude/skills/openspec-*/` (installed per-project via `openspec init`)
 - mcp-cli upstream: https://github.com/philschmid/mcp-cli
 
 ## Common Patterns
@@ -674,63 +654,14 @@ environment.systemPackages = with pkgs; [
 
 3. **Never say "rebuild your system" without first pushing** - Verify with `git status` that your branch is not ahead of origin.
 
-### ⛔ CRITICAL: OpenSpec Consultation REQUIRED ⛔
+### OpenSpec Workflow
 
-**ABSOLUTE REQUIREMENT - NO EXCEPTIONS:**
-
-**BEFORE taking ANY action in this repository, you MUST:**
-1. **STOP** - Do not proceed without consulting `openspec/`.
-2. **READ** `openspec/project.md` and `openspec/AGENTS.md`.
-3. **PLAN** your change as a delta in `openspec/changes/`.
-
-**If you did not read OpenSpec documentation before this action, STOP NOW and read it first.**
-
-### OpenSpec Workflow (MANDATORY)
-
-1. **Discovery**: Read relevant specs in `openspec/specs/`.
-2. **Delta**: Create `openspec/changes/[name]/` with updated specs and `tasks.md`.
-3. **Execute**: Implement the code as defined in your tasks.
-
-**Non-Negotiable Rules** (from [project.md](../openspec/project.md)):
-- Always follow the module structure pattern (directory-based with default.nix)
+Use `/opsx:*` skills for spec-driven development. Key rules from `openspec/config.yaml`:
+- Follow module structure pattern (directory-based with default.nix)
 - Keep packages inside mkIf blocks (conditional evaluation)
 - Use `${pkgs.stdenv.hostPlatform.system}` not `${system}`
 - This is a library - avoid hardcoded personal preferences
 - NO regional defaults - users MUST set timezone explicitly
-- Check `modules/default.nix` for module registry
+- Register new modules in both `modules/default.nix` and `lib/default.nix`
 
-**When uncertain**: Check `unknowns.md` - if your question is listed, acknowledge the gap and propose a solution for human review.
-
-### Documentation Maintenance
-
-**If you modify code, you MUST update specs via the delta process:**
-- New features → Update/Create files in `openspec/specs/`.
-- Change patterns → Update `openspec/project.md` if constitutional.
-- Resolve unknowns → Update documents in `openspec/discovery/`.
-
-### Confidence Markers
-
-Use these when updating baseline docs:
-- `[EXPLICIT]` - Found directly in code/documentation
-- `[INFERRED]` - Derived from code patterns with high confidence
-- `[ASSUMED]` - Best guess based on standard conventions
-- `[TBD]` - Insufficient evidence, requires human input
-
-### Quick Reference Card
-
-This document provides **quick reference** for common operations. For comprehensive information:
-
-| Need | Quick Reference Below | Detailed Documentation |
-|------|----------------------|------------------------|
-| Core Rules | - | project.md |
-| Workflows | ✓ Workflow for Changes | AGENTS.md |
-| Module structure | ✓ Module Pattern Rules | project.md (ADR-001) |
-| Feature Specs | - | specs/ |
-| Testing/CI | ✓ Testing & CI | specs/ops/spec.md |
-| Terminology | - | glossary.md |
-
----
-
-## Quick Reference (Supplement to Baseline Docs)
-
-The sections below provide quick access to common patterns. **For comprehensive details, always refer to openspec/ documents.**
+When uncertain, check `openspec/discovery/unknowns.md`.
