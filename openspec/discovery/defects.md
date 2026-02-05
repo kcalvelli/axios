@@ -42,6 +42,16 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 - **Proposal**: N/A - upstream WirePlumber/PipeWire issue
 - **Resolution**: Workaround: `systemctl --user restart pipewire pipewire-pulse wireplumber`. HDMI sink initializes correctly on restart. Root cause is boot-time race in WirePlumber HDMI detection.
 
+### DEF-002: System freeze during ROCm GPU compute
+- **Status**: upstream
+- **Reported**: 2026-02-05
+- **Source**: user-report
+- **Component**: graphics / amdgpu
+- **Symptoms**: Complete system freeze requiring hard reset. No kernel panic, OOM, or MCE recorded. Journal ends abruptly with no shutdown sequence.
+- **Context**: Freeze occurs during Ollama LLM inference using ROCm. Last kernel messages before freeze show GPU memory contention: `amdgpu: Freeing queue vital buffer 0x..., queue evicted` (multiple). Kernel 6.18.8, AMD GPU with ROCm. Recurring issue.
+- **Proposal**: N/A - upstream amdgpu/ROCm driver issue
+- **Resolution**: None. Potential upstream trackers: https://github.com/ROCm/ROCm/issues, https://gitlab.freedesktop.org/drm/amd/-/issues
+
 ---
 
 ## Metrics
@@ -53,8 +63,8 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 | proposal | 0 |
 | resolved | 0 |
 | wontfix | 0 |
-| upstream | 1 |
-| **Total** | 1 |
+| upstream | 2 |
+| **Total** | 2 |
 
 ## Cross-References
 
