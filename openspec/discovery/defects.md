@@ -32,7 +32,15 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 - **Resolution**: (when resolved) Brief description of fix
 -->
 
-*No defects logged yet.*
+### DEF-001: Browser audio not playing
+- **Status**: upstream
+- **Reported**: 2026-02-04
+- **Source**: user-report
+- **Component**: desktop / audio
+- **Symptoms**: Audio does not play from browser applications
+- **Context**: WirePlumber fails to create HDMI sink at boot time due to race condition. Log shows: `s-monitors: Failed to create alsa_output.pci-0000_2f_00.1.hdmi-stereo-extra2: Object activation aborted: PipeWire proxy destroyed`. Audio routes to wrong sink (USB microphone instead of HDMI).
+- **Proposal**: N/A - upstream WirePlumber/PipeWire issue
+- **Resolution**: Workaround: `systemctl --user restart pipewire pipewire-pulse wireplumber`. HDMI sink initializes correctly on restart. Root cause is boot-time race in WirePlumber HDMI detection.
 
 ---
 
@@ -45,8 +53,8 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 | proposal | 0 |
 | resolved | 0 |
 | wontfix | 0 |
-| upstream | 0 |
-| **Total** | 0 |
+| upstream | 1 |
+| **Total** | 1 |
 
 ## Cross-References
 
