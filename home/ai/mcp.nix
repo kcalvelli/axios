@@ -202,12 +202,5 @@ in
       inputs.mcp-journal.packages.${system}.default
       inputs.nix-devshell-mcp.packages.${system}.default
     ];
-
-    # OpenSpec commands for Claude Code
-    home.file = {
-      ".claude/commands/openspec/proposal.md".source = ./commands/openspec/proposal.md;
-      ".claude/commands/openspec/apply.md".source = ./commands/openspec/apply.md;
-      ".claude/commands/openspec/archive.md".source = ./commands/openspec/archive.md;
-    };
   };
 }
