@@ -31,7 +31,7 @@ in
         oci-containers.backend = lib.mkDefault "podman";
         podman = {
           enable = true;
-          dockerCompat = false;
+          dockerCompat = true;
           defaultNetwork.settings = {
             dns_enabled = true;
           };
