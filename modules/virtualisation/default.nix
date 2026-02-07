@@ -32,6 +32,7 @@ in
         podman = {
           enable = true;
           dockerCompat = true;
+          dockerSocket.enable;
           defaultNetwork.settings = {
             dns_enabled = true;
           };
