@@ -36,6 +36,7 @@ in
       # === Communication ===
       discord # Communication platform
       spotify # Music streaming
+      zenity # File dialogs (required for Spotify local files)
       gajim # XMPP client
       profanity # XMPP client (terminal, OTR/OMEMO, great for SSH)
 
