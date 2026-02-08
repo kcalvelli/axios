@@ -49,6 +49,7 @@ in
       # === Media Viewing & Playback ===
       kdePackages.gwenview # Image viewer (Qt, SSD, KDE integration, thumbnail browsing)
       # mpv configured via home-manager (home/desktop/mpv.nix) with PipeWire audio
+      tauon # Music library player (SDL/FFmpeg, FLAC support, no GStreamer)
       ffmpeg # Video/audio processing, conversion, streaming
 
       # === System Utilities ===

@@ -51,6 +51,7 @@ This document provides a comprehensive list of all applications included in axiO
 |-------------|-------------|---------------|
 | **Gwenview** (KDE) | Full-featured image viewer | SSD-compatible, thumbnail browsing, KDE integration |
 | **mpv** + **uosc** | Unified audio/video player | FFmpeg decoding, PipeWire audio, hardware acceleration, modern UI |
+| **Tauon** | Music library player | SDL/FFmpeg backend, excellent FLAC support, no GStreamer |
 
 **mpv Features:**
 - **uosc**: Modern on-screen controller with menus, chapters, and streaming titles
