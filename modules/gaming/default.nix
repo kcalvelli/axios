@@ -38,9 +38,9 @@
         libGL
         vulkan-loader
         # X11 (for older games and some engines)
-        xorg.libX11
-        xorg.libXi
-        xorg.libXrandr
+        libx11
+        libxi
+        libxrandr
         # Audio subsystems
         alsa-lib
         openal
