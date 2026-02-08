@@ -35,6 +35,7 @@ in
 
       # === Communication ===
       discord # Communication platform
+      spotify # Music streaming
       gajim # XMPP client
       profanity # XMPP client (terminal, OTR/OMEMO, great for SSH)
 

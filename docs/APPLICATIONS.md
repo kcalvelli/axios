@@ -32,6 +32,7 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
+| **Spotify** | Music streaming service | Large library, good playlists, native Linux client |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
 | **LibreOffice** (Qt6 backend) | Full office suite (Writer, Calc, Impress, Draw) | Qt6 backend ensures consistent theming with desktop |
 | **Mousepad** (Xfce) | Simple text editor | Lightweight with syntax highlighting, no CSD |
