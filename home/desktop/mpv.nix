@@ -77,8 +77,6 @@
         timeline_style = "bar";
         # Volume control style
         volume = "right";
-        # Speed display
-        speed = true;
         # Proximity controls (show UI on mouse movement)
         proximity_in = 40;
         proximity_out = 80;

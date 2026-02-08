@@ -174,6 +174,7 @@ in
         # AMD GPU tools
         radeontop
         amdgpu_top
+        libva-utils # vainfo - diagnose VA-API hardware decoding
       ]
       ++ lib.optionals isNvidia [
         # Nvidia GPU tools
@@ -190,7 +191,11 @@ in
       {
         GSK_RENDERER = "ngl"; # force GTK4 to OpenGL path (stable on wlroots)
       }
-      (lib.mkIf isAmd { HIP_PLATFORM = "amd"; })
+      (lib.mkIf isAmd {
+        HIP_PLATFORM = "amd";
+        # VA-API driver for hardware video decoding (mpv, browsers, etc.)
+        LIBVA_DRIVER_NAME = "radeonsi";
+      })
       (lib.mkIf isNvidia {
         # Backend for nvidia-vaapi-driver (direct = faster, egl = more compatible)
         NVD_BACKEND = "direct";
