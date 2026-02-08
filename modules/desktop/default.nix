@@ -292,6 +292,10 @@ in
       };
     };
 
+    # === System Tuning ===
+    # Increase inotify limits for apps that watch many files (Spotify, VS Code, etc.)
+    boot.kernel.sysctl."fs.inotify.max_user_instances" = 8192;
+
     # Enable home-manager desktop modules
     home-manager.sharedModules = with homeModules; [
       desktop
