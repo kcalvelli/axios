@@ -49,8 +49,18 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Gwenview** (KDE) | Full-featured image viewer | SSD-compatible, thumbnail browsing, KDE integration |
-| **Haruna** (KDE) | Video player (MPV frontend) | Excellent MPV frontend with built-in youtube-dl support |
-| **Elisa** (KDE) | Music player | Clean UI, SSD-compatible, library management |
+| **mpv** + **uosc** | Unified audio/video player | FFmpeg decoding, PipeWire audio, hardware acceleration, modern UI |
+
+**mpv Features:**
+- **uosc**: Modern on-screen controller with menus, chapters, and streaming titles
+- **thumbfast**: Thumbnail previews on the seek bar
+- **mpris**: D-Bus integration for media keys and playerctl
+- **Hardware acceleration**: VA-API, NVDEC, VDPAU auto-detected
+- **Keyboard-driven**: Full control without mouse (Tab to show UI, right-click for menu)
+
+> **Note:** mpv replaces separate audio (Elisa) and video (Haruna) players. It uses FFmpeg directly for decoding and PipeWire for audio output, avoiding GStreamer entirely. This eliminates boot-time race conditions and provides a lighter, more reliable multimedia stack.
+>
+> **Need Elisa or Haruna?** Add them to your `extraConfig.environment.systemPackages`. You'll also need to configure GStreamer manually—see [TROUBLESHOOTING.md](TROUBLESHOOTING.md#gstreamer-configuration) for details.
 
 ### System Utilities
 

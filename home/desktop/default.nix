@@ -15,6 +15,7 @@
     ./niri-keybinds.nix
     ./gdrive-sync.nix
     ./pwa-apps.nix
+    ./mpv.nix
     inputs.axios-monitor.homeManagerModules.default
     inputs.dankMaterialShell.homeModules.dank-material-shell
     inputs.dsearch.homeModules.default
@@ -184,43 +185,42 @@
       "image/x-eps" = "org.kde.gwenview.desktop";
       "image/x-pcx" = "org.kde.gwenview.desktop";
 
-      # === Video Player (Haruna / MPV frontend) ===
-      "video/mp4" = "org.kde.haruna.desktop";
-      "video/x-matroska" = "org.kde.haruna.desktop";
-      "video/webm" = "org.kde.haruna.desktop";
-      "video/x-msvideo" = "org.kde.haruna.desktop";
-      "video/quicktime" = "org.kde.haruna.desktop";
-      "video/mpeg" = "org.kde.haruna.desktop";
-      "video/x-flv" = "org.kde.haruna.desktop";
-      "video/ogg" = "org.kde.haruna.desktop";
-      "video/3gpp" = "org.kde.haruna.desktop";
-      "video/3gpp2" = "org.kde.haruna.desktop";
-      "video/x-ms-wmv" = "org.kde.haruna.desktop";
-      "video/x-ogm+ogg" = "org.kde.haruna.desktop";
-      "video/vnd.rn-realvideo" = "org.kde.haruna.desktop";
-      "video/mp2t" = "org.kde.haruna.desktop";
-
-      # === Music Player (Elisa) ===
-      "audio/mpeg" = "org.kde.elisa.desktop";
-      "audio/mp4" = "org.kde.elisa.desktop";
-      "audio/flac" = "org.kde.elisa.desktop";
-      "audio/x-flac" = "org.kde.elisa.desktop";
-      "audio/ogg" = "org.kde.elisa.desktop";
-      "audio/x-vorbis+ogg" = "org.kde.elisa.desktop";
-      "audio/x-opus+ogg" = "org.kde.elisa.desktop";
-      "audio/wav" = "org.kde.elisa.desktop";
-      "audio/x-wav" = "org.kde.elisa.desktop";
-      "audio/aac" = "org.kde.elisa.desktop";
-      "audio/x-aac" = "org.kde.elisa.desktop";
-      "audio/x-ms-wma" = "org.kde.elisa.desktop";
-      "audio/webm" = "org.kde.elisa.desktop";
-      "audio/x-matroska" = "org.kde.elisa.desktop";
-      "audio/x-ape" = "org.kde.elisa.desktop";
-      "audio/x-wavpack" = "org.kde.elisa.desktop";
-      "audio/mp3" = "org.kde.elisa.desktop";
-      "audio/aiff" = "org.kde.elisa.desktop";
-      "audio/x-aiff" = "org.kde.elisa.desktop";
-      "audio/x-musepack" = "org.kde.elisa.desktop";
+      # === Media Player (mpv) ===
+      # Unified audio/video player using FFmpeg decoding and PipeWire audio
+      "video/mp4" = "mpv.desktop";
+      "video/x-matroska" = "mpv.desktop";
+      "video/webm" = "mpv.desktop";
+      "video/x-msvideo" = "mpv.desktop";
+      "video/quicktime" = "mpv.desktop";
+      "video/mpeg" = "mpv.desktop";
+      "video/x-flv" = "mpv.desktop";
+      "video/ogg" = "mpv.desktop";
+      "video/3gpp" = "mpv.desktop";
+      "video/3gpp2" = "mpv.desktop";
+      "video/x-ms-wmv" = "mpv.desktop";
+      "video/x-ogm+ogg" = "mpv.desktop";
+      "video/vnd.rn-realvideo" = "mpv.desktop";
+      "video/mp2t" = "mpv.desktop";
+      "audio/mpeg" = "mpv.desktop";
+      "audio/mp4" = "mpv.desktop";
+      "audio/flac" = "mpv.desktop";
+      "audio/x-flac" = "mpv.desktop";
+      "audio/ogg" = "mpv.desktop";
+      "audio/x-vorbis+ogg" = "mpv.desktop";
+      "audio/x-opus+ogg" = "mpv.desktop";
+      "audio/wav" = "mpv.desktop";
+      "audio/x-wav" = "mpv.desktop";
+      "audio/aac" = "mpv.desktop";
+      "audio/x-aac" = "mpv.desktop";
+      "audio/x-ms-wma" = "mpv.desktop";
+      "audio/webm" = "mpv.desktop";
+      "audio/x-matroska" = "mpv.desktop";
+      "audio/x-ape" = "mpv.desktop";
+      "audio/x-wavpack" = "mpv.desktop";
+      "audio/mp3" = "mpv.desktop";
+      "audio/aiff" = "mpv.desktop";
+      "audio/x-aiff" = "mpv.desktop";
+      "audio/x-musepack" = "mpv.desktop";
 
       # === Document Viewer (Okular) ===
       "application/pdf" = "org.kde.okular.desktop";

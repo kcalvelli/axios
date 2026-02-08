@@ -46,10 +46,8 @@ in
 
       # === Media Viewing & Playback ===
       kdePackages.gwenview # Image viewer (Qt, SSD, KDE integration, thumbnail browsing)
-      haruna # Video player (excellent MPV frontend)
-      mpv # Media player (CLI, UDP streaming, hardware acceleration)
+      # mpv configured via home-manager (home/desktop/mpv.nix) with PipeWire audio
       ffmpeg # Video/audio processing, conversion, streaming
-      kdePackages.elisa # Music player (Qt, SSD, clean UI, library management)
 
       # === System Utilities ===
       kdePackages.filelight # Disk usage analyzer (superior radial visualization)
@@ -61,15 +59,6 @@ in
       imagemagick # Image processing
       libnotify # Desktop notifications
       mousepad # Text editor (simple, syntax highlighting, no CSD)
-
-      # === GStreamer (Qt6 multimedia backend) ===
-      # Qt6 apps use GStreamer for audio/video playback (native PipeWire backend doesn't work on NixOS)
-      gst_all_1.gstreamer
-      gst_all_1.gst-plugins-base
-      gst_all_1.gst-plugins-good # Includes PipeWire support
-      gst_all_1.gst-plugins-bad # Additional codecs
-      gst_all_1.gst-plugins-ugly # Patent-encumbered codecs
-      gst_all_1.gst-libav # FFmpeg codecs
 
       # === Wayland Tools ===
       fuzzel # Application launcher
@@ -97,7 +86,7 @@ in
       # This allows users to add custom PWAs with their own URLs and icons
 
       # === Streaming ===
-      # OBS with full GStreamer + VA-API support for camera format conversion
+      # OBS with VA-API support for camera format conversion
       # Fixes: Green screen/crashes with NV12 format on high-resolution webcams
       # Wrapped with gamemoderun to always launch in gamemode for optimal performance
       (
@@ -149,20 +138,11 @@ in
       # NOTE: No portal-specific environment variables - portals auto-detect based on XDG_CURRENT_DESKTOP
       # Niri uses xdg-desktop-portal-gnome and xdg-desktop-portal-gtk (official requirement)
 
-      # === Qt6 Multimedia Backend ===
-      # Force GStreamer backend (native PipeWire backend uses dlopen which fails on NixOS)
-      QT_MEDIA_BACKEND = "gstreamer";
-
-      # === GStreamer Plugin Discovery ===
-      # Required for Qt6 multimedia (Elisa, Dolphin previews, etc.) to find audio/video plugins
-      GST_PLUGIN_SYSTEM_PATH_1_0 = lib.makeSearchPath "lib/gstreamer-1.0" [
-        pkgs.gst_all_1.gstreamer
-        pkgs.gst_all_1.gst-plugins-base
-        pkgs.gst_all_1.gst-plugins-good
-        pkgs.gst_all_1.gst-plugins-bad
-        pkgs.gst_all_1.gst-plugins-ugly
-        pkgs.gst_all_1.gst-libav
-      ];
+      # NOTE: GStreamer removed - mpv uses FFmpeg/PipeWire directly (see home/desktop/mpv.nix)
+      # Users needing GStreamer for specific Qt apps can add it manually with:
+      #   environment.systemPackages = [ gst_all_1.gstreamer gst_all_1.gst-plugins-base ... ];
+      #   environment.sessionVariables.QT_MEDIA_BACKEND = "gstreamer";
+      #   environment.sessionVariables.GST_PLUGIN_SYSTEM_PATH_1_0 = lib.makeSearchPath "lib/gstreamer-1.0" [ ... ];
     };
 
     # === Binary Cache Configuration ===

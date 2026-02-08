@@ -266,6 +266,49 @@ sudo rmmod problematic-module
 - Model-specific workarounds for known issues
 - Peripherals requiring special drivers or udev rules
 
+## GStreamer Configuration
+
+axiOS no longer includes GStreamer by default. The multimedia stack now uses mpv with FFmpeg for decoding and PipeWire for audio, which is more reliable on NixOS.
+
+### Why GStreamer Was Removed
+
+GStreamer caused boot-time failures due to:
+- **Symbol mismatches**: GStreamer plugins loaded via `g_io_module_load` can fail with undefined symbol errors when glib versions don't match
+- **Race conditions**: Qt6Multimedia/GStreamer initialization races with PipeWire, causing DMS/Quickshell crashes at login
+
+### If You Need GStreamer
+
+Some Qt applications (like Elisa or Haruna) require GStreamer. Add to your host configuration:
+
+```nix
+extraConfig = {
+  environment.systemPackages = with pkgs; [
+    kdePackages.elisa           # If you need Elisa music player
+    kdePackages.haruna          # If you need Haruna video player
+    gst_all_1.gstreamer
+    gst_all_1.gst-plugins-base
+    gst_all_1.gst-plugins-good
+    gst_all_1.gst-plugins-bad   # Optional: additional codecs
+    gst_all_1.gst-plugins-ugly  # Optional: patent-encumbered codecs
+    gst_all_1.gst-libav         # Optional: FFmpeg codecs
+  ];
+
+  environment.sessionVariables = {
+    QT_MEDIA_BACKEND = "gstreamer";
+    GST_PLUGIN_SYSTEM_PATH_1_0 = lib.makeSearchPath "lib/gstreamer-1.0" [
+      pkgs.gst_all_1.gstreamer
+      pkgs.gst_all_1.gst-plugins-base
+      pkgs.gst_all_1.gst-plugins-good
+      pkgs.gst_all_1.gst-plugins-bad
+      pkgs.gst_all_1.gst-plugins-ugly
+      pkgs.gst_all_1.gst-libav
+    ];
+  };
+};
+```
+
+**Note:** If you experience boot crashes after enabling GStreamer, this is a known issue. Consider using mpv instead (the default).
+
 ## Getting Help
 
 If issues persist after trying all solutions:
