@@ -27,7 +27,6 @@ This package provides a curated collection of Progressive Web Apps (PWAs) that w
 
 ### Communication
 - Element (Matrix client)
-- Telegram Web
 - Microsoft Teams
 - Outlook (with New Event, New Message, Open Calendar actions)
 

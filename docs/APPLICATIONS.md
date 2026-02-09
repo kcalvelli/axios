@@ -32,6 +32,7 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
+| **Telegram Desktop** | Fast, secure messaging client | Native Qt app with encryption and cloud sync |
 | **Spotify** | Music streaming service | Large library, good playlists, native Linux client |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
 | **LibreOffice** (Qt6 backend) | Full office suite (Writer, Calc, Impress, Draw) | Qt6 backend ensures consistent theming with desktop |
@@ -497,8 +498,8 @@ Add to your user module:
 
 ```nix
 home.packages = with pkgs; [
-  telegram-desktop
-  spotify
+  obsidian
+  signal-desktop
   # ... more packages
 ];
 ```

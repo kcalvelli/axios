@@ -263,16 +263,6 @@
     ];
   };
 
-  telegram = {
-    name = "Telegram Web";
-    url = "https://web.telegram.org/";
-    icon = "telegram";
-    categories = [
-      "Network"
-      "InstantMessaging"
-    ];
-  };
-
   outlook = {
     name = "Outlook (PWA)";
     url = "https://outlook.office365.com/mail";
