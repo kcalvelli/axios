@@ -35,7 +35,7 @@ in
 
       # === Communication ===
       discord # Communication platform
-      telegram-desktop # Messaging client
+      materialgram # Messaging client
       spotify # Music streaming
       zenity # File dialogs (required for Spotify local files)
       gajim # XMPP client
