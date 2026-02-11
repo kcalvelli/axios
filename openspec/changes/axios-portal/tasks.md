@@ -116,13 +116,6 @@ config = lib.mkIf cfg.enable {
       healthEndpoint = "/api/health";
     };
 
-    chat = lib.mkIf (config.services.ai.webui.enable or false && config.services.ai.webui.tailscaleServe.enable or false) {
-      name = "Axios AI Chat";
-      icon = "axios-ai-chat";
-      port = config.services.ai.webui.tailscaleServe.httpsPort or 8444;
-      healthEndpoint = "/health";
-    };
-
     ollama = lib.mkIf (config.services.ai.local.tailscaleServe.enable or false) {
       name = "Ollama API";
       icon = "axios-ollama";
@@ -286,8 +279,6 @@ in
     # Copy service icons
     home.file.".local/share/axios-portal/icons/axios-ai-mail.png".source =
       ../resources/pwa-icons/axios-ai-mail.png;
-    home.file.".local/share/axios-portal/icons/axios-ai-chat.png".source =
-      ../resources/pwa-icons/axios-ai-chat.png;
     # Add more icons as services are added
   };
 }

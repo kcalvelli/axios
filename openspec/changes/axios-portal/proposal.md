@@ -120,13 +120,6 @@ config = lib.mkIf cfg.portal.enable {
       healthEndpoint = "/api/health";
     };
 
-    chat = lib.mkIf (config.services.ai.webui.enable or false) {
-      name = "Axios AI Chat";
-      icon = "axios-ai-chat";
-      port = config.services.ai.webui.tailscaleServe.httpsPort;
-      healthEndpoint = "/health";
-    };
-
     ollama = lib.mkIf (config.services.ai.local.tailscaleServe.enable or false) {
       name = "Ollama API";
       icon = "axios-ollama";

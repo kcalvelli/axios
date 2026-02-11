@@ -211,7 +211,6 @@ All PWAs follow axios icon pattern (NixOS snowflake + axios colors + center elem
 | Service | Center Element | File |
 |---------|----------------|------|
 | axios-ai-mail | Envelope | `axios-ai-mail.png` (exists) |
-| Axios AI Chat | Chat bubble | `axios-ai-chat.png` (new) |
 | axios Portal | Grid/dashboard | `axios-portal.png` (new) |
 | axios Calendar | Calendar | `axios-calendar.png` (future) |
 

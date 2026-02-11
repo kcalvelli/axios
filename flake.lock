@@ -44,26 +44,6 @@
         "type": "github"
       }
     },
-    "axios-ai-chat": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1770317793,
-        "narHash": "sha256-8/b4ZzTUKRPJEbUTaC7nbG2erSzlCwvr0xROQneUbbQ=",
-        "owner": "kcalvelli",
-        "repo": "axios-ai-chat",
-        "rev": "3fe81efbe35740ec7bcfc2f6a3bf6400b161c320",
-        "type": "github"
-      },
-      "original": {
-        "owner": "kcalvelli",
-        "repo": "axios-ai-chat",
-        "type": "github"
-      }
-    },
     "axios-ai-mail": {
       "inputs": {
         "nixpkgs": [
@@ -858,7 +838,6 @@
       "inputs": {
         "agenix": "agenix",
         "antigravity-nix": "antigravity-nix",
-        "axios-ai-chat": "axios-ai-chat",
         "axios-ai-mail": "axios-ai-mail",
         "axios-dav": "axios-dav",
         "axios-monitor": "axios-monitor",

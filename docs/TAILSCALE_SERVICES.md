@@ -42,8 +42,7 @@ Go to [Tailscale Admin Console](https://login.tailscale.com/admin/acls) and conf
     "autoApprovers": {
         "services": {
             "svc:axios-mail":    ["tag:server"],
-            "svc:axios-ai-chat": ["tag:server"],
-            "svc:axios-ollama":  ["tag:server"],
+                        "svc:axios-ollama":  ["tag:server"],
             "svc:axios-immich":  ["tag:server"]
         }
     }
@@ -157,12 +156,6 @@ Services auto-register with Tailscale when enabled:
     pwa.tailnetDomain = "your-tailnet.ts.net";
   };
 
-  services.ai.webui = {
-    role = "server";
-    pwa.enable = true;
-    pwa.tailnetDomain = "your-tailnet.ts.net";
-  };
-
   services.ai.local = {
     role = "server";
   };
@@ -184,12 +177,6 @@ axios = {
 {
   extraConfig = {
     services.pim = {
-      role = "client";
-      pwa.enable = true;
-      pwa.tailnetDomain = "your-tailnet.ts.net";
-    };
-
-    services.ai.webui = {
       role = "client";
       pwa.enable = true;
       pwa.tailnetDomain = "your-tailnet.ts.net";
@@ -224,7 +211,6 @@ sudo nixos-rebuild switch --flake .#pangolin
 
 Check the Tailscale admin console → Services tab. You should see:
 - `axios-mail` (1 online)
-- `axios-ai-chat` (1 online)
 - `axios-ollama` (1 online)
 - `axios-immich` (1 online)
 
@@ -233,7 +219,6 @@ Check the Tailscale admin console → Services tab. You should see:
 ```bash
 # Should return HTTP 200
 curl -I https://axios-mail.your-tailnet.ts.net
-curl -I https://axios-ai-chat.your-tailnet.ts.net
 curl -I https://axios-ollama.your-tailnet.ts.net
 curl -I https://axios-immich.your-tailnet.ts.net
 ```
@@ -263,7 +248,6 @@ curl -I https://axios-immich.your-tailnet.ts.net
 
 This is expected - Tailscale Services has a hairpinning restriction. Servers use local domains via `/etc/hosts`:
 - `axios-mail.local` → `127.0.0.1`
-- `axios-ai-chat.local` → `127.0.0.1`
 - etc.
 
 ## Service DNS Names
@@ -271,7 +255,6 @@ This is expected - Tailscale Services has a hairpinning restriction. Servers use
 | Service | DNS Name | Config Path |
 |---------|----------|-------------|
 | Mail (PIM) | `axios-mail.<tailnet>.ts.net` | `services.pim` |
-| AI Chat | `axios-ai-chat.<tailnet>.ts.net` | `services.ai.webui` |
 | Ollama | `axios-ollama.<tailnet>.ts.net` | `services.ai.local` |
 | Immich | `axios-immich.<tailnet>.ts.net` | `axios.immich` |
 

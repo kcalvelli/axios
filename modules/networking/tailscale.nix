@@ -247,10 +247,6 @@ in
           enable = true;
           backend = "http://127.0.0.1:8080";
         };
-        "axios-ai-chat" = {
-          enable = true;
-          backend = "http://127.0.0.1:8081";
-        };
       };
       description = ''
         Tailscale Services to advertise. Each service gets a unique DNS name:

@@ -9,6 +9,4 @@
   ];
 
   # Additional AI configuration can go here
-  # Note: axios-ai-chat replaces Open WebUI for AI chat interface
-  # Users connect via XMPP clients (Conversations, Gajim, Dino)
 }
