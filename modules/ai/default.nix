@@ -8,7 +8,6 @@
 
 let
   cfg = config.services.ai;
-  chatCfg = cfg.chat;
   isServer = cfg.local.role == "server";
   isClient = cfg.local.role == "client";
   tsCfg = config.networking.tailscale;
@@ -20,11 +19,6 @@ let
   isNvidiaGpu = gpuType == "nvidia";
 in
 {
-  # Import axios-ai-chat module for Prosody + bot service options
-  imports = [
-    inputs.axios-ai-chat.nixosModules.default
-  ];
-
   options = {
     services.ai = {
       enable = lib.mkEnableOption "AI tools and services (claude-code, gemini-cli)";
@@ -75,40 +69,6 @@ in
             - Always add comprehensive error handling
           '';
         };
-      };
-
-      # axios-ai-chat: Family XMPP chat with AI assistant
-      # Optional - requires XMPP infrastructure and LLM backend (Claude API or Ollama)
-      chat = {
-        enable = lib.mkEnableOption "axios-ai-chat (XMPP + AI bot)";
-
-        domain = lib.mkOption {
-          type = lib.types.nullOr lib.types.str;
-          default = null;
-          example = "chat.taile0fb4.ts.net";
-          description = ''
-            XMPP domain for the chat server.
-            Defaults to <hostname>.<tailnet> (e.g., edge.taile0fb4.ts.net).
-
-            If you want a custom domain like "chat.taile0fb4.ts.net", you must
-            configure DNS to resolve it to this machine's Tailscale IP.
-          '';
-        };
-
-        xmppPasswordFile = lib.mkOption {
-          type = lib.types.nullOr lib.types.path;
-          default = null;
-          example = "/run/agenix/xmpp-bot-password";
-          description = ''
-            Path to file containing XMPP password for the AI bot.
-            Typically points to an agenix-managed secret.
-          '';
-        };
-
-        # LLM and bot settings are configured directly via services.axios-chat.bot.*
-        # See axios-ai-chat flake for available options:
-        # - claudeApiKeyFile, systemPromptFile
-        # - users, defaultLocation, defaultTimezone
       };
 
       local = {
@@ -205,36 +165,6 @@ in
             services.ai.local.role = "server" requires networking.tailscale.authMode = "authkey".
 
             Server role uses Tailscale Services for HTTPS, which requires tag-based identity.
-            Set up an auth key in the Tailscale admin console with appropriate tags.
-          '';
-        }
-        # axios-chat requires tailnet domain
-        {
-          assertion = !(cfg.enable && chatCfg.enable) || tsCfg.domain != null;
-          message = ''
-            services.ai.chat.enable requires networking.tailscale.domain to be set.
-
-            Example:
-              networking.tailscale.domain = "taile0fb4.ts.net";
-          '';
-        }
-        # axios-chat requires xmppPasswordFile
-        {
-          assertion = !(cfg.enable && chatCfg.enable) || chatCfg.xmppPasswordFile != null;
-          message = ''
-            services.ai.chat.enable requires xmppPasswordFile to be set.
-
-            Example using agenix:
-              services.ai.chat.xmppPasswordFile = config.age.secrets.xmpp-bot-password.path;
-          '';
-        }
-        # axios-chat requires authkey mode for Tailscale (Prosody binds to Tailscale IP)
-        {
-          assertion = !(cfg.enable && chatCfg.enable) || useServices;
-          message = ''
-            services.ai.chat.enable requires networking.tailscale.authMode = "authkey".
-
-            axios-chat uses Prosody bound to Tailscale IP, which requires tag-based identity.
             Set up an auth key in the Tailscale admin console with appropriate tags.
           '';
         }
@@ -360,36 +290,5 @@ in
         ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
     })
-
-    # axios-chat: Family XMPP chat with AI assistant
-    (lib.mkIf (cfg.enable && chatCfg.enable) (
-      let
-        chatDomain = if chatCfg.domain != null then chatCfg.domain else "chat.${tsCfg.domain}";
-      in
-      {
-        # Apply axios-ai-chat overlay to make axios-ai-bot package available
-        nixpkgs.overlays = [ inputs.axios-ai-chat.overlays.default ];
-
-        # Enable Prosody XMPP server (Tailnet-only)
-        services.axios-chat.prosody = {
-          enable = true;
-          domain = chatDomain;
-          # Uses Tailscale serve by default - creates chat.<tailnet>.ts.net
-          tailscaleServe.enable = true;
-          admins = [ "ai@${chatDomain}" ];
-          # HTTP file sharing for images, documents (XEP-0363)
-          httpFileShare.enable = true;
-        };
-
-        # Enable AI bot (LLM settings configured via services.axios-chat.bot.*)
-        services.axios-chat.bot = {
-          enable = true;
-          xmppDomain = chatDomain;
-          xmppPasswordFile = chatCfg.xmppPasswordFile;
-          # mcp-gateway runs on localhost:8085 by default
-          mcpGatewayUrl = "http://localhost:8085";
-        };
-      }
-    ))
   ];
 }

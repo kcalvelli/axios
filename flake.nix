@@ -148,12 +148,6 @@
       url = "github:kcalvelli/mcp-gateway";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    # axios-ai-chat - Family XMPP chat with AI assistant
-    axios-ai-chat = {
-      url = "github:kcalvelli/axios-ai-chat";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
   nixConfig = {
