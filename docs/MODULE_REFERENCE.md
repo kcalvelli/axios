@@ -445,7 +445,7 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 **When to use:** When you have API keys, passwords, or other sensitive data
 
 **Common uses:**
-- API keys for AI services (Brave Search, Tavily)
+- API keys for AI services (Brave Search)
 - Tailscale authentication keys
 - SSH keys and certificates
 - Database passwords

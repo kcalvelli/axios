@@ -340,7 +340,7 @@ environment.sessionVariables = {
 - **AI Module Fixes**
 - Fixed MCP server package names from mcp-servers-nix
 - Enabled programs.claude-code module for proper MCP configuration
-- Fixed brave-search and tavily to use npx for execution
+- Fixed brave-search to use npx for execution
 - **Build System Fixes**
 - Fixed deprecated system references to use stdenv.hostPlatform.system
 - **Configuration Fixes**

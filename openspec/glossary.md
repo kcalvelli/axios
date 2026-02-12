@@ -469,7 +469,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Definition**: Interface for programmatic access
 
 **Usage**: External service integration
-- Examples: GitHub API (MCP server), Brave Search API, Tavily API
+- Examples: GitHub API (MCP server), Brave Search API
 - Keys: Managed via agenix
 
 **Evidence**: home/ai/mcp.nix (API key references)

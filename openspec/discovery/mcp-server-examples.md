@@ -633,16 +633,3 @@ perplexity = {
   };
 };
 ```
-
-### Tavily Search
-
-```nix
-tavily = {
-  enable = true;
-  command = "${pkgs.python3}/bin/uvx";
-  args = [ "mcp-server-tavily" ];
-  env = {
-    TAVILY_API_KEY = "\${TAVILY_API_KEY}";
-  };
-};
-```
