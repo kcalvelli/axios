@@ -112,31 +112,13 @@ in
         package =
           let
             nvidiaPackages = config.boot.kernelPackages.nvidiaPackages;
-            kernelVersion = config.boot.kernelPackages.kernel.version;
-            basePackage =
-              {
-                stable = nvidiaPackages.stable;
-                beta = nvidiaPackages.beta;
-                production = nvidiaPackages.production;
-              }
-              .${config.axios.hardware.nvidiaDriver};
-
-            # Kernel 6.19 changed zone_device_page_init() signature and renamed
-            # page_free -> folio_free in dev_pagemap_ops, breaking nvidia-open.
-            # Patch from CachyOS. Remove once NVIDIA ships a driver with native 6.19 support.
-            # Upstream: https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1021
-            needsKernel619Patch = lib.versionAtLeast kernelVersion "6.19";
-            patchedPackage = basePackage.overrideAttrs (old: {
-              passthru = old.passthru // {
-                open = old.passthru.open.overrideAttrs (openOld: {
-                  patches = (openOld.patches or [ ]) ++ [
-                    ./patches/nvidia-kernel-6.19.patch
-                  ];
-                });
-              };
-            });
           in
-          if needsKernel619Patch then patchedPackage else basePackage;
+          {
+            stable = nvidiaPackages.stable;
+            beta = nvidiaPackages.beta;
+            production = nvidiaPackages.production;
+          }
+          .${config.axios.hardware.nvidiaDriver};
 
         # Use open-source kernel module (recommended for RTX 20-series/Turing and newer)
         # For pre-Turing GPUs (GTX 10-series and older), override with: hardware.nvidia.open = false;
@@ -168,6 +150,13 @@ in
     # === Video Drivers ===
     # Set the appropriate video driver for X11/Wayland
     services.xserver.videoDrivers = lib.mkIf isNvidia [ "nvidia" ];
+
+    # NVIDIA open kernel module doesn't build on kernel 6.19 due to API changes
+    # (zone_device_page_init signature + page_free -> folio_free rename).
+    # Pin to 6.18 until NVIDIA ships a fixed driver.
+    # Upstream: https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1021
+    # TODO: Remove once NVIDIA driver supports kernel 6.19+
+    boot.kernelPackages = lib.mkIf isNvidia (lib.mkForce pkgs.linuxPackages_6_18);
 
     # === Kernel Parameters ===
     boot.kernelParams =
