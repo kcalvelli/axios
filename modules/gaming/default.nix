@@ -21,6 +21,7 @@
       mangohud # Performance overlay
       superTuxKart # Fun racing game
       protonup-ng
+      prismlauncher # Minecraft launcher
     ];
 
     # === Binary Compatibility for Games ===
