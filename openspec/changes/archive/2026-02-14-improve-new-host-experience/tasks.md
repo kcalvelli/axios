@@ -50,4 +50,4 @@
 
 - [x] 7.1 Run `nix fmt .` to format all modified Nix files
 - [x] 7.2 Run `nix flake check --all-systems` to validate flake structure
-- [ ] 7.3 Test with a sample canonical config: single-host single-user, single-host multi-user, multi-host with shared users
+- [x] 7.3 Test with a sample canonical config: single-host single-user, single-host multi-user, multi-host with shared users

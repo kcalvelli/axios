@@ -47,6 +47,22 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 - **Implementation**: `modules/system/branding.nix`
 - **Assets**: `modules/system/resources/branding/axios.png`
 
+### Systematic DMS Placeholder Generation
+- **Implementation**: `home/desktop/niri-keybinds.nix` (home.activation.dmsPlaceholders)
+- **Purpose**: The desktop module maintains an authoritative list of all DMS (dankMaterialShell) KDL configuration files that niri's config includes via `include` directives. For each file, the system creates an empty placeholder at `~/.config/niri/dms/<name>.kdl` via home-manager activation if it does not already exist.
+- **Rationale**: On first boot, DMS hasn't run yet so these files don't exist, causing niri to fail with include errors.
+- **Behavior**: Uses `home.activation` (not `xdg.configFile`) so files are real and writable — DMS overwrites them at runtime.
+
+### Init Script Multi-user Support
+- **Implementation**: `scripts/init-config.sh`, `scripts/templates/`
+- **Purpose**: The init script (`nix run .#init`) supports creating configurations for multiple users. After gathering the primary user (marked as admin), it prompts for additional users with username, full name, email, and admin status.
+- **Output**: Generates individual `users/<username>.nix` files using `axios.users.<name>` format and a `flake.nix` using the canonical `mkHost` pattern with `configDir`.
+
+### Init Script Hardware Pre-flight Validation
+- **Implementation**: `scripts/init-config.sh`
+- **Purpose**: Performs hardware compatibility checks after gathering configuration and before generating files. Warns about known issues (e.g., NVIDIA GPU with kernel >= 6.19).
+- **Behavior**: Warnings are informational (not blocking) and include suggested workarounds.
+
 ## Requirements
 - **UEFI Only**: System must support UEFI boot; legacy BIOS/MBR is not supported.
 - **Hardware Config**: Users must provide `hardwareConfigPath` (typically `/etc/nixos/hardware-configuration.nix`).
