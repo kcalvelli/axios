@@ -514,14 +514,12 @@ in
   # AUTHORITATIVE LIST: Update this when DMS adds new KDL config files.
   # Reference: github.com/nickheal/dank-material-shell (DMS niri integration)
   home.activation.dmsPlaceholders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        dms_dir="${config.xdg.configHome}/niri/dms"
-        mkdir -p "$dms_dir"
-        for f in alttab binds colors cursor layout outputs windowrules wpblur; do
-          if [ ! -e "$dms_dir/$f.kdl" ]; then
-            cat > "$dms_dir/$f.kdl" << 'PLACEHOLDER'
-    // Placeholder — DMS will overwrite this file with actual configuration
-    PLACEHOLDER
-          fi
-        done
+    dms_dir="${config.xdg.configHome}/niri/dms"
+    mkdir -p "$dms_dir"
+    for f in alttab binds colors cursor layout outputs windowrules wpblur; do
+      if [ ! -e "$dms_dir/$f.kdl" ]; then
+        echo '// Placeholder — DMS will overwrite this file with actual configuration' > "$dms_dir/$f.kdl"
+      fi
+    done
   '';
 }
