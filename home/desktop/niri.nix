@@ -15,11 +15,10 @@
     niri.package = lib.mkForce pkgs.niri;
     dank-material-shell = {
       niri = {
-        enableKeybinds = false; # Keybinds provided via KDL includes (dms/binds.kdl)
+        enableKeybinds = true; # Injects DMS keybinds (media keys, launcher, etc.) via niri module
         enableSpawn = true; # DMS spawns when Niri starts (eliminates race conditions)
         includes.filesToInclude = [
           "alttab"
-          "binds"
           "colors"
           "cursor"
           "layout"
