@@ -7,7 +7,7 @@
   ...
 }:
 let
-  userCfg = config.axios.user;
+  firstAdmin = config.axios.users.firstAdminUser;
 in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
@@ -164,10 +164,10 @@ in
       enable = true; # Provides system packages (matugen, hyprpicker, cava, etc.)
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
       greeter = {
-        enable = userCfg.name != "";
+        enable = firstAdmin != null;
         compositor.name = "niri";
-        # Auto-detect configHome from axios.user.name (convention over configuration)
-        configHome = if userCfg.name != "" then "/home/${userCfg.name}" else null;
+        # Use first admin user's home for greeter config
+        configHome = if firstAdmin != null then "/home/${firstAdmin}" else null;
       };
     };
 

@@ -169,9 +169,30 @@ echo ""
 echo -e "${BOLD}System Information:${NC}"
 # Collect information
 HOSTNAME=$(prompt "Hostname" "$(hostname 2>/dev/null || echo nixos)")
+
+echo ""
+echo -e "${BOLD}Primary User (admin):${NC}"
 USERNAME=$(prompt "Username" "$(whoami 2>/dev/null || echo user)")
 FULLNAME=$(prompt "Full name" "$(getent passwd $(whoami 2>/dev/null || echo $USER) 2>/dev/null | cut -d: -f5 | cut -d, -f1 || echo "$USERNAME")")
 EMAIL=$(prompt "Email address")
+
+# Collect additional users
+ADDITIONAL_USERS=()
+echo ""
+while true; do
+  ADD_USER=$(prompt_bool "Add another user to this host?" "n")
+  if [ "$ADD_USER" = "false" ]; then
+    break
+  fi
+  echo -e "${BOLD}Additional User:${NC}"
+  EXTRA_USERNAME=$(prompt "Username")
+  EXTRA_FULLNAME=$(prompt "Full name")
+  EXTRA_EMAIL=$(prompt "Email address" "")
+  EXTRA_IS_ADMIN=$(prompt_bool "Admin access (sudo)?" "n")
+  ADDITIONAL_USERS+=("${EXTRA_USERNAME}|${EXTRA_FULLNAME}|${EXTRA_EMAIL}|${EXTRA_IS_ADMIN}")
+  echo -e "${GREEN}  ✓ Added user: ${EXTRA_USERNAME}${NC}"
+  echo ""
+done
 
 # Timezone prompt with detection
 if [ -n "$DETECTED_TIMEZONE" ]; then
@@ -252,8 +273,27 @@ if [ "$HAS_SSD" = "true" ]; then
   HAS_SSD_TEXT=", SSD"
 fi
 
+# Build users list for host config template
+USERS_LIST="\"${USERNAME}\""
+for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
+  IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
+  USERS_LIST="${USERS_LIST} \"${u_name}\""
+done
+
 DESCRIPTION="NixOS configuration for ${HOSTNAME}"
 DATE=$(date +"%Y-%m-%d")
+
+# Hardware pre-flight checks
+echo ""
+KERNEL_VERSION=$(uname -r 2>/dev/null | cut -d. -f1-2 || echo "0.0")
+KERNEL_MAJOR=$(echo "$KERNEL_VERSION" | cut -d. -f1)
+KERNEL_MINOR=$(echo "$KERNEL_VERSION" | cut -d. -f2)
+if [ "$GPU" = "nvidia" ] && [ "$KERNEL_MAJOR" -ge 6 ] && [ "$KERNEL_MINOR" -ge 19 ] 2>/dev/null; then
+  echo -e "${YELLOW}⚠ Hardware Note: NVIDIA GPU detected with kernel ${KERNEL_VERSION}${NC}"
+  echo -e "  NVIDIA drivers are not yet compatible with kernel 6.19+."
+  echo -e "  axiOS will automatically pin your kernel to 6.18 for NVIDIA systems."
+  echo ""
+fi
 
 # Conditional secrets config for host template (single line for sed)
 if [ "$ENABLE_SECRETS" = "true" ]; then
@@ -265,8 +305,16 @@ fi
 echo ""
 echo -e "${GREEN}Configuration summary:${NC}"
 echo "  Hostname: $HOSTNAME"
-echo "  User: $USERNAME ($FULLNAME)"
+echo "  Primary user: $USERNAME ($FULLNAME) [admin]"
 echo "  Email: $EMAIL"
+for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
+  IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
+  if [ "$u_admin" = "true" ]; then
+    echo "  Additional user: $u_name ($u_full) [admin]"
+  else
+    echo "  Additional user: $u_name ($u_full)"
+  fi
+done
 echo "  Timezone: $TIMEZONE"
 echo "  Form factor: $FORMFACTOR"
 echo "  CPU: $CPU, GPU: $GPU"
@@ -315,8 +363,10 @@ cd "${CONFIG_DIR}" || {
 echo ""
 echo -e "${GREEN}Generating configuration files...${NC}"
 
-# Create directory structure
+# Create directory structure (canonical axiOS layout)
+mkdir -p "users"
 mkdir -p "hosts/${HOSTNAME}"
+echo "  ✓ users/"
 echo "  ✓ hosts/${HOSTNAME}/"
 
 # Create secrets directory if secrets module is enabled
@@ -357,8 +407,35 @@ EOF
   echo "  ✓ secrets/README.md"
 fi
 
-# Generate files from templates
-for template in flake.nix user.nix README.md; do
+# Generate primary user file in users/
+if [ -f "${TEMPLATE_DIR}/user.nix.template" ]; then
+  sed -e "s|{{USERNAME}}|${USERNAME}|g" \
+      -e "s|{{FULLNAME}}|${FULLNAME}|g" \
+      -e "s|{{EMAIL}}|${EMAIL}|g" \
+      -e "s|{{IS_ADMIN}}|true|g" \
+      "${TEMPLATE_DIR}/user.nix.template" > "users/${USERNAME}.nix"
+  echo "  ✓ users/${USERNAME}.nix (admin)"
+fi
+
+# Generate additional user files in users/
+for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
+  IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
+  if [ -f "${TEMPLATE_DIR}/user.nix.template" ]; then
+    sed -e "s|{{USERNAME}}|${u_name}|g" \
+        -e "s|{{FULLNAME}}|${u_full}|g" \
+        -e "s|{{EMAIL}}|${u_email}|g" \
+        -e "s|{{IS_ADMIN}}|${u_admin}|g" \
+        "${TEMPLATE_DIR}/user.nix.template" > "users/${u_name}.nix"
+    if [ "$u_admin" = "true" ]; then
+      echo "  ✓ users/${u_name}.nix (admin)"
+    else
+      echo "  ✓ users/${u_name}.nix"
+    fi
+  fi
+done
+
+# Generate flake.nix and README.md from templates
+for template in flake.nix README.md; do
   if [ -f "${TEMPLATE_DIR}/${template}.template" ]; then
     sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
         -e "s|{{USERNAME}}|${USERNAME}|g" \
@@ -404,6 +481,7 @@ if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
       -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
       -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
       -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
+      -e "s|{{USERS_LIST}}|${USERS_LIST}|g" \
       "${TEMPLATE_DIR}/host.nix.template" | \
       sed "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" > "hosts/${HOSTNAME}.nix"
   echo "  ✓ hosts/${HOSTNAME}.nix"

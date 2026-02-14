@@ -4,25 +4,24 @@
   inputs = {
     # Use axios as the base framework
     axios.url = "github:kcalvelli/axios";
-    
+
     # Follow axios's nixpkgs to ensure compatibility
     nixpkgs.follows = "axios/nixpkgs";
   };
 
   outputs = { self, axios, nixpkgs, ... }:
     let
-      # User module path
-      userModule = self.outPath + "/user.nix";
-      
-      # Load host configuration
-      hostCfg = (import ./hosts/{{HOSTNAME}}.nix {
-        lib = nixpkgs.lib;
-        userModulePath = userModule;
-      }).hostConfig;
+      # Helper to build a host configuration
+      # Each host declares its users by name; axiOS resolves users/<name>.nix automatically
+      mkHost = hostname: axios.lib.mkSystem (
+        (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+          configDir = self.outPath;
+        }
+      );
     in
     {
       nixosConfigurations = {
-        {{HOSTNAME}} = axios.lib.mkSystem hostCfg;
+        {{HOSTNAME}} = mkHost "{{HOSTNAME}}";
       };
     };
 }

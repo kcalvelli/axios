@@ -1,12 +1,15 @@
 # Host: {{HOSTNAME}} ({{FORMFACTOR}})
-{ lib, userModulePath, ... }:
+{ lib, ... }:
 {
   hostConfig = {
     # Basic identification
     hostname = "{{HOSTNAME}}";
     system = "x86_64-linux";
-    formFactor = "{{FORMFACTOR}}"; # desktop, laptop, or server
-    
+    formFactor = "{{FORMFACTOR}}"; # desktop or laptop
+
+    # Users on this host (references users/<name>.nix)
+    users = [ {{USERS_LIST}} ];
+
     # Hardware configuration
     hardware = {
       cpu = "{{CPU}}";    # For CPU-specific kernel modules and microcode
@@ -14,7 +17,7 @@
       hasSSD = {{HAS_SSD}};  # For SSD optimizations (TRIM, etc.)
       isLaptop = {{IS_LAPTOP}};
     };
-    
+
     # NixOS modules to enable
     # Note: ai module defaults to true and is not listed here
     modules = {
@@ -29,18 +32,15 @@
       pim = {{ENABLE_PIM}};
       secrets = {{ENABLE_SECRETS}};
     };
-    
+
     # Virtualization (if virt module enabled)
     virt = {
       libvirt.enable = {{ENABLE_LIBVIRT}};
       containers.enable = {{ENABLE_CONTAINERS}};
     };
-    
+
     # Home-manager profile (from home/profiles/)
     homeProfile = "{{HOME_PROFILE}}";
-    
-    # User module path
-    userModulePath = userModulePath;
 
     # Hardware configuration path (copied from /etc/nixos/hardware-configuration.nix)
     # Includes boot modules, kernel modules, filesystems, and swap

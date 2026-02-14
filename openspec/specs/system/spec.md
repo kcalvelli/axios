@@ -27,8 +27,18 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 
 ### User Management
 - **Implementation**: `modules/users.nix`
-- **Options**: `axios.user.name`, `axios.user.fullName`, `axios.user.email`.
-- **Features**: Automatic group membership for normal users (networkmanager, wheel, systemd-journal).
+- **Multi-user interface**: `axios.users.users.<name>` (attrsOf submodule) with per-user options:
+  - `fullName` (str) — user's display name
+  - `email` (str, default "") — for git config and home-manager
+  - `isAdmin` (bool, default false) — controls wheel group and trusted-users
+  - `homeProfile` (enum "workstation"/"laptop"/"minimal"/null, default null) — per-user profile override (falls back to host homeProfile)
+  - `extraGroups` (list of str) — additional groups for this user
+- **Computed options**: `axios.users.firstAdminUser` — read-only, first user where `isAdmin = true` (used by greeter)
+- **Automatic group membership**: Groups computed from enabled modules (networkmanager, video, audio, input, etc.) with `wheel` only for `isAdmin = true` users
+- **Per-user home-manager wiring**: Each user gets `home-manager.users.<name>.axios.user.email` set automatically
+- **Per-user XDG directories**: Created via `systemd.tmpfiles.rules` for all users
+- **Trusted users**: `nix.settings.trusted-users` set to list of admin usernames
+- **Host-user association**: Hosts declare `users = [ "name1" "name2" ]`; axiOS resolves `configDir + "/users/${name}.nix"` automatically
 
 ### System Branding
 - **Distribution Identity**: Configures system to identify as "axiOS" instead of generic "NixOS".

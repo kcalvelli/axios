@@ -504,14 +504,19 @@ in
   # Also make the raw text file available
   xdg.configFile."niri/keybindings.txt".source = keybindingGuide;
 
-  # Create placeholders for DMS KDL includes to prevent niri config errors
-  # on first boot (before DMS has run). Uses activation script instead of
-  # xdg.configFile so the files are real (writable) — DMS overwrites them
-  # with actual configuration at runtime.
+  # DMS (dankMaterialShell) KDL config placeholders
+  # Niri's config includes these files via KDL `include` directives.
+  # On first boot, DMS hasn't run yet so these files don't exist.
+  # We create writable placeholders so niri can start without errors.
+  # DMS overwrites them with actual configuration at runtime.
+  #
+  # Uses activation script (not xdg.configFile) so files are real and writable.
+  # AUTHORITATIVE LIST: Update this when DMS adds new KDL config files.
+  # Reference: github.com/nickheal/dank-material-shell (DMS niri integration)
   home.activation.dmsPlaceholders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         dms_dir="${config.xdg.configHome}/niri/dms"
         mkdir -p "$dms_dir"
-        for f in alttab colors cursor layout outputs windowrules wpblur; do
+        for f in alttab binds colors cursor layout outputs windowrules wpblur; do
           if [ ! -e "$dms_dir/$f.kdl" ]; then
             cat > "$dms_dir/$f.kdl" << 'PLACEHOLDER'
     // Placeholder — DMS will overwrite this file with actual configuration

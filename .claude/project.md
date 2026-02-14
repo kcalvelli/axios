@@ -254,17 +254,65 @@ inputs = {
 
 ### Working with Hosts
 
-Host configurations are external (in downstream repos), axios provides modules:
+Host configurations are external (in downstream repos). axiOS prescribes a canonical directory structure:
 
+```
+~/.config/nixos_config/           # or any directory
+├── flake.nix                     # mkHost helper + nixosConfigurations
+├── hosts/
+│   ├── <hostname>.nix            # Host config (hostConfig attr set)
+│   └── <hostname>/
+│       └── hardware.nix          # From nixos-generate-config
+├── users/
+│   └── <username>.nix            # Per-user config (axios.users.users.<name>)
+└── secrets/                      # Optional: agenix encrypted secrets
+```
+
+**Flake pattern** (convention-over-configuration):
 ```nix
-# In a host configuration
-{
-  imports = [ inputs.axios.nixosModules.desktop ];
+mkHost = hostname: axios.lib.mkSystem (
+  (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+    configDir = self.outPath;
+  }
+);
+```
 
-  axios.system.timeZone = "America/New_York";  # Required
-  desktop.enable = true;
+**Host config** declares users by name; axiOS resolves `users/<name>.nix` automatically:
+```nix
+# hosts/myhost.nix
+{ lib, ... }:
+{
+  hostConfig = {
+    hostname = "myhost";
+    users = [ "alice" "bob" ];  # references users/alice.nix, users/bob.nix
+    # ... hardware, modules, extraConfig
+  };
 }
 ```
+
+**User config** uses the multi-user interface:
+```nix
+# users/alice.nix
+{ ... }:
+{
+  axios.users.users.alice = {
+    fullName = "Alice Smith";
+    email = "alice@example.com";
+    isAdmin = true;
+    # homeProfile = "laptop";  # Optional: override host's homeProfile
+  };
+}
+```
+
+**BREAKING**: The old `axios.user` (singular) and `userModulePath` patterns are removed. See migration notes below.
+
+### Migration from Old Format
+
+1. **`axios.user` → `axios.users.users.<name>`**: Replace singular user options with multi-user submodule
+2. **`userModulePath` → `users` list**: Replace stringly-typed path with `users = [ "username" ]` in host config
+3. **`user.nix` → `users/<name>.nix`**: Move root-level user file to `users/` directory
+4. **Add `configDir`**: Add `configDir = self.outPath` when calling `mkSystem`
+5. **Host config extraction**: Move inline host configs from flake.nix to `hosts/<hostname>.nix` files
 
 ### DevShells
 
@@ -278,8 +326,12 @@ Access via: `nix develop .#rust`
 ### Scripts
 
 - `nix run .#init` - Interactive configuration generator
-  - Prompts for hostname, username, timezone, modules
-  - Generates host configuration from templates
+  - Generates canonical directory structure (`hosts/`, `users/`, `flake.nix`)
+  - Prompts for hostname, hardware, modules, timezone
+  - Multi-user prompting loop: primary user + optional additional users
+  - Per-user files generated at `users/<username>.nix` using `axios.users.users.<name>`
+  - Host configs generated at `hosts/<hostname>.nix` with `users = [ ... ]` list
+  - Hardware pre-flight checks (NVIDIA GPU + kernel >= 6.19 warning)
   - Detects system timezone automatically
 
 ### Formatting Code
@@ -327,7 +379,7 @@ GitHub Actions workflows provide automated testing and validation:
 
 **Flake Check** (`.github/workflows/flake-check.yml`)
 - Validates flake structure with `nix flake check --all-systems`
-- Builds example configurations (minimal-flake, multi-host) with dry-run
+- Builds example configuration (example-config) with dry-run
 - Triggers: push to master, PRs, manual
 - Uses Cachix for build acceleration
 

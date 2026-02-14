@@ -1,8 +1,8 @@
 { ... }:
 {
-  axios.user = {
-    name = "{{USERNAME}}";
+  axios.users.users.{{USERNAME}} = {
     fullName = "{{FULLNAME}}";
     email = "{{EMAIL}}";
+    isAdmin = {{IS_ADMIN}};
   };
 }

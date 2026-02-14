@@ -227,6 +227,24 @@ let
                   modules.networking = true;
               '';
             }
+
+            # configDir is required when users list is non-empty
+            {
+              assertion =
+                let
+                  users = hostCfg.users or [ ];
+                  configDir = hostCfg.configDir or null;
+                in
+                users == [ ] || configDir != null;
+              message = ''
+                axiOS configuration error: 'configDir' is required when 'users' list is non-empty.
+
+                You have users defined but no configDir. Add to your host config:
+                  configDir = self.outPath;
+
+                This tells axiOS where to find users/<name>.nix files.
+              '';
+            }
           ];
       };
 
@@ -282,7 +300,7 @@ let
       ourModules = coreModules ++ flaggedModules ++ conditionalHwModules;
 
       hostModule =
-        { lib, ... }:
+        { lib, config, ... }:
         let
           hwVendor = hostCfg.hardware.vendor or null;
           hwCpu = hostCfg.hardware.cpu or null;
@@ -374,23 +392,36 @@ let
               # Backup files that would be overwritten
               backupFileExtension = "hm-backup";
 
-              # Add shared modules based on profile
+              # Universal shared modules (apply to ALL users regardless of profile)
               sharedModules =
-                (
-                  if profile == "workstation" then
-                    [ self.homeModules.workstation ]
-                  else if profile == "laptop" then
-                    [ self.homeModules.laptop ]
-                  else
-                    [ ]
-                )
-                ++ lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
+                lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
                 ++ lib.optional (hostCfg.modules.ai or true) self.homeModules.ai
                 ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim
                 ++ lib.optional (hostCfg.modules.services or false) self.homeModules.immich;
             };
           }
           dynamicConfig
+
+          # Per-user home profile wiring
+          # Each user gets profile modules based on their homeProfile (or host default)
+          {
+            home-manager.users = lib.mapAttrs (
+              name: userDef:
+              let
+                resolvedProfile = if userDef.homeProfile != null then userDef.homeProfile else profile;
+                profileModules =
+                  if resolvedProfile == "workstation" then
+                    [ self.homeModules.workstation ]
+                  else if resolvedProfile == "laptop" then
+                    [ self.homeModules.laptop ]
+                  else
+                    [ ];
+              in
+              {
+                imports = profileModules;
+              }
+            ) config.axios.users.users;
+          }
         ];
 
       # Hardware configuration module
@@ -403,7 +434,11 @@ let
             imports = [ ];
           };
 
-      userModule = if hostCfg ? userModulePath then hostCfg.userModulePath else { imports = [ ]; };
+      # Resolve user modules from configDir + users list
+      configDir = hostCfg.configDir or null;
+      userNames = hostCfg.users or [ ];
+      userModules =
+        if configDir != null then map (name: configDir + "/users/${name}.nix") userNames else [ ];
 
       # Extract extraCfg and check if it's a module
       extraCfg = hostCfg.extraConfig or { };
@@ -416,8 +451,8 @@ let
     ++ [
       hostModule
       hardwareModule
-      userModule
     ]
+    ++ userModules
     # Add extraConfig as a module if it contains imports/options or is a function
     ++ lib.optional extraCfgIsModule extraCfg;
 
