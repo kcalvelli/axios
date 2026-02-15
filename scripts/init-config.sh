@@ -16,8 +16,9 @@ Options:
   -h, --help    Show this help message and exit
 
 Modes:
-  New configuration       Create a fresh axiOS config in ~/.config/nixos_config
-  Add host to existing    Clone an existing config repo and add a new host
+  New configuration          Create a fresh axiOS config in ~/.config/nixos_config
+  Add host to existing       Clone an existing config repo and add a new host
+  AI-assisted configuration  Launch Claude Code to interactively guide setup
 
 For more information, see: https://github.com/kcalvelli/axios
 EOF
@@ -878,6 +879,114 @@ add_host_flow() {
 }
 
 # ══════════════════════════════════════════════════════════════════
+# MODE C: AI-Assisted Configuration
+# ══════════════════════════════════════════════════════════════════
+ai_config_flow() {
+  # Pre-flight: is claude on PATH?
+  if ! command -v claude >/dev/null 2>&1; then
+    gum style --foreground 196 --bold "Error: 'claude' (Claude Code) is not found on PATH."
+    echo ""
+    info_box \
+      "Claude Code is required for AI-assisted configuration." \
+      "" \
+      "Install options:" \
+      "  1. Enable axiOS AI module: services.ai.enable = true" \
+      "  2. Install directly: npm install -g @anthropic-ai/claude-code" \
+      "" \
+      "Then re-run: nix run github:kcalvelli/axios#init"
+    exit 1
+  fi
+
+  # Info box about requirements
+  info_box \
+    "AI-assisted configuration uses Claude Code to interactively" \
+    "guide you through axiOS setup. Claude will detect your hardware," \
+    "ask questions, and generate all configuration files." \
+    "" \
+    "Requirements:" \
+    "  - A Claude account (you'll be prompted to log in if needed)" \
+    "  - Internet connection"
+
+  echo ""
+  if ! ask_confirm "Launch AI-assisted configuration?"; then
+    gum style --foreground 208 "Cancelled."
+    exit 0
+  fi
+
+  # Run hardware detection (sets DETECTED_* vars)
+  detect_hardware
+
+  # Build display strings for the prompt template
+  local cpu_display="${DETECTED_CPU:-Not detected}"
+  local gpu_display="${DETECTED_GPU:-Not detected}"
+  local ssd_display="Not detected"
+  local formfactor_display="Not detected"
+  local timezone_display="${DETECTED_TIMEZONE:-Not detected}"
+
+  if [ -n "$DETECTED_LAPTOP" ]; then
+    if [ "$DETECTED_LAPTOP" = "true" ]; then
+      formfactor_display="Laptop (battery detected)"
+    else
+      formfactor_display="Desktop (no battery)"
+    fi
+  fi
+
+  if [ -n "$DETECTED_SSD" ]; then
+    if [ "$DETECTED_SSD" = "true" ]; then
+      ssd_display="SSD detected"
+    else
+      ssd_display="HDD (no SSD detected)"
+    fi
+  fi
+
+  # Read and substitute the prompt template
+  local prompt_template="${TEMPLATE_DIR}/ai-install-prompt.md.template"
+  if [ ! -f "$prompt_template" ]; then
+    gum style --foreground 196 "Error: AI prompt template not found at ${prompt_template}"
+    exit 1
+  fi
+
+  local system_prompt
+  system_prompt=$(sed \
+    -e "s|{{DETECTED_CPU_DISPLAY}}|${cpu_display}|g" \
+    -e "s|{{DETECTED_GPU_DISPLAY}}|${gpu_display}|g" \
+    -e "s|{{DETECTED_FORMFACTOR_DISPLAY}}|${formfactor_display}|g" \
+    -e "s|{{DETECTED_SSD_DISPLAY}}|${ssd_display}|g" \
+    -e "s|{{DETECTED_TIMEZONE_DISPLAY}}|${timezone_display}|g" \
+    "$prompt_template")
+
+  # Set up the config directory
+  CONFIG_DIR="${HOME}/.config/nixos_config"
+  mkdir -p "${CONFIG_DIR}"
+
+  # Launch Claude Code with the system prompt
+  echo ""
+  gum style --foreground 33 --bold "Launching Claude Code..."
+  echo ""
+
+  (
+    cd "${CONFIG_DIR}"
+    claude --system-prompt "$system_prompt"
+  )
+
+  # Post-session check
+  echo ""
+  if [ -f "${CONFIG_DIR}/flake.nix" ]; then
+    gum style --foreground 42 --bold "Configuration generated at ${CONFIG_DIR}"
+    echo ""
+    info_box \
+      "Next steps:" \
+      "  1. Review the generated files" \
+      "  2. Push to a git remote" \
+      "  3. Rebuild: sudo nixos-rebuild switch --flake ${CONFIG_DIR}#<hostname>"
+  else
+    gum style --foreground 208 \
+      "Session ended without generating flake.nix." \
+      "Re-run to try again, or use the scripted 'New configuration' mode."
+  fi
+}
+
+# ══════════════════════════════════════════════════════════════════
 # Main
 # ══════════════════════════════════════════════════════════════════
 banner
@@ -885,7 +994,8 @@ banner
 echo ""
 MODE=$(ask_choose "What would you like to do?" \
   "New configuration" \
-  "Add host to existing config")
+  "Add host to existing config" \
+  "AI-assisted configuration")
 
 case "$MODE" in
   "New configuration")
@@ -893,5 +1003,8 @@ case "$MODE" in
     ;;
   "Add host to existing config")
     add_host_flow
+    ;;
+  "AI-assisted configuration")
+    ai_config_flow
     ;;
 esac
