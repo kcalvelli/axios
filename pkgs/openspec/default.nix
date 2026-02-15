@@ -6,6 +6,7 @@
   pnpm,
   fetchPnpmDeps,
   pnpmConfigHook,
+  makeWrapper,
 }:
 
 stdenv.mkDerivation rec {
@@ -23,6 +24,7 @@ stdenv.mkDerivation rec {
     nodejs
     pnpm
     pnpmConfigHook
+    makeWrapper
   ];
 
   pnpmDeps = fetchPnpmDeps {
@@ -43,13 +45,10 @@ stdenv.mkDerivation rec {
     cp -r . $out/lib/node_modules/openspec
     mkdir -p $out/bin
 
-    # Create the executable wrapper
-    cat > $out/bin/openspec <<EOF
-    #!${nodejs}/bin/node
-    require('$out/lib/node_modules/openspec/bin/openspec.js')
-    EOF
-
-    chmod +x $out/bin/openspec
+    # Create the executable wrapper with telemetry disabled
+    makeWrapper ${nodejs}/bin/node $out/bin/openspec \
+      --add-flags "$out/lib/node_modules/openspec/bin/openspec.js" \
+      --set OPENSPEC_TELEMETRY 0
     runHook postInstall
   '';
 
