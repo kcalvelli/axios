@@ -27,4 +27,4 @@ jobs:
       - name: Test init script runs
         run: |
           # Just test that the script can be invoked without errors
-          nix run . -- --help || echo "Init script test"
+          nix run .#init -- --help

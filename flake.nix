@@ -194,11 +194,24 @@
                 type = "app";
                 program = toString (
                   pkgs.writeShellScript "axios-init" ''
+                    export PATH="${
+                      pkgs.lib.makeBinPath [
+                        pkgs.bash
+                        pkgs.gum
+                        pkgs.git
+                        pkgs.coreutils
+                        pkgs.gnugrep
+                        pkgs.gnused
+                        pkgs.pciutils
+                        pkgs.util-linux
+                        pkgs.gawk
+                      ]
+                    }:$PATH"
                     export AXIOS_TEMPLATE_DIR="${./scripts/templates}"
-                    exec ${pkgs.bash}/bin/bash ${./scripts/init-config.sh}
+                    exec bash ${./scripts/init-config.sh} "$@"
                   ''
                 );
-                meta.description = "Initialize a new axiOS configuration";
+                meta.description = "Initialize or extend an axiOS configuration";
               };
 
               download-llama-models = {

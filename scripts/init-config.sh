@@ -1,381 +1,503 @@
 #!/usr/bin/env bash
 # axios init - Interactive configuration generator for axiOS
+# Uses gum (charmbracelet/gum) for a modern TUI experience
 set -euo pipefail
 
-# Colors
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m' # No Color
-BOLD='\033[1m'
+# ──────────────────────────────────────────────────────────────────
+# Help & early exits
+# ──────────────────────────────────────────────────────────────────
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  cat <<EOF
+Usage: nix run github:kcalvelli/axios#init [OPTIONS]
 
-# Get script directory
+Initialize or extend an axiOS NixOS configuration.
+
+Options:
+  -h, --help    Show this help message and exit
+
+Modes:
+  New configuration       Create a fresh axiOS config in ~/.config/nixos_config
+  Add host to existing    Clone an existing config repo and add a new host
+
+For more information, see: https://github.com/kcalvelli/axios
+EOF
+  exit 0
+fi
+
+# ──────────────────────────────────────────────────────────────────
+# Prerequisites
+# ──────────────────────────────────────────────────────────────────
+if ! command -v gum >/dev/null 2>&1; then
+  echo "Error: gum is required but not found on PATH."
+  echo "This script should be run via: nix run github:kcalvelli/axios#init"
+  exit 1
+fi
+
+# ──────────────────────────────────────────────────────────────────
+# Trap: clean exit on Ctrl-C
+# ──────────────────────────────────────────────────────────────────
+cleanup() {
+  echo ""
+  gum style --foreground 208 "Cancelled."
+  exit 130
+}
+trap cleanup INT
+
+# ──────────────────────────────────────────────────────────────────
+# Template directory
+# ──────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="${AXIOS_TEMPLATE_DIR:-${SCRIPT_DIR}/templates}"
 
-echo -e "${BOLD}${BLUE}"
-cat << 'EOF'
-   ____ __  ___(_)___  _____ 
-  / __ `/ |/_/ / __ \/ ___/ 
- / /_/ />  </ / /_/ (__  )  
- \__,_/_/|_/_/\____/____/   
-                            
- Configuration Generator
-EOF
-echo -e "${NC}"
+# ──────────────────────────────────────────────────────────────────
+# Gum wrapper functions
+# ──────────────────────────────────────────────────────────────────
+banner() {
+  gum style \
+    --border double \
+    --border-foreground 33 \
+    --padding "1 3" \
+    --align center \
+    --bold \
+    '   ____ __  ___(_)___  _____
+  / __ `/ |/_/ / __ \/ ___/
+ / /_/ />  </ / /_/ (__  )
+ \__,_/_/|_/_/\____/____/
 
-echo -e "${GREEN}Welcome to axiOS!${NC}"
-echo "This tool will help you create a personalized NixOS configuration."
-echo ""
-echo -e "${BLUE}Configuration will be created in: ${BOLD}~/.config/nixos_config${NC}"
-echo ""
+ Configuration Generator'
+}
 
-# Detect hardware and system settings if running on NixOS
-DETECTED_CPU=""
-DETECTED_GPU=""
-DETECTED_LAPTOP=""
-DETECTED_SSD=""
-DETECTED_TIMEZONE=""
-
-if [ -f /etc/NIXOS ]; then
-  echo -e "${BLUE}Detecting hardware...${NC}"
-  
-  # Detect CPU vendor
-  if grep -q "GenuineIntel" /proc/cpuinfo 2>/dev/null; then
-    DETECTED_CPU="intel"
-    echo "  ✓ Detected Intel CPU"
-  elif grep -q "AuthenticAMD" /proc/cpuinfo 2>/dev/null; then
-    DETECTED_CPU="amd"
-    echo "  ✓ Detected AMD CPU"
-  fi
-  
-  # Detect GPU vendor
-  if lspci 2>/dev/null | grep -i vga | grep -qi nvidia; then
-    DETECTED_GPU="nvidia"
-    echo "  ✓ Detected NVIDIA GPU"
-  elif lspci 2>/dev/null | grep -i vga | grep -qi amd; then
-    DETECTED_GPU="amd"
-    echo "  ✓ Detected AMD GPU"
-  elif lspci 2>/dev/null | grep -i vga | grep -qi intel; then
-    DETECTED_GPU="intel"
-    echo "  ✓ Detected Intel GPU"
-  fi
-  
-  # Detect if laptop (check for battery)
-  if [ -d /sys/class/power_supply/BAT* ] 2>/dev/null || [ -d /sys/class/power_supply/battery ] 2>/dev/null; then
-    DETECTED_LAPTOP="true"
-    echo "  ✓ Detected laptop (battery found)"
-  else
-    DETECTED_LAPTOP="false"
-    echo "  ✓ Detected desktop (no battery)"
-  fi
-  
-  # Detect SSD (check if any disk has rotation rate of 0)
-  if lsblk -d -o name,rota 2>/dev/null | grep -q "0$"; then
-    DETECTED_SSD="true"
-    echo "  ✓ Detected SSD"
-  else
-    DETECTED_SSD="false"
-    echo "  ✓ Detected HDD (no SSD)"
-  fi
-
-  # Detect timezone
-  if command -v timedatectl >/dev/null 2>&1; then
-    DETECTED_TIMEZONE=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "")
-    if [ -n "$DETECTED_TIMEZONE" ]; then
-      echo "  ✓ Detected timezone: $DETECTED_TIMEZONE"
-    fi
-  fi
-
+section_header() {
   echo ""
-fi
+  gum style --foreground 33 --bold "$1"
+}
 
-# Helper function to prompt for input
-prompt() {
-  local prompt_text="$1"
-  local default_value="${2:-}"
-  local result
-  
-  if [ -n "$default_value" ]; then
-    echo -ne "${BLUE}${prompt_text}${NC} [${default_value}]: " >&2
-    read result
-    echo "${result:-$default_value}"
+info_box() {
+  gum style \
+    --border rounded \
+    --border-foreground 243 \
+    --padding "0 2" \
+    "$@"
+}
+
+ask_input() {
+  local prompt="$1"
+  local default="${2:-}"
+  if [ -n "$default" ]; then
+    gum input --placeholder "$prompt" --value "$default" --prompt "> " --width 50
   else
-    echo -ne "${BLUE}${prompt_text}${NC}: " >&2
-    read result
+    local result=""
     while [ -z "$result" ]; do
-      echo -e "${RED}This field is required.${NC}" >&2
-      echo -ne "${BLUE}${prompt_text}${NC}: " >&2
-      read result
+      result=$(gum input --placeholder "$prompt" --prompt "> " --width 50)
+      if [ -z "$result" ]; then
+        gum style --foreground 196 "This field is required."
+      fi
     done
     echo "$result"
   fi
 }
 
-# Helper function to prompt yes/no
-prompt_bool() {
-  local prompt_text="$1"
-  local default_value="${2:-n}"
-  local result
-  
-  if [ "$default_value" = "y" ]; then
-    echo -ne "${BLUE}${prompt_text}${NC} [Y/n]: " >&2
-    read result
-    result="${result:-y}"
+ask_confirm() {
+  local prompt="$1"
+  local default="${2:-no}"
+  if [ "$default" = "yes" ]; then
+    gum confirm --default=yes "$prompt"
   else
-    echo -ne "${BLUE}${prompt_text}${NC} [y/N]: " >&2
-    read result
-    result="${result:-n}"
+    gum confirm "$prompt"
   fi
-  
-  case "${result,,}" in
-    y|yes) echo "true" ;;
-    *) echo "false" ;;
-  esac
 }
 
-# Helper function to choose from options
-prompt_choice() {
-  local prompt_text="$1"
-  local default_value="$2"
-  shift 2
-  local options=("$@")
-  
-  echo -e "${BLUE}${prompt_text}${NC}" >&2
-  for i in "${!options[@]}"; do
-    if [ "${options[$i]}" = "$default_value" ]; then
-      echo -e "  ${GREEN}$((i+1))) ${options[$i]} (default)${NC}" >&2
+ask_choose() {
+  local prompt="$1"
+  shift
+  gum choose --header "$prompt" "$@"
+}
+
+ask_multi() {
+  local prompt="$1"
+  shift
+  gum choose --no-limit --header "$prompt" "$@"
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Hardware detection
+# ──────────────────────────────────────────────────────────────────
+detect_hardware() {
+  DETECTED_CPU=""
+  DETECTED_GPU=""
+  DETECTED_LAPTOP=""
+  DETECTED_SSD=""
+  DETECTED_TIMEZONE=""
+
+  local lines=()
+
+  if [ -f /etc/NIXOS ]; then
+    # CPU
+    if grep -q "GenuineIntel" /proc/cpuinfo 2>/dev/null; then
+      DETECTED_CPU="intel"
+      lines+=("CPU: Intel")
+    elif grep -q "AuthenticAMD" /proc/cpuinfo 2>/dev/null; then
+      DETECTED_CPU="amd"
+      lines+=("CPU: AMD")
+    fi
+
+    # GPU
+    if lspci 2>/dev/null | grep -i vga | grep -qi nvidia; then
+      DETECTED_GPU="nvidia"
+      lines+=("GPU: NVIDIA")
+    elif lspci 2>/dev/null | grep -i vga | grep -qi amd; then
+      DETECTED_GPU="amd"
+      lines+=("GPU: AMD")
+    elif lspci 2>/dev/null | grep -i vga | grep -qi intel; then
+      DETECTED_GPU="intel"
+      lines+=("GPU: Intel")
+    fi
+
+    # Form factor
+    if compgen -G "/sys/class/power_supply/BAT*" >/dev/null 2>&1 || [ -d /sys/class/power_supply/battery ] 2>/dev/null; then
+      DETECTED_LAPTOP="true"
+      lines+=("Form factor: Laptop (battery detected)")
     else
-      echo "  $((i+1))) ${options[$i]}" >&2
+      DETECTED_LAPTOP="false"
+      lines+=("Form factor: Desktop (no battery)")
     fi
-  done
-  
+
+    # SSD
+    if lsblk -d -o name,rota 2>/dev/null | grep -q "0$"; then
+      DETECTED_SSD="true"
+      lines+=("Storage: SSD detected")
+    else
+      DETECTED_SSD="false"
+      lines+=("Storage: HDD (no SSD)")
+    fi
+
+    # Timezone
+    if command -v timedatectl >/dev/null 2>&1; then
+      DETECTED_TIMEZONE=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "")
+      if [ -n "$DETECTED_TIMEZONE" ]; then
+        lines+=("Timezone: $DETECTED_TIMEZONE")
+      fi
+    fi
+
+    if [ ${#lines[@]} -gt 0 ]; then
+      section_header "Detected Hardware"
+      info_box "${lines[@]}"
+    fi
+  else
+    gum style --foreground 208 "Not running on NixOS — hardware detection limited."
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Collect system information (shared by both modes)
+# ──────────────────────────────────────────────────────────────────
+collect_system_info() {
+  local default_hostname
+  default_hostname=$(hostname 2>/dev/null || echo "nixos")
+
+  section_header "System Information"
+
+  HOSTNAME=$(ask_input "Hostname" "$default_hostname")
+
+  # Form factor
+  if [ -n "$DETECTED_LAPTOP" ]; then
+    if [ "$DETECTED_LAPTOP" = "true" ]; then
+      FORMFACTOR="laptop"
+    else
+      FORMFACTOR="desktop"
+    fi
+  else
+    FORMFACTOR=$(ask_choose "Form factor?" "desktop" "laptop")
+  fi
+
+  # CPU
+  if [ -n "$DETECTED_CPU" ]; then
+    CPU="$DETECTED_CPU"
+  else
+    CPU=$(ask_choose "CPU vendor?" "amd" "intel")
+  fi
+
+  # GPU
+  if [ -n "$DETECTED_GPU" ]; then
+    GPU="$DETECTED_GPU"
+  else
+    GPU=$(ask_choose "GPU vendor?" "amd" "nvidia" "intel")
+  fi
+
+  # SSD
+  if [ -n "$DETECTED_SSD" ]; then
+    HAS_SSD="$DETECTED_SSD"
+  else
+    if ask_confirm "Do you have an SSD?" "yes"; then
+      HAS_SSD="true"
+    else
+      HAS_SSD="false"
+    fi
+  fi
+
+  # Timezone
+  if [ -n "$DETECTED_TIMEZONE" ]; then
+    TIMEZONE=$(ask_input "Timezone" "$DETECTED_TIMEZONE")
+  else
+    TIMEZONE=$(ask_input "Timezone (e.g. America/New_York)")
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Collect primary user
+# ──────────────────────────────────────────────────────────────────
+collect_primary_user() {
+  local default_user default_fullname
+  default_user=$(whoami 2>/dev/null || echo "user")
+  default_fullname=$(getent passwd "$(whoami 2>/dev/null || echo "$USER")" 2>/dev/null | cut -d: -f5 | cut -d, -f1 || echo "$default_user")
+
+  section_header "Primary User (admin)"
+
+  USERNAME=$(ask_input "Username" "$default_user")
+  FULLNAME=$(ask_input "Full name" "$default_fullname")
+  EMAIL=$(ask_input "Email address")
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Collect additional users
+# ──────────────────────────────────────────────────────────────────
+collect_additional_users() {
+  ADDITIONAL_USERS=()
+
   while true; do
-    echo -ne "Choice [1-${#options[@]}]: " >&2
-    read choice
-    choice="${choice:-1}"
-    if [[ "$choice" =~ ^[0-9]+$ ]] && [ "$choice" -ge 1 ] && [ "$choice" -le "${#options[@]}" ]; then
-      echo "${options[$((choice-1))]}"
-      return
+    echo ""
+    if ! ask_confirm "Add another user to this host?"; then
+      break
     fi
-    echo -e "${RED}Invalid choice. Please enter a number between 1 and ${#options[@]}.${NC}" >&2
+
+    section_header "Additional User"
+    local extra_user extra_full extra_email extra_admin
+    extra_user=$(ask_input "Username")
+    extra_full=$(ask_input "Full name")
+    extra_email=$(ask_input "Email address (optional)" " ")
+    extra_email=$(echo "$extra_email" | xargs)  # trim whitespace
+
+    if ask_confirm "Admin access (sudo)?" "no"; then
+      extra_admin="true"
+    else
+      extra_admin="false"
+    fi
+
+    ADDITIONAL_USERS+=("${extra_user}|${extra_full}|${extra_email}|${extra_admin}")
+    gum style --foreground 42 "  Added user: ${extra_user}"
   done
 }
 
-echo -e "${BOLD}Let's configure your system:${NC}"
-echo ""
+# ──────────────────────────────────────────────────────────────────
+# Collect optional features (flat multi-select)
+# ──────────────────────────────────────────────────────────────────
+collect_features() {
+  section_header "Optional Features"
 
-echo -e "${BOLD}System Information:${NC}"
-# Collect information
-HOSTNAME=$(prompt "Hostname" "$(hostname 2>/dev/null || echo nixos)")
+  ENABLE_AI="true"  # AI always enabled
 
-echo ""
-echo -e "${BOLD}Primary User (admin):${NC}"
-USERNAME=$(prompt "Username" "$(whoami 2>/dev/null || echo user)")
-FULLNAME=$(prompt "Full name" "$(getent passwd $(whoami 2>/dev/null || echo $USER) 2>/dev/null | cut -d: -f5 | cut -d, -f1 || echo "$USERNAME")")
-EMAIL=$(prompt "Email address")
+  local selected
+  selected=$(ask_multi "Select optional features (space to toggle, enter to confirm):" \
+    "Gaming (Steam, GameMode, Proton)" \
+    "PIM (axios-ai-mail)" \
+    "Secrets (age-encrypted)" \
+    "Virtualization - libvirt/KVM" \
+    "Virtualization - Containers (Podman)") || true
 
-# Collect additional users
-ADDITIONAL_USERS=()
-echo ""
-while true; do
-  ADD_USER=$(prompt_bool "Add another user to this host?" "n")
-  if [ "$ADD_USER" = "false" ]; then
-    break
-  fi
-  echo -e "${BOLD}Additional User:${NC}"
-  EXTRA_USERNAME=$(prompt "Username")
-  EXTRA_FULLNAME=$(prompt "Full name")
-  EXTRA_EMAIL=$(prompt "Email address" "")
-  EXTRA_IS_ADMIN=$(prompt_bool "Admin access (sudo)?" "n")
-  ADDITIONAL_USERS+=("${EXTRA_USERNAME}|${EXTRA_FULLNAME}|${EXTRA_EMAIL}|${EXTRA_IS_ADMIN}")
-  echo -e "${GREEN}  ✓ Added user: ${EXTRA_USERNAME}${NC}"
-  echo ""
-done
-
-# Timezone prompt with detection
-if [ -n "$DETECTED_TIMEZONE" ]; then
-  TIMEZONE=$(prompt "Timezone" "$DETECTED_TIMEZONE")
-else
-  TIMEZONE=$(prompt "Timezone (e.g., America/New_York, Europe/London)" "America/New_York")
-fi
-
-echo ""
-echo -e "${BOLD}Hardware Configuration:${NC}"
-
-# Form factor - only ask if not detected
-if [ -n "$DETECTED_LAPTOP" ]; then
-  if [ "$DETECTED_LAPTOP" = "true" ]; then
-    FORMFACTOR="laptop"
-    echo -e "${GREEN}✓ Form factor: laptop (detected)${NC}"
-  else
-    FORMFACTOR="desktop"
-    echo -e "${GREEN}✓ Form factor: desktop (detected)${NC}"
-  fi
-else
-  FORMFACTOR=$(prompt_choice "Form factor?" "desktop" "desktop" "laptop")
-fi
-
-# CPU - only ask if not detected
-if [ -n "$DETECTED_CPU" ]; then
-  CPU="$DETECTED_CPU"
-  echo -e "${GREEN}✓ CPU: $CPU (detected)${NC}"
-else
-  CPU=$(prompt_choice "CPU vendor?" "amd" "amd" "intel")
-fi
-
-# GPU - only ask if not detected
-if [ -n "$DETECTED_GPU" ]; then
-  GPU="$DETECTED_GPU"
-  echo -e "${GREEN}✓ GPU: $GPU (detected)${NC}"
-else
-  GPU=$(prompt_choice "GPU vendor?" "amd" "amd" "nvidia" "intel")
-fi
-
-echo ""
-echo -e "${BOLD}Optional Features:${NC}"
-
-# SSD - only ask if not detected
-if [ -n "$DETECTED_SSD" ]; then
-  HAS_SSD="$DETECTED_SSD"
-  echo -e "${GREEN}✓ SSD: $HAS_SSD (detected)${NC}"
-else
-  HAS_SSD=$(prompt_bool "Do you have an SSD?" "y")
-fi
-
-ENABLE_GAMING=$(prompt_bool "Enable gaming support (Steam, GameMode)?" "n")
-ENABLE_PIM=$(prompt_bool "Enable PIM (axios-ai-mail email management)?" "n")
-# AI module now defaults to true - no longer prompted
-ENABLE_AI="true"
-ENABLE_SECRETS=$(prompt_bool "Enable secrets management (age-encrypted secrets)?" "n")
-ENABLE_VIRT=$(prompt_bool "Enable virtualization (QEMU, virt-manager)?" "n")
-
-# Virtualization sub-options
-if [ "$ENABLE_VIRT" = "true" ]; then
-  echo -e "${BLUE}  Which virtualization features?${NC}"
-  ENABLE_LIBVIRT=$(prompt_bool "  Enable libvirt/KVM (virt-manager)?" "y")
-  ENABLE_CONTAINERS=$(prompt_bool "  Enable containers (Podman)?" "y")
-else
+  # Parse selections
+  ENABLE_GAMING="false"
+  ENABLE_PIM="false"
+  ENABLE_SECRETS="false"
   ENABLE_LIBVIRT="false"
   ENABLE_CONTAINERS="false"
-fi
 
-# Derived values
-IS_LAPTOP=$([ "$FORMFACTOR" = "laptop" ] && echo "true" || echo "false")
-HOME_PROFILE="$FORMFACTOR"  # "desktop" becomes "workstation", but we'll use the formfactor
-if [ "$FORMFACTOR" = "desktop" ]; then
-  HOME_PROFILE="workstation"
-fi
+  if echo "$selected" | grep -q "Gaming"; then
+    ENABLE_GAMING="true"
+  fi
+  if echo "$selected" | grep -q "PIM"; then
+    ENABLE_PIM="true"
+  fi
+  if echo "$selected" | grep -q "Secrets"; then
+    ENABLE_SECRETS="true"
+  fi
+  if echo "$selected" | grep -q "libvirt"; then
+    ENABLE_LIBVIRT="true"
+  fi
+  if echo "$selected" | grep -q "Containers"; then
+    ENABLE_CONTAINERS="true"
+  fi
 
-HAS_SSD_TEXT=""
-if [ "$HAS_SSD" = "true" ]; then
-  HAS_SSD_TEXT=", SSD"
-fi
-
-# Build users list for host config template
-USERS_LIST="\"${USERNAME}\""
-for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
-  IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
-  USERS_LIST="${USERS_LIST} \"${u_name}\""
-done
-
-DESCRIPTION="NixOS configuration for ${HOSTNAME}"
-DATE=$(date +"%Y-%m-%d")
-
-# Hardware pre-flight checks
-echo ""
-KERNEL_VERSION=$(uname -r 2>/dev/null | cut -d. -f1-2 || echo "0.0")
-KERNEL_MAJOR=$(echo "$KERNEL_VERSION" | cut -d. -f1)
-KERNEL_MINOR=$(echo "$KERNEL_VERSION" | cut -d. -f2)
-if [ "$GPU" = "nvidia" ] && [ "$KERNEL_MAJOR" -ge 6 ] && [ "$KERNEL_MINOR" -ge 19 ] 2>/dev/null; then
-  echo -e "${YELLOW}⚠ Hardware Note: NVIDIA GPU detected with kernel ${KERNEL_VERSION}${NC}"
-  echo -e "  NVIDIA drivers are not yet compatible with kernel 6.19+."
-  echo -e "  axiOS will automatically pin your kernel to 6.18 for NVIDIA systems."
-  echo ""
-fi
-
-# Conditional secrets config for host template (single line for sed)
-if [ "$ENABLE_SECRETS" = "true" ]; then
-  SECRETS_CONFIG="      # Configure secrets directory for automatic discovery\\n      secrets.secretsDir = ../secrets;"
-else
-  SECRETS_CONFIG=""
-fi
-
-echo ""
-echo -e "${GREEN}Configuration summary:${NC}"
-echo "  Hostname: $HOSTNAME"
-echo "  Primary user: $USERNAME ($FULLNAME) [admin]"
-echo "  Email: $EMAIL"
-for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
-  IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
-  if [ "$u_admin" = "true" ]; then
-    echo "  Additional user: $u_name ($u_full) [admin]"
+  # Derive ENABLE_VIRT from sub-options
+  if [ "$ENABLE_LIBVIRT" = "true" ] || [ "$ENABLE_CONTAINERS" = "true" ]; then
+    ENABLE_VIRT="true"
   else
-    echo "  Additional user: $u_name ($u_full)"
+    ENABLE_VIRT="false"
   fi
-done
-echo "  Timezone: $TIMEZONE"
-echo "  Form factor: $FORMFACTOR"
-echo "  CPU: $CPU, GPU: $GPU"
-echo "  SSD: $HAS_SSD"
-echo "  Gaming: $ENABLE_GAMING"
-echo "  PIM: $ENABLE_PIM"
-echo "  Secrets: $ENABLE_SECRETS"
-echo "  Virtualization: $ENABLE_VIRT"
-if [ "$ENABLE_VIRT" = "true" ]; then
-  echo "    - libvirt: $ENABLE_LIBVIRT"
-  echo "    - containers: $ENABLE_CONTAINERS"
-fi
-echo ""
-echo -ne "${BLUE}Generate configuration in ~/.config/nixos_config?${NC} [Y/n]: " >&2
-read confirm
-confirm="${confirm:-y}"
-
-if [[ ! "${confirm,,}" =~ ^(y|yes)$ ]]; then
-  echo "Cancelled."
-  exit 0
-fi
-
-# Create and cd to ~/.config/nixos_config
-CONFIG_DIR="${HOME}/.config/nixos_config"
-if [ -d "${CONFIG_DIR}" ]; then
-  # Check if directory is empty
-  if [ "$(ls -A "${CONFIG_DIR}" 2>/dev/null | wc -l)" -gt 0 ]; then
-    echo -e "${YELLOW}Warning: ${CONFIG_DIR} is not empty.${NC}" >&2
-    echo -ne "Continue anyway? This may overwrite files. [y/N]: " >&2
-    read force
-    if [[ ! "${force,,}" =~ ^(y|yes)$ ]]; then
-      echo "Cancelled."
-      exit 1
-    fi
-  fi
-else
-  mkdir -p "${CONFIG_DIR}"
-  echo "Created ${CONFIG_DIR}"
-fi
-
-cd "${CONFIG_DIR}" || {
-  echo -e "${RED}Failed to enter ${CONFIG_DIR}${NC}"
-  exit 1
 }
 
-echo ""
-echo -e "${GREEN}Generating configuration files...${NC}"
+# ──────────────────────────────────────────────────────────────────
+# Compute derived values
+# ──────────────────────────────────────────────────────────────────
+compute_derived() {
+  IS_LAPTOP=$([ "$FORMFACTOR" = "laptop" ] && echo "true" || echo "false")
+  if [ "$FORMFACTOR" = "desktop" ]; then
+    HOME_PROFILE="workstation"
+  else
+    HOME_PROFILE="$FORMFACTOR"
+  fi
 
-# Create directory structure (canonical axiOS layout)
-mkdir -p "users"
-mkdir -p "hosts/${HOSTNAME}"
-echo "  ✓ users/"
-echo "  ✓ hosts/${HOSTNAME}/"
+  HAS_SSD_TEXT=""
+  if [ "$HAS_SSD" = "true" ]; then
+    HAS_SSD_TEXT=", SSD"
+  fi
 
-# Create secrets directory if secrets module is enabled
-if [ "$ENABLE_SECRETS" = "true" ]; then
-  mkdir -p "secrets"
-  echo "  ✓ secrets/"
-  
-  # Create a README in secrets directory
-  cat > "secrets/README.md" << 'EOF'
+  # Users list for host config template
+  USERS_LIST="\"${USERNAME}\""
+  for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
+    IFS='|' read -r u_name _u_full _u_email _u_admin <<< "$user_entry"
+    USERS_LIST="${USERS_LIST} \"${u_name}\""
+  done
+
+  DESCRIPTION="NixOS configuration for ${HOSTNAME}"
+  DATE=$(date +"%Y-%m-%d")
+
+  # Secrets config line for host template
+  if [ "$ENABLE_SECRETS" = "true" ]; then
+    SECRETS_CONFIG="      # Configure secrets directory for automatic discovery\\n      secrets.secretsDir = ../secrets;"
+  else
+    SECRETS_CONFIG=""
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────
+# NVIDIA kernel pre-flight check
+# ──────────────────────────────────────────────────────────────────
+nvidia_preflight() {
+  local kernel_version kernel_major kernel_minor
+  kernel_version=$(uname -r 2>/dev/null | cut -d. -f1-2 || echo "0.0")
+  kernel_major=$(echo "$kernel_version" | cut -d. -f1)
+  kernel_minor=$(echo "$kernel_version" | cut -d. -f2)
+  if [ "$GPU" = "nvidia" ] && [ "$kernel_major" -ge 6 ] && [ "$kernel_minor" -ge 19 ] 2>/dev/null; then
+    echo ""
+    gum style --foreground 208 \
+      "Hardware Note: NVIDIA GPU detected with kernel ${kernel_version}" \
+      "NVIDIA drivers are not yet compatible with kernel 6.19+." \
+      "axiOS will automatically pin your kernel to 6.18 for NVIDIA systems."
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Show summary and confirm
+# ──────────────────────────────────────────────────────────────────
+show_summary() {
+  section_header "Configuration Summary"
+
+  local lines=()
+  lines+=("Hostname:      $HOSTNAME")
+  lines+=("Primary user:  $USERNAME ($FULLNAME) [admin]")
+  lines+=("Email:         $EMAIL")
+
+  for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
+    IFS='|' read -r u_name u_full _u_email u_admin <<< "$user_entry"
+    if [ "$u_admin" = "true" ]; then
+      lines+=("User:          $u_name ($u_full) [admin]")
+    else
+      lines+=("User:          $u_name ($u_full)")
+    fi
+  done
+
+  lines+=("Timezone:      $TIMEZONE")
+  lines+=("Form factor:   $FORMFACTOR")
+  lines+=("Hardware:      $CPU CPU, $GPU GPU")
+  lines+=("SSD:           $HAS_SSD")
+  lines+=("")
+  lines+=("Gaming:        $ENABLE_GAMING")
+  lines+=("PIM:           $ENABLE_PIM")
+  lines+=("Secrets:       $ENABLE_SECRETS")
+  lines+=("Virtualization: $ENABLE_VIRT")
+  if [ "$ENABLE_VIRT" = "true" ]; then
+    lines+=("  libvirt:     $ENABLE_LIBVIRT")
+    lines+=("  containers:  $ENABLE_CONTAINERS")
+  fi
+
+  info_box "${lines[@]}"
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Generate user file from template
+# ──────────────────────────────────────────────────────────────────
+generate_user_file() {
+  local target_dir="$1"
+  local u_name="$2"
+  local u_full="$3"
+  local u_email="$4"
+  local u_admin="$5"
+
+  if [ -f "${TEMPLATE_DIR}/user.nix.template" ]; then
+    sed -e "s|{{USERNAME}}|${u_name}|g" \
+        -e "s|{{FULLNAME}}|${u_full}|g" \
+        -e "s|{{EMAIL}}|${u_email}|g" \
+        -e "s|{{IS_ADMIN}}|${u_admin}|g" \
+        "${TEMPLATE_DIR}/user.nix.template" > "${target_dir}/users/${u_name}.nix"
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Generate host files from templates
+# ──────────────────────────────────────────────────────────────────
+generate_host_files() {
+  local target_dir="$1"
+
+  mkdir -p "${target_dir}/hosts/${HOSTNAME}"
+
+  # Host config
+  if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
+    sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
+        -e "s|{{USERNAME}}|${USERNAME}|g" \
+        -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
+        -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
+        -e "s|{{CPU}}|${CPU}|g" \
+        -e "s|{{GPU}}|${GPU}|g" \
+        -e "s|{{HAS_SSD}}|${HAS_SSD}|g" \
+        -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
+        -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
+        -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
+        -e "s|{{ENABLE_PIM}}|${ENABLE_PIM}|g" \
+        -e "s|{{ENABLE_AI}}|${ENABLE_AI}|g" \
+        -e "s|{{ENABLE_SECRETS}}|${ENABLE_SECRETS}|g" \
+        -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
+        -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
+        -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
+        -e "s|{{USERS_LIST}}|${USERS_LIST}|g" \
+        "${TEMPLATE_DIR}/host.nix.template" | \
+        sed "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" > "${target_dir}/hosts/${HOSTNAME}.nix"
+  fi
+
+  # Hardware config
+  if [ -f /etc/NIXOS ]; then
+    gum spin --title "Running nixos-generate-config..." -- \
+      sudo nixos-generate-config --root /etc 2>/dev/null || true
+
+    if [ -f /etc/nixos/hardware-configuration.nix ]; then
+      cp /etc/nixos/hardware-configuration.nix "${target_dir}/hosts/${HOSTNAME}/hardware.nix"
+    else
+      gum style --foreground 208 "Could not generate hardware-configuration.nix"
+      echo "  You'll need to create hosts/${HOSTNAME}/hardware.nix manually"
+    fi
+  else
+    gum style --foreground 208 "Not running on NixOS — cannot auto-generate hardware config"
+    echo "  You'll need to create hosts/${HOSTNAME}/hardware.nix manually"
+  fi
+}
+
+# ──────────────────────────────────────────────────────────────────
+# Generate secrets directory
+# ──────────────────────────────────────────────────────────────────
+generate_secrets_dir() {
+  local target_dir="$1"
+  if [ "$ENABLE_SECRETS" = "true" ]; then
+    mkdir -p "${target_dir}/secrets"
+    cat > "${target_dir}/secrets/README.md" << 'EOF'
 # Secrets Directory
 
 This directory is for age-encrypted secrets.
@@ -404,147 +526,372 @@ This directory is for age-encrypted secrets.
 
 See https://github.com/kcalvelli/axios/blob/master/docs/SECRETS_MODULE.md for details.
 EOF
-  echo "  ✓ secrets/README.md"
-fi
+  fi
+}
 
-# Generate primary user file in users/
-if [ -f "${TEMPLATE_DIR}/user.nix.template" ]; then
-  sed -e "s|{{USERNAME}}|${USERNAME}|g" \
-      -e "s|{{FULLNAME}}|${FULLNAME}|g" \
-      -e "s|{{EMAIL}}|${EMAIL}|g" \
-      -e "s|{{IS_ADMIN}}|true|g" \
-      "${TEMPLATE_DIR}/user.nix.template" > "users/${USERNAME}.nix"
-  echo "  ✓ users/${USERNAME}.nix (admin)"
-fi
+# ──────────────────────────────────────────────────────────────────
+# Show next steps
+# ──────────────────────────────────────────────────────────────────
+show_next_steps_new() {
+  echo ""
+  gum style --foreground 42 --bold "Configuration generated successfully!"
+  echo ""
 
-# Generate additional user files in users/
-for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
-  IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
-  if [ -f "${TEMPLATE_DIR}/user.nix.template" ]; then
-    sed -e "s|{{USERNAME}}|${u_name}|g" \
-        -e "s|{{FULLNAME}}|${u_full}|g" \
-        -e "s|{{EMAIL}}|${u_email}|g" \
-        -e "s|{{IS_ADMIN}}|${u_admin}|g" \
-        "${TEMPLATE_DIR}/user.nix.template" > "users/${u_name}.nix"
-    if [ "$u_admin" = "true" ]; then
-      echo "  ✓ users/${u_name}.nix (admin)"
-    else
-      echo "  ✓ users/${u_name}.nix"
+  section_header "Next Steps"
+
+  local hw_status
+  if [ -f "${CONFIG_DIR}/hosts/${HOSTNAME}/hardware.nix" ]; then
+    hw_status="Hardware config copied from /etc/nixos/hardware-configuration.nix"
+  else
+    hw_status="Create hosts/${HOSTNAME}/hardware.nix (run nixos-generate-config)"
+  fi
+
+  info_box \
+    "1. Review configuration:" \
+    "   $hw_status" \
+    "   Check hosts/${HOSTNAME}.nix for customizations" \
+    "" \
+    "2. Push to a git remote:" \
+    "   cd ~/.config/nixos_config" \
+    "   git remote add origin <your-repo-url>" \
+    "   git push -u origin master" \
+    "" \
+    "3. Rebuild system:" \
+    "   sudo nixos-rebuild switch --flake ~/.config/nixos_config#${HOSTNAME}"
+
+  echo ""
+  gum style --foreground 33 "Welcome to axiOS!"
+}
+
+show_next_steps_add() {
+  echo ""
+  gum style --foreground 42 --bold "Host ${HOSTNAME} added successfully!"
+  echo ""
+
+  section_header "Next Steps"
+
+  info_box \
+    "1. Review the generated host config:" \
+    "   hosts/${HOSTNAME}.nix" \
+    "" \
+    "2. Push changes:" \
+    "   cd ${CONFIG_DIR}" \
+    "   git push" \
+    "" \
+    "3. On the new machine, rebuild:" \
+    "   sudo nixos-rebuild switch --flake <repo-url>#${HOSTNAME}"
+
+  echo ""
+  gum style --foreground 33 "Welcome to axiOS!"
+}
+
+# ══════════════════════════════════════════════════════════════════
+# MODE A: New Configuration
+# ══════════════════════════════════════════════════════════════════
+new_config_flow() {
+  detect_hardware
+  collect_system_info
+  collect_primary_user
+  collect_additional_users
+  collect_features
+  compute_derived
+  nvidia_preflight
+  show_summary
+
+  echo ""
+  if ! ask_confirm "Generate configuration in ~/.config/nixos_config?"; then
+    gum style --foreground 208 "Cancelled."
+    exit 0
+  fi
+
+  # Create target directory
+  CONFIG_DIR="${HOME}/.config/nixos_config"
+  if [ -d "${CONFIG_DIR}" ] && [ "$(ls -A "${CONFIG_DIR}" 2>/dev/null | wc -l)" -gt 0 ]; then
+    gum style --foreground 208 "Warning: ${CONFIG_DIR} is not empty."
+    if ! ask_confirm "Continue anyway? This may overwrite files."; then
+      gum style --foreground 208 "Cancelled."
+      exit 1
     fi
   fi
-done
+  mkdir -p "${CONFIG_DIR}"
 
-# Generate flake.nix and README.md from templates
-for template in flake.nix README.md; do
-  if [ -f "${TEMPLATE_DIR}/${template}.template" ]; then
-    sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
-        -e "s|{{USERNAME}}|${USERNAME}|g" \
-        -e "s|{{FULLNAME}}|${FULLNAME}|g" \
-        -e "s|{{EMAIL}}|${EMAIL}|g" \
-        -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
-        -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
-        -e "s|{{CPU}}|${CPU}|g" \
-        -e "s|{{GPU}}|${GPU}|g" \
-        -e "s|{{HAS_SSD}}|${HAS_SSD}|g" \
-        -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
-        -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
-        -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
-        -e "s|{{ENABLE_PIM}}|${ENABLE_PIM}|g" \
-        -e "s|{{ENABLE_AI}}|${ENABLE_AI}|g" \
-        -e "s|{{ENABLE_SECRETS}}|${ENABLE_SECRETS}|g" \
-        -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
-        -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
-        -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
-        -e "s|{{DESCRIPTION}}|${DESCRIPTION}|g" \
-        -e "s|{{DATE}}|${DATE}|g" \
-        -e "s|{{HAS_SSD_TEXT}}|${HAS_SSD_TEXT}|g" \
-        "${TEMPLATE_DIR}/${template}.template" > "${template}"
-    echo "  ✓ ${template}"
+  gum spin --title "Generating configuration..." -- sleep 0.5
+
+  # Directory structure
+  mkdir -p "${CONFIG_DIR}/users"
+  mkdir -p "${CONFIG_DIR}/hosts/${HOSTNAME}"
+
+  # Primary user
+  generate_user_file "$CONFIG_DIR" "$USERNAME" "$FULLNAME" "$EMAIL" "true"
+
+  # Additional users
+  for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
+    IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
+    generate_user_file "$CONFIG_DIR" "$u_name" "$u_full" "$u_email" "$u_admin"
+  done
+
+  # flake.nix and README.md from templates
+  for template in flake.nix README.md; do
+    if [ -f "${TEMPLATE_DIR}/${template}.template" ]; then
+      sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
+          -e "s|{{USERNAME}}|${USERNAME}|g" \
+          -e "s|{{FULLNAME}}|${FULLNAME}|g" \
+          -e "s|{{EMAIL}}|${EMAIL}|g" \
+          -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
+          -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
+          -e "s|{{CPU}}|${CPU}|g" \
+          -e "s|{{GPU}}|${GPU}|g" \
+          -e "s|{{HAS_SSD}}|${HAS_SSD}|g" \
+          -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
+          -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
+          -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
+          -e "s|{{ENABLE_PIM}}|${ENABLE_PIM}|g" \
+          -e "s|{{ENABLE_AI}}|${ENABLE_AI}|g" \
+          -e "s|{{ENABLE_SECRETS}}|${ENABLE_SECRETS}|g" \
+          -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
+          -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
+          -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
+          -e "s|{{DESCRIPTION}}|${DESCRIPTION}|g" \
+          -e "s|{{DATE}}|${DATE}|g" \
+          -e "s|{{HAS_SSD_TEXT}}|${HAS_SSD_TEXT}|g" \
+          "${TEMPLATE_DIR}/${template}.template" > "${CONFIG_DIR}/${template}"
+    fi
+  done
+
+  # Host files
+  generate_host_files "$CONFIG_DIR"
+
+  # Secrets directory
+  generate_secrets_dir "$CONFIG_DIR"
+
+  # .gitignore
+  if [ -f "${TEMPLATE_DIR}/gitignore.template" ]; then
+    cp "${TEMPLATE_DIR}/gitignore.template" "${CONFIG_DIR}/.gitignore"
   fi
-done
 
-# Generate host config file
-if [ -f "${TEMPLATE_DIR}/host.nix.template" ]; then
-  sed -e "s|{{HOSTNAME}}|${HOSTNAME}|g" \
-      -e "s|{{USERNAME}}|${USERNAME}|g" \
-      -e "s|{{TIMEZONE}}|${TIMEZONE}|g" \
-      -e "s|{{FORMFACTOR}}|${FORMFACTOR}|g" \
-      -e "s|{{CPU}}|${CPU}|g" \
-      -e "s|{{GPU}}|${GPU}|g" \
-      -e "s|{{HAS_SSD}}|${HAS_SSD}|g" \
-      -e "s|{{IS_LAPTOP}}|${IS_LAPTOP}|g" \
-      -e "s|{{HOME_PROFILE}}|${HOME_PROFILE}|g" \
-      -e "s|{{ENABLE_GAMING}}|${ENABLE_GAMING}|g" \
-      -e "s|{{ENABLE_PIM}}|${ENABLE_PIM}|g" \
-      -e "s|{{ENABLE_AI}}|${ENABLE_AI}|g" \
-      -e "s|{{ENABLE_SECRETS}}|${ENABLE_SECRETS}|g" \
-      -e "s|{{ENABLE_VIRT}}|${ENABLE_VIRT}|g" \
-      -e "s|{{ENABLE_LIBVIRT}}|${ENABLE_LIBVIRT}|g" \
-      -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
-      -e "s|{{USERS_LIST}}|${USERS_LIST}|g" \
-      "${TEMPLATE_DIR}/host.nix.template" | \
-      sed "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" > "hosts/${HOSTNAME}.nix"
-  echo "  ✓ hosts/${HOSTNAME}.nix"
-fi
+  # Git init + commit
+  (
+    cd "${CONFIG_DIR}"
+    git init -q
+    git add .
+    git commit -q -m "Initial axiOS configuration for ${HOSTNAME}"
+  )
 
-# Generate/update hardware configuration
-# Run nixos-generate-config to ensure we have current hardware detection
-if [ -f /etc/NIXOS ]; then
-  echo "  Running nixos-generate-config to detect hardware..."
-  sudo nixos-generate-config --root /etc >/dev/null 2>&1 || true
+  show_next_steps_new
+}
 
-  # Copy the complete hardware-configuration.nix
-  # This includes boot modules, kernel modules, filesystems, and swap - everything needed for hardware boot
-  if [ -f /etc/nixos/hardware-configuration.nix ]; then
-    cp /etc/nixos/hardware-configuration.nix "hosts/${HOSTNAME}/hardware.nix"
-    echo "  ✓ hosts/${HOSTNAME}/hardware.nix (copied from /etc/nixos/hardware-configuration.nix)"
+# ══════════════════════════════════════════════════════════════════
+# MODE B: Add Host to Existing Configuration
+# ══════════════════════════════════════════════════════════════════
+add_host_flow() {
+  section_header "Add Host to Existing Configuration"
+
+  local git_url
+  git_url=$(ask_input "Git repository URL for your existing config")
+
+  CONFIG_DIR="${HOME}/.config/nixos_config"
+
+  if [ -d "${CONFIG_DIR}" ] && [ "$(ls -A "${CONFIG_DIR}" 2>/dev/null | wc -l)" -gt 0 ]; then
+    gum style --foreground 208 "Warning: ${CONFIG_DIR} already exists."
+    if ! ask_confirm "Use existing directory instead of cloning?"; then
+      gum style --foreground 208 "Cancelled."
+      exit 1
+    fi
   else
-    echo -e "  ${YELLOW}⚠ Failed to generate hardware-configuration.nix${NC}"
-    echo "  You'll need to create hosts/${HOSTNAME}/hardware.nix manually"
+    gum spin --title "Cloning configuration..." -- \
+      git clone "$git_url" "$CONFIG_DIR"
   fi
-else
-  echo -e "  ${YELLOW}⚠ Not running on NixOS - cannot auto-generate hardware config${NC}"
-  echo "  You'll need to create hosts/${HOSTNAME}/hardware.nix manually"
-  echo "  Install NixOS first, then run this init script"
-fi
 
-# Create .gitignore
-if [ -f "${TEMPLATE_DIR}/gitignore.template" ]; then
-  cp "${TEMPLATE_DIR}/gitignore.template" .gitignore
-  echo "  ✓ .gitignore"
-fi
+  # Validate structure
+  if [ ! -f "${CONFIG_DIR}/flake.nix" ]; then
+    gum style --foreground 196 "Error: No flake.nix found in ${CONFIG_DIR}"
+    echo "This does not appear to be a valid axiOS configuration."
+    exit 1
+  fi
+
+  # Scan existing hosts and users
+  local existing_hosts=()
+  local existing_users=()
+
+  if [ -d "${CONFIG_DIR}/hosts" ]; then
+    for f in "${CONFIG_DIR}"/hosts/*.nix; do
+      [ -f "$f" ] || continue
+      existing_hosts+=("$(basename "$f" .nix)")
+    done
+  fi
+
+  if [ -d "${CONFIG_DIR}/users" ]; then
+    for f in "${CONFIG_DIR}"/users/*.nix; do
+      [ -f "$f" ] || continue
+      existing_users+=("$(basename "$f" .nix)")
+    done
+  fi
+
+  section_header "Existing Configuration"
+  local info_lines=()
+  if [ ${#existing_hosts[@]} -gt 0 ]; then
+    info_lines+=("Hosts: ${existing_hosts[*]}")
+  else
+    info_lines+=("Hosts: (none)")
+  fi
+  if [ ${#existing_users[@]} -gt 0 ]; then
+    info_lines+=("Users: ${existing_users[*]}")
+  else
+    info_lines+=("Users: (none)")
+  fi
+  info_box "${info_lines[@]}"
+
+  # Hardware detection
+  detect_hardware
+
+  # Collect new host info
+  collect_system_info
+
+  # Check for duplicate hostname
+  for existing in "${existing_hosts[@]+"${existing_hosts[@]}"}"; do
+    if [ "$existing" = "$HOSTNAME" ]; then
+      gum style --foreground 196 "Error: Host '${HOSTNAME}' already exists in this configuration."
+      exit 1
+    fi
+  done
+
+  # User assignment
+  section_header "User Assignment"
+
+  # Let user select from existing users
+  ADDITIONAL_USERS=()
+  local assigned_users=()
+  local primary_from_existing="false"
+
+  if [ ${#existing_users[@]} -gt 0 ]; then
+    echo "Select users to assign to this host."
+    echo "The first selected user will be the primary admin."
+    echo ""
+
+    local selected_existing
+    selected_existing=$(gum choose --no-limit --header "Assign existing users to ${HOSTNAME}:" \
+      "${existing_users[@]}" \
+      "(Create new user)") || true
+
+    if echo "$selected_existing" | grep -q "Create new user"; then
+      # Will collect below
+      :
+    fi
+
+    # Process selected existing users
+    local first="true"
+    while IFS= read -r line; do
+      [ -z "$line" ] && continue
+      [ "$line" = "(Create new user)" ] && continue
+
+      if [ "$first" = "true" ]; then
+        USERNAME="$line"
+        # Extract info from existing user file
+        FULLNAME=$(grep -oP 'fullName\s*=\s*"\K[^"]+' "${CONFIG_DIR}/users/${line}.nix" 2>/dev/null || echo "$line")
+        EMAIL=$(grep -oP 'email\s*=\s*"\K[^"]+' "${CONFIG_DIR}/users/${line}.nix" 2>/dev/null || echo "")
+        primary_from_existing="true"
+        first="false"
+      else
+        assigned_users+=("$line")
+      fi
+    done <<< "$selected_existing"
+  fi
+
+  # If no primary user from existing, collect new primary
+  if [ "$primary_from_existing" = "false" ]; then
+    collect_primary_user
+    generate_user_file "$CONFIG_DIR" "$USERNAME" "$FULLNAME" "$EMAIL" "true"
+  fi
+
+  # Build USERS_LIST from all assigned users
+  USERS_LIST="\"${USERNAME}\""
+  for u in "${assigned_users[@]+"${assigned_users[@]}"}"; do
+    USERS_LIST="${USERS_LIST} \"${u}\""
+  done
+
+  # Ask to create additional new users
+  while true; do
+    echo ""
+    if ! ask_confirm "Create a new user for this host?"; then
+      break
+    fi
+    section_header "New User"
+    local extra_user extra_full extra_email extra_admin
+    extra_user=$(ask_input "Username")
+    extra_full=$(ask_input "Full name")
+    extra_email=$(ask_input "Email address (optional)" " ")
+    extra_email=$(echo "$extra_email" | xargs)
+
+    if ask_confirm "Admin access (sudo)?" "no"; then
+      extra_admin="true"
+    else
+      extra_admin="false"
+    fi
+
+    generate_user_file "$CONFIG_DIR" "$extra_user" "$extra_full" "$extra_email" "$extra_admin"
+    USERS_LIST="${USERS_LIST} \"${extra_user}\""
+    gum style --foreground 42 "  Added user: ${extra_user}"
+  done
+
+  # Features
+  collect_features
+  compute_derived
+
+  nvidia_preflight
+  show_summary
+
+  echo ""
+  if ! ask_confirm "Add host ${HOSTNAME} to the configuration?"; then
+    gum style --foreground 208 "Cancelled."
+    exit 0
+  fi
+
+  # Generate host files
+  gum spin --title "Generating host files..." -- sleep 0.3
+  generate_host_files "$CONFIG_DIR"
+  generate_secrets_dir "$CONFIG_DIR"
+
+  # Insert into flake.nix
+  local flake_file="${CONFIG_DIR}/flake.nix"
+  if grep -q "mkHost" "$flake_file"; then
+    if grep -q "\"${HOSTNAME}\"" "$flake_file"; then
+      gum style --foreground 208 "Host '${HOSTNAME}' already referenced in flake.nix — skipping insertion."
+    else
+      local last_mkhost_line
+      last_mkhost_line=$(grep -n "mkHost" "$flake_file" | tail -1 | cut -d: -f1)
+      sed -i "${last_mkhost_line}a\\        ${HOSTNAME} = mkHost \"${HOSTNAME}\";" "$flake_file"
+      gum style --foreground 42 "  Added ${HOSTNAME} to flake.nix"
+    fi
+  else
+    gum style --foreground 208 "Could not find mkHost in flake.nix — add the host entry manually:"
+    echo "  ${HOSTNAME} = mkHost \"${HOSTNAME}\";"
+  fi
+
+  # Commit
+  (
+    cd "${CONFIG_DIR}"
+    git add .
+    git commit -q -m "Add host: ${HOSTNAME}"
+  )
+
+  show_next_steps_add
+}
+
+# ══════════════════════════════════════════════════════════════════
+# Main
+# ══════════════════════════════════════════════════════════════════
+banner
 
 echo ""
-echo -e "${GREEN}${BOLD}✓ Configuration generated successfully!${NC}"
-echo ""
-echo -e "${BOLD}Next steps:${NC}"
-echo ""
-echo -e "  ${YELLOW}1. Review configuration:${NC}"
-if [ -f "hosts/${HOSTNAME}/hardware.nix" ]; then
-  echo "     ✓ Hardware configuration copied from /etc/nixos/hardware-configuration.nix"
-else
-  echo "     ⚠ Create hosts/${HOSTNAME}/hardware.nix"
-  echo "       Run nixos-generate-config to generate hardware-configuration.nix, then copy it"
-fi
-echo "     Check hosts/${HOSTNAME}.nix for any customizations"
-echo ""
-echo -e "  ${YELLOW}2. Review host configuration:${NC}"
-echo "     Edit hosts/${HOSTNAME}.nix to customize settings"
-echo "     See extraConfig section for additional options"
-echo ""
-echo -e "  ${YELLOW}3. Initialize git repository:${NC}"
-echo "     cd ~/.config/nixos_config"
-echo "     git init"
-echo "     git add ."
-echo "     git commit -m 'Initial axiOS configuration'"
-echo ""
-echo -e "  ${YELLOW}4. Rebuild system:${NC}"
-echo "     sudo nixos-rebuild switch --flake ~/.config/nixos_config#${HOSTNAME}"
-echo "     # Or use the fish helper: rebuild-switch"
-echo ""
-echo -e "${GREEN}Configuration location: ${BOLD}~/.config/nixos_config${NC}"
-echo -e "Helper commands available after rebuild: ${BOLD}rebuild-switch, rebuild-boot, update-flake, flake-cd${NC}"
-echo ""
-echo -e "See ${BOLD}~/.config/nixos_config/README.md${NC} for complete documentation."
-echo ""
-echo -e "${BLUE}Welcome to axiOS! 🚀${NC}"
+MODE=$(ask_choose "What would you like to do?" \
+  "New configuration" \
+  "Add host to existing config")
+
+case "$MODE" in
+  "New configuration")
+    new_config_flow
+    ;;
+  "Add host to existing config")
+    add_host_flow
+    ;;
+esac
