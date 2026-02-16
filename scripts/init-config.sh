@@ -300,7 +300,10 @@ collect_features() {
   local selected
   selected=$(ask_multi "Select optional features (space to toggle, enter to confirm):" \
     "Gaming (Steam, GameMode, Proton)" \
-    "PIM (axios-ai-mail)" \
+    "PIM (axios-ai-mail email)" \
+    "Immich (photo/video backup)" \
+    "Local LLM (Ollama + OpenCode)" \
+    "Secure Boot (Lanzaboote)" \
     "Secrets (age-encrypted)" \
     "Virtualization - libvirt/KVM" \
     "Virtualization - Containers (Podman)") || true
@@ -308,6 +311,9 @@ collect_features() {
   # Parse selections
   ENABLE_GAMING="false"
   ENABLE_PIM="false"
+  ENABLE_IMMICH="false"
+  ENABLE_LOCAL_LLM="false"
+  ENABLE_SECUREBOOT="false"
   ENABLE_SECRETS="false"
   ENABLE_LIBVIRT="false"
   ENABLE_CONTAINERS="false"
@@ -317,6 +323,15 @@ collect_features() {
   fi
   if echo "$selected" | grep -q "PIM"; then
     ENABLE_PIM="true"
+  fi
+  if echo "$selected" | grep -q "Immich"; then
+    ENABLE_IMMICH="true"
+  fi
+  if echo "$selected" | grep -q "Local LLM"; then
+    ENABLE_LOCAL_LLM="true"
+  fi
+  if echo "$selected" | grep -q "Secure Boot"; then
+    ENABLE_SECUREBOOT="true"
   fi
   if echo "$selected" | grep -q "Secrets"; then
     ENABLE_SECRETS="true"
@@ -333,6 +348,48 @@ collect_features() {
     ENABLE_VIRT="true"
   else
     ENABLE_VIRT="false"
+  fi
+
+  # Sub-options for features with roles
+  PIM_ROLE="server"
+  PIM_USER=""
+  IMMICH_ROLE="server"
+  LOCAL_LLM_ROLE="server"
+  TAILNET_DOMAIN=""
+
+  if [ "$ENABLE_PIM" = "true" ]; then
+    echo ""
+    PIM_ROLE=$(ask_choose "PIM role for this host?" "server" "server" "client")
+    if [ "$PIM_ROLE" = "server" ]; then
+      PIM_USER="$USERNAME"
+    fi
+  fi
+
+  if [ "$ENABLE_IMMICH" = "true" ]; then
+    echo ""
+    IMMICH_ROLE=$(ask_choose "Immich role for this host?" "client" "server" "client")
+  fi
+
+  if [ "$ENABLE_LOCAL_LLM" = "true" ]; then
+    echo ""
+    LOCAL_LLM_ROLE=$(ask_choose "Local LLM role for this host?" "server" "server" "client")
+  fi
+
+  # Ask for tailnet domain if any feature needs it
+  local needs_tailnet="false"
+  if [ "$ENABLE_PIM" = "true" ] && [ "$PIM_ROLE" = "client" ]; then
+    needs_tailnet="true"
+  fi
+  if [ "$ENABLE_IMMICH" = "true" ]; then
+    needs_tailnet="true"
+  fi
+  if [ "$ENABLE_LOCAL_LLM" = "true" ] && [ "$LOCAL_LLM_ROLE" = "client" ]; then
+    needs_tailnet="true"
+  fi
+
+  if [ "$needs_tailnet" = "true" ]; then
+    echo ""
+    TAILNET_DOMAIN=$(ask_input "Tailscale tailnet domain (e.g. taile0fb4.ts.net)")
   fi
 }
 
@@ -367,6 +424,35 @@ compute_derived() {
     SECRETS_CONFIG="      # Configure secrets directory for automatic discovery\\n      secrets.secretsDir = ../secrets;"
   else
     SECRETS_CONFIG=""
+  fi
+
+  # Build EXTRA_CONFIG for new features
+  EXTRA_CONFIG=""
+
+  if [ "$ENABLE_SECUREBOOT" = "true" ]; then
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n      # Secure boot\\n      boot.lanzaboote.enableSecureBoot = true;"
+  fi
+
+  if [ -n "$TAILNET_DOMAIN" ]; then
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Tailscale tailnet domain\\n      networking.tailscale.domain = \"${TAILNET_DOMAIN}\";"
+  fi
+
+  if [ "$ENABLE_PIM" = "true" ]; then
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # PIM (axios-ai-mail)\\n      services.pim.role = \"${PIM_ROLE}\";"
+    if [ "$PIM_ROLE" = "server" ]; then
+      EXTRA_CONFIG="${EXTRA_CONFIG}\\n      services.pim.user = \"${PIM_USER}\";"
+    fi
+  fi
+
+  if [ "$ENABLE_IMMICH" = "true" ]; then
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Immich photo/video backup\\n      axios.immich.enable = true;\\n      axios.immich.role = \"${IMMICH_ROLE}\";"
+  fi
+
+  if [ "$ENABLE_LOCAL_LLM" = "true" ]; then
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Local LLM inference\\n      services.ai.local.enable = true;\\n      services.ai.local.role = \"${LOCAL_LLM_ROLE}\";"
+    if [ "$LOCAL_LLM_ROLE" = "client" ] && [ -n "$TAILNET_DOMAIN" ]; then
+      EXTRA_CONFIG="${EXTRA_CONFIG}\\n      services.ai.local.tailnetDomain = \"${TAILNET_DOMAIN}\";"
+    fi
   fi
 }
 
@@ -413,12 +499,31 @@ show_summary() {
   lines+=("SSD:           $HAS_SSD")
   lines+=("")
   lines+=("Gaming:        $ENABLE_GAMING")
-  lines+=("PIM:           $ENABLE_PIM")
+  if [ "$ENABLE_PIM" = "true" ]; then
+    lines+=("PIM:           $ENABLE_PIM ($PIM_ROLE)")
+  else
+    lines+=("PIM:           $ENABLE_PIM")
+  fi
+  if [ "$ENABLE_IMMICH" = "true" ]; then
+    lines+=("Immich:        $ENABLE_IMMICH ($IMMICH_ROLE)")
+  else
+    lines+=("Immich:        $ENABLE_IMMICH")
+  fi
+  if [ "$ENABLE_LOCAL_LLM" = "true" ]; then
+    lines+=("Local LLM:     $ENABLE_LOCAL_LLM ($LOCAL_LLM_ROLE)")
+  else
+    lines+=("Local LLM:     $ENABLE_LOCAL_LLM")
+  fi
+  lines+=("Secure Boot:   $ENABLE_SECUREBOOT")
   lines+=("Secrets:       $ENABLE_SECRETS")
   lines+=("Virtualization: $ENABLE_VIRT")
   if [ "$ENABLE_VIRT" = "true" ]; then
     lines+=("  libvirt:     $ENABLE_LIBVIRT")
     lines+=("  containers:  $ENABLE_CONTAINERS")
+  fi
+  if [ -n "$TAILNET_DOMAIN" ]; then
+    lines+=("")
+    lines+=("Tailnet:       $TAILNET_DOMAIN")
   fi
 
   info_box "${lines[@]}"
@@ -471,7 +576,8 @@ generate_host_files() {
         -e "s|{{ENABLE_CONTAINERS}}|${ENABLE_CONTAINERS}|g" \
         -e "s|{{USERS_LIST}}|${USERS_LIST}|g" \
         "${TEMPLATE_DIR}/host.nix.template" | \
-        sed "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" > "${target_dir}/hosts/${HOSTNAME}.nix"
+        sed -e "s|{{SECRETS_CONFIG}}|${SECRETS_CONFIG}|g" \
+            -e "s|{{EXTRA_CONFIG}}|${EXTRA_CONFIG}|g" > "${target_dir}/hosts/${HOSTNAME}.nix"
   fi
 
   # Hardware config

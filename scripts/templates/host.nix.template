@@ -51,10 +51,7 @@
       # System timezone (required)
       axios.system.timeZone = "{{TIMEZONE}}";
 
-      # Add any additional NixOS configuration here
-      # Examples:
-      # services.openssh.enable = true;
-{{SECRETS_CONFIG}}
+{{SECRETS_CONFIG}}{{EXTRA_CONFIG}}
     };
   };
 }

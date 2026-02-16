@@ -101,10 +101,18 @@ Gather the following from the user. For detected values, confirm them as default
 8. **Additional users** — optional, loop until user says no. Each has: username, full name, email, isAdmin (true/false)
 9. **Optional features**:
    - Gaming (Steam, GameMode, Proton) — `true`/`false`
-   - PIM (axios-ai-mail) — `true`/`false`
+   - PIM (axios-ai-mail email management) — `true`/`false`
+     - If enabled: role — `"server"` (runs backend + sync) or `"client"` (PWA access only)
+     - If server: ask which user to run the service as (typically the primary user)
+   - Immich (photo/video backup) — `true`/`false`
+     - If enabled: role — `"server"` (runs Immich locally) or `"client"` (PWA access only)
+   - Local LLM inference (Ollama + OpenCode) — `true`/`false`
+     - If enabled: role — `"server"` (runs Ollama with GPU accel) or `"client"` (remote Ollama via tailnet)
+   - Secure boot (Lanzaboote) — `true`/`false`
    - Secrets (age-encrypted) — `true`/`false`
    - Virtualization: libvirt — `true`/`false`
    - Virtualization: containers (Podman) — `true`/`false`
+10. **Tailscale tailnet domain** — e.g. `taile0fb4.ts.net`. Ask for this if ANY of these are true: PIM client role, Immich enabled, or local LLM client role. The domain is shared across all services.
 
 ## Value Constraints
 
@@ -118,6 +126,10 @@ Gather the following from the user. For detected values, confirm them as default
 | `homeProfile` | `"workstation"` (for desktop) or `"laptop"` (for laptop) |
 | `system` | `"x86_64-linux"` |
 | All module flags | `true` or `false` (bare, not quoted) |
+| `services.pim.role` | `"server"` or `"client"` |
+| `services.ai.local.role` | `"server"` or `"client"` |
+| `axios.immich.role` | `"server"` or `"client"` |
+| `networking.tailscale.domain` | Quoted string like `"taile0fb4.ts.net"` or `null` |
 
 ## Template: flake.nix
 
@@ -216,8 +228,6 @@ Generate this file at `hosts/<HOSTNAME>.nix`:
       axios.system.timeZone = "<TIMEZONE>";
 
       # Add any additional NixOS configuration here
-      # Examples:
-      # services.openssh.enable = true;
     };
   };
 }
@@ -225,11 +235,45 @@ Generate this file at `hosts/<HOSTNAME>.nix`:
 
 Replace all `<PLACEHOLDER>` values. Boolean values like `<HAS_SSD>`, `<IS_LAPTOP>`, `<ENABLE_VIRT>` etc. must be bare `true` or `false` (no quotes). String values must be quoted. `<USERS_LIST>` should be space-separated quoted strings like `"alice" "bob"`.
 
-If secrets are enabled, add this inside the `extraConfig` block:
+**Conditional `extraConfig` blocks** — add these inside `extraConfig` based on user selections:
 
+If **secrets** enabled:
 ```nix
-      # Configure secrets directory for automatic discovery
       secrets.secretsDir = ../secrets;
+```
+
+If **secure boot** enabled:
+```nix
+      boot.lanzaboote.enableSecureBoot = true;
+```
+
+If **tailscale domain** was provided (needed by PIM client, Immich, local LLM client):
+```nix
+      networking.tailscale.domain = "<TAILNET_DOMAIN>";
+```
+
+If **PIM** enabled:
+```nix
+      services.pim.role = "<PIM_ROLE>";  # "server" or "client"
+      # Server only: specify the user to run the service as
+      services.pim.user = "<USERNAME>";
+```
+
+If **Immich** enabled:
+```nix
+      axios.immich.enable = true;
+      axios.immich.role = "<IMMICH_ROLE>";  # "server" or "client"
+```
+
+If **local LLM** enabled:
+```nix
+      services.ai.local.enable = true;
+      services.ai.local.role = "<AI_LOCAL_ROLE>";  # "server" or "client"
+```
+
+If local LLM client role, also add:
+```nix
+      services.ai.local.tailnetDomain = "<TAILNET_DOMAIN>";
 ```
 
 ## Template: users/<username>.nix
