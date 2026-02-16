@@ -882,21 +882,6 @@ add_host_flow() {
 # MODE C: AI-Assisted Configuration
 # ══════════════════════════════════════════════════════════════════
 ai_config_flow() {
-  # Pre-flight: is claude on PATH?
-  if ! command -v claude >/dev/null 2>&1; then
-    gum style --foreground 196 --bold "Error: 'claude' (Claude Code) is not found on PATH."
-    echo ""
-    info_box \
-      "Claude Code is required for AI-assisted configuration." \
-      "" \
-      "Install options:" \
-      "  1. Enable axiOS AI module: services.ai.enable = true" \
-      "  2. Install directly: npm install -g @anthropic-ai/claude-code" \
-      "" \
-      "Then re-run: nix run github:kcalvelli/axios#init"
-    exit 1
-  fi
-
   # Info box about requirements
   info_box \
     "AI-assisted configuration uses Claude Code to interactively" \
