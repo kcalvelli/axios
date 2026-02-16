@@ -19,7 +19,8 @@ Follow the full setup flow: collect all information, generate all files from scr
 
 1. **Locate the existing config:**
    - Check if `~/.config/nixos_config` already has files (you're running inside it). If it contains a `flake.nix`, ask if they want to use it.
-   - Otherwise, ask for their git repo URL and clone it: `git clone <url> .` (into the current directory, which is `~/.config/nixos_config`).
+   - Otherwise, authenticate with GitHub first if needed: check `gh auth status` — if not logged in, run `gh auth login` (supports device-flow auth from any machine, no SSH keys needed).
+   - Then ask for their repo (e.g. `user/nixos-config`) and clone it: `gh repo clone <owner/repo> .` (into the current directory, which is `~/.config/nixos_config`). This works for private repos.
 
 2. **Validate structure:** Confirm `flake.nix` exists and uses the `mkHost` pattern.
 

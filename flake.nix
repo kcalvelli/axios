@@ -206,6 +206,7 @@
                         pkgs.util-linux
                         pkgs.gawk
                         pkgs.claude-code
+                        pkgs.gh
                       ]
                     }:$PATH"
                     export AXIOS_TEMPLATE_DIR="${./scripts/templates}"

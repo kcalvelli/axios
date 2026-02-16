@@ -687,9 +687,6 @@ new_config_flow() {
 add_host_flow() {
   section_header "Add Host to Existing Configuration"
 
-  local git_url
-  git_url=$(ask_input "Git repository URL for your existing config")
-
   CONFIG_DIR="${HOME}/.config/nixos_config"
 
   if [ -d "${CONFIG_DIR}" ] && [ "$(ls -A "${CONFIG_DIR}" 2>/dev/null | wc -l)" -gt 0 ]; then
@@ -699,8 +696,20 @@ add_host_flow() {
       exit 1
     fi
   else
+    # Authenticate with GitHub if not already logged in
+    if ! gh auth status >/dev/null 2>&1; then
+      info_box \
+        "GitHub authentication is required to clone your config repo." \
+        "You'll be guided through login (works from any device)."
+      echo ""
+      gh auth login
+    fi
+
+    local git_url
+    git_url=$(ask_input "Git repository URL or owner/repo (e.g. user/nixos-config)")
+
     gum spin --title "Cloning configuration..." -- \
-      git clone "$git_url" "$CONFIG_DIR"
+      gh repo clone "$git_url" "$CONFIG_DIR"
   fi
 
   # Validate structure
