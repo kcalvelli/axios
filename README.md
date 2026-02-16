@@ -30,25 +30,23 @@ You maintain just a few simple files (~30 lines), and axios provides everything 
 
 **Prerequisites:** NixOS installed in UEFI mode (BIOS/MBR not supported)
 
-### Use the Interactive Generator (Recommended) ⭐
+### Fresh NixOS Install
 
 ```bash
-mkdir ~/my-nixos-config && cd ~/my-nixos-config
-nix run --refresh --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
 ```
 
-> **Note:** The `--refresh` flag ensures you get the latest version. Without it, Nix may use a cached version.
+This handles everything: enables flakes, configures binary caches, and launches the interactive installer.
 
-The generator creates a complete configuration tailored to your system in minutes.
+### Flakes Already Enabled
 
-### Manual Configuration
+```bash
+nix run --refresh github:kcalvelli/axios#init
+```
 
-For manual setup, you'll create just 3 files:
-- `flake.nix` - Import axios and configure your system (~30 lines)
-- `user.nix` - Your user account settings (~15 lines)
-- `hardware.nix` - Hardware configuration from nixos-generate-config
+The installer offers three modes: scripted setup, add a host to an existing config, or AI-assisted configuration with Claude Code.
 
-**See [docs/INSTALLATION.md](docs/INSTALLATION.md) for complete step-by-step instructions.**
+**See [docs/INSTALLATION.md](docs/INSTALLATION.md) for complete instructions.**
 
 ## Features
 

@@ -15,26 +15,21 @@ scripts/
 
 ## User Scripts
 
-### 🚀 init-config.sh
+### init-config.sh
 
 **Interactive configuration generator for axiOS.**
 
-This is the main entry point for creating a new axiOS configuration:
-
+**Fresh NixOS install:**
 ```bash
-mkdir ~/my-nixos-config && cd ~/my-nixos-config
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
+```
+
+**Flakes already enabled:**
+```bash
 nix run --refresh github:kcalvelli/axios#init
 ```
 
-> **Note:** The `--refresh` flag ensures you get the latest version of the init script.
-
-**What it does:**
-- Asks questions about your system (hostname, hardware, preferences)
-- Generates a complete configuration tailored to your needs
-- Creates flake.nix, user.nix, disks.nix, and README.md
-- Provides next steps for installation
-
-**Recommended for all new users.**
+Offers three modes: scripted setup, add host to existing config, or AI-assisted with Claude Code. Detects hardware, collects preferences, generates all config files, and offers to rebuild.
 
 ---
 

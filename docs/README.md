@@ -24,25 +24,17 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 
 ### New Users
 
-The fastest way to get started with axiOS:
-
+**Fresh NixOS install:**
 ```bash
-# Create a directory and run the interactive generator
-mkdir ~/my-nixos-config && cd ~/my-nixos-config
-nix run --refresh --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
 ```
 
-The generator will:
-- Ask you about your system (hostname, hardware, preferences)
-- Generate a complete configuration tailored to your needs
-- Provide clear next-steps instructions
+**Flakes already enabled:**
+```bash
+nix run --refresh github:kcalvelli/axios#init
+```
 
-Or follow the manual installation guide:
-
-1. **Read installation guide**: [INSTALLATION.md](INSTALLATION.md) for detailed instructions
-2. **Generate config**: Use `axios init` or copy the minimal example
-3. **Customize**: Edit generated files for your hardware
-4. **Install**: Boot from installer and run nixos-install
+See [INSTALLATION.md](INSTALLATION.md) for full details.
 
 ### Existing Users
 

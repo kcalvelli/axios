@@ -38,96 +38,54 @@ If you haven't installed NixOS yet:
 4. Complete the installation and boot into your new NixOS system
 5. Then return here to install axiOS
 
-## Quick Start (Recommended)
+## Install
 
-### Using the Interactive Generator
+### Fresh NixOS Install
 
 On your **existing NixOS system**, run:
 
 ```bash
-# Run the interactive generator
-nix run --refresh --extra-experimental-features "nix-command flakes" github:kcalvelli/axios#init
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
 ```
 
-> **Note:** The `--refresh` flag ensures you get the latest version of axios. Without it, Nix may use a cached flake.
+This bootstrap script handles everything automatically:
+- Enables flakes (if not already configured)
+- Configures binary caches for faster builds
+- Launches the interactive installer
 
-The generator will:
+### Flakes Already Enabled
 
-1. **Ask you questions** about your system:
-   - Hostname, username, email, timezone
-   - Form factor (desktop/laptop/server)
-   - Hardware (CPU/GPU vendors)
-   - Optional modules (gaming, virtualization, AI, secrets)
+If you already have flakes configured:
 
-2. **Generate files** in `~/.config/nixos_config/`:
-   - `flake.nix` - Main flake configuration
-   - `user.nix` - Your user account
-   - `hosts/HOSTNAME.nix` - Host configuration
-   - `hosts/HOSTNAME/disks.nix` - **Auto-extracted** from `/etc/nixos/hardware-configuration.nix`
-   - `README.md` - Personalized next-steps guide
-
-3. **Auto-extract disk configuration**:
-   - Reads `/etc/nixos/hardware-configuration.nix` (created during NixOS installation)
-   - Extracts filesystem mounts, boot config, and swap
-   - Creates clean `disks.nix` with only disk-related configuration
-   - **No manual copying required!**
-
-Then just:
 ```bash
-cd ~/.config/nixos_config
-git init
-git add .
-git commit -m "Initial axiOS configuration"
-sudo nixos-rebuild switch --flake .#HOSTNAME
+nix run --refresh github:kcalvelli/axios#init
 ```
 
-**That's it!** Your system is now managed by axiOS.
+### Installer Modes
+
+The installer offers three modes:
+
+1. **New configuration** — Scripted setup that walks through hardware, users, and features
+2. **Add host to existing config** — Clone your config repo (authenticates via GitHub CLI) and add a new host
+3. **AI-assisted configuration** — Claude Code interactively guides you through setup
+
+All modes generate a complete configuration in `~/.config/nixos_config/` and offer to rebuild your system when done.
 
 ---
 
-## What Happens During Init
+## What the Installer Does
 
-The `nix run .#init` script:
+1. **Detects hardware** — CPU, GPU, form factor, SSD, timezone
+2. **Collects configuration** — hostname, users, features (gaming, PIM, Immich, local LLM, secure boot, etc.)
+3. **Generates files** in `~/.config/nixos_config/`:
+   - `flake.nix` — Main flake configuration
+   - `hosts/HOSTNAME.nix` — Host configuration with all selected features
+   - `hosts/HOSTNAME/hardware.nix` — Copied from `nixos-generate-config`
+   - `users/USERNAME.nix` — Per-user configuration
+4. **Initializes git** and commits the configuration
+5. **Offers to rebuild** — runs `nixos-rebuild switch` with the generated config
 
-1. **Creates** `~/.config/nixos_config/` directory
-2. **Prompts** for system configuration (hostname, user, hardware, etc.)
-3. **Generates** configuration files from templates
-4. **Extracts** disk configuration from `/etc/nixos/hardware-configuration.nix`:
-   ```bash
-   # Automatically extracts these sections:
-   - boot.initrd.availableKernelModules
-   - boot.kernelModules
-   - fileSystems.* (all mount points)
-   - swapDevices
-   - hardware.cpu.*.updateMicrocode
-   ```
-5. **Creates** `hosts/HOSTNAME/disks.nix` with extracted config
-6. **Shows** next steps
-
-**No manual file editing required** - the disk configuration is automatically extracted from your existing NixOS installation.
-
----
-
-## Applying Your Configuration
-
-After running the init script:
-
-```bash
-# Navigate to your configuration
-cd ~/.config/nixos_config
-
-# Initialize git (optional but recommended)
-git init
-git add .
-git commit -m "Initial axiOS configuration"
-
-# Apply the configuration
-sudo nixos-rebuild switch --flake .#HOSTNAME
-
-# Log out and back in to activate home-manager changes
-```
-
-Your system is now managed by axiOS! 🎉
+**No manual file editing required.**
 
 ---
 
