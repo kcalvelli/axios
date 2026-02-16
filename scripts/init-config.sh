@@ -951,7 +951,7 @@ ai_config_flow() {
 
   (
     cd "${CONFIG_DIR}"
-    claude --system-prompt "$system_prompt"
+    claude --system-prompt "$system_prompt" "Help me set up my axiOS configuration."
   )
 
   # Post-session check
