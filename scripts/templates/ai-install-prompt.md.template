@@ -321,20 +321,16 @@ This directory is for age-encrypted secrets.
 1. Initialize git: `git init`
 2. Stage everything: `git add .`
 3. Commit: `git commit -m "Initial axiOS configuration for <HOSTNAME>"`
-4. Show next steps:
-   - Review `hosts/<HOSTNAME>.nix` for customizations
-   - If hardware.nix was not auto-generated, explain how to create it
-   - Push to a git remote: `git remote add origin <url> && git push -u origin master`
-   - Rebuild: `sudo nixos-rebuild switch --flake ~/.config/nixos_config#<HOSTNAME>`
+4. If hardware.nix was not auto-generated, explain how to create it.
+5. Tell the user: "Your configuration is ready! Type `/exit` to leave this session — the installer will offer to rebuild your system automatically."
 
 **For add-host:**
 
 1. Stage changes: `git add .`
 2. Commit: `git commit -m "Add host: <HOSTNAME>"`
-3. Show next steps:
-   - Review `hosts/<HOSTNAME>.nix`
-   - Push changes: `git push`
-   - On the new machine: `sudo nixos-rebuild switch --flake <repo-url>#<HOSTNAME>`
+3. Tell the user: "Host added! Type `/exit` to leave this session — the installer will offer to rebuild your system automatically."
+
+**IMPORTANT:** Do NOT tell the user to run `nixos-rebuild` themselves. The installer handles the rebuild after you exit. Do NOT tell them to run `sudo` commands. Just tell them to `/exit` when they're satisfied with the config.
 
 ## Conversation Guidelines
 

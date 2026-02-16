@@ -555,10 +555,20 @@ show_next_steps_new() {
     "2. Push to a git remote:" \
     "   cd ~/.config/nixos_config" \
     "   git remote add origin <your-repo-url>" \
-    "   git push -u origin master" \
-    "" \
-    "3. Rebuild system:" \
-    "   sudo nixos-rebuild switch --flake ~/.config/nixos_config#${HOSTNAME}"
+    "   git push -u origin master"
+
+  echo ""
+  if ask_confirm "Rebuild system now as '${HOSTNAME}'?"; then
+    echo ""
+    gum style --foreground 33 --bold "Rebuilding system..."
+    echo ""
+    sudo env PATH="$PATH" nixos-rebuild switch --flake "${CONFIG_DIR}#${HOSTNAME}"
+  else
+    echo ""
+    info_box \
+      "When you're ready, rebuild with:" \
+      "  sudo nixos-rebuild switch --flake ~/.config/nixos_config#${HOSTNAME}"
+  fi
 
   echo ""
   gum style --foreground 33 "Welcome to axiOS!"
@@ -965,19 +975,48 @@ ai_config_flow() {
 
   # Post-session check
   echo ""
-  if [ -f "${CONFIG_DIR}/flake.nix" ]; then
-    gum style --foreground 42 --bold "Configuration generated at ${CONFIG_DIR}"
-    echo ""
-    info_box \
-      "Next steps:" \
-      "  1. Review the generated files" \
-      "  2. Push to a git remote" \
-      "  3. Rebuild: sudo nixos-rebuild switch --flake ${CONFIG_DIR}#<hostname>"
-  else
+  if [ ! -f "${CONFIG_DIR}/flake.nix" ]; then
     gum style --foreground 208 \
       "Session ended without generating flake.nix." \
       "Re-run to try again, or use the scripted 'New configuration' mode."
+    return
   fi
+
+  gum style --foreground 42 --bold "Configuration generated at ${CONFIG_DIR}"
+  echo ""
+
+  # Detect hostname from generated host configs
+  local detected_host=""
+  if [ -d "${CONFIG_DIR}/hosts" ]; then
+    for f in "${CONFIG_DIR}"/hosts/*.nix; do
+      [ -f "$f" ] || continue
+      detected_host="$(basename "$f" .nix)"
+      break
+    done
+  fi
+
+  if [ -z "$detected_host" ]; then
+    info_box \
+      "Could not detect hostname from hosts/*.nix." \
+      "Run manually: sudo nixos-rebuild switch --flake ${CONFIG_DIR}#<hostname>"
+    return
+  fi
+
+  if ask_confirm "Rebuild system now as '${detected_host}'?"; then
+    echo ""
+    gum style --foreground 33 --bold "Rebuilding system..."
+    echo ""
+    # Pass PATH through so nixos-rebuild can find git (needed for flakes)
+    sudo env PATH="$PATH" nixos-rebuild switch --flake "${CONFIG_DIR}#${detected_host}"
+  else
+    echo ""
+    info_box \
+      "When you're ready, rebuild with:" \
+      "  sudo nixos-rebuild switch --flake ${CONFIG_DIR}#${detected_host}"
+  fi
+
+  echo ""
+  gum style --foreground 33 "Welcome to axiOS!"
 }
 
 # ══════════════════════════════════════════════════════════════════
