@@ -1091,34 +1091,42 @@ ai_config_flow() {
   gum style --foreground 42 --bold "Configuration generated at ${CONFIG_DIR}"
   echo ""
 
-  # Detect hostname from generated host configs
-  local detected_host=""
+  # Collect available hosts from hosts/*.nix
+  local hosts=()
   if [ -d "${CONFIG_DIR}/hosts" ]; then
     for f in "${CONFIG_DIR}"/hosts/*.nix; do
       [ -f "$f" ] || continue
-      detected_host="$(basename "$f" .nix)"
-      break
+      hosts+=("$(basename "$f" .nix)")
     done
   fi
 
-  if [ -z "$detected_host" ]; then
+  if [ ${#hosts[@]} -eq 0 ]; then
     info_box \
-      "Could not detect hostname from hosts/*.nix." \
+      "No host configs found in hosts/*.nix." \
       "Run manually: sudo nixos-rebuild switch --flake ${CONFIG_DIR}#<hostname>"
     return
   fi
 
-  if ask_confirm "Rebuild system now as '${detected_host}'?"; then
+  # If multiple hosts, let the user pick; if one, use it directly
+  local selected_host=""
+  if [ ${#hosts[@]} -eq 1 ]; then
+    selected_host="${hosts[0]}"
+  else
+    echo ""
+    selected_host=$(ask_choose "Which host do you want to rebuild?" "${hosts[0]}" "${hosts[@]}")
+  fi
+
+  if ask_confirm "Rebuild system now as '${selected_host}'?"; then
     echo ""
     gum style --foreground 33 --bold "Rebuilding system..."
     echo ""
     # Pass PATH through so nixos-rebuild can find git (needed for flakes)
-    sudo env PATH="$PATH" nixos-rebuild switch --flake "${CONFIG_DIR}#${detected_host}"
+    sudo env PATH="$PATH" nixos-rebuild switch --flake "${CONFIG_DIR}#${selected_host}"
   else
     echo ""
     info_box \
       "When you're ready, rebuild with:" \
-      "  sudo nixos-rebuild switch --flake ${CONFIG_DIR}#${detected_host}"
+      "  sudo nixos-rebuild switch --flake ${CONFIG_DIR}#${selected_host}"
   fi
 
   echo ""
