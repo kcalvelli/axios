@@ -28,7 +28,9 @@ You maintain just a few simple files (~30 lines), and axios provides everything 
 
 ## Quick Start
 
-**Prerequisites:** NixOS installed in UEFI mode (BIOS/MBR not supported)
+**Prerequisites:** A running NixOS system (UEFI boot, BIOS/MBR not supported)
+
+If you haven't installed NixOS yet, download the **graphical installer** from [nixos.org/download](https://nixos.org/download#nixos-iso) — it provides a familiar desktop environment that makes partitioning and installation straightforward. Boot in UEFI mode, complete the install, then return here.
 
 ### Fresh NixOS Install
 

@@ -24,19 +24,19 @@ That's it! All modules, packages, and home-manager configs come from axios.
 
 ## Prerequisites
 
-**You must have NixOS already installed** using the standard installer. axiOS configures existing NixOS systems, it does not replace the NixOS installer.
+**You must have NixOS already installed.** axiOS configures existing NixOS systems — it does not replace the NixOS installer.
 
 **IMPORTANT: axiOS requires UEFI boot mode.** BIOS/MBR systems are not supported.
 
 If you haven't installed NixOS yet:
-1. Download the [NixOS installer ISO](https://nixos.org/download)
-2. **Boot in UEFI mode** (not BIOS/Legacy mode)
-   - For VMs: Enable UEFI in VM settings before installation
-   - For physical machines: Ensure UEFI boot is enabled in BIOS/firmware settings
-3. Follow the [NixOS installation guide](https://nixos.org/manual/nixos/stable/#sec-installation)
-   - The installer will create a `/boot` partition with vfat filesystem for EFI
-4. Complete the installation and boot into your new NixOS system
-5. Then return here to install axiOS
+
+1. Download the **NixOS Graphical Installer** from [nixos.org/download](https://nixos.org/download#nixos-iso)
+   - The graphical ISO is recommended — it provides a desktop environment with a guided installer that handles partitioning, formatting, and base system setup
+2. **Boot in UEFI mode** (not BIOS/Legacy)
+   - Physical machines: enable UEFI in firmware settings
+   - VMs: enable EFI in VM settings before installation
+3. Complete the installation and reboot into your new NixOS system
+4. Return here to install axiOS
 
 ## Install
 
