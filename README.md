@@ -48,6 +48,8 @@ nix run --refresh github:kcalvelli/axios#init
 
 The installer offers three modes: scripted setup, add a host to an existing config, or AI-assisted configuration with Claude Code.
 
+**After your first rebuild**, you may need to reconnect to WiFi — axiOS switches the WiFi backend to iwd, which requires re-entering your network password once.
+
 **See [docs/INSTALLATION.md](docs/INSTALLATION.md) for complete instructions.**
 
 ## Features
