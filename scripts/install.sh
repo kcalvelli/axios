@@ -5,11 +5,13 @@ set -euo pipefail
 
 # Ensure wheel users are trusted by the nix daemon (needed for binary cache access).
 # On a fresh NixOS install only root is trusted, so flake nixConfig substituters
-# get silently ignored. After the first rebuild, axiOS's declarative nix config
-# takes over and /etc/nix/nix.conf is regenerated.
+# get silently ignored. NixOS makes /etc/nix/nix.conf a read-only symlink to the
+# nix store, so we use nix.conf.d instead. After the first rebuild, axiOS's
+# declarative nix config takes over.
 if ! grep -q '@wheel' /etc/nix/nix.conf 2>/dev/null; then
-  echo "Adding @wheel to nix trusted-users (needed for binary cache access)..."
-  sudo sh -c 'echo "trusted-users = root @wheel" >> /etc/nix/nix.conf'
+  echo "Configuring nix trusted-users for binary cache access..."
+  sudo mkdir -p /etc/nix/nix.conf.d
+  echo "trusted-users = root @wheel" | sudo tee /etc/nix/nix.conf.d/axios-bootstrap.conf >/dev/null
   sudo systemctl restart nix-daemon 2>/dev/null || true
 fi
 
