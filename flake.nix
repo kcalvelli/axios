@@ -150,23 +150,10 @@
     };
   };
 
-  nixConfig = {
-    extra-substituters = [
-      "https://axios.cachix.org"
-      "https://numtide.cachix.org"
-      "https://niri.cachix.org"
-    ];
-    extra-trusted-substituters = [
-      "https://axios.cachix.org"
-      "https://niri.cachix.org"
-    ];
-    extra-trusted-public-keys = [
-      "cache.nixos.org-1:6NCHdD59X431kS1gBOk6429S9g0f1NXtv+FIsf8Xma0="
-      "axios.cachix.org-1:8c7nj72raLM0Q4Fie799J/70D2/5oDd7rxqnOuxObh4="
-      "numtide.cachix.org-1:2ps1kLBUWjxIneOy1Ik6cQjb41X0iXVXeHigGmycPPE="
-      "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
-    ];
-  };
+  # Binary caches (axios, niri, numtide) are configured declaratively in
+  # modules/system/nix.nix after the first rebuild. We intentionally omit
+  # nixConfig here because it only works for trusted users, and on a fresh
+  # NixOS install the user is not trusted — causing noisy warnings.
 
   outputs =
     inputs@{
