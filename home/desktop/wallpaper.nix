@@ -70,7 +70,11 @@ in
       '';
 
       # Deploy curated wallpapers to ~/Pictures/Wallpapers
-      home.file = wallpaperFileEntries;
+      home.file = wallpaperFileEntries // {
+        # Tell Syncthing to ignore Wallpapers directory (managed by home-manager symlinks)
+        # .stignore is per-device and never synced, so this is safe
+        "Pictures/.stignore".text = "/Wallpapers\n";
+      };
 
       # Set random wallpaper on first activation or when collection changes
       home.activation.setRandomWallpaper = lib.mkIf cfg.autoUpdate (
