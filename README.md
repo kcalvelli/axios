@@ -78,7 +78,7 @@ The installer offers three modes: scripted setup, add a host to an existing conf
   - NVIDIA: VA-API via nvidia-vaapi-driver with optimized environment variables
   - Accelerates: Video playback, WebGL, Canvas rendering, GPU rasterization
   - Works automatically in Brave and Brave Nightly (no manual configuration)
-- **Google Drive sync** - Automatic rclone-based sync with safety features (run `setup-gdrive-sync`)
+- **Syncthing XDG sync** - Peer-to-peer file sync across hosts via Tailscale (Documents, Music, Pictures, etc.)
 
 ### Development
 - **Multi-language environments** - Rust, Zig, Python, Node.js
@@ -148,7 +148,7 @@ Check out these example configurations:
 
 ## What's Included
 
-- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell with widgets, Ghostty terminal, GPU-accelerated browsers (AMD/NVIDIA), idle management, Google Drive sync
+- **Desktop**: Niri compositor with scrollable tiling, DankMaterialShell with widgets, Ghostty terminal, GPU-accelerated browsers (AMD/NVIDIA), idle management
 - **Development**: Rust, Zig, Python, Node.js toolchains with LSP support
 - **Applications**: Curated set of productivity, media, and development tools — see [Application Catalog](docs/APPLICATIONS.md)
 - **PWAs**: Progressive Web Apps integrated as native applications

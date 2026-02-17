@@ -126,7 +126,6 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 - **Idle Management** - Automatic screen power-off after 30 minutes (swayidle)
 - Desktop applications (text editor, calculator, PDF viewer) - See [APPLICATIONS.md](APPLICATIONS.md)
 - Fonts and icon themes
-- **Google Drive sync** (setup with `setup-gdrive-sync` command)
 
 **When to use:** For laptops and desktops with a screen (not headless servers)
 
@@ -454,6 +453,87 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 
 ---
 
+### syncthing
+**What it does:** Peer-to-peer XDG directory synchronization across axiOS hosts via Tailscale.
+
+**Includes:**
+- **Syncthing** daemon with declarative folder and device configuration
+- Tailscale-only transport (no external discovery, relays, or NAT traversal)
+- XDG-aware folders (declare `documents`, `music`, `pictures`, etc. instead of raw paths)
+- MagicDNS device addressing (devices referenced by Tailscale machine name)
+
+**When to use:** To keep Documents, Music, Pictures, and other XDG directories in sync across multiple axiOS machines
+
+**Requirements:** Needs `networking = true` (for Tailscale). `networking.tailscale.domain` must be set.
+
+**Configuration:**
+
+```nix
+modules.syncthing = true;
+
+extraConfig = {
+  axios.syncthing = {
+    user = "alice";  # User whose XDG dirs are synced
+
+    # Declare peer devices (attr name = Tailscale machine name)
+    devices = {
+      laptop.id  = "AAAAAAA-BBBBBBB-CCCCCCC-DDDDDDD-EEEEEEE-FFFFFFF-GGGGGGG-HHHHHHH";
+      server.id  = "IIIIIII-JJJJJJJ-KKKKKKK-LLLLLLL-MMMMMMM-NNNNNNN-OOOOOOO-PPPPPPP";
+    };
+
+    # Declare which XDG dirs to sync and with which devices
+    folders = {
+      documents.devices = [ "laptop" "server" ];
+      music.devices     = [ "laptop" ];
+      pictures.devices  = [ "laptop" ];
+    };
+  };
+};
+```
+
+**Getting Device IDs (one-time bootstrap):**
+
+```bash
+# 1. Enable the module and rebuild (device IDs can be placeholders initially)
+# 2. After rebuild, get the device ID:
+syncthing cli show system | grep myID
+
+# 3. Add real device IDs to all host configs and rebuild again
+```
+
+**Supported XDG folders:** `documents`, `music`, `pictures`, `videos`, `downloads`, `templates`, `desktop`, `publicshare`
+
+**Selective sync:** Each host independently declares which folders it participates in. A server might sync only `documents`, while a workstation syncs everything.
+
+**Device name override:** If the device attr name doesn't match the Tailscale machine name:
+
+```nix
+devices.phone = {
+  id = "QQQQQQQ-...";
+  tailscaleName = "google-pixel-10";  # Override MagicDNS name
+};
+```
+
+**Custom addresses (escape hatch):** For non-Tailscale devices:
+
+```nix
+devices.external = {
+  id = "RRRRRRR-...";
+  addresses = [ "tcp://192.168.1.100:22000" ];
+};
+```
+
+**Conflict handling:** Syncthing creates `.sync-conflict-*` files by default. Optionally configure per-folder ignore patterns:
+
+```nix
+folders.documents = {
+  devices = [ "laptop" ];
+  ignorePatterns = [ "*.tmp" ".DS_Store" ];
+};
+```
+
+---
+
 ### services
 **What it does:** Enables self-hosted services on your system.
 
@@ -599,6 +679,7 @@ Some modules require others to work properly:
 | `desktop` | `networking` | Desktop services need network |
 | `gaming` | `graphics` | Games need GPU drivers |
 | `ai` | `networking` | AI tools need internet access |
+| `syncthing` | `networking` | Syncthing uses Tailscale for transport |
 
 axiOS automatically checks these and will show a clear error if dependencies are missing.
 

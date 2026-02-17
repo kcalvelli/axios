@@ -182,17 +182,6 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Evidence**: flake.nix:27-30, modules/secrets/, home/secrets/
 
-### Bisync
-**Definition**: Bidirectional synchronization mode in rclone that safely syncs files between two locations
-
-**Usage**: Google Drive sync strategy
-- Safety: Prevents accidental deletion
-- Conflict: Creates conflict copies
-
-**Related Terms**: rclone, Google Drive Sync
-
-**Evidence**: home/desktop/gdrive-sync.nix
-
 ### Cachix
 **Definition**: Binary cache service for Nix packages
 
@@ -283,17 +272,17 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Evidence**: modules/c64/default.nix (c64term terminal emulator)
 
-### rclone
-**Definition**: Command-line tool for syncing files to cloud storage
+### Syncthing
+**Definition**: Peer-to-peer file synchronization tool that syncs files between devices without a central server
 
-**Usage**: Google Drive synchronization
-- Mode: bisync (bidirectional)
-- Setup: `setup-gdrive-sync` script
-- Config: home/desktop/gdrive-sync.nix
+**Usage**: XDG directory sync across axiOS hosts
+- Transport: Tailscale MagicDNS (no external discovery or relays)
+- Module: modules/syncthing/default.nix
+- Config: `axios.syncthing` namespace
 
-**Related Terms**: Cloud Sync, Bisync, Google Drive
+**Related Terms**: Tailscale, XDG, MagicDNS
 
-**Evidence**: home/desktop/gdrive-sync.nix
+**Evidence**: modules/syncthing/default.nix
 
 ## Technical Terminology
 
