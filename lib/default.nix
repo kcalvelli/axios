@@ -282,7 +282,8 @@ let
         ++ lib.optional (hostCfg.modules.virt or false) virt
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or true) ai
-        ++ lib.optional (hostCfg.modules.secrets or false) secrets;
+        ++ lib.optional (hostCfg.modules.secrets or false) secrets
+        ++ lib.optional (hostCfg.modules.syncthing or false) syncthing;
 
       # Hardware modules conditionally imported based on vendor/formFactor
       conditionalHwModules =
@@ -372,6 +373,10 @@ let
             # Add secrets config only if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.secrets or false) && (hostCfg ? secrets)) {
               secrets = hostCfg.secrets;
+            })
+            # Enable Syncthing module if specified
+            (lib.optionalAttrs (hostCfg.modules.syncthing or false) {
+              axios.syncthing.enable = true;
             })
             # Add axios config (immich, etc.) if module is enabled and config exists
             (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? axios)) {
