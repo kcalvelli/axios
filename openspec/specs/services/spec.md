@@ -30,9 +30,9 @@ Manages network connectivity and self-hosted application infrastructure using a 
 - **Implementation**: `modules/ai/default.nix`
 
 ### File Synchronization
+- **Syncthing XDG Sync**: Peer-to-peer XDG directory sync via Tailscale. See `openspec/specs/syncthing-xdg-sync/spec.md`.
 - **Samba**: Local network file sharing for media/documents.
-- **Google Drive Sync**: `rclone`-based bi-directional sync (Home Manager).
-- **Implementation**: `modules/networking/samba.nix`, `home/desktop/gdrive-sync.nix`
+- **Implementation**: `modules/syncthing/default.nix`, `modules/networking/samba.nix`
 
 ## Constraints
 - **Registry Mandate**: All self-hosted services MUST use the registry pattern, NEVER hardcoded Caddyfile handle blocks.
