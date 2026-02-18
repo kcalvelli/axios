@@ -100,13 +100,13 @@ let
               assertion =
                 homeProfile == null
                 || lib.elem homeProfile [
-                  "workstation"
-                  "laptop"
+                  "standard"
+                  "normie"
                 ];
               message = ''
                 axiOS configuration error: Invalid homeProfile value: "${lib.generators.toPretty { } homeProfile}"
 
-                Valid options: "workstation", "laptop"
+                Valid options: "standard", "normie"
               '';
             }
 
