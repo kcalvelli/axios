@@ -20,31 +20,22 @@ appimageTools.wrapType2 {
   inherit pname version src;
 
   extraInstallCommands = ''
-    # Install desktop entry
-    install -Dm644 ${appimageContents}/lobehub.desktop $out/share/applications/lobehub.desktop
+    # Install desktop entry (upstream uses "lobehub-desktop" naming)
+    install -Dm644 ${appimageContents}/lobehub-desktop.desktop $out/share/applications/lobehub.desktop
 
-    # Fix desktop entry paths
+    # Fix desktop entry paths and name
     substituteInPlace $out/share/applications/lobehub.desktop \
       --replace-quiet 'Exec=AppRun' "Exec=$out/bin/lobehub" \
-      --replace-quiet 'Exec=lobehub' "Exec=$out/bin/lobehub"
+      --replace-quiet 'Exec=lobehub-desktop' "Exec=$out/bin/lobehub" \
+      --replace-quiet 'Icon=lobehub-desktop' 'Icon=lobehub'
 
-    # Install icons
-    for size in 16 32 48 64 128 256 512 1024; do
-      icon="${appimageContents}/usr/share/icons/hicolor/''${size}x''${size}/apps/lobehub.png"
-      if [ -f "$icon" ]; then
-        install -Dm644 "$icon" "$out/share/icons/hicolor/''${size}x''${size}/apps/lobehub.png"
-      fi
-    done
+    # Install icon (only 512x512 available in AppImage)
+    install -Dm644 ${appimageContents}/usr/share/icons/hicolor/512x512/apps/lobehub-desktop.png \
+      $out/share/icons/hicolor/512x512/apps/lobehub.png
 
-    # Fallback: install any icon found
-    if [ ! -d "$out/share/icons" ]; then
-      for icon in ${appimageContents}/lobehub.png ${appimageContents}/.DirIcon; do
-        if [ -f "$icon" ]; then
-          install -Dm644 "$icon" "$out/share/icons/hicolor/256x256/apps/lobehub.png"
-          break
-        fi
-      done
-    fi
+    # Also install the root-level icon as fallback
+    install -Dm644 ${appimageContents}/lobehub-desktop.png \
+      $out/share/icons/hicolor/256x256/apps/lobehub.png
 
     # Wrap with Wayland flags for Niri compositor
     source ${makeWrapper}/nix-support/setup-hook
