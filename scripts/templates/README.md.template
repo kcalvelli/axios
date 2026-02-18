@@ -8,7 +8,7 @@ Generated with [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS fra
 - **User:** {{USERNAME}} ({{FULLNAME}})
 - **Form Factor:** {{FORMFACTOR}}
 - **Hardware:** {{CPU}} CPU, {{GPU}} GPU{{HAS_SSD_TEXT}}
-- **Home Profile:** {{HOME_PROFILE}}
+- **Home Profile:** standard (per-user overrides in users/*.nix)
 
 ## Structure
 

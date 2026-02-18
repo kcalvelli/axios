@@ -4,5 +4,6 @@
     fullName = "{{FULLNAME}}";
     email = "{{EMAIL}}";
     isAdmin = {{IS_ADMIN}};
+    homeProfile = "{{HOME_PROFILE}}";
   };
 }

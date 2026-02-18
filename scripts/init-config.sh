@@ -257,6 +257,7 @@ collect_primary_user() {
   USERNAME=$(ask_input "Username" "$default_user")
   FULLNAME=$(ask_input "Full name" "$default_fullname")
   EMAIL=$(ask_input "Email address")
+  USER_PROFILE=$(ask_choose "Desktop profile?" "standard" "normie")
 }
 
 # ──────────────────────────────────────────────────────────────────
@@ -283,8 +284,10 @@ collect_additional_users() {
     else
       extra_admin="false"
     fi
+    local extra_profile
+    extra_profile=$(ask_choose "Desktop profile?" "standard" "normie")
 
-    ADDITIONAL_USERS+=("${extra_user}|${extra_full}|${extra_email}|${extra_admin}")
+    ADDITIONAL_USERS+=("${extra_user}|${extra_full}|${extra_email}|${extra_admin}|${extra_profile}")
     gum style --foreground 42 "  Added user: ${extra_user}"
   done
 }
@@ -398,11 +401,7 @@ collect_features() {
 # ──────────────────────────────────────────────────────────────────
 compute_derived() {
   IS_LAPTOP=$([ "$FORMFACTOR" = "laptop" ] && echo "true" || echo "false")
-  if [ "$FORMFACTOR" = "desktop" ]; then
-    HOME_PROFILE="workstation"
-  else
-    HOME_PROFILE="$FORMFACTOR"
-  fi
+  HOME_PROFILE="standard"
 
   HAS_SSD_TEXT=""
   if [ "$HAS_SSD" = "true" ]; then
@@ -412,7 +411,7 @@ compute_derived() {
   # Users list for host config template
   USERS_LIST="\"${USERNAME}\""
   for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
-    IFS='|' read -r u_name _u_full _u_email _u_admin <<< "$user_entry"
+    IFS='|' read -r u_name _u_full _u_email _u_admin _u_profile <<< "$user_entry"
     USERS_LIST="${USERS_LIST} \"${u_name}\""
   done
 
@@ -481,15 +480,15 @@ show_summary() {
 
   local lines=()
   lines+=("Hostname:      $HOSTNAME")
-  lines+=("Primary user:  $USERNAME ($FULLNAME) [admin]")
+  lines+=("Primary user:  $USERNAME ($FULLNAME) [admin, $USER_PROFILE]")
   lines+=("Email:         $EMAIL")
 
   for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
-    IFS='|' read -r u_name u_full _u_email u_admin <<< "$user_entry"
+    IFS='|' read -r u_name u_full _u_email u_admin u_profile <<< "$user_entry"
     if [ "$u_admin" = "true" ]; then
-      lines+=("User:          $u_name ($u_full) [admin]")
+      lines+=("User:          $u_name ($u_full) [admin, $u_profile]")
     else
-      lines+=("User:          $u_name ($u_full)")
+      lines+=("User:          $u_name ($u_full) [$u_profile]")
     fi
   done
 
@@ -538,12 +537,14 @@ generate_user_file() {
   local u_full="$3"
   local u_email="$4"
   local u_admin="$5"
+  local u_profile="${6:-standard}"
 
   if [ -f "${TEMPLATE_DIR}/user.nix.template" ]; then
     sed -e "s|{{USERNAME}}|${u_name}|g" \
         -e "s|{{FULLNAME}}|${u_full}|g" \
         -e "s|{{EMAIL}}|${u_email}|g" \
         -e "s|{{IS_ADMIN}}|${u_admin}|g" \
+        -e "s|{{HOME_PROFILE}}|${u_profile}|g" \
         "${TEMPLATE_DIR}/user.nix.template" > "${target_dir}/users/${u_name}.nix"
   fi
 }
@@ -739,12 +740,12 @@ new_config_flow() {
   mkdir -p "${CONFIG_DIR}/hosts/${HOSTNAME}"
 
   # Primary user
-  generate_user_file "$CONFIG_DIR" "$USERNAME" "$FULLNAME" "$EMAIL" "true"
+  generate_user_file "$CONFIG_DIR" "$USERNAME" "$FULLNAME" "$EMAIL" "true" "$USER_PROFILE"
 
   # Additional users
   for user_entry in "${ADDITIONAL_USERS[@]+"${ADDITIONAL_USERS[@]}"}"; do
-    IFS='|' read -r u_name u_full u_email u_admin <<< "$user_entry"
-    generate_user_file "$CONFIG_DIR" "$u_name" "$u_full" "$u_email" "$u_admin"
+    IFS='|' read -r u_name u_full u_email u_admin u_profile <<< "$user_entry"
+    generate_user_file "$CONFIG_DIR" "$u_name" "$u_full" "$u_email" "$u_admin" "$u_profile"
   done
 
   # flake.nix and README.md from templates
@@ -926,7 +927,7 @@ add_host_flow() {
   # If no primary user from existing, collect new primary
   if [ "$primary_from_existing" = "false" ]; then
     collect_primary_user
-    generate_user_file "$CONFIG_DIR" "$USERNAME" "$FULLNAME" "$EMAIL" "true"
+    generate_user_file "$CONFIG_DIR" "$USERNAME" "$FULLNAME" "$EMAIL" "true" "$USER_PROFILE"
   fi
 
   # Build USERS_LIST from all assigned users
@@ -953,8 +954,10 @@ add_host_flow() {
     else
       extra_admin="false"
     fi
+    local extra_profile
+    extra_profile=$(ask_choose "Desktop profile?" "standard" "normie")
 
-    generate_user_file "$CONFIG_DIR" "$extra_user" "$extra_full" "$extra_email" "$extra_admin"
+    generate_user_file "$CONFIG_DIR" "$extra_user" "$extra_full" "$extra_email" "$extra_admin" "$extra_profile"
     USERS_LIST="${USERS_LIST} \"${extra_user}\""
     gum style --foreground 42 "  Added user: ${extra_user}"
   done

@@ -306,7 +306,7 @@ let
           hwVendor = hostCfg.hardware.vendor or null;
           hwCpu = hostCfg.hardware.cpu or null;
           hwGpu = hostCfg.hardware.gpu or null;
-          profile = hostCfg.homeProfile or "workstation";
+          profile = hostCfg.homeProfile or "standard";
           extraCfg = hostCfg.extraConfig or { };
 
           # Determine if hardware modules should be auto-enabled (matches conditionalHwModules logic)
@@ -398,9 +398,9 @@ let
               backupFileExtension = "hm-backup";
 
               # Universal shared modules (apply to ALL users regardless of profile)
+              # Note: AI module is profile-conditional (standard only), not universal
               sharedModules =
                 lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
-                ++ lib.optional (hostCfg.modules.ai or true) self.homeModules.ai
                 ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim
                 ++ lib.optional (hostCfg.modules.services or false) self.homeModules.immich;
             };
@@ -415,15 +415,21 @@ let
               let
                 resolvedProfile = if userDef.homeProfile != null then userDef.homeProfile else profile;
                 profileModules =
-                  if resolvedProfile == "workstation" then
-                    [ self.homeModules.workstation ]
-                  else if resolvedProfile == "laptop" then
-                    [ self.homeModules.laptop ]
+                  if resolvedProfile == "standard" then
+                    [ self.homeModules.standard ]
+                  else if resolvedProfile == "normie" then
+                    [ self.homeModules.normie ]
+                  else
+                    [ ];
+                # AI home modules only for standard profile users
+                aiModules =
+                  if resolvedProfile == "standard" then
+                    lib.optional (hostCfg.modules.ai or true) self.homeModules.ai
                   else
                     [ ];
               in
               {
-                imports = profileModules;
+                imports = profileModules ++ aiModules;
               }
             ) config.axios.users.users;
           }

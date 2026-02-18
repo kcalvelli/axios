@@ -38,17 +38,15 @@ let
         homeProfile = lib.mkOption {
           type = lib.types.nullOr (
             lib.types.enum [
-              "workstation"
-              "laptop"
-              "minimal"
+              "standard"
+              "normie"
             ]
           );
           default = null;
           description = ''
             Home-manager profile for this user. When null, inherits the host's homeProfile.
-            - workstation: Full desktop with development tools
-            - laptop: Laptop-optimized desktop
-            - minimal: Basic desktop essentials only
+            - standard: Full desktop with development tools and keyboard-driven workflow
+            - normie: ChromeOS-like mouse-driven desktop with window controls and minimal keybindings
           '';
         };
 

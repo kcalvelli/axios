@@ -11,20 +11,16 @@
   imports = [
     ./theming.nix
     ./wallpaper.nix
-    ./niri.nix
-    ./niri-keybinds.nix
     ./pwa-apps.nix
     ./mpv.nix
-    inputs.axios-monitor.homeManagerModules.default
+    ./niri-keybinds-normie.nix
+    inputs.niri.homeModules.niri
+    inputs.dankMaterialShell.homeModules.niri
     inputs.dankMaterialShell.homeModules.dank-material-shell
-    inputs.dsearch.homeModules.default
   ];
 
   # Enable PWA apps by default for desktop users
   axios.pwa.enable = true;
-
-  # Enable axiOS Monitor widget by default for desktop users
-  programs.axios-monitor.enable = lib.mkDefault (osConfig.desktop.enable or false);
 
   # Configure sudo to use GUI password prompt
   home.sessionVariables = {
@@ -36,53 +32,269 @@
     enable = true;
     quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
 
-    # Systemd integration - DISABLED to use Niri spawn-at-startup instead
-    # This eliminates race conditions with PipeWire/Wayland at boot
     systemd = {
-      enable = false; # Use Niri spawn instead (see niri.nix)
+      enable = false;
       restartIfChanged = false;
     };
 
-    # Feature toggles (explicit configuration for clarity)
-    enableSystemMonitoring = true; # System resource monitoring widgets
-    enableVPN = true; # VPN status widget
-    enableDynamicTheming = true; # Dynamic theme generation (matugen)
-    enableAudioWavelength = true; # Audio visualizer (cava)
-    enableCalendarEvents = true; # Calendar integration (khal)
-
-    # Note: The following options are now built-in to DMS and have been removed:
-    # - enableClipboard: Clipboard history built-in
-    # - enableBrightnessControl: Brightness controls built-in
-    # - enableColorPicker: Color picker (hyprpicker) built-in
-    # - enableSystemSound: System sounds now included in dms-shell package
+    enableSystemMonitoring = true;
+    enableVPN = true;
+    enableDynamicTheming = true;
+    enableAudioWavelength = true;
+    enableCalendarEvents = true;
   };
 
-  programs.dsearch = {
-    enable = true;
+  # Niri compositor configuration for normie profile
+  programs = {
+    niri.package = lib.mkForce pkgs.niri;
+    dank-material-shell.niri = {
+      enableKeybinds = true;
+      enableSpawn = true;
+      includes.filesToInclude = [
+        "alttab"
+        "colors"
+        "cursor"
+        "layout"
+        "outputs"
+        "windowrules"
+        "wpblur"
+      ];
+    };
+    niri.settings = {
+      # Enable client-side decorations (titlebars with close/minimize/maximize)
+      prefer-no-csd = false;
+      screenshot-path = "~/Pictures/Screenshots/Screenshot-from-%Y-%m-%d-%H-%M-%S.png";
+      hotkey-overlay.skip-at-startup = true;
+
+      spawn-at-startup = [
+        {
+          command = [
+            "${pkgs.dbus}/bin/dbus-update-activation-environment"
+            "--systemd"
+            "--all"
+          ];
+        }
+        # Blur wallpaper for overview mode
+        {
+          command = [
+            "swaybg"
+            "--mode"
+            "stretch"
+            "--image"
+            "${config.home.homeDirectory}/.cache/niri/overview-blur.jpg"
+          ];
+        }
+        # No axios-help keybinding guide at startup
+        # No drop-down terminal at startup
+      ];
+
+      layout = {
+        border = {
+          enable = false;
+        };
+        focus-ring = {
+          enable = true;
+        };
+        background-color = "transparent";
+        preset-column-widths = [
+          { proportion = 1.0; }
+          { proportion = 0.75; }
+          { proportion = 0.5; }
+          { proportion = 0.25; }
+        ];
+        tab-indicator = {
+          hide-when-single-tab = true;
+          place-within-column = true;
+          position = "left";
+          corner-radius = 20.0;
+          gap = -12.0;
+          gaps-between-tabs = 10.0;
+          width = 4.0;
+          length.total-proportion = 0.1;
+        };
+      };
+
+      input = {
+        touchpad = {
+          natural-scroll = false;
+          tap = true;
+          tap-button-map = "left-right-middle";
+          middle-emulation = true;
+          accel-profile = "adaptive";
+        };
+
+        focus-follows-mouse = {
+          enable = true;
+          max-scroll-amount = "90%";
+        };
+        warp-mouse-to-focus.enable = true;
+        workspace-auto-back-and-forth = true;
+      };
+
+      switch-events.lid-close.action.spawn = [
+        "systemctl"
+        "suspend"
+      ];
+
+      layer-rules = [
+        {
+          matches = [ { namespace = "^wallpaper$"; } ];
+          place-within-backdrop = true;
+        }
+      ];
+
+      window-rules = [
+        {
+          geometry-corner-radius =
+            let
+              radius = 12.0;
+            in
+            {
+              bottom-left = radius;
+              bottom-right = radius;
+              top-left = radius;
+              top-right = radius;
+            };
+          clip-to-geometry = true;
+          draw-border-with-background = false;
+        }
+        {
+          matches = [
+            { is-floating = true; }
+          ];
+          shadow.enable = true;
+        }
+        {
+          matches = [
+            { app-id = ".*"; }
+          ];
+          open-maximized = true;
+        }
+        # Dolphin file manager — float, centered
+        {
+          matches = [
+            { app-id = "^org.kde.dolphin$"; }
+          ];
+          open-maximized = false;
+          open-floating = true;
+          default-column-width = {
+            fixed = 1200;
+          };
+          default-window-height = {
+            fixed = 900;
+          };
+        }
+        # Qalculate — float, centered, small calculator size
+        {
+          matches = [
+            { app-id = "^io.github.Qalculate.qalculate-qt$"; }
+          ];
+          open-maximized = false;
+          open-floating = true;
+          default-column-width = {
+            fixed = 500;
+          };
+          default-window-height = {
+            fixed = 700;
+          };
+        }
+        # Brave - picture in picture
+        {
+          matches = [
+            {
+              app-id = "brave-browser$";
+              title = "^Picture-in-picture$";
+            }
+          ];
+          open-maximized = false;
+          open-floating = true;
+        }
+        # DMS settings
+        {
+          matches = [
+            {
+              app-id = "^org.quickshell$";
+              title = "^Settings$";
+            }
+          ];
+          open-maximized = false;
+          open-floating = true;
+        }
+        # Nautilus file manager — float, centered
+        {
+          matches = [
+            { app-id = "^org\\.gnome\\.Nautilus$"; }
+          ];
+          open-maximized = false;
+          open-floating = true;
+          default-column-width = {
+            fixed = 1200;
+          };
+          default-window-height = {
+            fixed = 900;
+          };
+        }
+        # Google Messages PWA — float, upper left
+        {
+          matches = [
+            { app-id = "^chrome-messages\\.google\\.com__web-Default$"; }
+          ];
+          open-maximized = false;
+          open-floating = true;
+          default-column-width = {
+            fixed = 500;
+          };
+          default-window-height = {
+            fixed = 700;
+          };
+          default-floating-position = {
+            x = 5;
+            y = 5;
+            relative-to = "top-left";
+          };
+        }
+        # Flatpak installer: small floating window
+        {
+          matches = [
+            { app-id = "^com\\.github\\.kcalvelli\\.axios\\.flatpak-install$"; }
+          ];
+          open-maximized = false;
+          open-floating = true;
+          default-column-width = {
+            fixed = 800;
+          };
+          default-window-height = {
+            fixed = 400;
+          };
+        }
+        # OpenSSH passphrase prompt: float, centered, compact
+        {
+          matches = [
+            { title = "^OpenSSH Authentication Passphrase request$"; }
+          ];
+          open-maximized = false;
+          open-floating = true;
+          default-column-width = {
+            fixed = 500;
+          };
+          default-window-height = {
+            fixed = 200;
+          };
+        }
+      ];
+    };
   };
 
-  # Helper scripts
-  home.packages = [
-    (pkgs.writeShellScriptBin "focus-or-spawn-qalculate" ''
-      # robust-focus.sh
-
-      # 1. Define the App ID explicitly
-      MATCH_APP="io.github.Qalculate.qalculate-qt"
-
-      # 2. Use jq to parse the JSON array
-      # -j: Output raw string (no quotes around the ID)
-      # select: Filter the list for windows matching the app_id
-      # .id: Extract only the window ID
-      # head -n 1: In case multiple windows exist, pick the first one
-      WINDOW_ID=$(niri msg -j windows | jq -r ".[] | select(.app_id == \"$MATCH_APP\") | .id" | head -n 1)
-
-      if [ -n "$WINDOW_ID" ]; then
-          niri msg action focus-window --id "$WINDOW_ID"
-      else
-          qalculate-qt &
+  # DMS KDL config placeholders (same as standard)
+  home.activation.dmsPlaceholders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    dms_dir="${config.xdg.configHome}/niri/dms"
+    mkdir -p "$dms_dir"
+    for f in alttab binds colors cursor layout outputs windowrules wpblur; do
+      if [ ! -e "$dms_dir/$f.kdl" ]; then
+        echo '// Placeholder — DMS will overwrite this file with actual configuration' > "$dms_dir/$f.kdl"
       fi
-    '')
-  ];
+    done
+  '';
 
   # Desktop services
   services.gnome-keyring = {
@@ -96,33 +308,23 @@
 
   services.kdeconnect = {
     enable = true;
-    indicator = false; # DMS now has a built in indicator
+    indicator = false;
   };
 
-  # Default application associations for all installed apps
-  # Ensures every MIME type opens with the correct axiOS-shipped application
+  # Default application associations (same as standard)
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      # === KDE Connect scheme handler ===
       "x-scheme-handler/kdeconnect" = "org.kde.dolphin.desktop";
-
-      # === Flatpak install handler ===
       "application/vnd.flatpak.ref" = "com.github.kcalvelli.axios.flatpak-install.desktop";
       "application/vnd.flatpak.repo" = "com.github.kcalvelli.axios.flatpak-install.desktop";
-
-      # === File Manager (Dolphin) ===
       "inode/directory" = "org.kde.dolphin.desktop";
-
-      # === Web Browser (Brave) ===
       "x-scheme-handler/http" = "brave-browser.desktop";
       "x-scheme-handler/https" = "brave-browser.desktop";
       "x-scheme-handler/about" = "brave-browser.desktop";
       "x-scheme-handler/unknown" = "brave-browser.desktop";
       "text/html" = "brave-browser.desktop";
       "application/xhtml+xml" = "brave-browser.desktop";
-
-      # === Text Editor (Mousepad) ===
       "text/plain" = "org.xfce.mousepad.desktop";
       "text/x-csrc" = "org.xfce.mousepad.desktop";
       "text/x-chdr" = "org.xfce.mousepad.desktop";
@@ -155,12 +357,8 @@
       "application/toml" = "org.xfce.mousepad.desktop";
       "application/javascript" = "org.xfce.mousepad.desktop";
       "application/x-desktop" = "org.xfce.mousepad.desktop";
-
-      # === Markdown Editor (Ghostwriter) ===
       "text/markdown" = "org.kde.ghostwriter.desktop";
       "text/x-markdown" = "org.kde.ghostwriter.desktop";
-
-      # === Image Viewer (Gwenview) ===
       "image/png" = "org.kde.gwenview.desktop";
       "image/jpeg" = "org.kde.gwenview.desktop";
       "image/gif" = "org.kde.gwenview.desktop";
@@ -183,9 +381,6 @@
       "image/jxl" = "org.kde.gwenview.desktop";
       "image/x-eps" = "org.kde.gwenview.desktop";
       "image/x-pcx" = "org.kde.gwenview.desktop";
-
-      # === Media Player (mpv) ===
-      # Unified audio/video player using FFmpeg decoding and PipeWire audio
       "video/mp4" = "mpv.desktop";
       "video/x-matroska" = "mpv.desktop";
       "video/webm" = "mpv.desktop";
@@ -220,8 +415,6 @@
       "audio/aiff" = "mpv.desktop";
       "audio/x-aiff" = "mpv.desktop";
       "audio/x-musepack" = "mpv.desktop";
-
-      # === Document Viewer (Okular) ===
       "application/pdf" = "org.kde.okular.desktop";
       "application/epub+zip" = "org.kde.okular.desktop";
       "application/x-mobipocket-ebook" = "org.kde.okular.desktop";
@@ -236,8 +429,6 @@
       "image/vnd.djvu+multipage" = "org.kde.okular.desktop";
       "application/postscript" = "org.kde.okular.desktop";
       "application/x-dvi" = "org.kde.okular.desktop";
-
-      # === Archive Manager (Ark) ===
       "application/zip" = "org.kde.ark.desktop";
       "application/x-tar" = "org.kde.ark.desktop";
       "application/gzip" = "org.kde.ark.desktop";
@@ -263,22 +454,15 @@
       "application/x-lz4-compressed-tar" = "org.kde.ark.desktop";
       "application/x-java-archive" = "org.kde.ark.desktop";
       "application/x-arj" = "org.kde.ark.desktop";
-
-      # === Drawing / Digital Art (Krita) ===
       "application/x-krita" = "org.kde.krita.desktop";
       "image/openraster" = "org.kde.krita.desktop";
       "application/x-photoshop" = "org.kde.krita.desktop";
       "image/x-psd" = "org.kde.krita.desktop";
       "image/x-xcf" = "org.kde.krita.desktop";
-
-      # === Terminal (Ghostty) ===
-      "x-scheme-handler/terminal" = "com.mitchellh.ghostty.desktop";
     };
   };
 
-  # Override mousepad desktop entry to add StartupWMClass
-  # The upstream desktop file is named org.xfce.mousepad.desktop but the GTK3 app
-  # reports app-id "mousepad" on Wayland, so the dock can't match without this hint.
+  # Mousepad desktop entry override (same as standard)
   xdg.desktopEntries."org.xfce.mousepad" = {
     name = "Mousepad";
     comment = "Simple Text Editor";
@@ -302,7 +486,6 @@
   };
 
   # Flatpak install handler desktop entry
-  # Opens .flatpakref files in a small Ghostty terminal window for transparent installation
   xdg.dataFile."applications/com.github.kcalvelli.axios.flatpak-install.desktop".text = ''
     [Desktop Entry]
     Type=Application
@@ -320,13 +503,11 @@
   };
 
   # Configure Dolphin to use Ghostty as terminal emulator
-  # Uses kwriteconfig6 to set only this key, preserving color scheme and other settings
   home.activation.configureDolphinTerminal = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file dolphinrc --group General --key TerminalApplication ghostty
   '';
 
-  # Mask KDE Activity Manager (axiOS uses Niri workspaces, not KDE Activities)
-  # This removes the "Activities" context menu item from Dolphin and other KDE apps
+  # Mask KDE Activity Manager
   systemd.user.services.plasma-kactivitymanagerd = {
     Unit.Description = "KDE Activity Manager (masked by axiOS)";
     Install = { };
@@ -334,7 +515,6 @@
   };
 
   # Solaar autostart for Logitech Unifying devices (hardware-conditional)
-  # Solaar is installed by the system via hardware.logitech.wireless.enableGraphical
   home.file.".config/autostart/solaar.desktop" =
     lib.mkIf (osConfig.hardware.logitech.wireless.enableGraphical or false)
       {
@@ -355,10 +535,7 @@
       };
 
   # Flatpak Flathub setup
-  # Add Flathub remote for user-level flatpak installations
-  # Runs during home-manager activation when network is available
   home.activation.setupFlathub = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    # Add Flathub remote for user flatpak (--if-not-exists makes it idempotent)
     $DRY_RUN_CMD ${pkgs.flatpak}/bin/flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
   '';
 }

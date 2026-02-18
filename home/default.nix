@@ -8,8 +8,8 @@
   flake = {
     homeModules = {
       desktop = ./desktop;
-      workstation = ./profiles/workstation.nix;
-      laptop = ./profiles/laptop.nix;
+      standard = ./profiles/standard.nix;
+      normie = ./profiles/normie.nix;
       pim = ./pim;
       ai = ./ai;
       immich = ./immich;

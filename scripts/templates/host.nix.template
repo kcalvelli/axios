@@ -39,8 +39,8 @@
       containers.enable = {{ENABLE_CONTAINERS}};
     };
 
-    # Home-manager profile (from home/profiles/)
-    homeProfile = "{{HOME_PROFILE}}";
+    # Home-manager profile default (per-user overrides in users/*.nix)
+    homeProfile = "standard";
 
     # Hardware configuration path (copied from /etc/nixos/hardware-configuration.nix)
     # Includes boot modules, kernel modules, filesystems, and swap

@@ -123,7 +123,7 @@ Gather the following from the user. For detected values, confirm them as default
 | `hardware.gpu` | `"amd"`, `"nvidia"`, or `"intel"` |
 | `hardware.hasSSD` | `true` or `false` (bare, not quoted) |
 | `hardware.isLaptop` | `true` or `false` (bare, not quoted) |
-| `homeProfile` | `"workstation"` (for desktop) or `"laptop"` (for laptop) |
+| `homeProfile` | `"standard"` (default) — per-user override in users/*.nix: `"standard"` or `"normie"` |
 | `system` | `"x86_64-linux"` |
 | All module flags | `true` or `false` (bare, not quoted) |
 | `services.pim.role` | `"server"` or `"client"` |
@@ -215,8 +215,8 @@ Generate this file at `hosts/<HOSTNAME>.nix`:
       containers.enable = <ENABLE_CONTAINERS>;
     };
 
-    # Home-manager profile (from home/profiles/)
-    homeProfile = "<HOME_PROFILE>";
+    # Home-manager profile default (per-user overrides in users/*.nix)
+    homeProfile = "standard";
 
     # Hardware configuration path (copied from /etc/nixos/hardware-configuration.nix)
     # Includes boot modules, kernel modules, filesystems, and swap
