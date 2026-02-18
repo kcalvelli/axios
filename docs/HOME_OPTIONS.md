@@ -203,8 +203,7 @@ Complete example showing all home-manager options:
 
 ## See Also
 
-- [configuration-options.md](configuration-options.md) - NixOS system options
-- [MODULE_REFERENCE.md](MODULE_REFERENCE.md) - Top-level module flags
+- [MODULE_REFERENCE.md](MODULE_REFERENCE.md) - NixOS system options and module reference
 - [neovim-ide.md](neovim-ide.md) - Neovim IDE guide
 - [SECRETS_MODULE.md](SECRETS_MODULE.md) - Secrets management
 - [PWA_GUIDE.md](PWA_GUIDE.md) - PWA configuration

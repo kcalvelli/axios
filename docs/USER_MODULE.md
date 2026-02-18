@@ -2,9 +2,106 @@
 
 ## Overview
 
-axiOS provides sensible defaults for user configuration through **convention over configuration**. This guide explains what axios automatically handles and what you need to configure yourself.
+axiOS provides a multi-user system through the `axios.users.users.<name>` submodule. Users are defined in per-user files and referenced by name from host configurations.
 
-## What axios Automatically Provides
+## Quick Start
+
+### 1. Define a user
+
+Create `users/alice.nix` in your configuration repository:
+
+```nix
+{ ... }:
+{
+  axios.users.users.alice = {
+    fullName = "Alice Smith";
+    email = "alice@example.com";
+    isAdmin = true;
+  };
+}
+```
+
+### 2. Reference from host config
+
+In `hosts/myhost.nix`:
+
+```nix
+{ lib, ... }:
+{
+  hostConfig = {
+    # ... other config ...
+    users = [ "alice" ];  # Resolves users/alice.nix via configDir
+  };
+}
+```
+
+### 3. Set configDir in flake.nix
+
+```nix
+mkHost = hostname: axios.lib.mkSystem (
+  (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+    configDir = self.outPath;  # Required: tells axiOS where users/ directory is
+  }
+);
+```
+
+That's it! axiOS automatically creates the user account, assigns groups, configures home-manager, and sets up git.
+
+## User Options Reference
+
+### `axios.users.users.<name>`
+
+Each attribute key is a username. Available options per user:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `fullName` | string | *required* | Full name (used for system description and git config) |
+| `email` | string | `""` | Email address (used for git config) |
+| `isAdmin` | bool | `false` | Admin privileges (wheel group + nix trusted-users) |
+| `homeProfile` | null or enum | `null` | Per-user home profile override (`"workstation"`, `"laptop"`, `"minimal"`) |
+| `extraGroups` | list of strings | `[]` | Additional groups beyond auto-assigned ones |
+
+When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting.
+
+### Multi-user example
+
+```nix
+# users/alice.nix
+{ ... }:
+{
+  axios.users.users.alice = {
+    fullName = "Alice Smith";
+    email = "alice@example.com";
+    isAdmin = true;
+    # homeProfile defaults to null (inherits host's homeProfile)
+  };
+}
+
+# users/bob.nix
+{ ... }:
+{
+  axios.users.users.bob = {
+    fullName = "Bob Jones";
+    isAdmin = false;
+    homeProfile = "minimal";  # Override: Bob gets minimal profile regardless of host
+    extraGroups = [ "dialout" ];  # Bob needs serial port access
+  };
+}
+
+# hosts/myhost.nix
+{ lib, ... }:
+{
+  hostConfig = {
+    # ...
+    homeProfile = "workstation";  # Default for users without explicit homeProfile
+    users = [ "alice" "bob" ];    # Both users on this host
+  };
+}
+```
+
+Result: Alice gets `workstation` profile (inherited), Bob gets `minimal` profile (explicit override).
+
+## What axiOS Automatically Provides
 
 ### 1. Group Membership (`axios.users.autoGroups`)
 
@@ -14,7 +111,7 @@ Groups are automatically assigned based on enabled modules:
 
 | Group | When Added | Purpose |
 |-------|------------|---------|
-| `wheel` | Always | sudo access |
+| `wheel` | `isAdmin = true` | sudo access |
 | `networkmanager` | `desktop.enable` | Network management |
 | `video` | `desktop.enable` or `graphics.enable` | GPU/graphics access |
 | `input` | `desktop.enable` | Input device access |
@@ -29,22 +126,9 @@ Groups are automatically assigned based on enabled modules:
 | `adm` | `development.enable` or `services.enable` | Log file access |
 | `disk` | `development.enable` or `services.enable` | Disk management |
 
-**Example:**
-
-```nix
-# No need to specify extraGroups - axios adds them automatically!
-users.users.myuser = {
-  isNormalUser = true;
-  description = "My User";
-  # extraGroups automatically includes: wheel, networkmanager, video, etc.
-};
-```
-
 ### 2. Nix Trusted Users
 
-**Default:** `[ "root" "@wheel" ]`
-
-All users in the `wheel` group are automatically trusted for nix operations.
+Admin users (`isAdmin = true`) are automatically added to `nix.settings.trusted-users`.
 
 ### 3. Home-Manager Defaults (`axios.home.enableDefaults`)
 
@@ -55,87 +139,32 @@ Automatically configured for all users:
 - **`home.stateVersion`**: Set to "24.11" by default
 - **`FLAKE_PATH`**: Environment variable pointing to `$HOME/.config/nixos`
 
-**Example:**
+### 4. XDG Directories
 
-```nix
-# These are automatically set!
-home-manager.users.myuser = {
-  # home.stateVersion = "24.11";  # Automatic
-  # home.sessionVariables.FLAKE_PATH = "$HOME/.config/nixos";  # Automatic
-};
-```
+Standard XDG user directories are automatically created for all users:
+`Desktop`, `Documents`, `Downloads`, `Music`, `Pictures`, `Videos`, `Public`, `Templates`
 
-### 4. Niri Blur Wallpaper
+### 5. Git Configuration
 
-**Default:** Enabled for all niri users
+Git `user.name` and `user.email` are automatically configured from `fullName` and `email`.
 
-The blur wallpaper for niri overview mode is automatically configured to use:
-```
-$HOME/.cache/niri/overview-blur.jpg
-```
-
-This is generated by the DMS wallpaper script - no manual configuration needed!
-
-### 5. Samba User Shares (`networking.samba.enableUserShares`)
+### 6. Samba User Shares (`networking.samba.enableUserShares`)
 
 **Default:** `false` (opt-in)
 
-When enabled, automatically creates shares for common directories:
+When enabled, automatically creates shares for common directories (Music, Pictures, Videos, Documents).
 
-- Music
-- Pictures
-- Videos
-- Documents
+## Global User Options
 
-**Enable in host config:**
+### `axios.users.autoGroups`
+- **Type:** bool
+- **Default:** `true`
+- **Description:** Automatically add groups based on enabled modules
 
-```nix
-# In extraConfig
-networking.samba.enableUserShares = true;
-```
-
-This creates shares like `username-Music`, `username-Pictures`, etc. for all normal users.
-
-## Minimal User Module Template
-
-Here's what a user module looks like with axios defaults:
-
-```nix
-{ ... }:
-{
-  # Define the primary user with axios
-  # This automatically creates the user account, sets up home-manager,
-  # and configures git from these three values
-  axios.user = {
-    name = "myuser";
-    fullName = "My Full Name";
-    email = "user@example.com";
-  };
-
-  # Everything else is automatically configured:
-  # - User account with sensible defaults (isNormalUser, initialPassword, extraGroups)
-  # - Home-manager (stateVersion, FLAKE_PATH)
-  # - Git (user.name and user.email)
-  # - Niri blur wallpaper
-  # - Samba shares (enable with networking.samba.enableUserShares in host config)
-  # - Nix trusted-users (via @wheel group)
-}
-```
-
-That's it! Just three values (name, fullName, email) and everything is configured automatically.
-
-### What Gets Auto-Configured
-
-When you set:
-- `axios.user.name = "myuser"` - Username for the account
-- `axios.user.fullName = "My Full Name"` - Full name (used for git user.name and system description)
-- `axios.user.email = "user@example.com"` - Email address (used for git user.email)
-
-axios automatically configures:
-- User account (isNormalUser, extraGroups based on enabled modules)
-- Git user name and email
-- Home-manager stateVersion and FLAKE_PATH
-- Niri blur wallpaper for overview mode
+### `axios.users.extraGroups`
+- **Type:** list of strings
+- **Default:** `[]`
+- **Description:** Additional groups to add to all users (on top of module-based groups)
 
 ## Advanced Configuration
 
@@ -146,12 +175,6 @@ If you need full control over group membership:
 ```nix
 # In host config extraConfig
 axios.users.autoGroups = false;
-
-# Then specify groups manually in user module
-users.users.myuser = {
-  isNormalUser = true;
-  extraGroups = [ "wheel" "mygroup" ];
-};
 ```
 
 ### Adding Extra Groups for All Users
@@ -159,14 +182,12 @@ users.users.myuser = {
 ```nix
 # In host config extraConfig
 axios.users.extraGroups = [ "dialout" "i2c" ];
-
-# These are added to all normal users in addition to module-based groups
 ```
 
 ### Overriding Home-Manager Defaults
 
 ```nix
-home-manager.users.myuser = {
+home-manager.users.alice = {
   # Disable axios defaults
   axios.home.enableDefaults = false;
 
@@ -176,124 +197,27 @@ home-manager.users.myuser = {
 };
 ```
 
-### Customizing Samba Shared Directories
+## Home-Manager Options
 
-```nix
-# In host config extraConfig
-networking.samba = {
-  enableUserShares = true;
-  sharedDirectories = [ "Music" "Videos" "Projects" ];  # Custom list
-};
-```
-
-
-## Configuration Options Reference
-
-### System Options
-
-#### `axios.users.autoGroups`
-- **Type:** bool
-- **Default:** `true`
-- **Description:** Automatically add groups based on enabled modules
-
-#### `axios.users.extraGroups`
-- **Type:** list of strings
-- **Default:** `[]`
-- **Description:** Additional groups to add to all normal users
-
-#### `networking.samba.enableUserShares`
-- **Type:** bool
-- **Default:** `false`
-- **Description:** Enable automatic Samba shares for user directories
-
-#### `networking.samba.sharedDirectories`
-- **Type:** list of strings
-- **Default:** `[ "Music" "Pictures" "Videos" "Documents" ]`
-- **Description:** Directories to share from each user's home
-
-### Home-Manager Options
-
-#### `axios.home.enableDefaults`
+### `axios.home.enableDefaults`
 - **Type:** bool
 - **Default:** `true`
 - **Description:** Enable axios home-manager defaults
 
-#### `axios.home.stateVersion`
+### `axios.home.stateVersion`
 - **Type:** string
 - **Default:** `"24.11"`
 - **Description:** Default home-manager state version
 
-#### `axios.home.flakePath`
+### `axios.home.flakePath`
 - **Type:** null or string
 - **Default:** `"${HOME}/.config/nixos"`
 - **Description:** Path to NixOS flake (sets FLAKE_PATH variable)
 
-#### `axios.user.email`
+### `axios.users.users.<name>.email`
 - **Type:** string
 - **Default:** `""`
 - **Description:** User's email address - automatically used for git commits and other tools
-- **Example:** `"user@example.com"`
-
-## Benefits
-
-1. **Less Boilerplate:** User modules are significantly smaller and cleaner
-2. **Fewer Errors:** No forgetting essential groups
-3. **Better Defaults:** Things just work out of the box
-4. **Maintainable:** Group requirements tracked with modules
-5. **Flexible:** All defaults use `lib.mkDefault` and can be overridden
-
-## Best Practices
-
-### 1. Start with Defaults
-
-Let axios handle the common cases:
-
-```nix
-users.users.myuser = {
-  isNormalUser = true;
-  description = "My User";
-  # Set password with: sudo passwd myuser
-  # Or use: hashedPassword = "..."; (generate with mkpasswd)
-};
-```
-
-### 2. Only Override When Needed
-
-Use `lib.mkForce` sparingly:
-
-```nix
-users.users.myuser = {
-  isNormalUser = true;
-  extraGroups = lib.mkForce [ "wheel" "myspecialgroup" ];  # Full override
-};
-```
-
-### 3. Trust the Defaults
-
-Let axios automatically configure git and other tools from your user information:
-
-```nix
-# ✓ Good - git auto-configured from these
-users.users.myuser = {
-  description = "My Full Name";  # Used for git user.name
-};
-home-manager.users.myuser = {
-  axios.user.email = "my@email.com";  # Used for git user.email
-};
-```
-
-### 4. Document Overrides
-
-If you disable defaults, explain why:
-
-```nix
-# Disable auto-groups because this user needs restricted access
-axios.users.autoGroups = false;
-users.users.restricted = {
-  isNormalUser = true;
-  extraGroups = [ ]; # Deliberately minimal
-};
-```
 
 ## Troubleshooting
 
@@ -307,17 +231,6 @@ modules.virt = true;
 virt.libvirt.enable = true;
 ```
 
-### Conflicts with Manual extraGroups
-
-axios appends to existing extraGroups:
-
-```nix
-users.users.myuser = {
-  extraGroups = [ "mygroup" ];  # This is preserved
-  # axios adds: wheel, networkmanager, video, etc.
-};
-```
-
 ### Samba Shares Not Created
 
 Ensure you've enabled the feature in your host config:
@@ -327,36 +240,8 @@ Ensure you've enabled the feature in your host config:
 networking.samba.enableUserShares = true;
 ```
 
-### Want Different State Version
-
-Override the default:
-
-```nix
-axios.home.stateVersion = "23.11";  # Use older version
-```
-
 ## See Also
 
-- [LIBRARY_USAGE.md](LIBRARY_USAGE.md) - Using axios as a library
+- [LIBRARY_USAGE.md](LIBRARY_USAGE.md) - Using axios as a library (mkSystem API)
 - [ADDING_HOSTS.md](ADDING_HOSTS.md) - Adding new hosts
 - [SECRETS_MODULE.md](SECRETS_MODULE.md) - Secrets management
-
-## Summary
-
-axiOS follows **convention over configuration**:
-
-- ✅ Automatic group membership based on enabled modules
-- ✅ Sensible home-manager defaults (stateVersion, FLAKE_PATH)
-- ✅ Nix trusted-users for wheel group
-- ✅ Niri blur wallpaper autoconfiguration
-- ✅ Optional Samba user shares
-- ✅ Automatic git configuration from user information
-
-Your user module should focus on what's actually user-specific:
-- Username
-- Full name
-- Email
-- Initial password
-- User-specific configuration (if any)
-
-Everything else is handled by axios!

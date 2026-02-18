@@ -6,20 +6,22 @@ This guide explains how to use axiOS as a library/framework to build your own Ni
 
 Instead of forking and maintaining thousands of lines of configuration code, you:
 
-- ✅ Write ~30 lines for your flake.nix
-- ✅ Maintain only your personal settings (users, hosts, disks)
-- ✅ Get updates by running `nix flake update`
-- ✅ Pin to specific versions for stability
-- ✅ Override anything you need
+- Write ~30 lines for your flake.nix
+- Maintain only your personal settings (users, hosts)
+- Get updates by running `nix flake update`
+- Pin to specific versions for stability
+- Override anything you need
 
 **Your entire configuration can be just a few files:**
 ```
-my-nixos-config/
-├── flake.nix       # 30-60 lines
-├── user.nix        # Your user definition
-└── hosts/
-    ├── machine1.nix
-    └── machine1/disks.nix
+~/.config/nixos_config/
+├── flake.nix                 # 30-60 lines
+├── hosts/
+│   ├── desktop.nix           # Host configuration
+│   └── desktop/
+│       └── hardware.nix      # From nixos-generate-config
+└── users/
+    └── alice.nix             # Per-user definition
 ```
 
 ## Quick Start
@@ -27,8 +29,8 @@ my-nixos-config/
 ### 1. Create Your Configuration Repository
 
 ```bash
-mkdir ~/my-nixos-config
-cd ~/my-nixos-config
+mkdir -p ~/.config/nixos_config
+cd ~/.config/nixos_config
 ```
 
 ### 2. Create Your Flake
@@ -43,115 +45,88 @@ cd ~/my-nixos-config
     nixpkgs.follows = "axios/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }: {
-    nixosConfigurations.myhost = axios.lib.mkSystem {
-      hostname = "myhost";
-      system = "x86_64-linux";
-      formFactor = "desktop";
-      
-      hardware = {
-        cpu = "amd";
-        gpu = "amd";
-        hasSSD = true;
-        isLaptop = false;
+  outputs = { self, axios, nixpkgs, ... }:
+    let
+      mkHost = hostname: axios.lib.mkSystem (
+        (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+          configDir = self.outPath;
+        }
+      );
+    in
+    {
+      nixosConfigurations = {
+        myhost = mkHost "myhost";
       };
-      
-      modules = {
-        system = true;
-        desktop = true;
-        development = true;
-        graphics = true;
-        networking = true;
-        users = true;
-        virt = false;
-        gaming = false;
-        services = false;
-      };
-      
-      homeProfile = "workstation";
-      userModulePath = self.outPath + "/user.nix";
-      diskConfigPath = ./disks.nix;
     };
-  };
 }
 ```
 
-### 3. Create Your User Module
+### 3. Create Your Host Configuration
 
-**user.nix:**
-```nix
-{ self, config, ... }:
-let
-  username = "myname";
-  fullName = "My Full Name";
-  email = "me@example.com";
-in
-{
-  users.users.${username} = {
-    isNormalUser = true;
-    description = fullName;
-    # Set password with: sudo passwd ${username}
-    # Or use: hashedPassword = "..."; (generate with mkpasswd)
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
-  };
-
-  home-manager.users.${username} = {
-    home = {
-      stateVersion = "24.05";
-      homeDirectory = "/home/${username}";
-      username = username;
-    };
-
-    programs.git.settings = {
-      user = {
-        name = fullName;
-        email = email;
-      };
-    };
-  };
-
-  nix.settings.trusted-users = [ username ];
-}
-```
-
-### 4. Create Disk Configuration
-
-**disks.nix:**
+**hosts/myhost.nix:**
 ```nix
 { lib, ... }:
 {
-  disko.devices = {
-    disk.main = {
-      type = "disk";
-      device = "/dev/sda";
-      content = {
-        type = "gpt";
-        partitions = {
-          ESP = {
-            size = "512M";
-            type = "EF00";
-            content = {
-              type = "filesystem";
-              format = "vfat";
-              mountpoint = "/boot";
-            };
-          };
-          root = {
-            size = "100%";
-            content = {
-              type = "filesystem";
-              format = "ext4";
-              mountpoint = "/";
-            };
-          };
-        };
-      };
+  hostConfig = {
+    hostname = "myhost";
+    system = "x86_64-linux";
+    formFactor = "desktop";
+
+    hardware = {
+      cpu = "amd";
+      gpu = "amd";
+      hasSSD = true;
+      isLaptop = false;
+    };
+
+    modules = {
+      system = true;
+      desktop = true;
+      development = true;
+      graphics = true;
+      networking = true;
+      users = true;
+      virt = false;
+      gaming = false;
+    };
+
+    homeProfile = "workstation";
+    hardwareConfigPath = ./myhost/hardware.nix;
+
+    users = [ "alice" ];  # References users/alice.nix
+
+    extraConfig = {
+      # System timezone (required)
+      axios.system.timeZone = "America/New_York";
     };
   };
 }
 ```
 
-### 5. Build and Deploy
+### 4. Create Your User Module
+
+**users/alice.nix:**
+```nix
+{ ... }:
+{
+  axios.users.users.alice = {
+    fullName = "Alice Smith";
+    email = "alice@example.com";
+    isAdmin = true;
+  };
+}
+```
+
+That's it! axiOS automatically creates the user account, assigns groups based on enabled modules, configures home-manager, and sets up git.
+
+### 5. Copy Hardware Configuration
+
+```bash
+mkdir -p hosts/myhost
+cp /etc/nixos/hardware-configuration.nix hosts/myhost/hardware.nix
+```
+
+### 6. Build and Deploy
 
 ```bash
 # Build
@@ -172,76 +147,70 @@ Main function to create a NixOS configuration.
 
 ```nix
 nixosConfigurations.<name> = axios.lib.mkSystem {
-  # Required parameters
+  # Required
   hostname = "string";
+
+  # System architecture (default: "x86_64-linux")
   system = "x86_64-linux" | "aarch64-linux";
 
   # Hardware configuration
   formFactor = "desktop" | "laptop";
   hardware = {
-    vendor = "msi" | "system76" | null;  # Optional: Hardware vendor for specific optimizations
-    cpu = "amd" | "intel";                # CPU type
-    gpu = "amd" | "nvidia" | "intel";     # GPU type
-    hasSSD = bool;                        # SSD optimization
-    isLaptop = bool;                      # Laptop optimizations
+    vendor = "msi" | "system76" | null;  # Optional vendor-specific optimizations
+    cpu = "amd" | "intel";
+    gpu = "amd" | "nvidia" | "intel";
+    hasSSD = bool;
+    isLaptop = bool;
   };
-  
+
   # Module selection
   modules = {
-    system = bool;       # Core system config (recommended: true)
-    desktop = bool;      # Niri desktop environment
-    development = bool;  # Development tools and IDEs
-    graphics = bool;     # Graphics drivers and tools
-    networking = bool;   # Network configuration (recommended: true)
-    users = bool;        # User management (recommended: true)
-    virt = bool;         # Virtualization (libvirt, containers)
-    gaming = bool;       # Gaming support (Steam, GameMode)
-    ai = bool;           # AI tools (GitHub Copilot, Claude Code, MCP servers)
-    secrets = bool;      # Encrypted secrets management (agenix)
-    services = bool;     # Self-hosted services (Immich, Caddy)
+    system = bool;        # Core system config (default: true)
+    desktop = bool;       # Niri desktop environment (default: false)
+    development = bool;   # Development tools and IDEs (default: false)
+    graphics = bool;      # Graphics drivers and tools (default: false)
+    networking = bool;    # Network configuration (default: true)
+    users = bool;         # User management (default: true)
+    virt = bool;          # Virtualization - libvirt, containers (default: false)
+    gaming = bool;        # Gaming - Steam, GameMode (default: false)
+    ai = bool;            # AI tools - Claude Code, Gemini, MCP servers (default: true)
+    pim = bool;           # Personal info management - email, calendar (default: false)
+    secrets = bool;       # Encrypted secrets via agenix (default: false)
+    syncthing = bool;     # Peer-to-peer XDG directory sync (default: false)
+    services = bool;      # Self-hosted services - Immich (default: false)
   };
-  
+
   # Home Manager profile
   homeProfile = "workstation" | "laptop";
-  
-  # Paths
-  userModulePath = path;  # Path to your user.nix
-  diskConfigPath = path;  # Path to your disks.nix
-  
-  # Optional: Additional configuration
-  extraConfig = {
-    # System timezone (required)
-    axios.system.timeZone = "America/New_York";
 
-    # Any additional NixOS configuration options
-    # Examples:
-    services.openssh.enable = true;
+  # Multi-user support
+  users = [ "alice" "bob" ];  # References users/<name>.nix files
+  configDir = path;           # Root of your config repo (typically self.outPath)
 
-    # For extending with custom services, import your own modules:
-    imports = [ ./my-services.nix ];
-  };
-  
+  # Hardware configuration path (from nixos-generate-config)
+  hardwareConfigPath = path;
+
+  # Optional: Additional NixOS configuration
+  extraConfig = { /* any NixOS options */ };
+
+  # Optional: Pass additional flake inputs
+  inputs = { /* override or supplement framework inputs */ };
+
   # Optional: Virtualization config (if modules.virt = true)
   virt = {
     libvirt.enable = bool;
     containers.enable = bool;
   };
 
-  # Optional: Self-hosted services (if modules.services = true)
-  axios = {
-    immich = {
-      enable = bool;                    # Photo management server
-      role = "server" | "client";       # Server runs service, client gets PWA
-      enableGpuAcceleration = bool;     # Use GPU for ML/transcoding (server only)
-      gpuType = "amd" | "nvidia" | "intel";
-      pwa = {
-        enable = bool;
-        tailnetDomain = "your-tailnet.ts.net";
-      };
-    };
-  };
+  # Optional: Secrets config (if modules.secrets = true)
+  secrets = { /* agenix configuration */ };
 };
 ```
+
+**Notes:**
+- `modules.ai` defaults to `true` (opt-out, not opt-in)
+- `modules.system`, `modules.networking`, and `modules.users` default to `true`
+- `configDir` is required when `users` list is non-empty
 
 ## Configuration Details
 
@@ -254,9 +223,9 @@ The `hardware` section configures hardware-specific optimizations:
 - `"intel"` - Enables Intel-specific optimizations and microcode
 
 **GPU:**
-- `"amd"` - AMD graphics drivers (mesa, AMDVLK)
-- `"nvidia"` - Nvidia proprietary drivers
-- `"intel"` - Intel graphics drivers
+- `"amd"` - AMD graphics drivers (mesa, RADV Vulkan, GPU recovery)
+- `"nvidia"` - Nvidia proprietary drivers (modesetting, PRIME for laptops)
+- `"intel"` - Intel graphics drivers (mesa, media driver)
 
 **Vendor (Optional):**
 
@@ -267,7 +236,7 @@ Most users should **omit this field** or set it to `null`. Only use vendor-speci
   - Sets `acpi_enforce_resources=lax` kernel parameter for sensor access
   - Auto-enables desktop hardware module with MSI-specific features
   - **When to use:** You have an MSI motherboard AND want hardware sensor monitoring
-  
+
 - `"system76"` - **System76 laptop support** (Laptop only):
   - Enables System76 firmware daemon for BIOS/EC updates
   - Enables System76 power daemon for advanced power management
@@ -275,30 +244,35 @@ Most users should **omit this field** or set it to `null`. Only use vendor-speci
   - Includes Pangolin 12 quirks (disables psmouse, MediaTek Wi-Fi fix)
   - Auto-enables laptop hardware module with System76-specific features
   - **When to use:** You own a System76 laptop (Pangolin, Oryx, Lemur, etc.)
-  
+
 - `null` or omitted - **Generic hardware support (recommended for most users)**
   - Uses form-factor based optimizations (desktop/laptop) without vendor-specific features
   - Works with all hardware brands (ASUS, Gigabyte, Dell, Lenovo, HP, etc.)
 
 **Form Factor:**
-- `"desktop"` - Desktop optimizations
+- `"desktop"` - Desktop optimizations (power management, PCIe, irqbalance)
 - `"laptop"` - Laptop power management and battery optimization
 
 ### Module Selection
 
 Enable only the modules you need:
 
-**System (Required):**
-- Core NixOS configuration
-- Boot settings
-- Nix configuration
-- System packages
+**System (default: true):**
+- Core NixOS configuration and boot settings
+- Plymouth branded splash screen
+- Nix settings and garbage collection
+- systemd-oomd for memory pressure management
+- PipeWire audio stack
+- CUPS printing support
+- Bluetooth support
+- Core system packages
 
 **Desktop:**
-- Niri compositor
-- DankMaterialShell
-- Desktop applications
-- Fonts and themes
+- Niri scrollable tiling Wayland compositor
+- DankMaterialShell with greetd greeter
+- Dolphin file manager (KDE)
+- Desktop applications (see [APPLICATIONS.md](APPLICATIONS.md))
+- Fonts and icon themes
 
 **Development:**
 - Code editors (VSCode)
@@ -307,43 +281,57 @@ Enable only the modules you need:
 - Version control tools
 
 **Graphics:**
-- Hardware acceleration
-- Graphics drivers
-- GPU tools and monitoring
+- Hardware acceleration (OpenGL, Vulkan)
+- GPU-specific drivers and configuration
+- GPU monitoring tools (radeontop for AMD, nvtop for NVIDIA)
+- AMD GPU recovery (auto-reset on hang)
 
-**Networking:**
+**Networking (default: true):**
 - NetworkManager
-- VPN support
-- Firewall configuration
+- Tailscale VPN
+- Samba file sharing
 - Avahi/mDNS
+- Firewall configuration
 
-**Users:**
-- User account management
+**Users (default: true):**
+- Multi-user account management via `axios.users.users.<name>`
 - Home Manager integration
-- User environment setup
+- Automatic group assignment based on enabled modules
 
 **Virtualization:**
-- libvirt/QEMU
+- libvirt/QEMU for full virtual machines
 - Podman containers
 - VM management tools
 
 **Gaming:**
-- Steam
-- GameMode
-- Gamescope
-- Gaming utilities
+- Steam with Proton and Proton-GE
+- GameMode for CPU/GPU optimization
+- Gamescope session support
+- mangohud performance overlay
+- prismlauncher (Minecraft), superTuxKart
+- nix-ld for native Linux game compatibility
 
-**AI (Artificial Intelligence):**
-- GitHub Copilot CLI (code suggestions)
-- Claude Code (AI pair programming)
-- MCP servers for enhanced context (filesystem, git, github, nixos, journal)
-- AI development tools
+**AI (default: true):**
+- Claude Code, Claude Desktop, Gemini CLI
+- MCP servers for enhanced AI context (11 servers)
+- claude-monitor, openspec, spec-kit
+- whisper-cpp for speech-to-text
+- Optional local LLM stack (Ollama + OpenCode)
+
+**PIM:**
+- axios-ai-mail (AI-powered email)
+- Calendar and contacts via axios-dav (mcp-dav)
 
 **Secrets:**
 - agenix for encrypted secrets
 - Automatic secret decryption at boot
 - Secure API key management
 - See [SECRETS_MODULE.md](SECRETS_MODULE.md) for details
+
+**Syncthing:**
+- Peer-to-peer XDG directory synchronization
+- Tailscale-only transport
+- Declarative folder and device configuration
 
 **Services (Self-Hosted):**
 - Immich (photo management and backup)
@@ -357,11 +345,9 @@ Enable only the modules you need:
 - Desktop productivity apps
 - Full development environment
 - Media applications
-- Gaming support (if gaming module enabled)
 
 **Laptop:**
-- Battery optimization
-- Power management
+- Power management optimizations
 - Mobile-friendly apps
 - Reduced resource usage
 
@@ -378,65 +364,22 @@ Manage multiple machines in one configuration:
 
   outputs = { self, axios, nixpkgs, ... }:
     let
-      # Shared user module
-      userModule = self.outPath + "/user.nix";
-      
-      # Desktop configuration
-      desktopConfig = {
-        hostname = "desktop";
-        formFactor = "desktop";
-        hardware = {
-          vendor = "msi";
-          cpu = "amd";
-          gpu = "amd";
-          hasSSD = true;
-          isLaptop = false;
-        };
-        modules = {
-          system = true;
-          desktop = true;
-          development = true;
-          gaming = true;
-          # ... other modules
-        };
-        homeProfile = "workstation";
-        userModulePath = userModule;
-        diskConfigPath = ./hosts/desktop/disks.nix;
-      };
-      
-      # Laptop configuration
-      laptopConfig = {
-        hostname = "laptop";
-        formFactor = "laptop";
-        hardware = {
-          vendor = "system76";
-          cpu = "amd";
-          gpu = "amd";
-          hasSSD = true;
-          isLaptop = true;
-        };
-        modules = {
-          system = true;
-          desktop = true;
-          development = true;
-          gaming = false;  # No gaming on laptop
-          # ... other modules
-        };
-        homeProfile = "laptop";
-        userModulePath = userModule;
-        diskConfigPath = ./hosts/laptop/disks.nix;
-      };
+      mkHost = hostname: axios.lib.mkSystem (
+        (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+          configDir = self.outPath;
+        }
+      );
     in
     {
       nixosConfigurations = {
-        desktop = axios.lib.mkSystem desktopConfig;
-        laptop = axios.lib.mkSystem laptopConfig;
+        desktop = mkHost "desktop";
+        laptop = mkHost "laptop";
       };
     };
 }
 ```
 
-See [examples/multi-host](../examples/multi-host/) for a complete example.
+See [examples/example-config/](../examples/example-config/) for a complete multi-host example.
 
 ## Updating axiOS
 
@@ -445,7 +388,7 @@ See [examples/multi-host](../examples/multi-host/) for a complete example.
 Get the latest features from axiOS:
 
 ```bash
-cd ~/my-nixos-config
+cd ~/.config/nixos_config
 nix flake update
 sudo nixos-rebuild switch --flake .#myhost
 ```
@@ -521,7 +464,7 @@ Import additional modules alongside axios:
 ```nix
 axios.lib.mkSystem {
   # ... standard config ...
-  
+
   extraConfig = {
     imports = [
       ./my-custom-module.nix
@@ -540,7 +483,7 @@ Override specific packages from axios:
   inputs = {
     axios.url = "github:kcalvelli/axios";
     nixpkgs.follows = "axios/nixpkgs";
-    
+
     # Add your own input for a specific package
     my-package.url = "github:user/my-package";
   };
@@ -548,12 +491,12 @@ Override specific packages from axios:
   outputs = { self, axios, nixpkgs, my-package, ... }: {
     nixosConfigurations.myhost = axios.lib.mkSystem {
       # ... config ...
-      
+
       extraConfig = {
         nixpkgs.overlays = [
           (final: prev: {
             # Override a package
-            some-package = my-package.packages.${prev.system}.default;
+            some-package = my-package.packages.${prev.stdenv.hostPlatform.system}.default;
           })
         ];
       };
@@ -571,7 +514,7 @@ If you want fine-grained control, you can import specific modules:
 ```nix
 {
   inputs.axios.url = "github:kcalvelli/axios";
-  
+
   outputs = { self, axios, nixpkgs, ... }: {
     nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
@@ -579,7 +522,7 @@ If you want fine-grained control, you can import specific modules:
         # Use only specific axios modules
         axios.nixosModules.desktop
         axios.nixosModules.networking
-        
+
         # Your own configuration
         ./configuration.nix
       ];
@@ -633,8 +576,7 @@ If axios doesn't provide something you need:
 
 ## Examples
 
-- [Minimal Single Host](../examples/minimal-flake/) - Basic single machine
-- [Multiple Hosts](../examples/multi-host/) - Managing multiple machines
+- [Example Configuration](../examples/example-config/) - Multi-host setup with multiple users
 
 ## Support
 
@@ -642,15 +584,12 @@ If axios doesn't provide something you need:
 - [Documentation](../docs/) - Additional guides and references
 - [NixOS Manual](https://nixos.org/manual/nixos/stable/) - NixOS documentation
 
-## Migration from Direct Installation
+## Migration from Old Format
 
-If you previously cloned axios directly and want to switch to library usage:
+If you're migrating from the old `userModulePath`/`diskConfigPath` API:
 
-1. Create new repo with your personal configs
-2. Copy your `hosts/*.nix` files
-3. Copy your `modules/users/*.nix` files  
-4. Create flake.nix using `axios.lib.mkSystem`
-5. Test the new configuration
-6. Switch to it with `nixos-rebuild`
-
-Your old configuration can be removed once verified working.
+1. **`userModulePath` -> `users` list + `configDir`**: Replace stringly-typed path with `users = [ "username" ]` in host config and add `configDir = self.outPath`
+2. **`diskConfigPath` -> `hardwareConfigPath`**: Rename the parameter
+3. **`axios.user` -> `axios.users.users.<name>`**: Replace singular user options with multi-user submodule
+4. **`user.nix` -> `users/<name>.nix`**: Move root-level user file to `users/` directory
+5. **Host config extraction**: Move inline host configs from flake.nix to `hosts/<hostname>.nix` files

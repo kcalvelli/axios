@@ -13,10 +13,9 @@ This directory contains automated workflows for the axios flake library.
 - Validates flake structure with `nix flake check`
 - **Tests basic builds** (formatter, devShell) to catch obvious breakage
 - Creates PR only if validation passes
-- **Requires manual testing** with `./scripts/test-build.sh` before merging
 - Labels PRs as `dependencies` and `automated`
 
-**Note:** CI tests are basic. Always run `./scripts/test-build.sh` to catch dependency conflicts.
+**Note:** CI tests are basic. Manual full build testing is recommended before merging dependency updates.
 
 ### Flake Check
 **File:** `flake-check.yml`
@@ -24,7 +23,7 @@ This directory contains automated workflows for the axios flake library.
 **Purpose:** Validates flake structure, builds examples, and tests validation logic.
 
 - Runs `nix flake check` to verify flake validity
-- **Builds example configurations** (minimal-flake, multi-host) to ensure library API works
+- **Builds example configurations** (example-config) to ensure library API works
 - **Tests validation logic** to verify configuration errors are caught correctly
 - Displays flake metadata for debugging
 - Ensures no breaking changes to the flake interface
@@ -34,9 +33,19 @@ This directory contains automated workflows for the axios flake library.
 - `build-examples` - Tests example configs in matrix (3-5 min per example)
 - `test-validation` - Verifies validation catches invalid configs (1-2 min)
 
+### Build Packages
+**File:** `build-packages.yml`
+**Schedule:** Weekly on Mondays at 2 AM UTC
+**Triggers:** Changes to pkgs, flake files, push to master, pull requests, weekly
+**Purpose:** Builds and caches all custom axios packages.
+
+- Lists all available packages via `nix flake show`
+- Builds each package and pushes to Cachix
+- Keeps cache fresh with weekly rebuilds
+
 ### Build DevShells
-**File:** `build-devshells.yml`  
-**Triggers:** Changes to devshells, push to master, pull requests  
+**File:** `build-devshells.yml`
+**Triggers:** Changes to devshells, push to master, pull requests
 **Purpose:** Validates all development shells build successfully.
 
 - Lists all available devShells
@@ -56,7 +65,7 @@ This directory contains automated workflows for the axios flake library.
 **Triggers:** Changes to .nix files, push to master, pull requests
 **Purpose:** Ensures consistent code style across the project.
 
-- Checks all .nix files are formatted with `nixpkgs-fmt`
+- Checks all .nix files are formatted with `nixfmt-rfc-style`
 - Only runs when .nix files are modified (path-based trigger)
 - Run `nix fmt` locally to fix formatting issues before pushing
 

@@ -6,28 +6,21 @@ This guide shows how to manage multiple machines with axiOS.
 
 When using axios as a library, adding hosts is simple - just add more configurations to your flake.
 
-### Single Host Structure
+### Canonical Directory Structure
 
 ```
-my-nixos-config/
+~/.config/nixos_config/
 ├── flake.nix
-├── user.nix
-└── disks.nix
-```
-
-### Multi-Host Structure
-
-```
-my-nixos-config/
-├── flake.nix
-├── user.nix          # Shared user module
-└── hosts/
-    ├── desktop/
-    │   ├── config.nix
-    │   └── disks.nix
-    └── laptop/
-        ├── config.nix
-        └── disks.nix
+├── hosts/
+│   ├── desktop.nix
+│   ├── desktop/
+│   │   └── hardware.nix
+│   ├── laptop.nix
+│   └── laptop/
+│       └── hardware.nix
+└── users/
+    ├── alice.nix
+    └── bob.nix
 ```
 
 ### Example Multi-Host Flake
@@ -42,138 +35,30 @@ my-nixos-config/
 
   outputs = { self, axios, nixpkgs, ... }:
     let
-      # Shared user module
-      userModule = self.outPath + "/user.nix";
-      
-      # Desktop configuration
-      desktopConfig = {
-        hostname = "desktop";
-        system = "x86_64-linux";
-        formFactor = "desktop";
-        
-        hardware = {
-          vendor = "msi";
-          cpu = "amd";
-          gpu = "amd";
-          hasSSD = true;
-          isLaptop = false;
-        };
-        
-        modules = {
-          system = true;
-          desktop = true;
-          development = true;
-          gaming = true;
-          graphics = true;
-          networking = true;
-          users = true;
-          virt = true;
-          services = true;
-        };
-        
-        services = {
-          caddy-proxy.enable = true;
-        };
-        
-        homeProfile = "workstation";
-        userModulePath = userModule;
-        diskConfigPath = ./hosts/desktop/disks.nix;
-        
-        extraConfig = {
-          axios.system.timeZone = "America/New_York";
-        };
-      };
-      
-      # Laptop configuration
-      laptopConfig = {
-        hostname = "laptop";
-        system = "x86_64-linux";
-        formFactor = "laptop";
-        
-        hardware = {
-          vendor = "system76";
-          cpu = "amd";
-          gpu = "amd";
-          hasSSD = true;
-          isLaptop = true;
-        };
-        
-        modules = {
-          system = true;
-          desktop = true;
-          development = true;
-          gaming = false;  # No gaming on laptop
-          graphics = true;
-          networking = true;
-          users = true;
-          virt = false;
-          services = false;
-        };
-        
-        homeProfile = "laptop";
-        userModulePath = userModule;
-        diskConfigPath = ./hosts/laptop/disks.nix;
-
-        extraConfig = {
-          axios.system.timeZone = "America/New_York";
-          boot.lanzaboote.enableSecureBoot = true;
-        };
-      };
+      mkHost = hostname: axios.lib.mkSystem (
+        (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+          configDir = self.outPath;
+        }
+      );
     in
     {
       nixosConfigurations = {
-        desktop = axios.lib.mkSystem desktopConfig;
-        laptop = axios.lib.mkSystem laptopConfig;
+        desktop = mkHost "desktop";
+        laptop = mkHost "laptop";
       };
     };
 }
 ```
 
-### Alternative: Import Host Configs
-
-For cleaner organization, import host configs from separate files:
-
-**flake.nix:**
+**hosts/desktop.nix:**
 ```nix
-{
-  inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
-  };
-
-  outputs = { self, axios, nixpkgs, ... }:
-    let
-      userModule = self.outPath + "/user.nix";
-      
-      # Import host configs
-      desktop = (import ./hosts/desktop/config.nix { 
-        lib = nixpkgs.lib;
-        userModule = userModule;
-      }).hostConfig;
-      
-      laptop = (import ./hosts/laptop/config.nix {
-        lib = nixpkgs.lib;
-        userModule = userModule;
-      }).hostConfig;
-    in
-    {
-      nixosConfigurations = {
-        desktop = axios.lib.mkSystem desktop;
-        laptop = axios.lib.mkSystem laptop;
-      };
-    };
-}
-```
-
-**hosts/desktop/config.nix:**
-```nix
-{ lib, userModule, ... }:
+{ lib, ... }:
 {
   hostConfig = {
     hostname = "desktop";
     system = "x86_64-linux";
     formFactor = "desktop";
-    
+
     hardware = {
       vendor = "msi";
       cpu = "amd";
@@ -181,18 +66,76 @@ For cleaner organization, import host configs from separate files:
       hasSSD = true;
       isLaptop = false;
     };
-    
+
     modules = {
       system = true;
       desktop = true;
       development = true;
       gaming = true;
-      # ... etc
+      graphics = true;
+      networking = true;
+      users = true;
+      virt = true;
     };
-    
+
     homeProfile = "workstation";
-    userModulePath = userModule;
-    diskConfigPath = ./disks.nix;
+    hardwareConfigPath = ./desktop/hardware.nix;
+    users = [ "alice" ];
+
+    extraConfig = {
+      axios.system.timeZone = "America/New_York";
+    };
+  };
+}
+```
+
+**hosts/laptop.nix:**
+```nix
+{ lib, ... }:
+{
+  hostConfig = {
+    hostname = "laptop";
+    system = "x86_64-linux";
+    formFactor = "laptop";
+
+    hardware = {
+      vendor = "system76";
+      cpu = "amd";
+      gpu = "amd";
+      hasSSD = true;
+      isLaptop = true;
+    };
+
+    modules = {
+      system = true;
+      desktop = true;
+      development = true;
+      gaming = false;
+      graphics = true;
+      networking = true;
+      users = true;
+      virt = false;
+    };
+
+    homeProfile = "laptop";
+    hardwareConfigPath = ./laptop/hardware.nix;
+    users = [ "alice" ];
+
+    extraConfig = {
+      axios.system.timeZone = "America/New_York";
+    };
+  };
+}
+```
+
+**users/alice.nix:**
+```nix
+{ ... }:
+{
+  axios.users.users.alice = {
+    fullName = "Alice Smith";
+    email = "alice@example.com";
+    isAdmin = true;
   };
 }
 ```
@@ -287,33 +230,17 @@ nixos-rebuild switch --flake github:user/my-config#laptop --target-host laptop.l
 
 ## Sharing Configuration Between Hosts
 
-### Shared User Module
+### Shared Users
 
-Create one user module and reuse it:
+All hosts reference the same `users/<name>.nix` files. Multiple hosts can share the same users:
 
-**user.nix:**
 ```nix
-{ self, config, ... }:
-let
-  username = "myuser";
-in
-{
-  users.users.${username} = {
-    isNormalUser = true;
-    description = "My User";
-    # Set password with: sudo passwd ${username}
-    # Or use: hashedPassword = "..."; (generate with mkpasswd)
-    extraGroups = [ "networkmanager" "wheel" ];
-  };
+# hosts/desktop.nix
+users = [ "alice" "bob" ];
 
-  home-manager.users.${username} = {
-    home.stateVersion = "24.05";
-    # ... shared home-manager config
-  };
-}
+# hosts/laptop.nix
+users = [ "alice" ];  # Only Alice uses the laptop
 ```
-
-All hosts reference the same `userModulePath`.
 
 ### Shared Settings via extraConfig
 
@@ -324,22 +251,9 @@ let
   commonConfig = {
     axios.system.timeZone = "America/New_York";
   };
-  
-  desktopConfig = {
-    # ... hardware, modules, etc ...
-    extraConfig = commonConfig;
-  };
-  
-  laptopConfig = {
-    # ... hardware, modules, etc ...
-    extraConfig = commonConfig;
-  };
 in
 {
-  nixosConfigurations = {
-    desktop = axios.lib.mkSystem desktopConfig;
-    laptop = axios.lib.mkSystem laptopConfig;
-  };
+  # Use in each host's extraConfig
 }
 ```
 
@@ -349,21 +263,21 @@ Enable different features per machine:
 
 ```nix
 # Gaming desktop
-desktopConfig.modules = {
+modules = {
   system = true;
   desktop = true;
-  gaming = true;  # ✓
-  virt = true;    # ✓
-  services = true; # ✓
+  gaming = true;
+  virt = true;
+  services = true;
 };
 
 # Development laptop
-laptopConfig.modules = {
+modules = {
   system = true;
   desktop = true;
-  gaming = false;  # ✗ No gaming
-  virt = false;    # ✗ No VMs
-  services = false; # ✗ No services
+  gaming = false;
+  virt = false;
+  services = false;
 };
 ```
 
@@ -419,15 +333,6 @@ extraConfig = {
 }
 ```
 
-### Conditional Configuration
-
-```nix
-extraConfig = {
-  # Example: Only enable on desktop
-  services.caddy.enable = lib.mkIf (config.networking.hostName == "desktop") true;
-}
-```
-
 ### Testing New Hosts
 
 ```bash
@@ -441,11 +346,10 @@ nixos-rebuild build-vm --flake .#newhost
 
 ## Examples
 
-- [examples/minimal-flake](../examples/minimal-flake/) - Single host
-- [examples/multi-host](../examples/multi-host/) - Multiple hosts (coming soon)
+- [Example Configuration](../examples/example-config/) - Multi-host setup with multiple users
 
 ## More Information
 
 - [Library Usage Guide](LIBRARY_USAGE.md) - Complete library API
+- [User Module Guide](USER_MODULE.md) - User configuration
 - [Installation Guide](INSTALLATION.md) - Getting started
-- [Enabling Services](ENABLING_SERVICES.md) - Optional services

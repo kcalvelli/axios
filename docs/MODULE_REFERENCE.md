@@ -35,10 +35,14 @@ modules = {
 **What it does:** Essential system configuration that every NixOS system needs.
 
 **Includes:**
-- Boot configuration (systemd-boot or GRUB)
+- Boot configuration with Plymouth branded splash screen
 - Nix settings and garbage collection
-- Core system packages (file utilities, compression tools)
-- Timezone and locale management
+- Core system packages (file utilities, compression tools, monitoring)
+- Timezone and locale management (`axios.system.locale`, defaults to en_US.UTF-8)
+- systemd-oomd for out-of-memory management
+- PipeWire audio stack
+- CUPS printing support
+- Bluetooth support
 
 **When to use:** Always enable this module (recommended: `true`)
 
@@ -64,17 +68,17 @@ This "library philosophy" applies throughout axiOS - no regional defaults, no ha
 ---
 
 ### users
-**What it does:** Manages your user account and home directory setup.
+**What it does:** Multi-user account management and home directory setup.
 
 **Includes:**
-- User account creation
-- Home Manager integration
-- Shell configuration
-- User environment variables
+- User account creation via `axios.users.users.<name>` submodule
+- Automatic group assignment based on enabled modules
+- Home Manager integration with per-user profiles
+- Git configuration from user's fullName and email
 
 **When to use:** Always enable for home-manager support (recommended: `true`)
 
-**Required:** You must provide a `userModulePath` with your user configuration.
+**Configuration:** Define users in `users/<name>.nix` files and reference them with `users = [ "alice" ]` in host config. See [USER_MODULE.md](USER_MODULE.md) for details.
 
 ---
 
@@ -100,7 +104,7 @@ This "library philosophy" applies throughout axiOS - no regional defaults, no ha
 - Automatic driver selection (AMD, NVIDIA, or Intel)
 - OpenGL and Vulkan support
 - Hardware video acceleration
-- GPU monitoring tools (radeontop for AMD, nvidia-smi for NVIDIA)
+- GPU monitoring tools (radeontop for AMD, nvtop for NVIDIA)
 - **AMD GPU recovery** enabled (auto-reset on hang)
 
 **When to use:** Enable if you have a desktop environment or play games
@@ -122,8 +126,7 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 - **[Niri](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor
 - **DankMaterialShell** - Material Design shell with custom theming and widgets
 - **Ghostty** - Modern GPU-accelerated terminal
-- **Nautilus** - GNOME file manager
-- **Idle Management** - Automatic screen power-off after 30 minutes (swayidle)
+- **Dolphin** - KDE file manager (split-pane, plugin ecosystem)
 - Desktop applications (text editor, calculator, PDF viewer) - See [APPLICATIONS.md](APPLICATIONS.md)
 - Fonts and icon themes
 
@@ -132,33 +135,8 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 **Requirements:** Needs `networking = true`
 
 **Home Profiles:**
-- `workstation`: Full desktop with productivity apps
-- `laptop`: Optimized for battery life and portability
-
-**Idle Management:**
-
-axiOS includes automatic idle management using swayidle:
-- **Default timeout**: 30 minutes of inactivity
-- **Action**: Powers off monitors via `niri msg action power-off-monitors`
-- **Service**: Managed by systemd user service (auto-starts with desktop)
-- **Manual lock**: Super+Alt+L (DankMaterialShell lock screen)
-
-**Customizing idle timeout:**
-
-```nix
-# In your user configuration (home-manager)
-services.swayidle.timeouts = [
-  {
-    timeout = 600;  # 10 minutes
-    command = "niri msg action power-off-monitors";
-  }
-  # Add additional actions:
-  {
-    timeout = 900;   # 15 minutes
-    command = "systemctl suspend";  # Suspend system
-  }
-];
-```
+- `workstation`: Full desktop with Logitech Solaar autostart
+- `laptop`: Same desktop without Logitech autostart (mobile use)
 
 ---
 
@@ -168,6 +146,7 @@ services.swayidle.timeouts = [
 **Includes:**
 - **axios-ai-mail** - AI-powered email client with local LLM classification
 - **vdirsyncer** - CLI tool for syncing calendars and contacts
+- **mcp-dav** - Calendar and contacts access via CalDAV/CardDAV (from axios-dav)
 
 **When to use:** If you need email with AI-powered smart inbox features
 
@@ -237,16 +216,20 @@ nix develop github:kcalvelli/axios#qml    # Qt/QML environment
 **What it does:** Gaming platform and optimization tools.
 
 **Includes:**
-- **Steam** with Proton for Windows games
+- **Steam** with Proton and Proton-GE for Windows games
 - **GameMode** for CPU/GPU optimization
-- **Gamescope** for better game compatibility
-- Performance tweaks and optimizations
+- **Gamescope** session support
+- **mangohud** performance overlay
+- **prismlauncher** (Minecraft launcher)
+- **superTuxKart** racing game
+- **nix-ld** for native Linux game binary compatibility
+- **VR support** (optional, via `vr.nix`)
 
 **When to use:** If you play games on this computer
 
 **Requirements:** Needs `graphics = true`
 
-**Note:** Automatically disabled on laptop profile to save resources.
+**Note:** Gaming is not auto-disabled on laptops. Set `modules.gaming = false` in laptop host configs if you don't need it.
 
 ---
 
@@ -328,14 +311,11 @@ services.ai.local = {
   # AMD GPU configuration
   rocmOverrideGfx = "10.3.0";  # For RX 5500/5600/5700 series
 
+  # GPU memory management
+  keepAlive = "1m";  # Unload models after 1 minute of inactivity
+
   # Optional components
   cli = true;  # OpenCode (default: true)
-
-  # Expose Ollama API via Tailscale HTTPS (recommended)
-  tailscaleServe = {
-    enable = true;
-    httpsPort = 8447;  # Default port
-  };
 };
 ```
 
@@ -348,28 +328,21 @@ services.ai.local = {
   enable = true;
   role = "client";  # Use remote Ollama server
 
-  # Required: Specify your Ollama server
-  serverHost = "edge";           # Hostname on tailnet (e.g., "edge" for edge.taile0fb4.ts.net)
-  tailnetDomain = "taile0fb4.ts.net";  # Your tailnet domain
-  serverPort = 8447;             # Default port (matches server's tailscaleServe.httpsPort)
+  # Required: Specify your tailnet domain
+  tailnetDomain = "taile0fb4.ts.net";
 
   # Optional components
   cli = true;  # OpenCode still works, connects to remote Ollama
 };
 ```
 
-**Benefits of Server/Client Architecture:**
-- 🖥️ **Powerful desktop** runs inference with GPU acceleration
-- 💻 **Lightweight laptops** get AI capabilities without GPU stack
-- 🔒 **Secure** over Tailscale VPN (end-to-end encrypted)
-- 📦 **Lighter footprint** on clients (no ROCm, no amdgpu kernel module)
+The server registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via the `OLLAMA_HOST` environment variable.
 
 **Features (Server Role):**
 - **32K context window** for agentic tool use
 - **Automatic model preloading** on service start
-- **ROCm acceleration** with automatic gfx1031 override for older AMD GPUs
-- **MCP server support** in OpenCode
-- **LSP integration** for code intelligence
+- **ROCm acceleration** with automatic gfx override for older AMD GPUs
+- **Tailscale Services** registration for secure remote access
 
 **Usage:**
 
@@ -379,24 +352,6 @@ ollama run mistral:7b "Write a function to..."
 
 # OpenCode CLI (works with both roles)
 opencode "implement feature X with tests"
-```
-
-**Remote Access:**
-
-When `tailscaleServe.enable = true` (server role):
-- Access Ollama via HTTPS: `https://[hostname].[tailscale-domain]:8447`
-- Uses Tailscale certificates (automatic)
-- Other machines on tailnet can connect by setting `role = "client"`
-
-**Legacy (Deprecated):**
-
-The `ollamaReverseProxy` option is deprecated in favor of `tailscaleServe`. If you're using it:
-```nix
-# Old (deprecated)
-services.ai.local.ollamaReverseProxy.enable = true;
-
-# New (recommended)
-services.ai.local.tailscaleServe.enable = true;
 ```
 
 ---
@@ -633,17 +588,19 @@ These modules are automatically enabled based on your hardware configuration. Yo
 extraConfig = {
   hardware.crashDiagnostics = {
     enable = true;
-    rebootOnPanic = 30;        # Reboot after 30 seconds
-    treatOopsAsPanic = true;   # Aggressive recovery
-    enableCrashDump = false;   # Save RAM
+    rebootOnPanic = 30;            # Reboot after 30 seconds
+    treatOopsAsPanic = true;       # Aggressive recovery
+    enableCrashDump = false;       # Save RAM
+    enableHardwareWatchdog = false; # Hardware watchdog timer
+    runtimeWatchdogSec = null;     # systemd watchdog (e.g., "30s")
   };
 };
 ```
 
 **Trade-offs:**
-- ✅ Automatic recovery from freezes
-- ✅ System won't stay in broken state
-- ❌ No manual debugging time (reboots automatically)
+- Automatic recovery from freezes
+- System won't stay in broken state
+- No manual debugging time (reboots automatically)
 
 ---
 
@@ -662,10 +619,10 @@ extraConfig = {
 **Auto-enabled when:** `formFactor = "laptop"`
 
 **Includes:**
-- Battery optimization (TLP)
-- CPU frequency scaling
-- Laptop power management
-- Backlight control
+- CPU frequency governor (default: powersave for battery life)
+- Power management
+- SSD TRIM
+- Laptop-specific kernel modules
 - **System76 support** (if `vendor = "system76"`)
 
 ---
@@ -727,6 +684,53 @@ modules = {
   desktop = false;       # No GUI needed
 };
 ```
+
+---
+
+## Configuration Options
+
+All options can be set in `extraConfig` within your host configuration.
+
+### System Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `axios.system.timeZone` | string | *required* | IANA timezone (e.g., "America/New_York") |
+| `axios.system.locale` | string | `"en_US.UTF-8"` | System locale |
+| `axios.system.bluetooth.powerOnBoot` | bool | `true` | Auto-power Bluetooth at boot |
+| `axios.system.performance.swappiness` | int | `10` | VM swappiness (0-100) |
+| `axios.system.performance.zramPercent` | int | `25` | Percentage of RAM for zram swap |
+| `axios.system.performance.enableNetworkOptimizations` | bool | `true` | BBR congestion control + optimized buffers |
+
+### Hardware Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `hardware.desktop.cpuGovernor` | string | `"powersave"` | CPU frequency governor for desktops |
+| `hardware.desktop.enableLogitechSupport` | bool | `false` | Logitech Unifying receiver support |
+| `hardware.laptop.cpuGovernor` | string | `"powersave"` | CPU frequency governor for laptops |
+| `axios.hardware.enableGPURecovery` | bool | `true` (AMD) | Auto GPU hang recovery (AMD only) |
+| `axios.hardware.nvidiaDriver` | enum | `"stable"` | Nvidia driver: "stable", "beta", "production" |
+
+### Boot Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `boot.lanzaboote.enableSecureBoot` | bool | `false` | Enable Lanzaboote secure boot |
+
+### AI Module Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `services.ai.enable` | bool | via module flag | Enable AI tools |
+| `services.ai.mcp.enable` | bool | `true` | Enable MCP servers (when AI is enabled) |
+| `services.ai.claude.enable` | bool | `true` | Enable Claude Code |
+| `services.ai.gemini.enable` | bool | `true` | Enable Gemini CLI |
+| `services.ai.local.enable` | bool | `false` | Enable local LLM stack (Ollama) |
+| `services.ai.local.role` | enum | `"server"` | "server" or "client" |
+| `services.ai.local.models` | list | `["mistral:7b" "nomic-embed-text"]` | Models to preload |
+| `services.ai.local.cli` | bool | `true` | Enable OpenCode agentic CLI |
+| `services.ai.local.keepAlive` | string | `"1m"` | Model unload timeout |
 
 ---
 

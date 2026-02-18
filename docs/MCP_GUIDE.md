@@ -23,7 +23,7 @@ Model Context Protocol (MCP) is a standard protocol that allows AI models to acc
 - Access your filesystem, git repositories, and systemd logs
 - Search the web with Brave Search
 - Query documentation with Context7
-- Control hardware like Ultimate64 C64 emulators
+- Access email and calendar/contacts via PIM tools
 - Enhance reasoning with sequential-thinking
 - And much more!
 
@@ -31,7 +31,7 @@ Model Context Protocol (MCP) is a standard protocol that allows AI models to acc
 
 When you enable `services.ai` in axiOS, you automatically get:
 
-1. **10 Pre-configured MCP Servers** - No manual setup required
+1. **11 Pre-configured MCP Servers** - No manual setup required
 2. **mcp-cli** - Dynamic tool discovery (99% token reduction)
 3. **Auto-generated configs** - `~/.mcp.json` for Claude Code
 4. **System prompts** - Auto-injected into `~/.claude.json`
@@ -170,8 +170,8 @@ Benefits:
 
 When `services.ai.enable = true`, these MCP servers are automatically configured:
 
-| Server | Purpose | Setup Required | Confidence |
-|--------|---------|----------------|------------|
+| Server | Purpose | Setup Required | Status |
+|--------|---------|----------------|--------|
 | **git** | Git operations | None | Ready |
 | **github** | GitHub API access | `gh auth login` | Requires auth |
 | **filesystem** | File read/write | None | Ready |
@@ -180,8 +180,9 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 | **sequential-thinking** | Enhanced AI reasoning | None | Ready |
 | **context7** | Library documentation | None | Ready |
 | **time** | Date/time utilities | None | Ready |
-| **brave-search** | Web search | API key via env var | Requires key |
-| **ultimate64** | C64 emulator control | Hardware on LAN | Requires hardware |
+| **axios-ai-mail** | AI-powered email | PIM module | Ready |
+| **mcp-dav** | Calendar and contacts | PIM module | Ready |
+| **brave-search** | Web search | API key | Requires key |
 
 ### Server Details
 
@@ -197,6 +198,11 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 - **nix-devshell-mcp**: Nix devshell integration
 - **github**: Requires `gh auth login` (uses gh CLI for auth)
 
+#### PIM Integration (Requires `modules.pim = true`)
+
+- **axios-ai-mail**: AI-powered email access and management
+- **mcp-dav**: Calendar and contacts via CalDAV/CardDAV (from axios-dav)
+
 #### AI Enhancement (No Setup)
 
 - **sequential-thinking**: Chain-of-thought reasoning for complex problems
@@ -206,13 +212,7 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 
 - **brave-search**: Web search via Brave Search API
   - Get key: https://brave.com/search/api/
-  - Configure via `environment.sessionVariables.BRAVE_API_KEY`
-
-#### Hardware (Requires Hardware)
-
-- **ultimate64**: Control Ultimate64 C64 emulator
-  - Requires Ultimate64 device on local network
-  - Stream video/audio, transfer files, execute programs
+  - Configure via agenix secret or `$BRAVE_API_KEY` env var
 
 ## Configuration Guide
 
@@ -607,7 +607,7 @@ Visual management at `http://localhost:8085`:
 
 ## Contributing
 
-Found a useful MCP server? Add it to `home/ai/mcp-examples.nix` with a pull request!
+Found a useful MCP server? Add it to `home/ai/mcp.nix` with a pull request!
 
 ---
 

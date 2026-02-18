@@ -143,154 +143,32 @@ cd ~/.config/nixos_config
       nixpkgs,
       ...
     }:
+    let
+      mkHost = hostname: axios.lib.mkSystem (
+        (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+          configDir = self.outPath;
+        }
+      );
+    in
     {
-      nixosConfigurations.myhost = axios.lib.mkSystem {
-        hostConfig = {
-          hostname = "myhost";
-          system = "x86_64-linux";
-          formFactor = "desktop"; # or "laptop" or "server"
-
-          hardware = {
-            cpu = "amd"; # "amd" or "intel"
-            gpu = "amd"; # "amd", "nvidia", or "intel"
-            hasSSD = true;
-            isLaptop = false;
-          };
-
-          modules = {
-            system = true;
-            desktop = true;
-            development = true;
-            graphics = true;
-            networking = true;
-            users = true;
-            virt = false; # Enable for virtualization (libvirt/containers)
-            gaming = false; # Enable for Steam and gaming tools
-            ai = false; # Enable for AI tools (claude-code, copilot, etc.)
-            secrets = false; # Enable for agenix secrets management
-          };
-
-          homeProfile = "workstation"; # or "laptop"
-          userModulePath = self.outPath + "/user.nix";
-          diskConfigPath = ./hosts/myhost/disks.nix;
-
-          extraConfig = {
-            # System timezone (required)
-            axios.system.timeZone = "America/New_York";
-
-            # Add any additional NixOS configuration here
-            # environment.systemPackages = with pkgs; [ ... ];
-          };
-        };
-      };
+      nixosConfigurations.myhost = mkHost "myhost";
     };
 }
 ```
 
-### Step 3: Create user.nix
+### Step 3: Create hosts/myhost.nix
 
 ```nix
-{
-  self,
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-let
-  username = "myuser";
-  fullName = "My Full Name";
-  email = "me@example.com";
-in
-{
-  axios.user = {
-    username = username;
-    fullName = fullName;
-    email = email;
-
-    groups = [
-      "networkmanager"
-      "wheel"
-      "video"
-      "audio"
-    ];
-  };
-}
-```
-
-### Step 4: Extract Disk Configuration
-
-```bash
-# Create host directory
-mkdir -p hosts/myhost
-
-# Extract disk config from hardware-configuration.nix
-# Copy filesystem, boot, and swap sections to hosts/myhost/disks.nix
-```
-
-Or manually create `hosts/myhost/disks.nix`:
-
-```nix
-# Disk configuration extracted from hardware-configuration.nix
-{
-  config,
-  lib,
-  pkgs,
-  modulesPath,
-  ...
-}:
-
-{
-  imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
-
-  boot.initrd.availableKernelModules = [
-    "xhci_pci"
-    "ahci"
-    "nvme"
-    "usb_storage"
-    "sd_mod"
-  ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
-
-  fileSystems."/" = {
-    device = "/dev/disk/by-uuid/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-    fsType = "ext4";
-  };
-
-  fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/XXXX-XXXX";
-    fsType = "vfat";
-  };
-
-  swapDevices = [ ];
-
-  hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
-}
-```
-
-Find your actual UUIDs with:
-```bash
-lsblk -f
-# or
-blkid
-```
-
-### Step 5: Create hosts/myhost.nix
-
-```nix
-# Host: myhost (desktop)
-{ lib, userModulePath, ... }:
+{ lib, ... }:
 {
   hostConfig = {
     hostname = "myhost";
     system = "x86_64-linux";
-    formFactor = "desktop";
+    formFactor = "desktop"; # or "laptop"
 
     hardware = {
-      cpu = "amd";
-      gpu = "amd";
+      cpu = "amd"; # "amd" or "intel"
+      gpu = "amd"; # "amd", "nvidia", or "intel"
       hasSSD = true;
       isLaptop = false;
     };
@@ -302,22 +180,55 @@ blkid
       graphics = true;
       networking = true;
       users = true;
-      virt = false;
-      gaming = false;
-      ai = false;
-      secrets = false;
+      virt = false; # Enable for virtualization (libvirt/containers)
+      gaming = false; # Enable for Steam and gaming tools
+      # ai defaults to true (Claude Code, Gemini, MCP servers)
+      secrets = false; # Enable for agenix secrets management
     };
 
-    homeProfile = "workstation";
-    userModulePath = userModulePath;
-    diskConfigPath = ./myhost/disks.nix;
+    homeProfile = "workstation"; # or "laptop"
+    hardwareConfigPath = ./myhost/hardware.nix;
+
+    users = [ "myuser" ]; # References users/myuser.nix
 
     extraConfig = {
+      # System timezone (required)
       axios.system.timeZone = "America/New_York";
+
+      # Add any additional NixOS configuration here
+      # environment.systemPackages = with pkgs; [ ... ];
     };
   };
 }
 ```
+
+### Step 4: Create users/myuser.nix
+
+```nix
+{ ... }:
+{
+  axios.users.users.myuser = {
+    fullName = "My Full Name";
+    email = "me@example.com";
+    isAdmin = true;
+  };
+
+  # That's it! axiOS automatically:
+  # - Creates the user account (isNormalUser = true)
+  # - Assigns groups based on enabled modules (wheel, video, audio, etc.)
+  # - Configures git (user.name and user.email)
+  # - Sets up home-manager with stateVersion and FLAKE_PATH
+}
+```
+
+### Step 5: Copy Hardware Configuration
+
+```bash
+mkdir -p hosts/myhost
+cp /etc/nixos/hardware-configuration.nix hosts/myhost/hardware.nix
+```
+
+This file contains boot modules, kernel modules, filesystems, and swap configuration generated by `nixos-generate-config`.
 
 ### Step 6: Apply Configuration
 
@@ -429,7 +340,7 @@ extraConfig = {
 
 ### What You Get Automatically
 
-When you create a user with `axios.user`, the system automatically:
+When you create a user with `axios.users.users.<name>`, the system automatically:
 
 ✅ **Creates standard directories** on first boot:
 - Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates
@@ -439,10 +350,10 @@ When you create a user with `axios.user`, the system automatically:
 ✅ **Sets up FLAKE_PATH** environment variable:
 - Points to `~/.config/nixos_config` by default
 - Used by fish helper functions (rebuild-switch, update-flake, etc.)
-- Customize in your `user.nix` if needed:
+- Customize in your `users/<name>.nix` if needed:
   ```nix
   {
-    axios.user = { ... };
+    axios.users.users.alice = { ... };
 
     # Optional: customize FLAKE_PATH
     axios.home.flakePath = "/custom/path";

@@ -53,7 +53,8 @@ mcp-cli filesystem/list_directory '{"path": "/tmp"}' | jq '.files'
 | **context7** | Documentation | query_docs, search | None |
 | **time** | Date/time | convert, calculate | None |
 | **brave-search** | Web search | web_search | API key |
-| **ultimate64** | C64 emulator | transfer, execute | Hardware |
+| **axios-ai-mail** | Email access | search, read, send | PIM module |
+| **mcp-dav** | Calendar/contacts | events, contacts | PIM module |
 
 ## Token Efficiency
 
@@ -80,7 +81,7 @@ Cost: $0.02 per session
 
 ### The Result
 
-- ✅ **96.8% token reduction**
+- ✅ **99% token reduction**
 - ✅ **30x more efficient**
 - ✅ **$169/year saved** (typical usage)
 - ✅ **Already working in axios!**
@@ -181,9 +182,10 @@ Every message includes:
 ├─ context7 (2 tools)      1,500 tokens
 ├─ brave-search (5 tools)  3,200 tokens
 ├─ nix-devshell (4 tools)  2,800 tokens
-└─ ultimate64 (9 tools)    4,500 tokens
+├─ axios-ai-mail (5 tools) 3,000 tokens
+└─ mcp-dav (4 tools)       2,500 tokens
                           ────────────
-                          40,000 tokens EVERY message
+                          41,000 tokens EVERY message
 ```
 
 ### mcp-cli: Only What's Needed
@@ -205,9 +207,9 @@ When needed:
 ╔═══════════════════════════════════════════════════╗
 ║  mcp-cli vs Traditional MCP                       ║
 ╠═══════════════════════════════════════════════════╣
-║  Token Reduction:        96.8%                    ║
+║  Token Reduction:        99%                      ║
 ║  Efficiency Gain:        30x                      ║
-║  Cost Reduction:         96.8%                    ║
+║  Cost Reduction:         99%                      ║
 ║  Scalability:            Unlimited servers        ║
 ║  Context Window Usage:   2K vs 47K initial        ║
 ║  Per-Turn Overhead:      0 vs 47K                 ║
@@ -305,11 +307,11 @@ grep -q "mcp-cli" ~/.claude.json && echo "✅ Enabled" || echo "❌ Not found"
 
 - **Detailed Guide**: `docs/MCP_GUIDE.md` - Complete MCP setup and usage
 - **Advanced Features**: `docs/advanced-tool-use.md` - Anthropic beta features
-- **Examples**: `home/ai/mcp-examples.nix` - 100+ server configurations
+- **Server Definitions**: `home/ai/mcp.nix` - All MCP server configurations
 
 ## TL;DR
 
-**axios uses mcp-cli for 96.8% token reduction vs traditional MCP. It's already configured and working. You save $169/year for typical usage. Add more servers without worry - scales infinitely!**
+**axios uses mcp-cli for 99% token reduction vs traditional MCP. It's already configured and working. You save $169/year for typical usage. Add more servers without worry - scales infinitely!**
 
 ```bash
 # Verify it works:

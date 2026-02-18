@@ -18,8 +18,9 @@ axios.lib.mkSystem {
   hardware = { cpu = "amd" | "intel"; gpu = "amd" | "nvidia"; hasSSD = bool; isLaptop = bool; };
   modules = { system = bool; desktop = bool; development = bool; /* ... */ };
   homeProfile = "workstation" | "laptop";
-  userModulePath = path;
-  hardwareConfigPath = path;  // Full hardware config from nixos-generate-config
+  users = [ "alice" "bob" ];         # References users/<name>.nix via configDir
+  configDir = path;                  # Root of config repo (required when users is non-empty)
+  hardwareConfigPath = path;         # Full hardware config from nixos-generate-config
   extraConfig = { /* NixOS options */ };
 }
 ```
@@ -37,46 +38,18 @@ The main function to create a NixOS system configuration.
     axios.url = "github:kcalvelli/axios";
     nixpkgs.follows = "axios/nixpkgs";
   };
-  
-  outputs = { self, axios, ... }: {
-    nixosConfigurations.myhost = axios.lib.mkSystem {
-      hostname = "myhost";
-      system = "x86_64-linux";
-      formFactor = "desktop"; # or "laptop"
-      
-      hardware = {
-        # vendor is optional - only set if you have specific hardware
-        # vendor = "msi";      # For MSI motherboards (enables sensor support)
-        # vendor = "system76"; # For System76 laptops (enables firmware daemons)
-        cpu = "amd"; # or "intel"
-        gpu = "amd"; # or "nvidia"
-        hasSSD = true;
-        isLaptop = false;
-      };
-      
-      modules = {
-        system = true;
-        desktop = true;
-        development = true;
-        services = false;
-        graphics = true;
-        networking = true;
-        users = true;
-        virt = false;
-        gaming = true;
-      };
-      
-      homeProfile = "workstation"; # or "laptop"
 
-      # Hardware configuration
-      hardwareConfigPath = ./hardware.nix;  # Full hardware config from nixos-generate-config
-      
-      # Optional: Additional configuration
-      extraConfig = {
-        # Any additional NixOS configuration options
-      };
+  outputs = { self, axios, nixpkgs, ... }:
+    let
+      mkHost = hostname: axios.lib.mkSystem (
+        (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
+          configDir = self.outPath;
+        }
+      );
+    in
+    {
+      nixosConfigurations.myhost = mkHost "myhost";
     };
-  };
 }
 ```
 
@@ -106,39 +79,45 @@ Helper function that builds the complete module list for a host configuration. C
 
 ### Required Fields
 - `hostname`: String - The system hostname
-- `system`: String - System architecture (typically "x86_64-linux")
 
-### Hardware Configuration
+### Optional Fields (with defaults)
+- `system`: String - System architecture (default: "x86_64-linux")
 - `formFactor`: "desktop" | "laptop"
 - `hardware`: Attribute set
-  - `vendor`: "msi" | "system76" | null (optional)
-    - `"msi"`: Enables MSI motherboard optimizations (nct6775 sensors, ACPI quirks)
-    - `"system76"`: Enables System76 laptop support (firmware/power daemons, hardware quirks)
-    - `null`: Generic hardware support (default, recommended for most users)
+  - `vendor`: "msi" | "system76" | null (optional, default: null)
   - `cpu`: "amd" | "intel"
-  - `gpu`: "amd" | "nvidia"
+  - `gpu`: "amd" | "nvidia" | "intel"
   - `hasSSD`: boolean
   - `isLaptop`: boolean
+- `homeProfile`: "workstation" | "laptop" - Home-manager profile
 
 ### Module Selection
 - `modules`: Attribute set of boolean flags
-  - `system`: Core system configuration
-  - `desktop`: Desktop environment (Niri)
-  - `development`: Development tools
-  - `services`: System services
-  - `graphics`: Graphics drivers and tools
-  - `networking`: Network configuration
-  - `users`: User management
-  - `virt`: Virtualization (libvirt, containers)
-  - `gaming`: Gaming configuration (Steam, etc.)
+  - `system`: Core system configuration (default: true)
+  - `desktop`: Desktop environment - Niri (default: false)
+  - `development`: Development tools (default: false)
+  - `graphics`: Graphics drivers and tools (default: false)
+  - `networking`: Network configuration (default: true)
+  - `users`: User management (default: true)
+  - `virt`: Virtualization - libvirt, containers (default: false)
+  - `gaming`: Gaming - Steam, GameMode (default: false)
+  - `ai`: AI tools - Claude Code, Gemini, MCP servers (default: true)
+  - `pim`: Personal info management - email, calendar (default: false)
+  - `secrets`: Encrypted secrets via agenix (default: false)
+  - `syncthing`: Peer-to-peer XDG directory sync (default: false)
+  - `services`: Self-hosted services - Immich (default: false)
 
-### Optional Fields
-- `homeProfile`: "workstation" | "laptop" - Home-manager profile
-- `hardwareConfigPath`: Path to hardware configuration (includes boot modules, kernel modules, filesystems, swap)
+### Multi-User Support
+- `users`: List of strings - User names (resolves `users/<name>.nix` via configDir)
+- `configDir`: Path - Root of config repo (required when `users` is non-empty)
+
+### Other Optional Fields
+- `hardwareConfigPath`: Path to hardware configuration (from nixos-generate-config)
 - `extraConfig`: Additional NixOS configuration attribute set
+- `inputs`: Override or supplement framework flake inputs
 - `virt`: Virtualization configuration (if modules.virt is true)
-- `services`: Services configuration (if modules.services is true)
+- `secrets`: Secrets configuration (if modules.secrets is true)
 
 ## Examples
 
-See `hosts/TEMPLATE.nix` and `hosts/EXAMPLE-*.nix` for complete examples of host configurations.
+See [examples/example-config/](../examples/example-config/) for complete examples of host configurations.

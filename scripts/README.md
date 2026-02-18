@@ -7,6 +7,7 @@ Utility scripts for axiOS framework.
 ```
 scripts/
 ├── init-config.sh          # Interactive configuration generator
+├── install.sh              # Bootstrap installer (enables flakes, launches init)
 ├── wallpaper-changed.sh    # Wallpaper change handler
 ├── fmt.sh                  # Code formatting helper
 ├── templates/              # Config templates for init-config.sh

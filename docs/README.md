@@ -40,7 +40,7 @@ See [INSTALLATION.md](INSTALLATION.md) for full details.
 
 - **Update system**: `cd ~/my-nixos-config && nix flake update && sudo nixos-rebuild switch --flake .#HOSTNAME`
 - **Add new machine**: See [ADDING_HOSTS.md](ADDING_HOSTS.md)
-- **Enable AI**: Set `modules.ai = true` in host config
+- **Enable AI**: AI is enabled by default (`modules.ai` defaults to `true`)
 
 ## Installation & Setup
 
@@ -63,8 +63,8 @@ Topics covered:
 
 Essential topics:
 - What is MCP and how axios configures it
-- 10 pre-configured MCP servers (no setup required)
-- How mcp-cli saves 96.8% tokens (vs traditional MCP)
+- 11 pre-configured MCP servers (no setup required)
+- How mcp-cli saves 99% tokens (vs traditional MCP)
 - Adding new MCP servers to axios
 - Configuration guide with examples
 - Real-world workflows and debugging
@@ -93,15 +93,6 @@ Future capabilities:
 - Tool Use Examples
 
 **For users interested in upcoming Anthropic API features.**
-
-### 💡 [../home/ai/mcp-examples.nix](../home/ai/mcp-examples.nix)
-**100+ ready-to-use MCP server configurations**
-
-Copy-paste examples for popular services:
-- Notion, Slack, Jira, Linear
-- PostgreSQL, SQLite, MongoDB
-- Docker, Kubernetes
-- And many more!
 
 ## Configuration & Maintenance
 
@@ -194,22 +185,28 @@ Then rebuild: `sudo nixos-rebuild switch --flake .#HOSTNAME`
 axios/
 ├── lib/                # Library functions (mkSystem API)
 ├── modules/            # NixOS system modules
-│   ├── system/        # Core system configuration
-│   ├── desktop.nix    # Desktop environment
-│   ├── wayland.nix    # Niri compositor
-│   ├── development.nix # Development tools
-│   ├── gaming.nix     # Gaming support (optional)
-│   ├── hardware/      # Hardware configs
-│   ├── networking/    # Network services
-│   ├── services/      # Optional services
-│   ├── secrets/       # Secrets management
-│   └── users.nix      # User management
-├── home/              # Home Manager user configs
-│   ├── profiles/      # Workstation and laptop profiles
-│   ├── browser/       # Browser and PWA configs
-│   └── terminal/      # Shell configurations
-├── examples/          # Example configurations
-└── docs/              # Documentation
+│   ├── default.nix     # Module registry
+│   ├── system/         # Core system configuration
+│   ├── desktop/        # Desktop environment
+│   ├── development/    # Development tools
+│   ├── gaming/         # Gaming support (optional)
+│   ├── graphics/       # GPU configuration
+│   ├── hardware/       # Hardware configs
+│   ├── networking/     # Network services
+│   ├── pim/            # Personal Information Management
+│   ├── services/       # Optional services (Caddy, Immich)
+│   ├── ai/             # AI tools and configuration
+│   ├── secrets/        # Secrets management
+│   ├── virtualisation/ # Libvirt, containers
+│   ├── wayland/        # Wayland compositor
+│   └── users.nix       # User management
+├── home/               # Home Manager user configs
+│   ├── profiles/       # Workstation and laptop profiles
+│   ├── ai/             # AI tools and MCP configuration
+│   ├── browser/        # Browser and PWA configs
+│   └── wayland/        # Wayland home configuration
+├── examples/           # Example configurations
+└── docs/               # Documentation
 ```
 
 ## Help and Support

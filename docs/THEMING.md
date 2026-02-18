@@ -14,7 +14,7 @@ axiOS now relies primarily on DMS's built-in template management system for appl
 - KDE color schemes (dark/light/default)
 - Qt applications (qt5ct, qt6ct)
 - GTK applications
-- Terminal emulators (Ghostty, kitty, foot, alacritty, wezterm)
+- Terminal emulators (Ghostty is installed by default; DMS also supports kitty, foot, alacritty, wezterm)
 - Browsers (Firefox via pywalfox)
 - Other apps (vesktop, equibop, dgop, niri)
 

@@ -128,12 +128,13 @@ axiOS exports `axios.lib.mkSystem` for building NixOS configurations with minima
 
 ```nix
 nixosConfigurations.myhost = axios.lib.mkSystem {
-hostname = "myhost";
-formFactor = "desktop";  # or "laptop"
-hardware = { cpu = "amd"; gpu = "amd"; };
-modules = { desktop = true; development = true; };
-userModulePath = ./user.nix;
-hardwareConfigPath = ./hardware.nix;
+  hostname = "myhost";
+  formFactor = "desktop";  # or "laptop"
+  hardware = { cpu = "amd"; gpu = "amd"; };
+  modules = { desktop = true; development = true; };
+  users = [ "alice" ];            # References users/alice.nix
+  configDir = self.outPath;       # Required when users is non-empty
+  hardwareConfigPath = ./hardware.nix;
 };
 ```
 
@@ -143,8 +144,7 @@ hardwareConfigPath = ./hardware.nix;
 
 Check out these example configurations:
 
-- [examples/minimal-flake](examples/minimal-flake/) - Minimal single-host configuration
-- [examples/multi-host](examples/multi-host/) - Multiple hosts with shared config
+- [examples/example-config](examples/example-config/) - Multi-host setup with multiple users
 
 ## What's Included
 

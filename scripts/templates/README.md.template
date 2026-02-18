@@ -15,11 +15,12 @@ Generated with [axiOS](https://github.com/kcalvelli/axios) - A modular NixOS fra
 ```
 .
 ├── flake.nix              # Main flake configuration
-├── user.nix               # User account settings
 ├── hosts/
 │   ├── {{HOSTNAME}}.nix        # Host-specific configuration
 │   └── {{HOSTNAME}}/
 │       └── hardware.nix   # Hardware configuration (from nixos-generate-config)
+├── users/
+│   └── {{USERNAME}}.nix        # User account settings
 └── README.md              # This file
 ```
 
@@ -238,12 +239,11 @@ See [Secrets Module Documentation](https://github.com/kcalvelli/axios/blob/maste
 
 ### User Configuration
 
-The `axios.user` module in `user.nix` automatically handles:
+The `axios.users.users.<name>` module in `users/{{USERNAME}}.nix` automatically handles:
 - User account creation
-- Initial password (change on first login!)
+- Group assignments based on enabled modules
 - Home-manager integration
-- Git configuration
-- Standard group memberships
+- Git configuration (from fullName and email)
 
 ## Enabled Modules
 

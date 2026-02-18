@@ -85,6 +85,7 @@ This document provides a comprehensive list of all applications included in axiO
 |-------------|-------------|---------------|
 | **axios-ai-mail** | AI-powered email client | Local LLM email classification and smart inbox |
 | **vdirsyncer** | Calendar/contact sync tool | CLI tool for syncing multiple calendar and contact sources |
+| **mcp-dav** | Calendar/contacts MCP server | CalDAV/CardDAV integration via axios-dav |
 
 **Server Role (runs axios-ai-mail service):**
 ```nix
@@ -264,6 +265,7 @@ Included when `services.ai.enable = true`:
 | Tool | Provider | Description |
 |------|----------|-------------|
 | **claude-code** | Anthropic | CLI agent with MCP support and deep integration |
+| **claude-desktop** | Anthropic | Claude desktop application |
 | **claude-code-acp** | Anthropic | Claude Code Agent Communication Protocol |
 | **claude-code-router** | Anthropic | Claude Code request router |
 | **gemini** | Google | Multimodal CLI agent with free tier |
