@@ -19,6 +19,16 @@ This document provides a comprehensive list of all applications included in axiO
 
 **Selection Philosophy:** Applications chosen for functionality and user experience, not desktop environment affiliation. Both GTK and Qt applications receive Material You theming equally via kdeglobals and dank-colors.css integration.
 
+### Browsers
+
+| Browser | Description | Role |
+|---------|-------------|------|
+| **Brave** | Chromium-based browser with built-in ad blocking | Default browser, Brave Nightly for development |
+| **Chromium** | Open-source browser engine | PWA backend (default engine for `axios.pwa` apps) |
+| **Google Chrome** | Google's Chromium variant | Compatibility testing, alternative PWA engine |
+
+> **Note:** Browser GPU acceleration flags are computed automatically based on `axios.hardware.gpuType` and exposed via `desktop.browserArgs` for consistent hardware acceleration across all browsers and PWAs.
+
 ### File Management
 
 | Application | Description | Why This App? |
@@ -35,6 +45,7 @@ This document provides a comprehensive list of all applications included in axiO
 | **Materialgram** | Fast, secure messaging client | Native Qt app with encryption and cloud sync and material design - fork of Telegram Desktop |
 | **Spotify** | Music streaming service | Large library, good playlists, native Linux client |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
+| **LibreOffice** (Qt) | Full office suite (Writer, Calc, Impress, Draw) | Qt integration for Material You theming consistency |
 | **Mousepad** (Xfce) | Simple text editor | Lightweight with syntax highlighting, no CSD |
 | **1Password** | Password manager and secure digital vault |
 
@@ -151,6 +162,8 @@ See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale configuration.
 | **direnv** | Automatic environment switching per directory |
 | **lorri** | Nix environment builder with caching |
 
+> **Note:** `nixd` is an alternative Nix LSP with more features than `nil` (evaluation support, option completions). A future change may swap to `nixd` after testing.
+
 ### Build Tools & Compilers
 
 Available in development shells (`nix develop .#<shell>`):
@@ -160,6 +173,30 @@ Available in development shells (`nix develop .#<shell>`):
 | **rust** | Rust toolchain (rustc, cargo, rust-analyzer) via Fenix |
 | **zig** | Zig compiler (latest version) |
 | **qml** | Qt6 development with QML tools |
+
+### Database Clients
+
+| Tool | Description |
+|------|-------------|
+| **pgcli** | PostgreSQL CLI with auto-completion and syntax highlighting |
+| **litecli** | SQLite CLI (same UX as pgcli) |
+
+### API Testing
+
+| Tool | Description |
+|------|-------------|
+| **httpie** | Modern HTTP client with syntax-highlighted responses |
+| **mitmproxy** | Interactive HTTPS proxy for API debugging |
+| **k6** | Load testing tool |
+
+### Diff & Diagnostics
+
+| Tool | Description |
+|------|-------------|
+| **difftastic** | Structural diff tool (AST-aware, language-specific) |
+| **btop** | Terminal system monitor (CPU, memory, disk, network) |
+| **mtr** | Network diagnostic tool (traceroute + ping combined) |
+| **dog** | Modern DNS client (alternative to dig) |
 
 ### Utilities
 
@@ -287,6 +324,7 @@ Included when `services.ai.local.enable = true`:
 | Component | Description | Purpose |
 |-----------|-------------|---------|
 | **Ollama** | Local LLM inference backend | Run models locally with ROCm GPU acceleration |
+| **LobeHub** | Desktop AI chat UI (AppImage) | Visual interface for local and cloud LLMs via Ollama |
 | **OpenCode** | Agentic CLI for coding tasks | Full file editing with MCP integration |
 
 **Default Models** (Ollama):
@@ -340,30 +378,41 @@ Progressive Web Apps are installed as native applications using Brave browser.
 
 ### Default PWAs
 
-Configured via `axios.pwa` in home-manager:
+axiOS ships 30+ default PWAs (enabled via `axios.pwa.includeDefaults = true`, the default). Key defaults include:
 
-| PWA | URL | Description |
-|-----|-----|-------------|
-| *(User configurable)* | - | Add your own PWAs in user configuration |
+| Category | PWAs |
+|----------|------|
+| **Google Workspace** | Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, Keep, Forms, Classroom |
+| **Communication** | Google Chat, Google Meet, Google Messages, Google Voice, Element |
+| **Media** | YouTube, YouTube Music, Sonos |
+| **AI & Productivity** | Gemini, Google AI Studio, NotebookLM, Notion, Linear |
+| **Development** | Hoppscotch (API testing) |
+| **Design** | Figma, Excalidraw |
+| **Microsoft** | Outlook, Microsoft Teams |
+| **Other** | Google Maps, Google Photos, Google News, Google Search, Flathub |
+
+See `pkgs/pwa-apps/pwa-defs.nix` for the complete list.
 
 ### Adding Custom PWAs
 
 Add to your home-manager configuration:
 
 ```nix
-axios.pwa.apps = {
-  chatgpt = {
-    url = "https://chat.openai.com";
-    icon = ./icons/chatgpt.png;
+axios.pwa = {
+  enable = true;
+  apps = {
+    chatgpt = {
+      name = "ChatGPT";
+      url = "https://chat.openai.com";
+      icon = "chatgpt";
+      categories = [ "Utility" ];
+    };
   };
-  notion = {
-    url = "https://www.notion.so";
-    icon = ./icons/notion.png;
-  };
+  iconPath = ./pwa-icons; # Directory containing chatgpt.png
 };
 ```
 
-PWAs appear in your application launcher like native apps and integrate with desktop notifications.
+PWAs appear in your application launcher like native apps and integrate with desktop notifications. Each PWA gets a `pwa-{appId}` launcher script on `$PATH`.
 
 ---
 
@@ -411,6 +460,7 @@ Provided by DankMaterialShell:
 |---------|---------|
 | **DankMaterialShell** | Material Design shell and widgets |
 | **GNOME Keyring** | Credential storage and SSH key management |
+| **Tailscale** | Mesh VPN for cross-device access (PIM, Ollama, MCP Gateway) |
 | **accounts-daemon** | User account information service |
 | **GVfs** | Virtual filesystem for network shares |
 | **udisks2** | Disk management daemon |
@@ -436,16 +486,18 @@ Provided by DankMaterialShell:
 
 | Category | Count | Module |
 |----------|-------|--------|
-| Desktop Applications | 25+ | `desktop` |
-| Development Tools | 15+ | `development` |
+| Browsers | 3 | `desktop` |
+| Desktop Applications | 30+ | `desktop` |
+| Development Tools | 25+ | `development` |
 | Terminal Applications | 10+ | `desktop`/`development` |
 | Gaming | 8 | `gaming` |
 | Virtualization | 4 | `virt` |
-| AI Tools (base) | 5 | `ai` |
+| AI Tools (base) | 10+ | `ai` |
 | AI Tools (local LLM) | 3+ | `ai` (local) |
+| PWAs (default) | 30+ | `desktop` (home-manager) |
 | System Services | 10+ | `desktop` |
 
-**Total:** 80+ applications and tools across all modules
+**Total:** 130+ applications, tools, and PWAs across all modules
 
 ---
 

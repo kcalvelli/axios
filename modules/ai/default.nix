@@ -251,6 +251,9 @@ in
           # MCP server runtimes (nodejs already in base config)
           python3
           uv # Python package manager for uvx
+
+          # Local LLM chat UI
+          lobehub
         ]
         # AMD-specific: ROCm debugging tools
         ++ lib.optionals isAmdGpu [ rocmPackages.rocminfo ]
@@ -287,6 +290,9 @@ in
           # MCP server runtimes
           python3
           uv # Python package manager for uvx
+
+          # Local LLM chat UI
+          lobehub
         ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
     })

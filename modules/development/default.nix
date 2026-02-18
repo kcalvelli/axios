@@ -41,6 +41,19 @@
       jq # JSON processor
       fzf # Fuzzy finder
 
+      # === Database Clients ===
+      pgcli # PostgreSQL CLI with auto-completion and syntax highlighting
+      litecli # SQLite CLI (same UX as pgcli)
+
+      # === API Testing ===
+      httpie # Modern HTTP client (http/https commands)
+
+      # === Diff & Diagnostics ===
+      difftastic # Structural diff tool (AST-aware, language-specific)
+      btop # Terminal system monitor
+      mtr # Network diagnostic (traceroute + ping)
+      dog # Modern DNS client
+
       # === Version Control ===
       gh # GitHub CLI
     ];

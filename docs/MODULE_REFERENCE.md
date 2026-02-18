@@ -127,6 +127,7 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 - **DankMaterialShell** - Material Design shell with custom theming and widgets
 - **Ghostty** - Modern GPU-accelerated terminal
 - **Dolphin** - KDE file manager (split-pane, plugin ecosystem)
+- **LibreOffice** (Qt) - Full office suite with Material You theming
 - Desktop applications (text editor, calculator, PDF viewer) - See [APPLICATIONS.md](APPLICATIONS.md)
 - Fonts and icon themes
 
@@ -192,11 +193,14 @@ See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale Services setup.
 **What it does:** Programming tools and development environments.
 
 **Includes:**
-- **Editors:** VS Code
+- **Editors:** VS Code, Neovim (with axios IDE preset)
 - **Version control:** Git, GitHub CLI
 - **Compilers:** GCC, Clang, Rust, Zig toolchains
 - **Build tools:** Make, CMake, Meson
 - **Languages:** Python, Node.js, Go environments
+- **Database clients:** pgcli (PostgreSQL), litecli (SQLite)
+- **API testing:** httpie, mitmproxy, k6
+- **Diff & diagnostics:** difftastic (structural diff), btop (system monitor), mtr (network), dog (DNS)
 - **DevShells:** Project-specific toolchains via `nix develop`
 
 **When to use:** For software developers and programmers
@@ -276,6 +280,7 @@ virt = {
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
    - **Ollama** - Local inference backend with ROCm GPU acceleration
+   - **LobeHub** - Desktop AI chat UI for local and cloud LLMs (AppImage, Wayland-native)
    - **OpenCode** - Agentic CLI for coding tasks with full file editing
 
 **When to use:**

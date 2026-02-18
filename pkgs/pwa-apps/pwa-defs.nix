@@ -348,6 +348,13 @@
     ];
   };
 
+  hoppscotch = {
+    name = "Hoppscotch";
+    url = "https://hoppscotch.io/";
+    icon = "hoppscotch";
+    categories = [ "Development" ];
+  };
+
   flathub = {
     name = "Flathub";
     url = "https://flathub.org/";

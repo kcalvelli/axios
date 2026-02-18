@@ -4,7 +4,7 @@ axiOS provides a Progressive Web App (PWA) system that allows you to run web app
 
 ## Quick Start
 
-axiOS includes default PWAs (Google Workspace, Figma, Linear, etc.), but you can easily add your own.
+axiOS includes default PWAs (Google Workspace, Figma, Linear, Hoppscotch, etc.), but you can easily add your own.
 
 ### Option 1: Using the Helper Script (Recommended)
 

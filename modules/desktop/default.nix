@@ -43,6 +43,7 @@ in
 
       # === Productivity Applications ===
       kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
+      libreoffice-qt # Office suite (Qt integration for Material You theming)
 
       # === Media Creation & Editing ===
       krita # Digital art studio (professional raster graphics)
