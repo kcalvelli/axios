@@ -324,7 +324,6 @@ Included when `services.ai.local.enable = true`:
 | Component | Description | Purpose |
 |-----------|-------------|---------|
 | **Ollama** | Local LLM inference backend | Run models locally with ROCm GPU acceleration |
-| **LobeHub** | Desktop AI chat UI (AppImage) | Visual interface for local and cloud LLMs via Ollama |
 | **OpenCode** | Agentic CLI for coding tasks | Full file editing with MCP integration |
 
 **Default Models** (Ollama):

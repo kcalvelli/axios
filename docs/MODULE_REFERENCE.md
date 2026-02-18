@@ -280,7 +280,6 @@ virt = {
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
    - **Ollama** - Local inference backend with ROCm GPU acceleration
-   - **LobeHub** - Desktop AI chat UI for local and cloud LLMs (AppImage, Wayland-native)
    - **OpenCode** - Agentic CLI for coding tasks with full file editing
 
 **When to use:**
