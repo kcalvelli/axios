@@ -296,10 +296,8 @@ in
     # Increase inotify limits for apps that watch many files (Spotify, VS Code, etc.)
     boot.kernel.sysctl."fs.inotify.max_user_instances" = 8192;
 
-    # Enable home-manager desktop modules
-    home-manager.sharedModules = with homeModules; [
-      desktop
-      # Calendar/contacts sync moved to axios-dav: https://github.com/kcalvelli/axios-dav
-    ];
+    # Desktop home modules are wired per-user via profile system
+    # (standard profile imports home/desktop, normie profile imports home/desktop/normie.nix)
+    # Calendar/contacts sync moved to axios-dav: https://github.com/kcalvelli/axios-dav
   };
 }
