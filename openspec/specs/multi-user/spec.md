@@ -11,7 +11,7 @@ Provides the multi-user interface for axiOS, replacing the singular `axios.user`
   - `fullName` (string, required) — User's display name
   - `email` (string, default `""`) — Email address for git config and tools
   - `isAdmin` (bool, default `false`) — Controls sudo/wheel access and nix trusted-users
-  - `homeProfile` (enum: `"workstation"`, `"laptop"`, `"minimal"`, or `null`, default `null`) — Per-user home-manager profile; null inherits the host's `homeProfile`
+  - `homeProfile` (enum: `"standard"`, `"normie"`, or `null`, default `null`) — Per-user home-manager profile; null inherits the host's `homeProfile`
   - `extraGroups` (list of strings, default `[]`) — Additional groups beyond auto-assigned ones
 
 For each user defined in `axios.users.users`, the system automatically:
@@ -39,6 +39,38 @@ axiOS prescribes the following directory structure for downstream configurations
 ```
 The init script generates this structure. Documentation references this as the required layout.
 
+## Requirements
+
+### Requirement: homeProfile enum and resolution
+
+The `homeProfile` option SHALL use the enum `"standard"` | `"normie"` for both per-user and host-level profile selection. The host-level default SHALL be `"standard"`.
+
+#### Scenario: User with explicit normie profile
+
+- **WHEN** `axios.users.users.traci.homeProfile = "normie"` is set
+- **AND** the host's `homeProfile` is `"standard"`
+- **THEN** Traci's home-manager imports the normie profile module
+- **AND** other users without explicit `homeProfile` inherit the host's `"standard"` profile
+
+#### Scenario: User inherits host default
+
+- **WHEN** `axios.users.users.keith.homeProfile` is null (default)
+- **AND** the host's `homeProfile` is `"standard"`
+- **THEN** Keith's home-manager imports the standard profile module
+
+#### Scenario: Host default is normie
+
+- **WHEN** the host's `homeProfile` is `"normie"`
+- **AND** a user has `homeProfile = null`
+- **THEN** that user gets the normie profile
+
+#### Scenario: Profile resolution in lib/default.nix
+
+- **WHEN** `buildModules` resolves per-user profiles
+- **THEN** `profile = hostCfg.homeProfile or "standard"` is used as the default
+- **AND** `"standard"` maps to `self.homeModules.standard`
+- **AND** `"normie"` maps to `self.homeModules.normie`
+
 ## Migration from Singular Interface
 
 ### Removed: axios.user options
@@ -48,3 +80,6 @@ The init script generates this structure. Documentation references this as the r
 ### Removed: userModulePath in host config
 **Reason**: Replaced by `users` list + `configDir` resolution. The stringly-typed path wiring was error-prone and didn't support multiple users.
 **Migration**: Remove `userModulePath` from host config. Add `users = [ "username" ]` list. Ensure flake passes `configDir = self.outPath` to `mkSystem`.
+
+### Removed: workstation/laptop/minimal homeProfile values
+**Reason**: Consolidated into `"standard"` (replaces workstation and laptop) and `"normie"` (new). The only difference between workstation and laptop was Solaar autostart, which is now hardware-conditional. The `"minimal"` value was defined in the enum but never implemented.

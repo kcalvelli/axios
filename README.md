@@ -54,6 +54,35 @@ The installer offers three modes: scripted setup, add a host to an existing axiO
 
 ## Features
 
+### Home Profiles
+
+axiOS supports **per-user desktop profiles** on multi-user systems. Each user's profile is set independently via `homeProfile` in their `users/<name>.nix` config:
+
+| Profile | Experience | Target User |
+|---------|-----------|-------------|
+| **standard** | Keyboard-driven tiling workflow with AI tools, developer launchers, and borderless maximized windows | Power users, developers |
+| **normie** | Mouse-driven ChromeOS-like desktop with window titlebars, DMS taskbar/app launcher, and minimal keybindings | Non-technical users |
+
+**Both profiles share:** Visual theming (Colloid + matugen), wallpapers, PWA catalog (30+ apps), media playback, Flatpak support, and MIME associations.
+
+**Key differences in normie profile:**
+- Window titlebars with close/minimize/maximize controls (client-side decorations)
+- Only 3 keyboard shortcuts: `Mod+Q` (close), `Mod+F` (maximize), `Print` (screenshot)
+- DMS provides taskbar, app launcher, and window switching — no tiling concepts exposed
+- No AI tools, developer launchers, dropdown terminal, or keybinding reference at startup
+
+```nix
+# users/alice.nix — per-user profile override
+{ ... }:
+{
+  axios.users.users.alice = {
+    fullName = "Alice Smith";
+    email = "alice@example.com";
+    homeProfile = "normie";  # or "standard" (default)
+  };
+}
+```
+
 ### Desktop Experience
 - **[Niri compositor](https://github.com/YaLTeR/niri)** - Scrollable tiling Wayland compositor with workspace overview
 - **DankMaterialShell** - Material design shell with:
@@ -215,9 +244,9 @@ extraConfig = {
 - ✅ **Community framework** - Benefit from improvements and updates
 - ✅ **Library design** - Not a personal config - no hardcoded regional defaults
 
-### Workflow Philosophy
+### Workflow Philosophy (Standard Profile)
 
-axiOS is built around a **focused, distraction-free workflow** optimized for single-monitor productivity:
+The **standard** home profile is built around a **focused, distraction-free workflow** optimized for single-monitor productivity. (The **normie** profile replaces this with a mouse-driven, ChromeOS-like experience — see [Home Profiles](#home-profiles).)
 
 **Maximized Windows by Default**
 - All applications open maximized to keep your attention on the task at hand
@@ -263,7 +292,7 @@ axiOS is designed as a **framework/library**, not a personal configuration:
 - **No regional defaults** - You must explicitly set timezone and locale (no assumptions about your location)
 - **No hardcoded preferences** - Personal choices belong in your config, not the framework
 - **Modular by design** - Enable only what you need, customize everything
-- **Multi-user ready** - Built for diverse users with different needs
+- **Multi-user ready** - Per-user home profiles (standard/normie) for diverse users on shared systems
 
 This means some options are **required** (like `axios.system.timeZone`) to force explicit configuration rather than assuming defaults that might not fit your use case.
 
