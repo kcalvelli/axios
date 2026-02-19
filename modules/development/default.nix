@@ -56,6 +56,9 @@
 
       # === Version Control ===
       gh # GitHub CLI
+
+      # === Cloudflare cli ===
+      wrangler
     ];
 
     # === Development Services ===

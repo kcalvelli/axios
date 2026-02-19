@@ -153,6 +153,12 @@ See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale configuration.
 | **Git** | Distributed version control system |
 | **GitHub CLI (gh)** | GitHub operations from terminal |
 
+### Cloudflare Cli
+
+| Tool | Description |
+|------|-------------|  
+| **Wrangler** | Cloudflare cli |
+
 ### Nix Development
 
 | Tool | Description |
