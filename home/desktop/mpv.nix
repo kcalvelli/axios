@@ -12,16 +12,14 @@
 {
   programs.mpv = {
     enable = true;
-
-    # === Scripts ===
-    # uosc: Modern, feature-rich on-screen controller
-    # thumbfast: Thumbnails on the seek bar
-    # mpris: D-Bus integration for media keys and playerctl
-    scripts = with pkgs.mpvScripts; [
-      uosc
-      thumbfast
-      mpris
-    ];
+    package = pkgs.mpv.override {
+      youtubeSupport = false;
+      scripts = with pkgs.mpvScripts; [
+        uosc
+        thumbfast
+        mpris
+      ];
+    };
 
     config = {
       # === Audio Output ===
