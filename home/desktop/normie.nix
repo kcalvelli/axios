@@ -53,17 +53,17 @@
       dankKDEConnect.enable = true;
 
       # Conditional on AI module
-      claudeCodeUsage.enable = lib.mkDefault (osConfig.services.ai.enable or false);
+      claudeCodeUsage.enable = osConfig.services.ai.enable or false;
 
       # Conditional on networking
-      tailscale.enable = lib.mkDefault (osConfig.services.tailscale.enable or false);
+      tailscale.enable = osConfig.services.tailscale.enable or false;
 
       # Conditional on virtualisation
-      dockerManager.enable = lib.mkDefault (osConfig.virt.enable or false);
+      dockerManager.enable = osConfig.virt.enable or false;
 
       # Conditional on laptop form factor
-      dankBatteryAlerts.enable = lib.mkDefault (osConfig.hardware.laptop.enable or false);
-      powerUsagePlugin.enable = lib.mkDefault (osConfig.hardware.laptop.enable or false);
+      dankBatteryAlerts.enable = osConfig.hardware.laptop.enable or false;
+      powerUsagePlugin.enable = osConfig.hardware.laptop.enable or false;
 
       # Explicitly disabled (axios-monitor provides this)
       nixMonitor.enable = false;
