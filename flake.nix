@@ -73,6 +73,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    dms-plugin-registry = {
+      url = "github:AvengeMedia/dms-plugin-registry";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     axios-monitor = {
       url = "github:kcalvelli/axios-monitor";
       inputs.nixpkgs.follows = "nixpkgs";

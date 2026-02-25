@@ -17,6 +17,7 @@
     ./mpv.nix
     inputs.axios-monitor.homeManagerModules.default
     inputs.dankMaterialShell.homeModules.dank-material-shell
+    inputs.dms-plugin-registry.homeModules.default
     inputs.dsearch.homeModules.default
   ];
 
@@ -55,6 +56,31 @@
     # - enableBrightnessControl: Brightness controls built-in
     # - enableColorPicker: Color picker (hyprpicker) built-in
     # - enableSystemSound: System sounds now included in dms-shell package
+
+    # Community plugins via dms-plugin-registry
+    plugins = {
+      # Core Niri integration (always-on)
+      displayManager.enable = true;
+      niriWindows.enable = true;
+      niriScreenshot.enable = true;
+      dankKDEConnect.enable = true;
+
+      # Conditional on AI module
+      claudeCodeUsage.enable = lib.mkDefault (osConfig.services.ai.enable or false);
+
+      # Conditional on networking
+      tailscale.enable = lib.mkDefault (osConfig.services.tailscale.enable or false);
+
+      # Conditional on virtualisation
+      dockerManager.enable = lib.mkDefault (osConfig.virt.enable or false);
+
+      # Conditional on laptop form factor
+      dankBatteryAlerts.enable = lib.mkDefault (osConfig.hardware.laptop.enable or false);
+      powerUsagePlugin.enable = lib.mkDefault (osConfig.hardware.laptop.enable or false);
+
+      # Explicitly disabled (axios-monitor provides this)
+      nixMonitor.enable = false;
+    };
   };
 
   programs.dsearch = {
