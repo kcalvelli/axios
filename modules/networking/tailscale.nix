@@ -86,7 +86,7 @@ let
       names = enabledServiceNames;
       prevNames = [ null ] ++ (lib.init names);
     in
-    lib.zipListsWith (name: prev: { inherit name prev; }) names prevNames;
+    if names == [ ] then [ ] else lib.zipListsWith (name: prev: { inherit name prev; }) names prevNames;
 
   # Collect services with loopback proxy enabled
   loopbackServices = lib.filterAttrs (_: svc: svc.enable && svc.loopbackProxy.enable) cfg.services;
