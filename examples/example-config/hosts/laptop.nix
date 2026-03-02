@@ -31,7 +31,7 @@
     };
 
     # Home-manager profile
-    homeProfile = "laptop";
+    homeProfile = "standard";
 
     # Path to hardware configuration
     hardwareConfigPath = ./laptop/hardware.nix;

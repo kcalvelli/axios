@@ -90,7 +90,7 @@ cd ~/.config/nixos_config
       gaming = false;
     };
 
-    homeProfile = "workstation";
+    homeProfile = "standard";
     hardwareConfigPath = ./myhost/hardware.nix;
 
     users = [ "alice" ];  # References users/alice.nix
@@ -181,7 +181,7 @@ nixosConfigurations.<name> = axios.lib.mkSystem {
   };
 
   # Home Manager profile
-  homeProfile = "workstation" | "laptop";
+  homeProfile = "standard" | "normie";
 
   # Multi-user support
   users = [ "alice" "bob" ];  # References users/<name>.nix files

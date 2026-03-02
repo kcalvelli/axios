@@ -37,7 +37,7 @@
     };
 
     # Home-manager profile
-    homeProfile = "workstation";
+    homeProfile = "standard";
 
     # Path to hardware configuration
     hardwareConfigPath = ./server/hardware.nix;

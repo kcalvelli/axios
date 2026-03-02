@@ -186,7 +186,7 @@ cd ~/.config/nixos_config
       secrets = false; # Enable for agenix secrets management
     };
 
-    homeProfile = "workstation"; # or "laptop"
+    homeProfile = "standard"; # or "normie"
     hardwareConfigPath = ./myhost/hardware.nix;
 
     users = [ "myuser" ]; # References users/myuser.nix

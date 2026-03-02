@@ -58,7 +58,7 @@ Each attribute key is a username. Available options per user:
 | `fullName` | string | *required* | Full name (used for system description and git config) |
 | `email` | string | `""` | Email address (used for git config) |
 | `isAdmin` | bool | `false` | Admin privileges (wheel group + nix trusted-users) |
-| `homeProfile` | null or enum | `null` | Per-user home profile override (`"workstation"`, `"laptop"`, `"minimal"`) |
+| `homeProfile` | null or enum | `null` | Per-user home profile override (`"standard"`, `"normie"`) |
 | `extraGroups` | list of strings | `[]` | Additional groups beyond auto-assigned ones |
 
 When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting.
@@ -83,7 +83,7 @@ When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting
   axios.users.users.bob = {
     fullName = "Bob Jones";
     isAdmin = false;
-    homeProfile = "minimal";  # Override: Bob gets minimal profile regardless of host
+    homeProfile = "normie";  # Override: Bob gets normie profile regardless of host
     extraGroups = [ "dialout" ];  # Bob needs serial port access
   };
 }
@@ -93,7 +93,7 @@ When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting
 {
   hostConfig = {
     # ...
-    homeProfile = "workstation";  # Default for users without explicit homeProfile
+    homeProfile = "standard";  # Default for users without explicit homeProfile
     users = [ "alice" "bob" ];    # Both users on this host
   };
 }

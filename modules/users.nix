@@ -146,7 +146,7 @@ in
           axios.users.users.traci = {
             fullName = "Traci";
             isAdmin = false;
-            homeProfile = "minimal";
+            homeProfile = "normie";
           };
       '';
     };

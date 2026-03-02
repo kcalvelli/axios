@@ -78,7 +78,7 @@ When using axios as a library, adding hosts is simple - just add more configurat
       virt = true;
     };
 
-    homeProfile = "workstation";
+    homeProfile = "standard";
     hardwareConfigPath = ./desktop/hardware.nix;
     users = [ "alice" ];
 
@@ -117,7 +117,7 @@ When using axios as a library, adding hosts is simple - just add more configurat
       virt = false;
     };
 
-    homeProfile = "laptop";
+    homeProfile = "standard";
     hardwareConfigPath = ./laptop/hardware.nix;
     users = [ "alice" ];
 

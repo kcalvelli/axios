@@ -17,7 +17,7 @@ axios.lib.mkSystem {
   formFactor = "desktop" | "laptop";
   hardware = { cpu = "amd" | "intel"; gpu = "amd" | "nvidia"; hasSSD = bool; isLaptop = bool; };
   modules = { system = bool; desktop = bool; development = bool; /* ... */ };
-  homeProfile = "workstation" | "laptop";
+  homeProfile = "standard" | "normie";
   users = [ "alice" "bob" ];         # References users/<name>.nix via configDir
   configDir = path;                  # Root of config repo (required when users is non-empty)
   hardwareConfigPath = path;         # Full hardware config from nixos-generate-config
@@ -89,7 +89,7 @@ Helper function that builds the complete module list for a host configuration. C
   - `gpu`: "amd" | "nvidia" | "intel"
   - `hasSSD`: boolean
   - `isLaptop`: boolean
-- `homeProfile`: "workstation" | "laptop" - Home-manager profile
+- `homeProfile`: "standard" | "normie" - Home-manager profile
 
 ### Module Selection
 - `modules`: Attribute set of boolean flags

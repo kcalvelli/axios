@@ -31,7 +31,7 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
   - `fullName` (str) — user's display name
   - `email` (str, default "") — for git config and home-manager
   - `isAdmin` (bool, default false) — controls wheel group and trusted-users
-  - `homeProfile` (enum "workstation"/"laptop"/"minimal"/null, default null) — per-user profile override (falls back to host homeProfile)
+  - `homeProfile` (enum "standard"/"normie"/null, default null) — per-user profile override (falls back to host homeProfile)
   - `extraGroups` (list of str) — additional groups for this user
 - **Computed options**: `axios.users.firstAdminUser` — read-only, first user where `isAdmin = true` (used by greeter)
 - **Automatic group membership**: Groups computed from enabled modules (networkmanager, video, audio, input, etc.) with `wheel` only for `isAdmin = true` users
