@@ -31,46 +31,62 @@ let
     };
   };
 
-  # Generate systemd service for each Tailscale Service
-  mkTailscaleService = name: svc: {
-    "tailscale-service-${name}" = lib.mkIf svc.enable {
-      description = "Tailscale Service: ${name}";
-      after = [
-        "tailscaled.service"
-        "network-online.target"
-      ];
-      wants = [
-        "tailscaled.service"
-        "network-online.target"
-      ];
-      wantedBy = [ "multi-user.target" ];
+  # Generate systemd service for each Tailscale Service (chained to prevent etag races)
+  mkTailscaleService =
+    { name, prev }:
+    let
+      svc = cfg.services.${name};
+    in
+    {
+      "tailscale-service-${name}" = lib.mkIf svc.enable {
+        description = "Tailscale Service: ${name}";
+        after = [
+          "tailscaled.service"
+          "network-online.target"
+        ]
+        ++ lib.optional (prev != null) "tailscale-service-${prev}.service";
+        wants = [
+          "tailscaled.service"
+          "network-online.target"
+        ];
+        wantedBy = [ "multi-user.target" ];
 
-      # Wait for tailscaled to be fully ready
-      preStart = ''
-        # Wait for Tailscale to be connected
-        for i in $(seq 1 30); do
-          status=$(${pkgs.tailscale}/bin/tailscale status --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.BackendState // "NoState"')
-          if [ "$status" = "Running" ]; then
-            break
-          fi
-          echo "Waiting for Tailscale to be ready (attempt $i/30, state: $status)..."
-          sleep 2
-        done
-      '';
+        # Wait for tailscaled to be fully ready
+        preStart = ''
+          # Wait for Tailscale to be connected
+          for i in $(seq 1 30); do
+            status=$(${pkgs.tailscale}/bin/tailscale status --json 2>/dev/null | ${pkgs.jq}/bin/jq -r '.BackendState // "NoState"')
+            if [ "$status" = "Running" ]; then
+              break
+            fi
+            echo "Waiting for Tailscale to be ready (attempt $i/30, state: $status)..."
+            sleep 2
+          done
+        '';
 
-      serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${pkgs.tailscale}/bin/tailscale serve --service=svc:${name} --https=${toString svc.port} ${svc.backend}";
-        ExecStop = "${pkgs.tailscale}/bin/tailscale serve --service=svc:${name} --https=${toString svc.port} off";
-        Restart = "on-failure";
-        RestartSec = "5s";
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = "${pkgs.tailscale}/bin/tailscale serve --service=svc:${name} --https=${toString svc.port} ${svc.backend}";
+          ExecStop = "${pkgs.tailscale}/bin/tailscale serve --service=svc:${name} --https=${toString svc.port} off";
+          Restart = "on-failure";
+          RestartSec = "5s";
+        };
       };
     };
-  };
 
   # Collect all enabled services
   enabledServices = lib.filterAttrs (_: svc: svc.enable) cfg.services;
+
+  # Sorted service names and chain for sequential ordering (prevents etag race)
+  enabledServiceNames = lib.sort lib.lessThan (lib.attrNames enabledServices);
+
+  serviceChain =
+    let
+      names = enabledServiceNames;
+      prevNames = [ null ] ++ (lib.init names);
+    in
+    lib.zipListsWith (name: prev: { inherit name prev; }) names prevNames;
 
   # Collect services with loopback proxy enabled
   loopbackServices = lib.filterAttrs (_: svc: svc.enable && svc.loopbackProxy.enable) cfg.services;
@@ -333,8 +349,7 @@ in
 
     # Generate systemd services: Tailscale Services + cert sync services
     systemd.services = lib.mkMerge (
-      (lib.mapAttrsToList mkTailscaleService cfg.services)
-      ++ (lib.mapAttrsToList mkCertSyncService loopbackServices)
+      (map mkTailscaleService serviceChain) ++ (lib.mapAttrsToList mkCertSyncService loopbackServices)
     );
 
     # Generate cert sync timers

@@ -19,7 +19,7 @@
       gamescope
       gamemode # Performance optimization for games
       mangohud # Performance overlay
-      superTuxKart # Fun racing game
+      supertuxkart # Fun racing game
       protonup-ng
       prismlauncher # Minecraft launcher
     ];
