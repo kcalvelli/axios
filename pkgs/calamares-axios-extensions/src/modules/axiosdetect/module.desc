@@ -1,0 +1,5 @@
+---
+type:       "job"
+name:       "axiosdetect"
+interface:  "python"
+script:     "main.py"

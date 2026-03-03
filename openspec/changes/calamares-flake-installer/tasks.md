@@ -41,45 +41,36 @@
 - [x] 6.1 Create `modules/installer/default.nix` — import `installation-cd-graphical-base.nix`, add calamares-nixos + calamares-axios-extensions + autostart + glibcLocales
 - [x] 6.2 Register installer module in `modules/default.nix`
 - [x] 6.3 Add ISO nixosConfiguration in flake.nix (or expose via lib helper)
-- [ ] 6.4 Verify ISO builds with `nix build` (requires commit + actual build)
-
-### 7. VM Testing
-
-- [ ] 7.1 Boot ISO in QEMU/libvirt VM
-- [ ] 7.2 Run Calamares installer end-to-end — verify generated flake structure is correct
-- [ ] 7.3 Verify installed system boots and is functional
-- [ ] 7.4 Verify `nixos-rebuild switch --flake /etc/nixos#<hostname>` works post-install
-
 ---
 
 ## Phase 2: axiOS Config QML Page
 
 ### 8. Hardware Auto-Detection Job
 
-- [ ] 8.1 Create `src/modules/axiosdetect/module.desc` (type: job, interface: python)
-- [ ] 8.2 Create `src/modules/axiosdetect/main.py` — detect CPU vendor from `/proc/cpuinfo`, GPU vendor from `lspci`, form factor from battery presence, SSD from rotational flag
-- [ ] 8.3 Write detected values to globalstorage: `axios_cpuVendor`, `axios_gpuVendor`, `axios_formFactor`, `axios_hasSSD`
-- [ ] 8.4 Add `axiosdetect` to settings.conf sequence (before show phase)
+- [x] 8.1 Create `src/modules/axiosdetect/module.desc` (type: job, interface: python)
+- [x] 8.2 Create `src/modules/axiosdetect/main.py` — detect CPU vendor from `/proc/cpuinfo`, GPU vendor from `lspci`, form factor from battery presence, SSD from rotational flag
+- [x] 8.3 Write detected values to globalstorage: `axios_cpuVendor`, `axios_gpuVendor`, `axios_formFactor`, `axios_hasSSD`
+- [x] 8.4 Add `axiosdetect` to settings.conf sequence (before show phase)
 
 ### 9. axiOS Config QML Page
 
-- [ ] 9.1 Create `src/config/modules/axiosconfig.conf` — notesqml instance config pointing to branding QML
-- [ ] 9.2 Register `notesqml@axiosconfig` instance in `settings.conf`
-- [ ] 9.3 Create `src/branding/axios/notesqml@axiosconfig.qml` — profile selection (standard/normie) with conditional feature visibility
-- [ ] 9.4 Implement hardware confirmation section — display auto-detected values from globalstorage with override controls (radio buttons for CPU/GPU/formFactor)
-- [ ] 9.5 Implement feature toggles section (visible only when standard selected) — checkboxes for gaming, PIM, Immich, Local LLM, Secure Boot, Secrets, Libvirt, Containers
-- [ ] 9.6 Implement conditional sub-options — server/client role selectors for PIM, Immich, Local LLM (visible when parent enabled)
-- [ ] 9.7 Implement tailnet domain text input (visible when any client role selected)
-- [ ] 9.8 Write all values to globalstorage via `Global.insert()`
+- [x] 9.1 Create `src/config/modules/axiosconfig.conf` — notesqml instance config pointing to branding QML
+- [x] 9.2 Register `notesqml@axiosconfig` instance in `settings.conf`
+- [x] 9.3 Create `src/branding/axios/notesqml@axiosconfig.qml` — profile selection (standard/normie) with conditional feature visibility
+- [x] 9.4 Implement hardware confirmation section — display auto-detected values from globalstorage with override controls (radio buttons for CPU/GPU/formFactor)
+- [x] 9.5 Implement feature toggles section (visible only when standard selected) — checkboxes for gaming, PIM, Immich, Local LLM, Secure Boot, Secrets, Libvirt, Containers
+- [x] 9.6 Implement conditional sub-options — server/client role selectors for PIM, Immich, Local LLM (visible when parent enabled)
+- [x] 9.7 Implement tailnet domain text input (visible when any client role selected)
+- [x] 9.8 Write all values to globalstorage via `Global.insert()`
 
 ### 10. Wire QML Values into Config Generation
 
-- [ ] 10.1 Update `axios/main.py` to read `axios_*` globalstorage keys
-- [ ] 10.2 Map `axios_homeProfile` to user template `homeProfile` field
-- [ ] 10.3 Map `axios_cpuVendor`, `axios_gpuVendor`, `axios_formFactor`, `axios_hasSSD` to `hostConfig.hardware.*` fields
-- [ ] 10.4 Map feature toggles to `hostConfig.modules.*` flags
-- [ ] 10.5 Map server/client roles and tailnet domain to `hostConfig.extraConfig`
-- [ ] 10.6 Handle normie defaults — when profile is normie, set all optional modules to false regardless of globalstorage
+- [x] 10.1 Update `axios/main.py` to read `axios_*` globalstorage keys
+- [x] 10.2 Map `axios_homeProfile` to user template `homeProfile` field
+- [x] 10.3 Map `axios_cpuVendor`, `axios_gpuVendor`, `axios_formFactor`, `axios_hasSSD` to `hostConfig.hardware.*` fields
+- [x] 10.4 Map feature toggles to `hostConfig.modules.*` flags
+- [x] 10.5 Map server/client roles and tailnet domain to `hostConfig.extraConfig`
+- [x] 10.6 Handle normie defaults — when profile is normie, set all optional modules to false regardless of globalstorage
 
 ---
 
@@ -91,8 +82,12 @@
 - [ ] 11.2 Create `src/branding/axios/show.qml` — install slideshow with axiOS feature highlights
 - [ ] 11.3 Update `branding.desc` with axiOS name, description, URLs, image paths
 
-### 12. Validation
+### 12. Build & VM Testing
 
 - [ ] 12.1 Run `nix fmt .` on all modified Nix files
 - [ ] 12.2 Run `nix flake check` to validate flake structure
-- [ ] 12.3 Full end-to-end VM test: ISO boot → Calamares → install → reboot → working system → nixos-rebuild
+- [ ] 12.3 Build ISO with `nix build`
+- [ ] 12.4 Boot ISO in QEMU/libvirt VM
+- [ ] 12.5 Run Calamares installer end-to-end — verify generated flake structure is correct
+- [ ] 12.6 Verify installed system boots and is functional
+- [ ] 12.7 Verify `nixos-rebuild switch --flake /etc/nixos#<hostname>` works post-install

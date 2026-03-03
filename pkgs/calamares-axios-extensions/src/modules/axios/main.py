@@ -264,8 +264,7 @@ def run():
     # Firmware type
     firmware_type = gs.value("firmwareType") or "efi"
 
-    # ─── MVP defaults (Phase 2 will read axios_* globalstorage) ──
-    # For now, auto-detect what we can and use sensible defaults
+    # ─── axiOS-specific config from QML page / auto-detection ─────
 
     # Form factor: default to desktop
     form_factor = gs.value("axios_formFactor") or "desktop"
@@ -283,12 +282,20 @@ def run():
     home_profile = gs.value("axios_homeProfile") or "standard"
     variables["homeprofile"] = home_profile
 
-    # Feature toggles: default off for MVP
-    enable_gaming = gs.value("axios_enableGaming") or False
-    enable_pim = gs.value("axios_enablePim") or False
-    enable_secrets = gs.value("axios_enableSecrets") or False
-    enable_libvirt = gs.value("axios_enableLibvirt") or False
-    enable_containers = gs.value("axios_enableContainers") or False
+    # Feature toggles
+    # Normie profile forces all optional modules off
+    if home_profile == "normie":
+        enable_gaming = False
+        enable_pim = False
+        enable_secrets = False
+        enable_libvirt = False
+        enable_containers = False
+    else:
+        enable_gaming = gs.value("axios_enableGaming") or False
+        enable_pim = gs.value("axios_enablePim") or False
+        enable_secrets = gs.value("axios_enableSecrets") or False
+        enable_libvirt = gs.value("axios_enableLibvirt") or False
+        enable_containers = gs.value("axios_enableContainers") or False
     enable_virt = enable_libvirt or enable_containers
 
     variables["enable_gaming"] = nix_bool(enable_gaming)
