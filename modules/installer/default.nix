@@ -43,7 +43,8 @@ in
     };
 
     # greetd auto-login for the live session
-    services.greetd.settings.default_session = {
+    # initial_session runs once at boot, bypassing the greeter
+    services.greetd.settings.initial_session = {
       command = "niri-session";
       user = "nixos";
     };
@@ -95,7 +96,12 @@ in
               command = [
                 "dbus-update-activation-environment"
                 "--systemd"
-                "--all"
+                "DISPLAY"
+                "WAYLAND_DISPLAY"
+                "XDG_CURRENT_DESKTOP"
+                "XDG_SESSION_TYPE"
+                "XDG_SESSION_DESKTOP"
+                "NIXOS_OZONE_WL"
               ];
             }
           ];
