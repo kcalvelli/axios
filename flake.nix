@@ -283,15 +283,21 @@
           lib = nixpkgs.lib;
         };
 
-        # axiOS installer ISO
+        # axiOS installer ISO — boots into a live Niri + DMS session
         flake.nixosConfigurations.iso = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
+          specialArgs = { inherit inputs; };
           modules = [
             "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-base.nix"
+            inputs.dankMaterialShell.nixosModules.dank-material-shell
+            inputs.dankMaterialShell.nixosModules.greeter
+            inputs.home-manager.nixosModules.home-manager
             self.nixosModules.installer
             {
               nixpkgs.overlays = [ self.overlays.default ];
               axios.installer.enable = true;
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
             }
           ];
         };
