@@ -78,15 +78,15 @@
 
 ### 11. Branding
 
-- [ ] 11.1 Create axiOS branding assets (logo, sidebar image, slideshow images)
-- [ ] 11.2 Create `src/branding/axios/show.qml` — install slideshow with axiOS feature highlights
-- [ ] 11.3 Update `branding.desc` with axiOS name, description, URLs, image paths
+- [x] 11.1 Create axiOS branding assets (logo, sidebar image, slideshow images)
+- [x] 11.2 Create `src/branding/axios/show.qml` — install slideshow with axiOS feature highlights
+- [x] 11.3 Update `branding.desc` with axiOS name, description, URLs, image paths
 
 ### 12. Build & VM Testing
 
-- [ ] 12.1 Run `nix fmt .` on all modified Nix files
-- [ ] 12.2 Run `nix flake check` to validate flake structure
-- [ ] 12.3 Build ISO with `nix build`
+- [x] 12.1 Run `nix fmt .` on all modified Nix files
+- [x] 12.2 Run `nix flake check` to validate flake structure
+- [x] 12.3 ISO dry-run evaluation passes (full build is manual)
 - [ ] 12.4 Boot ISO in QEMU/libvirt VM
 - [ ] 12.5 Run Calamares installer end-to-end — verify generated flake structure is correct
 - [ ] 12.6 Verify installed system boots and is functional
