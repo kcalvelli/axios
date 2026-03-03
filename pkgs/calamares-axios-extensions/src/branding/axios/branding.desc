@@ -1,0 +1,35 @@
+---
+componentName: axios
+
+strings:
+    productName:         axiOS
+    shortProductName:    axiOS
+    version:             rolling
+    shortVersion:        rolling
+    versionedName:       axiOS rolling
+    shortVersionedName:  axiOS rolling
+    bootloaderEntryName: axiOS
+    productUrl:          https://github.com/kcalvelli/axios
+    supportUrl:          https://github.com/kcalvelli/axios/issues
+    knownIssuesUrl:      https://github.com/kcalvelli/axios/issues
+
+images:
+    productLogo:         "axios-logo.svg"
+    productIcon:         "axios-logo.svg"
+    productWelcome:      "axios-logo.svg"
+
+slideshowAPI: 2
+slideshow:     "show.qml"
+
+style:
+    SidebarBackground:          "#1a1a2e"
+    SidebarText:                "#e0e0e0"
+    SidebarTextCurrent:         "#ffffff"
+    SidebarBackgroundCurrent:   "#6366f1"
+
+windowSize: 800px,520px
+windowPlacement: center
+windowExpanding: normal
+
+sidebar: widget
+navigation: widget

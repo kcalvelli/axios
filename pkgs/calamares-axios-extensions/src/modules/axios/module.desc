@@ -1,0 +1,5 @@
+---
+type:       "job"
+name:       "axios"
+interface:  "python"
+script:     "main.py"

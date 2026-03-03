@@ -233,7 +233,6 @@ inputs = {
   mcp-journal;       # MCP server for journal access
   agenix;            # Secrets management
   lanzaboote;        # Secure boot
-  disko;             # Declarative disk partitioning
   # ... more in flake.nix
 }
 ```

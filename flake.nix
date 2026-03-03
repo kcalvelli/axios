@@ -282,6 +282,19 @@
           inherit self;
           lib = nixpkgs.lib;
         };
+
+        # axiOS installer ISO
+        flake.nixosConfigurations.iso = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
+          modules = [
+            "${nixpkgs}/nixos/modules/installer/cd-dvd/installation-cd-graphical-base.nix"
+            self.nixosModules.installer
+            {
+              nixpkgs.overlays = [ self.overlays.default ];
+              axios.installer.enable = true;
+            }
+          ];
+        };
       }
     );
 }

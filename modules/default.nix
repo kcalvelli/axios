@@ -19,5 +19,6 @@
     secrets = ./secrets;
     services = ./services;
     syncthing = ./syncthing;
+    installer = ./installer;
   };
 }
