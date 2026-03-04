@@ -72,8 +72,8 @@ in
       trusted-public-keys = [ "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=" ];
     };
 
-    # Ensure Calamares (Qt) uses Wayland backend
-    environment.variables.QT_QPA_PLATFORM = "$([[ $XDG_SESSION_TYPE = \"wayland\" ]] && echo \"wayland\")";
+    # Ensure Calamares (Qt) uses Wayland backend — ISO always boots Niri
+    environment.variables.QT_QPA_PLATFORM = "wayland";
 
     # ── Home-manager for nixos live user (minimal DMS config) ─
     home-manager.users.nixos = {
