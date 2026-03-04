@@ -72,8 +72,12 @@ in
       trusted-public-keys = [ "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964=" ];
     };
 
-    # Ensure Calamares (Qt) uses Wayland backend — ISO always boots Niri
-    environment.variables.QT_QPA_PLATFORM = "wayland";
+    # Qt platform: prefer Wayland, fall back to xcb (XWayland) if plugin missing
+    environment.variables = {
+      QT_QPA_PLATFORM = "wayland;xcb";
+      QT_PLUGIN_PATH = "${pkgs.qt6.qtwayland}/lib/qt-6/plugins";
+      LD_LIBRARY_PATH = "${pkgs.xcb-util-cursor}/lib";
+    };
 
     # ── Home-manager for nixos live user (minimal DMS config) ─
     home-manager.users.nixos = {
@@ -126,6 +130,9 @@ in
       calamares-autostart
       pkgs.calamares-axios-extensions
       pkgs.glibcLocales
+      # Qt Wayland plugin + xcb cursor lib — calamares-nixos doesn't bundle these
+      pkgs.qt6.qtwayland
+      pkgs.xcb-util-cursor
     ];
 
     # Support all locales for the installer
