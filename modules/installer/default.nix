@@ -23,14 +23,11 @@ in
     programs.xwayland.enable = true;
     programs.dconf.enable = true;
 
+    # DMS system-level (no greeter — live ISO auto-logins directly)
     programs.dank-material-shell = {
       enable = true;
       quickshell.package = inputs.quickshell.packages.${pkgs.stdenv.hostPlatform.system}.default;
-      greeter = {
-        enable = true;
-        compositor.name = "niri";
-        configHome = "/home/nixos";
-      };
+      greeter.enable = lib.mkForce false;
     };
 
     environment.sessionVariables = {
@@ -42,11 +39,13 @@ in
       ELECTRON_OZONE_PLATFORM_HINT = "auto";
     };
 
-    # greetd auto-login for the live session
-    # initial_session runs once at boot, bypassing the greeter
-    services.greetd.settings.initial_session = {
-      command = "niri-session";
-      user = "nixos";
+    # greetd auto-login — skip greeter entirely for live session
+    services.greetd = {
+      enable = true;
+      settings.default_session = {
+        command = "niri-session";
+        user = "nixos";
+      };
     };
 
     # Keyring and portal support
