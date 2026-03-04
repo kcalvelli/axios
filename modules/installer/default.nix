@@ -8,7 +8,9 @@
 let
   cfg = config.axios.installer;
 
-  # Wrap calamares with Qt Wayland plugin support + xcb-cursor fallback
+  # Wrap calamares to run under XWayland (xcb) — it ships without the
+  # Qt Wayland plugin, so we just let it be an X11 app via xwayland-satellite.
+  # libxcb-cursor is required by the Qt xcb platform plugin at runtime.
   calamares-wrapped =
     pkgs.runCommand "calamares-wrapped"
       {
@@ -18,9 +20,8 @@ let
         mkdir -p $out/bin $out/share
         cp -rs ${pkgs.calamares-nixos}/share/* $out/share/ 2>/dev/null || true
         makeWrapper ${pkgs.calamares-nixos}/bin/calamares $out/bin/calamares \
-          --prefix QT_PLUGIN_PATH : "${pkgs.qt6.qtwayland}/lib/qt-6/plugins" \
           --prefix LD_LIBRARY_PATH : "${pkgs.xcb-util-cursor}/lib" \
-          --set QT_QPA_PLATFORM "wayland;xcb"
+          --set QT_QPA_PLATFORM xcb
       '';
 
   calamares-autostart = pkgs.makeAutostartItem {
@@ -103,6 +104,7 @@ in
         settings = {
           prefer-no-csd = true;
           hotkey-overlay.skip-at-startup = true;
+          # Enable xwayland-satellite so X11 apps (Calamares) can run
           spawn-at-startup = [
             {
               command = [
@@ -139,6 +141,7 @@ in
       calamares-autostart
       pkgs.calamares-axios-extensions
       pkgs.glibcLocales
+      pkgs.xwayland-satellite
     ];
 
     # Support all locales for the installer
