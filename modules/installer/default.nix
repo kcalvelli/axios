@@ -8,9 +8,11 @@
 let
   cfg = config.axios.installer;
 
-  # Wrap calamares to run under XWayland (xcb) — it ships without the
-  # Qt Wayland plugin, so we just let it be an X11 app via xwayland-satellite.
-  # libxcb-cursor is required by the Qt xcb platform plugin at runtime.
+  # Calamares is built with Qt xcb (X11) only — no Wayland plugin.
+  # The .desktop runs `pkexec calamares` which strips the caller's env,
+  # but the wrapper script sets vars *after* pkexec starts it.
+  # The polkit policy points to /run/current-system/sw/bin/calamares
+  # which resolves to this wrapper via systemPackages.
   calamares-wrapped =
     pkgs.runCommand "calamares-wrapped"
       {
@@ -21,7 +23,8 @@ let
         cp -rs ${pkgs.calamares-nixos}/share/* $out/share/ 2>/dev/null || true
         makeWrapper ${pkgs.calamares-nixos}/bin/calamares $out/bin/calamares \
           --prefix LD_LIBRARY_PATH : "${pkgs.xcb-util-cursor}/lib" \
-          --set QT_QPA_PLATFORM xcb
+          --set QT_QPA_PLATFORM xcb \
+          --set DISPLAY ":0"
       '';
 
   calamares-autostart = pkgs.makeAutostartItem {
@@ -104,8 +107,9 @@ in
         settings = {
           prefer-no-csd = true;
           hotkey-overlay.skip-at-startup = true;
-          # Enable xwayland-satellite so X11 apps (Calamares) can run
           spawn-at-startup = [
+            # Start xwayland-satellite so X11 apps (Calamares) can run
+            { command = [ "${pkgs.xwayland-satellite}/bin/xwayland-satellite" ]; }
             {
               command = [
                 "dbus-update-activation-environment"
