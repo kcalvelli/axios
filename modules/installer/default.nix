@@ -9,15 +9,24 @@ let
   cfg = config.axios.installer;
 
   # Calamares is built with Qt xcb (X11) only — runs via XWayland.
-  # We bypass pkexec (which strips env vars) and use sudo instead,
-  # since the live ISO has passwordless sudo for the nixos user.
-  calamares-launcher = pkgs.writeShellScriptBin "calamares-launcher" ''
-    # Qt xcb plugin needs libxcb-cursor at runtime (not in its RPATH)
-    export LD_LIBRARY_PATH="${pkgs.xcb-util-cursor}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  # Two-stage launcher because:
+  #   - pkexec strips ALL env vars
+  #   - sudo strips LD_LIBRARY_PATH (security blacklist)
+  # Solution: outer script captures DISPLAY, calls sudo on inner script.
+  # Inner script runs as root and sets LD_LIBRARY_PATH itself.
+  calamares-root-launcher = pkgs.writeShellScript "calamares-root-launcher" ''
+    # This script runs AS ROOT (called via sudo).
+    # Set LD_LIBRARY_PATH here — sudo can't strip what we set ourselves.
+    export LD_LIBRARY_PATH="${pkgs.xcb-util-cursor}/lib"
     export QT_QPA_PLATFORM=xcb
-    # DISPLAY and XAUTHORITY are inherited from the session (no pkexec stripping)
-    exec sudo --preserve-env=DISPLAY,XAUTHORITY,LD_LIBRARY_PATH,QT_QPA_PLATFORM,XDG_DATA_DIRS,XDG_CONFIG_DIRS \
-      ${pkgs.calamares-nixos}/bin/calamares "$@"
+    export DISPLAY="$1"
+    shift
+    exec ${pkgs.calamares-nixos}/bin/calamares "$@"
+  '';
+
+  calamares-launcher = pkgs.writeShellScriptBin "calamares-launcher" ''
+    # Pass DISPLAY as a positional arg (survives sudo's env stripping)
+    exec sudo ${calamares-root-launcher} "''${DISPLAY:-:0}" "$@"
   '';
 
   calamares-autostart = pkgs.writeTextDir "etc/xdg/autostart/calamares.desktop" ''
