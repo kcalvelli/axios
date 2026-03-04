@@ -8,29 +8,26 @@
 let
   cfg = config.axios.installer;
 
-  # Calamares is built with Qt xcb (X11) only — no Wayland plugin.
-  # The .desktop runs `pkexec calamares` which strips the caller's env,
-  # but the wrapper script sets vars *after* pkexec starts it.
-  # The polkit policy points to /run/current-system/sw/bin/calamares
-  # which resolves to this wrapper via systemPackages.
-  calamares-wrapped =
-    pkgs.runCommand "calamares-wrapped"
-      {
-        nativeBuildInputs = [ pkgs.makeWrapper ];
-      }
-      ''
-        mkdir -p $out/bin $out/share
-        cp -rs ${pkgs.calamares-nixos}/share/* $out/share/ 2>/dev/null || true
-        makeWrapper ${pkgs.calamares-nixos}/bin/calamares $out/bin/calamares \
-          --prefix LD_LIBRARY_PATH : "${pkgs.xcb-util-cursor}/lib" \
-          --set QT_QPA_PLATFORM xcb \
-          --set DISPLAY ":0"
-      '';
+  # Calamares is built with Qt xcb (X11) only — runs via XWayland.
+  # We bypass pkexec (which strips env vars) and use sudo instead,
+  # since the live ISO has passwordless sudo for the nixos user.
+  calamares-launcher = pkgs.writeShellScriptBin "calamares-launcher" ''
+    # Qt xcb plugin needs libxcb-cursor at runtime (not in its RPATH)
+    export LD_LIBRARY_PATH="${pkgs.xcb-util-cursor}/lib''${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    export QT_QPA_PLATFORM=xcb
+    # DISPLAY and XAUTHORITY are inherited from the session (no pkexec stripping)
+    exec sudo --preserve-env=DISPLAY,XAUTHORITY,LD_LIBRARY_PATH,QT_QPA_PLATFORM,XDG_DATA_DIRS,XDG_CONFIG_DIRS \
+      ${pkgs.calamares-nixos}/bin/calamares "$@"
+  '';
 
-  calamares-autostart = pkgs.makeAutostartItem {
-    name = "calamares";
-    package = calamares-wrapped;
-  };
+  calamares-autostart = pkgs.writeTextDir "etc/xdg/autostart/calamares.desktop" ''
+    [Desktop Entry]
+    Type=Application
+    Name=Install axiOS
+    Exec=${calamares-launcher}/bin/calamares-launcher
+    Icon=calamares
+    X-GNOME-Autostart-enabled=true
+  '';
 in
 {
   options.axios.installer = {
@@ -110,6 +107,13 @@ in
           spawn-at-startup = [
             # Start xwayland-satellite so X11 apps (Calamares) can run
             { command = [ "${pkgs.xwayland-satellite}/bin/xwayland-satellite" ]; }
+            # Allow root (sudo) to connect to the X11 display
+            {
+              command = [
+                "${pkgs.xorg.xhost}/bin/xhost"
+                "+local:"
+              ];
+            }
             {
               command = [
                 "dbus-update-activation-environment"
@@ -141,8 +145,9 @@ in
     programs.partition-manager.enable = true;
 
     environment.systemPackages = [
-      calamares-wrapped
+      calamares-launcher
       calamares-autostart
+      pkgs.calamares-nixos
       pkgs.calamares-axios-extensions
       pkgs.glibcLocales
       pkgs.xwayland-satellite
