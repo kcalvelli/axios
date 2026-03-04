@@ -8,25 +8,28 @@
 let
   cfg = config.axios.installer;
 
-  # Calamares is built with Qt xcb (X11) only — runs via XWayland.
-  # Two-stage launcher because:
-  #   - pkexec strips ALL env vars
-  #   - sudo strips LD_LIBRARY_PATH (security blacklist)
-  # Solution: outer script captures DISPLAY, calls sudo on inner script.
-  # Inner script runs as root and sets LD_LIBRARY_PATH itself.
+  # Calamares ships without the Qt Wayland plugin. We add it via
+  # QT_PLUGIN_PATH and run as root via sudo (live ISO = passwordless).
+  # Two-stage launcher: outer captures session vars, inner runs as root.
   calamares-root-launcher = pkgs.writeShellScript "calamares-root-launcher" ''
     # This script runs AS ROOT (called via sudo).
-    # Set LD_LIBRARY_PATH here — sudo can't strip what we set ourselves.
+    # Add Qt Wayland plugin so Calamares can run natively on Wayland.
+    export QT_PLUGIN_PATH="${pkgs.qt6.qtwayland}/lib/qt-6/plugins''${QT_PLUGIN_PATH:+:$QT_PLUGIN_PATH}"
+    export QT_QPA_PLATFORM=wayland
+    export WAYLAND_DISPLAY="$1"
+    export XDG_RUNTIME_DIR="$2"
+    shift 2
+    # Also try xcb fallback with cursor lib if wayland fails
     export LD_LIBRARY_PATH="${pkgs.xcb-util-cursor}/lib"
-    export QT_QPA_PLATFORM=xcb
-    export DISPLAY="$1"
-    shift
+    export QT_DEBUG_PLUGINS=1
     exec ${pkgs.calamares-nixos}/bin/calamares "$@"
   '';
 
   calamares-launcher = pkgs.writeShellScriptBin "calamares-launcher" ''
-    # Pass DISPLAY as a positional arg (survives sudo's env stripping)
-    exec sudo ${calamares-root-launcher} "''${DISPLAY:-:0}" "$@"
+    exec sudo ${calamares-root-launcher} \
+      "''${WAYLAND_DISPLAY:-wayland-1}" \
+      "''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}" \
+      "$@"
   '';
 
   calamares-autostart = pkgs.writeTextDir "etc/xdg/autostart/calamares.desktop" ''
