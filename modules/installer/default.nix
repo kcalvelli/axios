@@ -19,9 +19,11 @@ let
     export WAYLAND_DISPLAY="$1"
     export XDG_RUNTIME_DIR="$2"
     shift 2
+    # Software rendering for VMs without GPU acceleration
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export QT_QUICK_BACKEND=software
     # Also try xcb fallback with cursor lib if wayland fails
     export LD_LIBRARY_PATH="${pkgs.xcb-util-cursor}/lib"
-    export QT_DEBUG_PLUGINS=1
     exec ${pkgs.calamares-nixos}/bin/calamares "$@"
   '';
 
