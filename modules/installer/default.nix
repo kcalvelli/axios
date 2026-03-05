@@ -162,13 +162,29 @@ in
     # ── Calamares installer ───────────────────────────────────
     programs.partition-manager.enable = true;
 
+    # Remove default NixOS ISO apps (firefox, etc.)
+    environment.defaultPackages = lib.mkForce [ ];
+
     environment.systemPackages = [
+      # Calamares
       calamares-launcher
       calamares-autostart
       pkgs.calamares-nixos
       pkgs.calamares-axios-extensions
       pkgs.glibcLocales
       pkgs.xwayland-satellite
+
+      # axiOS live session apps (normie subset)
+      pkgs.brave
+      pkgs.kdePackages.dolphin
+      pkgs.kdePackages.ark
+      pkgs.kdePackages.gwenview
+      pkgs.kdePackages.okular
+      pkgs.ghostty
+      pkgs.mousepad
+      pkgs.qalculate-qt
+      pkgs.fuzzel
+      pkgs.pavucontrol
     ];
 
     # Support all locales for the installer
