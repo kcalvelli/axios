@@ -82,12 +82,12 @@
 - [x] 11.2 Create `src/branding/axios/show.qml` — install slideshow with axiOS feature highlights
 - [x] 11.3 Update `branding.desc` with axiOS name, description, URLs, image paths
 
-### 12. Build & VM Testing
+### 12. Build & Hardware Testing
 
 - [x] 12.1 Run `nix fmt .` on all modified Nix files
 - [x] 12.2 Run `nix flake check` to validate flake structure
 - [x] 12.3 ISO dry-run evaluation passes (full build is manual)
-- [ ] 12.4 Boot ISO in QEMU/libvirt VM
+- [ ] 12.4 Boot ISO on real hardware (Niri requires GPU — no VM support)
 - [ ] 12.5 Run Calamares installer end-to-end — verify generated flake structure is correct
 - [ ] 12.6 Verify installed system boots and is functional
 - [ ] 12.7 Verify `nixos-rebuild switch --flake /etc/nixos#<hostname>` works post-install
