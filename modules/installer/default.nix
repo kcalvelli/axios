@@ -108,6 +108,18 @@ in
 
       home.stateVersion = "24.11";
 
+      # DMS KDL config placeholders — niri includes these via KDL `include`
+      # directives but DMS hasn't generated them yet on first boot.
+      home.activation.dmsPlaceholders = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        dms_dir="$HOME/.config/niri/dms"
+        mkdir -p "$dms_dir"
+        for f in alttab binds colors cursor layout outputs windowrules wpblur; do
+          if [ ! -e "$dms_dir/$f.kdl" ]; then
+            echo '// Placeholder' > "$dms_dir/$f.kdl"
+          fi
+        done
+      '';
+
       programs.niri = {
         package = lib.mkForce pkgs.niri;
         settings = {
