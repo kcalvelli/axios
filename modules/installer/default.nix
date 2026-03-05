@@ -19,11 +19,6 @@ let
     export WAYLAND_DISPLAY="$1"
     export XDG_RUNTIME_DIR="$2"
     shift 2
-    # Software rendering for VMs without GPU acceleration
-    export LIBGL_ALWAYS_SOFTWARE=1
-    export QT_QUICK_BACKEND=software
-    # Also try xcb fallback with cursor lib if wayland fails
-    export LD_LIBRARY_PATH="${pkgs.xcb-util-cursor}/lib"
     exec ${pkgs.calamares-nixos}/bin/calamares "$@"
   '';
 
@@ -119,15 +114,8 @@ in
           prefer-no-csd = true;
           hotkey-overlay.skip-at-startup = true;
           spawn-at-startup = [
-            # Start xwayland-satellite so X11 apps (Calamares) can run
+            # XWayland support for X11 apps
             { command = [ "${pkgs.xwayland-satellite}/bin/xwayland-satellite" ]; }
-            # Allow root (sudo) to connect to the X11 display
-            {
-              command = [
-                "${pkgs.xorg.xhost}/bin/xhost"
-                "+local:"
-              ];
-            }
             {
               command = [
                 "dbus-update-activation-environment"
