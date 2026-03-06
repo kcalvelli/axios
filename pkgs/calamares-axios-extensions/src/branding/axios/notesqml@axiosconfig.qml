@@ -226,11 +226,39 @@ Page {
                     Layout.fillWidth: true
                 }
 
-                TextField {
-                    id: tailnetField
+                Rectangle {
                     Layout.fillWidth: true
-                    placeholderText: "example-tailnet.ts.net"
-                    onTextChanged: Global.insert("axios_tailnetDomain", text)
+                    Layout.preferredHeight: 36
+                    color: "white"
+                    border.color: tailnetInput.activeFocus ? "#6366f1" : "#cccccc"
+                    border.width: tailnetInput.activeFocus ? 2 : 1
+                    radius: 4
+
+                    TextInput {
+                        id: tailnetInput
+                        anchors.fill: parent
+                        anchors.margins: 8
+                        verticalAlignment: TextInput.AlignVCenter
+                        font.pointSize: 10
+                        clip: true
+                        activeFocusOnTab: true
+                        onTextChanged: Global.insert("axios_tailnetDomain", text)
+
+                        Text {
+                            anchors.fill: parent
+                            verticalAlignment: Text.AlignVCenter
+                            text: "example-tailnet.ts.net"
+                            color: "#999999"
+                            font: tailnetInput.font
+                            visible: !tailnetInput.text && !tailnetInput.activeFocus
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.IBeamCursor
+                        onClicked: tailnetInput.forceActiveFocus()
+                    }
                 }
             }
         }
