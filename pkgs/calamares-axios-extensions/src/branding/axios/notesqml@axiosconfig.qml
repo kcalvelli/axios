@@ -236,13 +236,24 @@ Page {
                         Layout.fillWidth: true
                     }
 
-                    TextField {
-                        id: tailnetField
+                    FocusScope {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 36
-                        placeholderText: "example-tailnet.ts.net"
-                        activeFocusOnPress: true
-                        onTextChanged: Global.insert("axios_tailnetDomain", text)
+
+                        TextField {
+                            id: tailnetField
+                            anchors.fill: parent
+                            placeholderText: "example-tailnet.ts.net"
+                            onTextChanged: Global.insert("axios_tailnetDomain", text)
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onPressed: function(mouse) {
+                                tailnetField.forceActiveFocus()
+                                mouse.accepted = false
+                            }
+                        }
                     }
                 }
             }
