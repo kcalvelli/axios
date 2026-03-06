@@ -368,6 +368,16 @@ def run():
             '      # TODO: Update with your actual Tailnet domain')
         extra_lines.append(
             '      networking.tailscale.domain = "CHANGE-ME.ts.net";')
+        # Set tailnetDomain for any service that requires it in client mode
+        if enable_pim and pim_role == "client":
+            extra_lines.append(
+                '      services.pim.tailnetDomain = "CHANGE-ME.ts.net";')
+        if enable_immich and immich_role == "client":
+            extra_lines.append(
+                '      axios.immich.tailnetDomain = "CHANGE-ME.ts.net";')
+        if enable_local_llm and llm_role == "client":
+            extra_lines.append(
+                '      services.ai.local.tailnetDomain = "CHANGE-ME.ts.net";')
 
     # Secure boot
     enable_secureboot = gs.value("axios_enableSecureBoot") or False
