@@ -19,12 +19,7 @@ let
   packageNames = packageDirs;
 
   # Extra args for specific packages that need flake-level context
-  packageArgs = {
-    calamares-axios-extensions = {
-      axiosRev = self.rev or self.dirtyRev or "unknown";
-      axiosNarHash = self.narHash or "";
-    };
-  };
+  packageArgs = { };
 in
 {
   # Note: perSystem receives 'system' parameter from flake-parts

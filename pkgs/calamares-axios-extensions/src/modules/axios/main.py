@@ -135,14 +135,16 @@ def nix_string_or_null(val):
 
 
 def generate_proxy_strings():
-    """Build env assignments for proxy variables, matching upstream pattern."""
-    result = []
+    """Build env command prefix for proxy variables."""
+    assignments = []
     for var in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY",
                 "ftp_proxy", "FTP_PROXY", "no_proxy", "NO_PROXY"):
         val = os.environ.get(var)
         if val:
-            result.extend(["env", "{}={}".format(var, val)])
-    return result
+            assignments.append("{}={}".format(var, val))
+    if assignments:
+        return ["env"] + assignments
+    return []
 
 
 def fix_btrfs_subvolumes(hw_config_path):
@@ -451,26 +453,26 @@ def run():
 
     libcalamares.job.setprogress(0.25)
 
-    # ─── Copy pre-baked flake.lock ──────────────────────────────
-    # The flake.lock is shipped alongside this module, generated at
-    # ISO build time with the axiOS revision pinned.
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    flake_lock_source = os.path.join(module_dir, "flake.lock")
-
-    if os.path.exists(flake_lock_source):
-        shutil.copy2(flake_lock_source, os.path.join(nixos_dir, "flake.lock"))
-    else:
-        # If no pre-baked lock, try generating one (requires network)
-        try:
-            subprocess.run(
-                ["nix", "flake", "lock"],
-                cwd=nixos_dir,
-                check=True, capture_output=True, text=True
-            )
-        except subprocess.CalledProcessError as e:
-            return ("Failed to generate flake.lock",
-                    "No pre-baked flake.lock and nix flake lock failed: {}".format(
-                        e.stderr))
+    # ─── Lock the flake (requires network) ─────────────────────
+    # nixos-install --flake will resolve inputs, but we lock first
+    # to get a clear error if network is unavailable.
+    libcalamares.utils.debug("Locking flake inputs (this requires network)...")
+    try:
+        subprocess.run(
+            ["nix", "flake", "lock",
+             "--extra-experimental-features", "nix-command flakes"],
+            cwd=nixos_dir,
+            check=True, capture_output=True, text=True,
+            timeout=300
+        )
+    except subprocess.TimeoutExpired:
+        return ("Flake lock timed out",
+                "nix flake lock timed out after 5 minutes. "
+                "Check your network connection.")
+    except subprocess.CalledProcessError as e:
+        return ("Failed to lock flake",
+                "nix flake lock failed (is the network available?):\n{}".format(
+                    e.stderr))
 
     libcalamares.job.setprogress(0.3)
 

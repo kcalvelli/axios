@@ -2,39 +2,8 @@
   stdenv,
   lib,
   glibcLocales,
-  axiosRev ? null,
-  axiosNarHash ? null,
 }:
 
-let
-  rev = if axiosRev != null then axiosRev else "unknown";
-  narHash = if axiosNarHash != null then axiosNarHash else "";
-
-  # Minimal flake.lock pinning the axios input to the ISO build revision
-  flakeLock = builtins.toJSON {
-    version = 7;
-    nodes = {
-      root = {
-        inputs = {
-          axios = "axios";
-        };
-      };
-      axios = {
-        locked = {
-          type = "github";
-          owner = "kcalvelli";
-          repo = "axios";
-          inherit rev narHash;
-        };
-        original = {
-          type = "github";
-          owner = "kcalvelli";
-          repo = "axios";
-        };
-      };
-    };
-  };
-in
 stdenv.mkDerivation {
   pname = "calamares-axios-extensions";
   version = "0.1.0";
@@ -51,9 +20,6 @@ stdenv.mkDerivation {
 
     substituteInPlace $out/etc/calamares/settings.conf --replace-fail @out@ $out
     substituteInPlace $out/etc/calamares/modules/locale.conf --replace-fail @glibcLocales@ ${glibcLocales}
-
-    # Write pre-baked flake.lock for the axios job module
-    cp ${builtins.toFile "flake.lock" flakeLock} $out/lib/calamares/modules/axios/flake.lock
 
     runHook postInstall
   '';
