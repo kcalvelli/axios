@@ -14,9 +14,9 @@ strings:
     knownIssuesUrl:      https://github.com/kcalvelli/axios/issues
 
 images:
-    productLogo:         "axios-logo.svg"
-    productIcon:         "axios-logo.svg"
-    productWelcome:      "axios-logo.svg"
+    productLogo:         "axios-logo.png"
+    productIcon:         "axios-logo.png"
+    productWelcome:      "axios-logo.png"
 
 slideshowAPI: 2
 slideshow:     "show.qml"

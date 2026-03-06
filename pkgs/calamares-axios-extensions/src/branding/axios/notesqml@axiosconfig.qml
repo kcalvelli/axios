@@ -8,12 +8,18 @@ Page {
     width: parent.width
     height: parent.height
 
-    ScrollView {
+    Flickable {
         anchors.fill: parent
         anchors.margins: Kirigami.Units.largeSpacing
-        contentWidth: availableWidth
+        contentWidth: width
+        contentHeight: contentColumn.implicitHeight
+        clip: true
+        flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
+        ScrollBar.vertical: ScrollBar { }
 
         ColumnLayout {
+            id: contentColumn
             width: parent.width
             spacing: Kirigami.Units.largeSpacing
 
@@ -327,7 +333,9 @@ Page {
                     TextField {
                         id: tailnetField
                         Layout.fillWidth: true
+                        Layout.preferredHeight: 36
                         placeholderText: "example-tailnet.ts.net"
+                        activeFocusOnPress: true
                         onTextChanged: Global.insert("axios_tailnetDomain", text)
                     }
                 }
