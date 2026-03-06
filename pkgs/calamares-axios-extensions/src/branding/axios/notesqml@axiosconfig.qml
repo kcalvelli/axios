@@ -40,7 +40,7 @@ Page {
 
             RadioButton {
                 id: normieRadio
-                text: qsTr("Simple — Streamlined experience for web browsing, media, and everyday tasks")
+                text: qsTr("Normie — Streamlined experience for web browsing, media, and everyday tasks")
                 ButtonGroup.group: profileGroup
                 onCheckedChanged: {
                     if (checked) Global.insert("axios_homeProfile", "normie")
