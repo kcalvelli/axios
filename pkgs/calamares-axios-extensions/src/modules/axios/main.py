@@ -480,7 +480,7 @@ def run():
         hostname
     )
 
-    cmd = ["pkexec"]
+    cmd = []
     cmd.extend(generate_proxy_strings())
     cmd.extend([
         "nixos-install",
@@ -498,15 +498,22 @@ def run():
             text=True
         )
 
-        # Stream output for progress
+        # Stream output for progress, keep last lines for error reporting
+        last_lines = []
         for line in proc.stdout:
-            libcalamares.utils.debug("[nixos-install] " + line.rstrip())
+            stripped = line.rstrip()
+            libcalamares.utils.debug("[nixos-install] " + stripped)
+            last_lines.append(stripped)
+            if len(last_lines) > 50:
+                last_lines.pop(0)
 
         proc.wait()
 
         if proc.returncode != 0:
+            tail = "\n".join(last_lines[-30:])
             return ("nixos-install failed",
-                    "nixos-install exited with code {}".format(proc.returncode))
+                    "nixos-install exited with code {}\n\n{}".format(
+                        proc.returncode, tail))
 
     except Exception as e:
         return ("nixos-install failed",
