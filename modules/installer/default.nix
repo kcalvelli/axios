@@ -19,11 +19,12 @@ let
     export WAYLAND_DISPLAY="$1"
     export XDG_RUNTIME_DIR="$2"
     shift 2
-    # Override XDG dirs so our extensions take precedence over upstream
-    # calamares-nixos-extensions (which bundles packagechooser etc.)
-    export XDG_CONFIG_DIRS="${pkgs.calamares-axios-extensions}/etc''${XDG_CONFIG_DIRS:+:$XDG_CONFIG_DIRS}"
-    export XDG_DATA_DIRS="${pkgs.calamares-axios-extensions}/share''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
-    exec ${pkgs.calamares-nixos}/bin/calamares "$@"
+    # Call the raw calamares binary directly (not calamares-nixos wrapper)
+    # to avoid upstream calamares-nixos-extensions being prepended to XDG dirs.
+    # Set XDG dirs to ONLY our extensions.
+    export XDG_CONFIG_DIRS="${pkgs.calamares-axios-extensions}/etc"
+    export XDG_DATA_DIRS="${pkgs.calamares-axios-extensions}/share"
+    exec ${pkgs.calamares}/bin/calamares --xdg-config "$@"
   '';
 
   calamares-launcher = pkgs.writeShellScriptBin "calamares-launcher" ''
