@@ -202,65 +202,6 @@ Page {
                 }
             }
 
-            // ─── Tailnet Domain (conditional) ───────────────
-            ColumnLayout {
-                id: tailnetSection
-                visible: {
-                    var pimClient = pimCheck.checked && pimRoleGroup.checkedButton && pimRoleGroup.checkedButton.text === qsTr("Client")
-                    var immichEnabled = immichCheck.checked
-                    var llmClient = localLlmCheck.checked && llmRoleGroup.checkedButton && llmRoleGroup.checkedButton.text === qsTr("Client")
-                    return pimClient || immichEnabled || llmClient
-                }
-                Layout.topMargin: Kirigami.Units.largeSpacing
-                spacing: Kirigami.Units.smallSpacing
-
-                Label {
-                    text: qsTr("Tailscale Network")
-                    font.pointSize: 11
-                    font.bold: true
-                }
-
-                Label {
-                    text: qsTr("Enter your Tailnet domain for connecting to remote services:")
-                    wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 36
-                    color: "white"
-                    border.color: tailnetInput.activeFocus ? "#6366f1" : "#cccccc"
-                    border.width: tailnetInput.activeFocus ? 2 : 1
-                    radius: 4
-
-                    TextInput {
-                        id: tailnetInput
-                        anchors.fill: parent
-                        anchors.margins: 8
-                        verticalAlignment: TextInput.AlignVCenter
-                        font.pointSize: 10
-                        clip: true
-                        activeFocusOnTab: true
-                        onTextChanged: Global.insert("axios_tailnetDomain", text)
-
-                        Text {
-                            anchors.fill: parent
-                            verticalAlignment: Text.AlignVCenter
-                            text: "example-tailnet.ts.net"
-                            color: "#999999"
-                            font: tailnetInput.font
-                            visible: !tailnetInput.text && !tailnetInput.activeFocus
-                        }
-                    }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        cursorShape: Qt.IBeamCursor
-                        onClicked: tailnetInput.forceActiveFocus()
-                    }
-                }
-            }
         }
 
         // Spacer

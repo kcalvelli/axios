@@ -350,12 +350,22 @@ def run():
         extra_lines.append(
             '      services.ai.local.role = "{}";'.format(llm_role))
 
-    # Tailnet domain
-    tailnet_domain = gs.value("axios_tailnetDomain") or ""
-    if tailnet_domain:
+    # Tailnet domain — notesqml doesn't support keyboard input, so we
+    # write a placeholder that the user must update post-install.
+    pim_role = gs.value("axios_pimRole") or "server"
+    immich_role = gs.value("axios_immichRole") or "server"
+    llm_role = gs.value("axios_localLlmRole") or "server"
+    needs_tailnet = (
+        (enable_pim and pim_role == "client")
+        or (enable_immich and immich_role == "client")
+        or (enable_local_llm and llm_role == "client")
+    )
+    if needs_tailnet:
         extra_lines.append("")
         extra_lines.append(
-            '      networking.tailscale.domain = "{}";'.format(tailnet_domain))
+            '      # TODO: Update with your actual Tailnet domain')
+        extra_lines.append(
+            '      networking.tailscale.domain = "CHANGE-ME.ts.net";')
 
     # Secure boot
     enable_secureboot = gs.value("axios_enableSecureBoot") or False
