@@ -9,7 +9,9 @@ let
 in
 {
   options.axios.firstBoot = {
-    enable = lib.mkEnableOption "axiOS first-boot wizard";
+    enable = lib.mkEnableOption "axiOS first-boot wizard" // {
+      default = true;
+    };
   };
 
   config = lib.mkIf cfg.enable {
