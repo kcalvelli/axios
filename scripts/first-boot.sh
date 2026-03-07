@@ -171,7 +171,7 @@ if [ "$NEEDS_TAILNET" = "true" ]; then
     "You can find your tailnet domain at:" \
     "  https://login.tailscale.com/admin/dns"
   echo ""
-  TAILNET_DOMAIN=$(ask_input "Tailnet domain (e.g. taile0fb4.ts.net)")
+  TAILNET_DOMAIN=$(ask_input "Tailnet domain (e.g. tail1234.ts.net)")
 fi
 
 # ──────────────────────────────────────────────────────────────────

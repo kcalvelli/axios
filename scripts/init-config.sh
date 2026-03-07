@@ -392,7 +392,7 @@ collect_features() {
 
   if [ "$needs_tailnet" = "true" ]; then
     echo ""
-    TAILNET_DOMAIN=$(ask_input "Tailscale tailnet domain (e.g. taile0fb4.ts.net)")
+    TAILNET_DOMAIN=$(ask_input "Tailscale tailnet domain (e.g. tail1234.ts.net)")
   fi
 }
 
