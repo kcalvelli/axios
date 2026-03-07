@@ -402,7 +402,8 @@ let
               sharedModules =
                 lib.optional (hostCfg.modules.secrets or false) self.homeModules.secrets
                 ++ lib.optional (hostCfg.modules.pim or false) self.homeModules.pim
-                ++ lib.optional (hostCfg.modules.services or false) self.homeModules.immich;
+                ++ lib.optional (hostCfg.modules.services or false) self.homeModules.immich
+                ++ lib.optional (hostCfg.modules.desktop or false) self.homeModules.firstBoot;
             };
           }
           dynamicConfig

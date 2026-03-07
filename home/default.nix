@@ -8,6 +8,7 @@
   flake = {
     homeModules = {
       desktop = ./desktop;
+      firstBoot = ./first-boot;
       standard = ./profiles/standard.nix;
       normie = ./profiles/normie.nix;
       pim = ./pim;

@@ -110,6 +110,12 @@ cfg_user = """\
     isAdmin = true;
     homeProfile = "@@homeprofile@@";
   };
+
+  home-manager.users.@@username@@ = {
+    axios.home.flakePath = "/etc/nixos";
+    axios.wallpapers.enable = true;
+    axios.terminal.neovim.enable = true;
+  };
 }
 """
 
