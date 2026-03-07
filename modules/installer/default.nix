@@ -175,6 +175,12 @@ in
       pkgs.glibcLocales
       pkgs.xwayland-satellite
 
+      # Icon themes (needed for app icons in DMS/taskbar)
+      pkgs.colloid-icon-theme
+      pkgs.adwaita-icon-theme
+      pkgs.papirus-icon-theme
+      pkgs.hicolor-icon-theme
+
       # axiOS live session apps (normie subset)
       pkgs.brave
       pkgs.kdePackages.dolphin
