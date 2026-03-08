@@ -30,6 +30,12 @@
   # Configure sudo to use GUI password prompt
   home.sessionVariables = {
     SUDO_ASKPASS = "${pkgs.lxqt.lxqt-openssh-askpass}/bin/lxqt-openssh-askpass";
+
+    # Force Qt6Multimedia to use PulseAudio backend instead of native PipeWire.
+    # Qt 6.10's new PipeWire backend has a SIGSEGV in QAudioDeviceMonitor::objectAdded
+    # when audio devices are registered at startup. PulseAudio works fine via
+    # PipeWire's pulse compatibility layer. Remove when Qt fixes the bug.
+    QT_MEDIA_BACKEND = "pulseaudio";
   };
 
   # DankMaterialShell configuration
