@@ -99,10 +99,6 @@
       url = "github:kcalvelli/mcp-journal";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-devshell-mcp = {
-      url = "github:kcalvelli/nix-devshell-mcp";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     c64term = {
       url = "github:kcalvelli/c64term";
       inputs.nixpkgs.follows = "nixpkgs";
