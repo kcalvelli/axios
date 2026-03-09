@@ -65,14 +65,13 @@ in
       port = osConfig.services.mcp-gateway.port or 8085;
       autoEnable =
         osConfig.services.mcp-gateway.autoEnable or [
-          "git"
           "github"
-          "filesystem"
           "context7"
           "mcp-dav"
           "axios-ai-mail"
           "time"
           "brave-search"
+          "journal"
         ];
 
       # MCP Server Definitions
@@ -81,11 +80,6 @@ in
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # CORE TOOLS (No setup required)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-        git = {
-          enable = true;
-          command = "${pkgs.mcp-server-git}/bin/mcp-server-git";
-        };
 
         time = {
           enable = true;
@@ -108,11 +102,6 @@ in
         journal = {
           enable = true;
           command = "${inputs.mcp-journal.packages.${system}.default}/bin/mcp-journal";
-        };
-
-        nix-devshell-mcp = {
-          enable = true;
-          command = "${inputs.nix-devshell-mcp.packages.${system}.default}/bin/nix-devshell-mcp";
         };
 
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -140,32 +129,12 @@ in
         # AI ENHANCEMENT SERVERS (No setup required)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        sequential-thinking = {
-          enable = true;
-          command = "${pkgs.nodejs}/bin/npx";
-          args = [
-            "-y"
-            "@modelcontextprotocol/server-sequential-thinking"
-          ];
-        };
-
         context7 = {
           enable = true;
           command = "${pkgs.nodejs}/bin/npx";
           args = [
             "-y"
             "@upstash/context7-mcp"
-          ];
-        };
-
-        filesystem = {
-          enable = true;
-          command = "${pkgs.nodejs}/bin/npx";
-          args = [
-            "-y"
-            "@modelcontextprotocol/server-filesystem"
-            "/tmp"
-            "${config.home.homeDirectory}/Projects"
           ];
         };
 
@@ -200,7 +169,6 @@ in
       inputs.axios-ai-mail.packages.${system}.default
       inputs.axios-dav.packages.${system}.mcp-dav
       inputs.mcp-journal.packages.${system}.default
-      inputs.nix-devshell-mcp.packages.${system}.default
     ];
   };
 }
