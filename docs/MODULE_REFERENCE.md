@@ -297,6 +297,8 @@ virt = {
 
 The local LLM stack supports **server/client roles** for distributed inference across your tailnet.
 
+> **Important:** The `local.role` setting also affects other services like mcp-gateway. Choose one role per machine — don't mix server and client roles across different services on the same host.
+
 **Server Role (default):**
 
 Run Ollama locally with GPU acceleration:
@@ -340,7 +342,7 @@ services.ai.local = {
 };
 ```
 
-The server registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via the `OLLAMA_HOST` environment variable.
+The server registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via `OLLAMA_HOST` and `MCP_GATEWAY_URL` environment variables.
 
 **Features (Server Role):**
 - **32K context window** for agentic tool use

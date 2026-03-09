@@ -275,6 +275,7 @@ in
       # Uses Tailscale Services DNS name (no port needed)
       environment.sessionVariables = {
         OLLAMA_HOST = "https://axios-ollama.${cfg.local.tailnetDomain}";
+        MCP_GATEWAY_URL = "https://axios-mcp-gateway.${cfg.local.tailnetDomain}";
       };
 
       # Client role packages (no GPU stack, lighter footprint)
