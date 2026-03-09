@@ -419,7 +419,7 @@ settings.servers.content = {
 
 ### Task 8.4: MCP Tests
 - [ ] Test: Server starts correctly
-- [ ] Test: Tools appear in mcp-cli
+- [ ] Test: Tools appear in mcp-gateway API (`curl http://localhost:8085/api/tools`)
 - [ ] Test: Claude Code can use tools
 
 ---

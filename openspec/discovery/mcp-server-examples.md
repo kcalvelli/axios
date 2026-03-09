@@ -9,7 +9,7 @@ Copy relevant sections to `home/ai/mcp.nix` to enable them.
 2. Copy server config to `servers = { ... }` in `home/ai/mcp.nix`
 3. Set up required secrets/authentication (see comments)
 4. Rebuild: `home-manager switch`
-5. Test: `mcp-cli <server-name>`
+5. Test: `curl http://localhost:8085/api/servers | jq`
 
 ---
 

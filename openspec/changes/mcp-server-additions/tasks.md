@@ -37,7 +37,7 @@ axios-ai-mail provides an MCP server for AI-powered email management.
 - [x] Add package to `home.packages`
 - [x] Add to requirements comment block (PIM TOOLS section)
 - [x] Update flake.lock with MCP-enabled version
-- [x] Test server loads with `mcp-cli`
+- [x] Test server loads with mcp-gateway API
 
 ---
 

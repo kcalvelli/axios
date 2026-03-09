@@ -267,7 +267,7 @@ fortune | axios-speak
 
 ### Task 6.2: MCP Tests (if enabled)
 - [ ] Test: MCP server starts
-- [ ] Test: speak tool appears in mcp-cli
+- [ ] Test: speak tool appears in mcp-gateway API (`curl http://localhost:8085/api/tools`)
 - [ ] Test: AI can trigger speech
 
 ### Task 6.3: Audio Tests

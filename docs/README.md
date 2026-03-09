@@ -18,7 +18,7 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes | When experiencing problems |
 | [BINARY_CACHE.md](BINARY_CACHE.md) | Using the binary cache | Speed up builds |
 | [MCP_GUIDE.md](MCP_GUIDE.md) | Complete MCP integration guide | **Understanding AI & MCP** |
-| [MCP_REFERENCE.md](MCP_REFERENCE.md) | Quick MCP command reference | Quick lookup for mcp-cli |
+| [MCP_REFERENCE.md](MCP_REFERENCE.md) | Quick MCP command reference | Quick lookup for MCP tools |
 
 ## Quick Start
 
@@ -64,7 +64,7 @@ Topics covered:
 Essential topics:
 - What is MCP and how axios configures it
 - 11 pre-configured MCP servers (no setup required)
-- How mcp-cli saves 99% tokens (vs traditional MCP)
+- How on-demand tool discovery saves 99% tokens (vs traditional MCP)
 - Adding new MCP servers to axios
 - Configuration guide with examples
 - Real-world workflows and debugging
@@ -73,16 +73,15 @@ Essential topics:
 **Start here to understand axios's AI capabilities.**
 
 ### 📚 [MCP_REFERENCE.md](MCP_REFERENCE.md)
-**Quick reference card for mcp-cli commands**
+**Quick reference card for MCP commands**
 
 One-page reference:
-- Quick command syntax and examples
-- Token savings breakdown
-- Cost analysis tables
-- Scaling comparison
-- Best practices and verification
+- mcp-gateway REST API commands
+- Available MCP servers and tools
+- Service management
+- Common use cases
 
-**Use as a cheat sheet for mcp-cli.**
+**Use as a cheat sheet for MCP tool access.**
 
 ### 🔮 [advanced-tool-use.md](advanced-tool-use.md)
 **Anthropic beta features (API-only)**

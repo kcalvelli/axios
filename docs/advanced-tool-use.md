@@ -24,14 +24,14 @@ Claude searches for tools on-demand rather than loading all definitions upfront.
 
 ### How axiOS Already Implements This
 
-**axiOS uses `mcp-cli` for dynamic tool discovery!** This achieves the same benefits:
+**axiOS uses mcp-gateway for dynamic tool discovery!** The gateway provides on-demand tool access via REST API and `mcp-gw` CLI, achieving the same benefits:
 
 ```bash
 # Dynamic discovery workflow (already available in axiOS)
-mcp-cli                              # List all servers and tools
-mcp-cli grep "search"                # Search for specific tools
-mcp-cli github/search_repositories   # Get tool schema
-mcp-cli github/search_repositories '{"query": "axios"}' # Execute
+curl -s http://localhost:8085/api/tools | jq          # List all tools
+curl -s -X POST http://localhost:8085/api/tools/github/search_repositories \
+  -H "Content-Type: application/json" \
+  -d '{"query": "axios"}'                              # Execute a tool
 ```
 
 **Token savings**: ~47,000 → ~400 tokens (99% reduction!)
@@ -199,15 +199,16 @@ import json
 
 def get_mcp_tools():
     """Extract tools from MCP servers with defer_loading"""
-    result = subprocess.run(['mcp-cli'], capture_output=True, text=True)
-    # Parse output and format as tools with defer_loading=True
-    return tools
+    import requests
+    resp = requests.get('http://localhost:8085/api/tools')
+    # Parse and format as tools with defer_loading=True
+    return resp.json()
 
 def call_mcp_tool(server, tool, args):
-    """Execute MCP tool via mcp-cli"""
-    cmd = ['mcp-cli', f'{server}/{tool}', json.dumps(args)]
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    return json.loads(result.stdout)
+    """Execute MCP tool via mcp-gateway API"""
+    import requests
+    resp = requests.post(f'http://localhost:8085/api/tools/{server}/{tool}', json=args)
+    return resp.json()
 
 client = anthropic.Anthropic()
 tools = get_mcp_tools()
@@ -237,52 +238,34 @@ services.ai.systemPrompt.extraInstructions = ''
   ## Tool Discovery Strategy
 
   For tasks requiring multiple tools:
-  1. Use mcp-cli grep to find relevant tools dynamically
+  1. Use mcp-gateway API to find relevant tools dynamically
   2. Only inspect full schemas when necessary
   3. Execute tools and process results in code when possible
-
-  Example workflow:
-  - Task: "Analyze all GitHub issues"
-  - Step 1: mcp-cli grep "github" | grep "issue"
-  - Step 2: mcp-cli github/list_issues (get schema)
-  - Step 3: mcp-cli github/list_issues '{"repo": "owner/repo"}'
-  - Step 4: Process results locally, return summary only
 '';
 ```
 
 ## Current Best Practices in axiOS
 
-### 1. Use mcp-cli for Dynamic Discovery
+### 1. Use mcp-gateway for Dynamic Discovery
 
-Already configured! The axios system prompt teaches Claude to:
+Already configured! The axios system prompt teaches Claude to use mcp-gateway's on-demand tool discovery:
 ```bash
-# List all tools
-mcp-cli
+# List all tools via gateway API
+curl -s http://localhost:8085/api/tools | jq
 
-# Search for relevant tools
-mcp-cli grep "file"
-
-# Get schema only when needed
-mcp-cli filesystem/read_file
-
-# Execute
-mcp-cli filesystem/read_file '{"path": "/tmp/test.txt"}'
+# Execute a tool
+curl -s -X POST http://localhost:8085/api/tools/filesystem/read_file \
+  -H "Content-Type: application/json" \
+  -d '{"path": "/tmp/test.txt"}'
 ```
 
 ### 2. Leverage Sequential Thinking
 
-The `sequential-thinking` MCP server is already enabled:
-```bash
-# For complex multi-step problems
-mcp-cli sequential-thinking/think '{"problem": "Analyze codebase architecture"}'
-```
+The `sequential-thinking` MCP server is already enabled and accessible via mcp-gateway.
 
 ### 3. Use Context7 for Documentation
 
-Instead of loading docs into context, query dynamically:
-```bash
-mcp-cli context7/query '{"library": "nixpkgs", "query": "how to override package"}'
-```
+Instead of loading docs into context, query dynamically via the gateway API.
 
 ## Future Enhancements
 

@@ -9,7 +9,7 @@ Complete guide to using MCP servers in axiOS for enhanced AI capabilities with C
 - [MCP Architecture](#mcp-architecture)
 - [Available MCP Servers](#available-mcp-servers)
 - [Configuration Guide](#configuration-guide)
-- [mcp-cli Usage](#mcp-cli-usage)
+- [Tool Discovery](#tool-discovery)
 - [Real-World Workflows](#real-world-workflows)
 - [Secrets Management](#secrets-management)
 - [Troubleshooting](#troubleshooting)
@@ -32,25 +32,10 @@ Model Context Protocol (MCP) is a standard protocol that allows AI models to acc
 When you enable `services.ai` in axiOS, you automatically get:
 
 1. **11 Pre-configured MCP Servers** - No manual setup required
-2. **mcp-cli** - Dynamic tool discovery (99% token reduction)
+2. **On-demand tool discovery** - Via mcp-gateway's `mcp-gw` CLI (99% token reduction)
 3. **Auto-generated configs** - `~/.mcp.json` for Claude Code
 4. **System prompts** - Auto-injected into `~/.claude.json`
 5. **Pre-packaged servers** - No runtime npm installs
-
-### Token Efficiency
-
-**Traditional MCP**: Loads all tool schemas upfront
-- 10 servers = 47,000 tokens per message
-- 5-turn conversation = 242,450 total tokens
-- Cost: $0.73 per session
-
-**axiOS with mcp-cli**: Discovers tools on-demand
-- Initial load = 2,000 tokens (system prompt only)
-- Discovery as-needed = ~500 tokens
-- 5-turn conversation = 7,850 total tokens
-- Cost: $0.02 per session
-
-**Result: 96.8% token reduction, 30x more efficient**
 
 ## Quick Start
 
@@ -71,11 +56,14 @@ sudo nixos-rebuild switch
 ### Verify Installation
 
 ```bash
-# List all MCP servers
-mcp-cli
+# Check mcp-gateway health
+curl -s http://localhost:8085/health
 
-# Test dynamic discovery
-mcp-cli grep "file"
+# List all MCP servers via gateway API
+curl -s http://localhost:8085/api/servers | jq
+
+# List available tools
+curl -s http://localhost:8085/api/tools | jq 'length'
 
 # View axios system prompt
 cat ~/.config/ai/prompts/axios.md
@@ -88,8 +76,7 @@ cat ~/.mcp.json | jq '.mcpServers | keys'
 
 1. Restart Claude Code to load the new configuration
 2. The axios system prompt is automatically injected
-3. Use mcp-cli commands to discover and use tools
-4. Tools are loaded on-demand, not upfront
+3. Tools are discovered on-demand via mcp-gateway
 
 ## MCP Architecture
 
@@ -123,7 +110,7 @@ cat ~/.mcp.json | jq '.mcpServers | keys'
 The mcp-gateway module (from `github.com/kcalvelli/mcp-gateway`) generates these files:
 
 - **`~/.mcp.json`**: Claude Code MCP configuration (native integration)
-- **`~/.config/mcp/mcp_servers.json`**: mcp-gateway/mcp-cli configuration
+- **`~/.config/mcp/mcp_servers.json`**: mcp-gateway configuration (used by `mcp-gw`)
 - **`~/.gemini/settings.json`**: Gemini CLI configuration
 - **`~/.config/ai/prompts/axios.md`**: Comprehensive system prompt
 - **`~/.claude.json`**: Claude Code config (auto-injected with axios prompt)
@@ -164,7 +151,7 @@ Benefits:
 - **Nix-packaged**: Pre-built MCP servers from `mcp-servers-nix` overlay
 - **Reproducible**: Same config across all machines
 - **Type-safe**: Nix validates configuration
-- **Multi-tool**: Generates configs for Claude Code, Gemini, and mcp-cli
+- **Multi-tool**: Generates configs for Claude Code, Gemini, and mcp-gateway
 
 ## Available MCP Servers
 
@@ -172,14 +159,10 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 
 | Server | Purpose | Setup Required | Status |
 |--------|---------|----------------|--------|
-| **git** | Git operations | None | Ready |
-| **github** | GitHub API access | `gh auth login` | Requires auth |
-| **filesystem** | File read/write | None | Ready |
-| **journal** | systemd logs | None | Ready |
-| **nix-devshell-mcp** | Nix dev environments | None | Ready |
-| **sequential-thinking** | Enhanced AI reasoning | None | Ready |
-| **context7** | Library documentation | None | Ready |
 | **time** | Date/time utilities | None | Ready |
+| **github** | GitHub API access | `gh auth login` | Requires auth |
+| **journal** | systemd logs | None | Ready |
+| **context7** | Library documentation | None | Ready |
 | **axios-ai-mail** | AI-powered email | PIM module | Ready |
 | **mcp-dav** | Calendar and contacts | PIM module | Ready |
 | **brave-search** | Web search | API key | Requires key |
@@ -188,14 +171,8 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 
 #### Core Tools (No Setup)
 
-- **git**: Git status, diffs, commits, branches
-- **filesystem**: Read/write files (restricted to safe paths)
 - **time**: Timezones, date calculations
 - **journal**: Query systemd logs
-
-#### Development (No Setup)
-
-- **nix-devshell-mcp**: Nix devshell integration
 - **github**: Requires `gh auth login` (uses gh CLI for auth)
 
 #### PIM Integration (Requires `modules.pim = true`)
@@ -205,7 +182,6 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 
 #### AI Enhancement (No Setup)
 
-- **sequential-thinking**: Chain-of-thought reasoning for complex problems
 - **context7**: Query official documentation for any library
 
 #### Search (Requires API Key)
@@ -253,7 +229,7 @@ services.mcp-gateway.servers = {
 Rebuild:
 ```bash
 sudo nixos-rebuild switch  # Or home-manager switch
-mcp-cli  # Verify new servers appear
+curl -s http://localhost:8085/api/servers | jq  # Verify new servers appear
 ```
 
 #### Example: Add Notion Server
@@ -324,104 +300,47 @@ external-server = {
 };
 ```
 
-## mcp-cli Usage
+## Tool Discovery
 
-### Basic Commands
+mcp-gateway provides multiple ways to discover and execute MCP tools:
+
+### mcp-gateway REST API
 
 ```bash
-# List all MCP servers
-mcp-cli
+# List all servers
+curl -s http://localhost:8085/api/servers | jq
 
-# Search for tools by name
-mcp-cli grep "file"
-mcp-cli grep "github"
-
-# List tools for a specific server
-mcp-cli github
-mcp-cli filesystem
-
-# Get tool schema
-mcp-cli github/create_repository
-mcp-cli filesystem/read_file
+# List all tools
+curl -s http://localhost:8085/api/tools | jq
 
 # Execute a tool
-mcp-cli github/search_repositories '{"query": "axios"}'
-mcp-cli filesystem/list_directory '{"path": "/tmp"}'
+curl -s -X POST http://localhost:8085/api/tools/github/search_repositories \
+  -H "Content-Type: application/json" \
+  -d '{"query": "axios"}'
 ```
 
-### Advanced Usage
+### mcp-gw CLI (provided by mcp-gateway)
 
-**Add `-d` for detailed descriptions:**
-```bash
-mcp-cli github -d  # Include tool descriptions
-```
-
-**Use stdin for complex JSON:**
-```bash
-echo '{"query": "test"}' | mcp-cli server/tool -
-```
-
-**Pipe output for processing:**
-```bash
-mcp-cli filesystem/list_directory '{"path": "/tmp"}' | jq '.files'
-```
+mcp-gateway also installs `mcp-gw` for CLI-based tool discovery. See the mcp-gateway documentation for usage details.
 
 ## Real-World Workflows
 
-### Workflow 1: Adding SQLite MCP Server
-
-**Task**: Add SQLite database access for AI agents
-
-**Traditional Approach** (242K tokens, $0.73):
-1. Load all 10 servers with full schemas (47K tokens/turn)
-2. Agent searches through all tools
-3. Multiple round trips with full context each time
-
-**axiOS Approach** (7.8K tokens, $0.02):
+### Workflow 1: Debugging with Logs
 
 ```bash
-# Turn 1: User request (2K tokens)
-"Add SQLite MCP server to axios"
-
-# Turn 2: Agent uses mcp-cli to discover servers (600 tokens)
-mcp-cli
-
-# Turn 3: Agent reads mcp.nix (3K tokens)
-# Proposes configuration
-
-# Turn 4: Agent edits file (600 tokens)
-# Adds SQLite server config
-
-# Turn 5: Agent verifies (450 tokens)
-mcp-cli sqlite
+# Query logs via gateway API
+curl -s -X POST http://localhost:8085/api/tools/journal/query_logs \
+  -H "Content-Type: application/json" \
+  -d '{"unit": "nginx", "priority": "err"}'
 ```
 
-**Result**: 96.8% token savings, $0.71 saved per session
-
-### Workflow 2: Debugging with Logs
-
-```bash
-# Agent discovers journal tool
-mcp-cli grep "log"
-
-# Agent gets schema
-mcp-cli journal/query_logs
-
-# Agent queries nginx logs
-mcp-cli journal/query_logs '{"unit": "nginx", "priority": "err"}'
-```
-
-### Workflow 3: GitHub Operations
+### Workflow 2: GitHub Operations
 
 ```bash
 # Search repositories
-mcp-cli github/search_repositories '{"query": "nix MCP"}'
-
-# Create issue
-mcp-cli github/create_issue '{"repo": "owner/repo", "title": "Bug report"}'
-
-# Get PR details
-mcp-cli github/get_pull_request '{"repo": "owner/repo", "pr_number": 123}'
+curl -s -X POST http://localhost:8085/api/tools/github/search_repositories \
+  -H "Content-Type: application/json" \
+  -d '{"query": "nix MCP"}'
 ```
 
 ## Secrets Management
@@ -486,10 +405,10 @@ For sensitive keys in production:
 
 ### Issue: brave-search server fails
 
-**Symptoms**: Server not appearing in mcp-cli or failing to execute
+**Symptoms**: Server not appearing or failing to execute
 
 **Solutions**:
-1. Verify API key is set: `echo $BRAVE_API_KEY`
+1. Verify API key is configured via agenix or `$BRAVE_API_KEY`
 2. Check that you rebuilt system: `sudo nixos-rebuild switch`
 3. Log out and log back in to load new environment variables
 4. Restart Claude Code
@@ -509,19 +428,9 @@ For sensitive keys in production:
 
 **Solutions**:
 1. Verify config exists: `cat ~/.mcp.json`
-2. Check server list: `mcp-cli`
+2. Check server list: `curl -s http://localhost:8085/api/servers | jq`
 3. Restart Claude Code completely
-4. Check system prompt injected: `grep -q "mcp-cli" ~/.claude.json && echo "✅ Enabled"`
-
-### Issue: mcp-cli command not found
-
-**Symptoms**: `mcp-cli: command not found`
-
-**Solutions**:
-1. Ensure `services.ai.enable = true` in your configuration
-2. Rebuild: `home-manager switch`
-3. Verify installation: `which mcp-cli`
-4. Check PATH includes ~/.nix-profile/bin
+4. Check mcp-gateway service: `systemctl --user status mcp-gateway`
 
 ### Issue: Server executes but returns errors
 

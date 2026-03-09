@@ -28,9 +28,9 @@ Integrates advanced AI agents and local inference capabilities into the develope
 - **Customization**: Users can append instructions via `services.ai.systemPrompt.extraInstructions`.
 
 ### Model Context Protocol (MCP)
-- **Token Reduction Strategy**: Claude Code uses built-in tools only; MCP servers are accessed on-demand via the `/mcp-cli` skill, reducing context window usage by up to 99%.
+- **Token Reduction Strategy**: Claude Code uses built-in tools only; MCP servers are accessed on-demand via mcp-gateway's `/mcp-cli` skill and REST API, reducing context window usage by up to 99%.
 - **No Native MCP**: `~/.mcp.json` generation is disabled by default (`generateClaudeConfig = false`). Claude Code does not spawn MCP servers natively.
-- **mcp-cli**: Binary and `/mcp-cli` skill are provided by the mcp-gateway module (not axios).
+- **mcp-gw**: The `mcp-gw` CLI binary, `/mcp-cli` skill, and all related configuration are fully owned by the mcp-gateway module (not axios). axios does not package or patch any CLI tool for MCP discovery.
 - **Servers**: Git, GitHub, Filesystem, Journal, Nix-devshell, etc.
 - **Configuration**: Declarative via `services.mcp-gateway` (from external mcp-gateway repo).
 - **Implementation**: Server definitions in `home/ai/mcp.nix`, module logic in `github.com/kcalvelli/mcp-gateway`
@@ -127,7 +127,7 @@ axios imports mcp-gateway's module and layers on axios-specific features:
 │                    mcp-gateway module                           │
 │  - Evaluates server declarations                                │
 │  - Generates ~/.config/mcp/mcp_servers.json                     │
-│  - Installs mcp-cli binary + /mcp-cli skill for Claude Code    │
+│  - Installs mcp-gw binary + /mcp-cli skill for Claude Code     │
 │  - Configures systemd service                                   │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -189,10 +189,10 @@ The MCP Gateway uses official MCP SDK libraries for protocol compliance:
 - MCP HTTP transport for Claude.ai Integrations
 - Automatic npx server support (bash, nodejs in service PATH)
 - Non-blocking auto-enable on startup
-- Generates configs for Gemini CLI and mcp-cli (`~/.config/mcp/mcp_servers.json`)
+- Generates configs for Gemini CLI and mcp-gw (`~/.config/mcp/mcp_servers.json`)
 - `generateClaudeConfig` (default: `false`) — controls `~/.mcp.json` generation
 - `generateClaudeSkill` (default: `true`) — installs `/mcp-cli` skill to `~/.claude/commands/mcp-cli.md`
-- Provides `mcp-cli` binary via `home.packages`
+- Provides `mcp-gw` binary via `home.packages`
 
 ## Requirements
 

@@ -149,9 +149,6 @@ in
             "-y"
             "@modelcontextprotocol/server-brave-search"
           ];
-          env = {
-            BRAVE_API_KEY = "\${BRAVE_API_KEY}";
-          };
           passwordCommand = {
             BRAVE_API_KEY = [
               "${pkgs.bash}/bin/bash"

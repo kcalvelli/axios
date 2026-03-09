@@ -431,10 +431,10 @@ All workflows use:
 ## AI Module Specifics
 
 The `services.ai.enable` module provides:
-- **Tools**: claude-code, gemini, claude-monitor, mcp-cli, and other AI assistants
+- **Tools**: claude-code, gemini, claude-monitor, and other AI assistants
 - **MCP Servers** (optional): Enable with `services.ai.mcp.enable = true` (default: true)
-- **MCP Gateway**: REST API and MCP HTTP transport for tool access
-- **Dynamic Discovery**: mcp-cli for just-in-time tool discovery (99% token reduction)
+- **MCP Gateway**: REST API, MCP HTTP transport, and on-demand tool discovery
+- **Dynamic Discovery**: mcp-gateway provides `mcp-gw` CLI for just-in-time tool discovery (99% token reduction)
 
 ### MCP Configuration
 
@@ -481,9 +481,9 @@ MCP configuration is owned by the **mcp-gateway** external repository (`github.c
 
 **Server definitions are in `home/ai/mcp.nix`, module logic is in mcp-gateway**
 
-1. **Core Tools** (no setup required): git, github†, filesystem, time, journal, nix-devshell-mcp
+1. **Core Tools** (no setup required): time, github†, journal
 2. **PIM Integration** (requires PIM module): axios-ai-mail, mcp-dav
-3. **AI Enhancement** (no setup required): sequential-thinking, context7
+3. **AI Enhancement** (no setup required): context7
 4. **Search** (requires API key): brave-search
 
 **†** github requires `gh auth login` first
@@ -516,97 +516,23 @@ echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
 
 axios will automatically use `passwordCommand` to securely load this secret. If the secret isn't configured, it falls back to the environment variable `$BRAVE_API_KEY`.
 
-### Dynamic Tool Discovery with mcp-cli
+### Dynamic Tool Discovery
 
-**What is mcp-cli?**
+mcp-gateway provides **`mcp-gw`**, a CLI for on-demand MCP tool discovery. The `mcp-gw` binary, `/mcp-cli` skill, and configuration are fully owned by mcp-gateway — axios only provides server definitions.
 
-mcp-cli is a lightweight command-line interface for the Model Context Protocol that enables **dynamic tool discovery** for AI agents. It solves a critical problem: traditional MCP integration loads all tool definitions upfront into the agent's context window, consuming massive token allocations.
+**Key benefit:** 99% token reduction vs loading all tool schemas upfront.
 
-**Token Reduction:**
-- Traditional MCP: ~47,000 tokens for 6 servers with 60 tools
-- With mcp-cli: ~400 tokens (99% reduction!)
-
-**How it works:**
-
-Instead of loading all tool schemas at once, AI agents can use mcp-cli to discover tools on-demand:
-
-```bash
-# List all available MCP servers
-mcp-cli
-
-# Search for specific tools
-mcp-cli grep "search"
-
-# Get tool schema
-mcp-cli github/search
-
-# Execute tool with arguments
-mcp-cli github/search '{"query": "axios", "path": "README.md"}'
-
-# Use stdin for complex JSON
-echo '{"query": "test"}' | mcp-cli server/tool -
-```
-
-**Integration:**
-
-mcp-cli is **automatically enabled** when `services.ai.enable = true`. The mcp-gateway module generates:
+**Integration:** Automatically enabled when `services.ai.enable = true`. The mcp-gateway module generates:
 - `~/.mcp.json` - Claude Code native MCP configuration
-- `~/.config/mcp/mcp_servers.json` - mcp-gateway/mcp-cli configuration
+- `~/.config/mcp/mcp_servers.json` - mcp-gateway configuration
 - `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
 - `~/.gemini/settings.json` - Gemini CLI configuration
-
-All config files are generated from the same server definitions in `home/ai/mcp.nix`.
 
 **Zero Configuration Required:**
 - Claude Code: prompt auto-loaded via `~/.claude/CLAUDE.md` (`@import`)
 - Gemini: prompt auto-loaded via `GEMINI_SYSTEM_MD` env var
-- Just run `claude` or `gemini` — no flags or aliases needed
 
-**axiOS System Prompt for AI Agents:**
-
-axios provides a comprehensive system prompt at `~/.config/ai/prompts/axios.md` that teaches AI agents about all axiOS features:
-
-- **mcp-cli usage** - Dynamic MCP tool discovery commands and workflow
-- **Available MCP servers** - List of configured servers and their purposes
-- **NixOS-specific guidance** - How to work with Nix configurations
-- **Custom user instructions** - Section at bottom for users to append their own
-
-**Claude Code: AUTOMATIC INTEGRATION**
-
-The axios prompt is automatically loaded via `~/.claude/CLAUDE.md`, which `@imports` the prompt file. No flags or aliases needed — just run `claude`.
-
-**Gemini: AUTOMATIC INTEGRATION**
-
-The `GEMINI_SYSTEM_MD` environment variable is set declaratively to point at the axios prompt. Just run `gemini`.
-
-**View the prompt:**
-```bash
-cat ~/.config/ai/prompts/axios.md
-```
-
-**Adding Your Own Custom Instructions:**
-
-Edit the axios prompt to add your custom instructions:
-```bash
-$EDITOR ~/.config/ai/prompts/axios.md
-# Add your instructions under "## Custom User Instructions" section at the bottom
-```
-
-**Usage in AI Agents:**
-
-Once enabled, AI agents can invoke mcp-cli via the Bash tool for just-in-time tool discovery:
-1. Agent searches for relevant tools: `mcp-cli grep "file"`
-2. Agent inspects tool schema: `mcp-cli filesystem/read_file`
-3. Agent executes with proper arguments: `mcp-cli filesystem/read_file '{"path": "/tmp/test.txt"}'`
-
-This approach dramatically reduces context window usage and enables using many more MCP servers simultaneously.
-
-**Benefits:**
-- ✅ 99% reduction in context token usage
-- ✅ Lower API costs (fewer tokens per request)
-- ✅ Support for 20+ MCP servers without hitting limits
-- ✅ No configuration needed - works automatically with existing MCP setup
-- ✅ Complements (not replaces) native Claude Code MCP integration
+For `mcp-gw` usage details, see the mcp-gateway repository documentation.
 
 ### MCP Gateway
 
@@ -650,9 +576,7 @@ systemctl --user restart mcp-gateway
 - **Server definitions**: `home/ai/mcp.nix` (axios provides paths, mcp-gateway provides module)
 - **System Prompts** (owned by mcp-gateway):
   - `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
-  - `~/.config/ai/prompts/mcp-cli.md` - mcp-cli specific prompt
 - **OpenSpec skills**: `.claude/skills/openspec-*/` (installed per-project via `openspec init`)
-- mcp-cli upstream: https://github.com/philschmid/mcp-cli
 
 ## Common Patterns
 

@@ -258,7 +258,7 @@ sudo systemctl start postgresql
 - [ ] Region selection works with slurp
 - [ ] JPEG quality setting works
 - [ ] File output saves correctly
-- [ ] MCP server appears in mcp-cli
+- [ ] MCP server appears in mcp-gateway API (`curl http://localhost:8085/api/servers`)
 - [ ] Works with Claude Code vision
 - [ ] Error handling when no display
 

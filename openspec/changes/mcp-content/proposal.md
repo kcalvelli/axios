@@ -300,7 +300,7 @@ This article from TechCrunch discusses recent AI developments:
 - [ ] Web content extraction from blogs
 - [ ] Error handling for invalid URLs/paths
 - [ ] Page limit enforcement for PDFs
-- [ ] MCP server appears in mcp-cli
+- [ ] MCP server appears in mcp-gateway API (`curl http://localhost:8085/api/servers`)
 
 ## Dependencies
 

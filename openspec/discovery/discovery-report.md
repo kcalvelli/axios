@@ -51,7 +51,7 @@
   - **Root**: README.md, CHANGELOG.md, CLAUDE.md, CODE_OF_ETHICS.md
   - **spec-kit-baseline/**: 9 files (spec.md, plan.md, runbook.md, concerns.md, glossary.md, discovery-report.md, constitution.md, unknowns.md, README.md)
   - **docs/**: 15+ guides (INSTALLATION.md, LIBRARY_USAGE.md, MODULE_REFERENCE.md, APPLICATIONS.md, PWA_GUIDE.md, TROUBLESHOOTING.md, etc.)
-  - **MCP docs**: Advanced tool use guides (mcp-cli-*.md, adding-mcp-servers.md)
+  - **MCP docs**: Advanced tool use guides, MCP reference
   - **Module READMEs**: Inline documentation in module directories
 - **CI Workflows**: 6 GitHub Actions workflows
 

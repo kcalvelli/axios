@@ -29,7 +29,7 @@ When adding a new MCP server:
 3. [ ] Add package to `home.packages` if needed
 4. [ ] Update requirements comment block if setup is needed
 5. [ ] Update `openspec/specs/ai/spec.md` if appropriate
-6. [ ] Test with `mcp-cli` to verify server loads
+6. [ ] Test with mcp-gateway API to verify server loads
 
 ## Tracked Additions
 
