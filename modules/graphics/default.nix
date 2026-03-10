@@ -168,8 +168,8 @@ in
         "nvidia_drm.modeset=1" # Enable modesetting (required for Wayland)
       ];
 
-    # === Graphics Utilities ===
-    environment.systemPackages =
+    # === Graphics Utilities (only when GPU type is configured) ===
+    environment.systemPackages = lib.mkIf (gpuType != null) (
       with pkgs;
       [
         # Common tools for all GPU types
@@ -191,7 +191,8 @@ in
       ++ lib.optionals isIntel [
         # Intel GPU tools
         intel-gpu-tools
-      ];
+      ]
+    );
 
     # === Environment Variables ===
     environment.variables = lib.mkMerge [
