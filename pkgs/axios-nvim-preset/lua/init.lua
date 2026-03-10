@@ -96,10 +96,10 @@ function M.setup(opts)
   table.insert(plugins, { import = "plugins" })
 
   -- Setup lazy.nvim with collected plugins
+  -- Note: no global `lazy = true` default — axios plugins declare their own
+  -- lazy triggers (event/keys/cmd), while colorscheme plugins (e.g. DMS
+  -- dankcolors.lua) need to load eagerly at startup via priority.
   require("lazy").setup(plugins, {
-    defaults = {
-      lazy = true, -- Lazy-load by default
-    },
     install = {
       colorscheme = { M.config.colorscheme, "habamax" },
     },
