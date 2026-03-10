@@ -210,6 +210,14 @@ in
         ];
     })
 
+    # Shared local LLM packages (both server and client roles)
+    (lib.mkIf (cfg.enable && cfg.local.enable) {
+      environment.systemPackages = with pkgs; [
+        python3
+        uv # Python package manager for uvx
+      ];
+    })
+
     # Server role: Local Ollama with GPU acceleration
     (lib.mkIf (cfg.enable && cfg.local.enable && isServer) {
       # Ollama service with GPU acceleration (vendor-specific)
@@ -247,14 +255,8 @@ in
       # Server role packages (GPU stack + LLM tools)
       environment.systemPackages =
         with pkgs;
-        [
-          # MCP server runtimes (nodejs already in base config)
-          python3
-          uv # Python package manager for uvx
-        ]
         # AMD-specific: ROCm debugging tools
-        ++ lib.optionals isAmdGpu [ rocmPackages.rocminfo ]
-        ++ lib.optional cfg.local.cli pkgs.opencode;
+        lib.optionals isAmdGpu [ rocmPackages.rocminfo ] ++ lib.optional cfg.local.cli pkgs.opencode;
 
       # Tailscale Services registration
       # Provides unique DNS name: axios-ollama.<tailnet>.ts.net
@@ -284,10 +286,6 @@ in
         [
           # Ollama CLI (uses OLLAMA_HOST for remote server)
           ollama
-
-          # MCP server runtimes
-          python3
-          uv # Python package manager for uvx
         ]
         ++ lib.optional cfg.local.cli pkgs.opencode;
     })

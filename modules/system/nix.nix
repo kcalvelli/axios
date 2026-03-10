@@ -1,10 +1,5 @@
 { lib, pkgs, ... }:
 {
-  # Install cachix for cache management
-  environment.systemPackages = with pkgs; [
-    cachix
-  ];
-
   # Nix configuration
   nix = {
     # Enable daily automatic garbage collection, delete generations older than 5 days

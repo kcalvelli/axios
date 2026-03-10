@@ -21,7 +21,6 @@
     # === Development Packages ===
     environment.systemPackages = with pkgs; [
       # === Editors & IDEs ===
-      neovim
       vscode
       bun # Required for VSCode material theme updates
 
@@ -34,12 +33,8 @@
       nil # Nix LSP
 
       # === Shell Utilities ===
-      starship
-      fish
       bat # Better cat
-      eza # Better ls
       jq # JSON processor
-      fzf # Fuzzy finder
 
       # === Database Clients ===
       pgcli # PostgreSQL CLI with auto-completion and syntax highlighting
@@ -50,12 +45,7 @@
 
       # === Diff & Diagnostics ===
       difftastic # Structural diff tool (AST-aware, language-specific)
-      btop # Terminal system monitor
-      mtr # Network diagnostic (traceroute + ping)
       dog # Modern DNS client
-
-      # === Version Control ===
-      gh # GitHub CLI
 
       # === Cloudflare cli ===
       wrangler
