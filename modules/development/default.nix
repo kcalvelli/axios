@@ -21,7 +21,6 @@
     # === Development Packages ===
     environment.systemPackages = with pkgs; [
       # === Editors & IDEs ===
-      neovim
       vscode
       bun # Required for VSCode material theme updates
 
