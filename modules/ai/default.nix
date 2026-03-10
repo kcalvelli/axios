@@ -187,7 +187,6 @@ in
         [
           # Core AI tools (always installed when services.ai.enable = true)
           whisper-cpp # Speech-to-text
-          nodejs # For npx MCP servers
           claude-monitor # Real-time Claude Code usage monitoring
           spec-kit # Spec-driven development framework
           openspec # OpenSpec CLI tool for SDD workflow
