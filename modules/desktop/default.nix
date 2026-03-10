@@ -19,108 +19,125 @@ in
 
   options.desktop = {
     enable = lib.mkEnableOption "Desktop environment with applications and services";
+
+    media = {
+      enable = lib.mkEnableOption "Media viewing, playback, creation, and screen capture" // {
+        default = true;
+      };
+    };
+
+    office = {
+      enable = lib.mkEnableOption "Productivity apps (office suite, PDF reader, markdown editor)" // {
+        default = true;
+      };
+    };
+
+    streaming = {
+      enable = lib.mkEnableOption "Streaming and broadcast tools (OBS, Discord)" // {
+        default = true;
+      };
+    };
+
+    social = {
+      enable = lib.mkEnableOption "Social and entertainment apps (messaging, music)" // {
+        default = true;
+      };
+    };
   };
 
   config = lib.mkIf config.desktop.enable {
-    # === Wayland Packages ===
-    environment.systemPackages = with pkgs; [
-      # System desktop applications
-      xwayland-satellite
+    # === Core Desktop Packages (always with desktop.enable) ===
+    environment.systemPackages =
+      with pkgs;
+      [
+        # System desktop applications
+        xwayland-satellite
 
-      # File manager
-      kdePackages.dolphin # File manager (split-pane, superior plugin ecosystem)
-      kdePackages.ark # Archive manager (integrates with Dolphin)
-      kdePackages.kio-extras # Extra protocols for Dolphin
-      kdePackages.kdegraphics-thumbnailers # Thumbnails for graphics files
+        # File manager
+        kdePackages.dolphin # File manager (split-pane, superior plugin ecosystem)
+        kdePackages.ark # Archive manager (integrates with Dolphin)
+        kdePackages.kio-extras # Extra protocols for Dolphin
+        kdePackages.kdegraphics-thumbnailers # Thumbnails for graphics files
 
-      # === Communication ===
-      discord # Communication platform
-      materialgram # Messaging client
-      spotify # Music streaming
-      zenity # File dialogs (required for Spotify local files)
-      gajim # XMPP client
-      profanity # XMPP client (terminal, OTR/OMEMO, great for SSH)
+        # === System Utilities ===
+        lxqt.lxqt-openssh-askpass # GUI password prompt for sudo -A (no KWallet dependency)
+        swaybg # Wallpaper setter
+        imagemagick # Image processing
+        libnotify # Desktop notifications
+        mousepad # Text editor (simple, syntax highlighting, no CSD)
 
-      # === Productivity Applications ===
-      kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
-      libreoffice-qt # Office suite (Qt integration for Material You theming)
+        # === Wayland Tools ===
+        fuzzel # Application launcher
+        wtype # Wayland key automation
+        playerctl # Media player control
+        pavucontrol # Audio control
+        slurp # Screen area selection
 
-      # === Media Creation & Editing ===
-      krita # Digital art studio (professional raster graphics)
+        # === Theming & Appearance ===
+        # Note: matugen, hyprpicker, cava provided by DMS
+        colloid-gtk-theme # GTK theme
+        colloid-icon-theme # Icon theme
+        adwaita-icon-theme # GNOME icon theme
+        papirus-icon-theme # Papirus icon theme
+        hicolor-icon-theme # Base icon theme (fallback for apps like solaar)
+        adw-gtk3 # Adwaita GTK3 theme
+        libsForQt5.qt5ct # Qt5 theme configuration tool
+        kdePackages.qt6ct # Qt6 theme configuration tool
 
-      # === Media Viewing & Playback ===
-      kdePackages.gwenview # Image viewer (Qt, SSD, KDE integration, thumbnail browsing)
-      # mpv configured via home-manager (home/desktop/mpv.nix) with PipeWire audio
-      tauon # Music library player (SDL/FFmpeg, FLAC support, no GStreamer)
-      ffmpeg # Video/audio processing, conversion, streaming
-
-      # === System Utilities ===
-      kdePackages.filelight # Disk usage analyzer (superior radial visualization)
-      lxqt.lxqt-openssh-askpass # GUI password prompt for sudo -A (no KWallet dependency)
-      swappy # Screenshot annotation (fits tiling WM workflow)
-      qalculate-qt # Calculator (Qt port, better theming)
-      kdePackages.okular # PDF reader (best-in-class annotations, format support)
-      swaybg # Wallpaper setter
-      imagemagick # Image processing
-      libnotify # Desktop notifications
-      mousepad # Text editor (simple, syntax highlighting, no CSD)
-
-      # === Wayland Tools ===
-      fuzzel # Application launcher
-      wtype # Wayland key automation
-      playerctl # Media player control
-      pavucontrol # Audio control
-      wf-recorder # Screen recording
-      slurp # Screen area selection (for wf-recorder)
-
-      # === Theming & Appearance ===
-      # Note: matugen, hyprpicker, cava provided by DMS
-      colloid-gtk-theme # GTK theme
-      colloid-icon-theme # Icon theme
-      adwaita-icon-theme # GNOME icon theme
-      papirus-icon-theme # Papirus icon theme
-      hicolor-icon-theme # Base icon theme (fallback for apps like solaar)
-      adw-gtk3 # Adwaita GTK3 theme
-      libsForQt5.qt5ct # Qt5 theme configuration tool
-      kdePackages.qt6ct # Qt6 theme configuration tool
-
-      # Note: khal provided by DMS, fonts provided by DMS greeter
-      # Note: vdirsyncer moved to PIM module
-
-      # Note: PWA apps are now managed via home-manager (axios.pwa module)
-      # This allows users to add custom PWAs with their own URLs and icons
-
-      # === Streaming ===
-      # OBS with VA-API support for camera format conversion
-      # Fixes: Green screen/crashes with NV12 format on high-resolution webcams
-      # Wrapped with gamemoderun to always launch in gamemode for optimal performance
-      (
-        let
-          obs-wrapped = wrapOBS {
-            plugins = with obs-studio-plugins; [
-              obs-vaapi # VA-API hardware encoding support
-              obs-vkcapture # Vulkan/OpenGL game capture
-            ];
-          };
-        in
-        pkgs.symlinkJoin {
-          name = "obs-studio-gamemode";
-          paths = [ obs-wrapped ];
-          buildInputs = [ pkgs.makeWrapper ];
-          postBuild = ''
-            wrapProgram $out/bin/obs \
-              --prefix PATH : ${lib.makeBinPath [ pkgs.gamemode ]} \
-              --run 'exec ${pkgs.gamemode}/bin/gamemoderun ${obs-wrapped}/bin/obs "$@"'
-          '';
-        }
-      )
-      # === Implements freedesktops's Desktop Menu Specification
-      kdePackages.plasma-workspace
-      kdePackages.kservice
-
-      # === Retro Terminal
-      inputs.c64term.packages.${pkgs.stdenv.hostPlatform.system}.c64term
-    ];
+        # === Desktop Menu Specification ===
+        kdePackages.plasma-workspace
+        kdePackages.kservice
+      ]
+      # === Media (desktop.media.enable) ===
+      ++ lib.optionals config.desktop.media.enable [
+        kdePackages.gwenview # Image viewer (Qt, SSD, KDE integration, thumbnail browsing)
+        # mpv configured via home-manager (home/desktop/mpv.nix) with PipeWire audio
+        tauon # Music library player (SDL/FFmpeg, FLAC support, no GStreamer)
+        ffmpeg # Video/audio processing, conversion, streaming
+        wf-recorder # Screen recording
+        swappy # Screenshot annotation (fits tiling WM workflow)
+        krita # Digital art studio (professional raster graphics)
+      ]
+      # === Office (desktop.office.enable) ===
+      ++ lib.optionals config.desktop.office.enable [
+        libreoffice-qt # Office suite (Qt integration for Material You theming)
+        kdePackages.ghostwriter # Markdown editor (Qt, FOSS alternative to Typora)
+        kdePackages.okular # PDF reader (best-in-class annotations, format support)
+        qalculate-qt # Calculator (Qt port, better theming)
+        kdePackages.filelight # Disk usage analyzer (superior radial visualization)
+      ]
+      # === Streaming (desktop.streaming.enable) ===
+      ++ lib.optionals config.desktop.streaming.enable [
+        discord # Communication platform
+        # OBS with VA-API support for camera format conversion
+        # Wrapped with gamemoderun for optimal performance
+        (
+          let
+            obs-wrapped = wrapOBS {
+              plugins = with obs-studio-plugins; [
+                obs-vaapi # VA-API hardware encoding support
+                obs-vkcapture # Vulkan/OpenGL game capture
+              ];
+            };
+          in
+          pkgs.symlinkJoin {
+            name = "obs-studio-gamemode";
+            paths = [ obs-wrapped ];
+            buildInputs = [ pkgs.makeWrapper ];
+            postBuild = ''
+              wrapProgram $out/bin/obs \
+                --prefix PATH : ${lib.makeBinPath [ pkgs.gamemode ]} \
+                --run 'exec ${pkgs.gamemode}/bin/gamemoderun ${obs-wrapped}/bin/obs "$@"'
+            '';
+          }
+        )
+      ]
+      # === Social (desktop.social.enable) ===
+      ++ lib.optionals config.desktop.social.enable [
+        materialgram # Messaging client
+        spotify # Music streaming
+        zenity # File dialogs (required for Spotify local files)
+      ];
 
     # === Wayland Environment Variables ===
     environment.sessionVariables = {
