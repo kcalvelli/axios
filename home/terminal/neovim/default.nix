@@ -17,10 +17,7 @@ let
     vim.g.maplocalleader = " "
 
     -- Load axios preset with your customizations
-    require("axios").setup({
-      -- Use DMS-generated colorscheme
-      colorscheme = "dankshell",
-    })
+    require("axios").setup({})
 
     -- Add your custom configuration below:
   '';

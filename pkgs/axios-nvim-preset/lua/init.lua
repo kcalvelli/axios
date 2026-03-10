@@ -7,8 +7,6 @@ M.version = "1.0.4"
 
 -- Default configuration
 M.defaults = {
-  colorscheme = "dankshell",
-
   -- Plugin toggles
   plugins = {
     disabled = {}, -- List of plugin names to disable
@@ -101,7 +99,7 @@ function M.setup(opts)
   -- dankcolors.lua) need to load eagerly at startup via priority.
   require("lazy").setup(plugins, {
     install = {
-      colorscheme = { M.config.colorscheme, "habamax" },
+      colorscheme = { "habamax" },
     },
     checker = {
       enabled = false, -- Don't auto-check for updates
@@ -122,13 +120,8 @@ function M.setup(opts)
     },
   })
 
-  -- Apply colorscheme only if base16 hasn't already set colors
-  -- DMS's dankcolors.lua applies colors via base16-colorscheme.setup()
-  -- which sets colors directly — calling vim.cmd.colorscheme() would override them
-  local base16_loaded, _ = pcall(require, "base16-colorscheme")
-  if not base16_loaded then
-    pcall(vim.cmd.colorscheme, M.config.colorscheme)
-  end
+  -- Colorscheme is managed by DMS via lua/plugins/dankcolors.lua (base16-nvim)
+  -- No colorscheme application needed here
 end
 
 return M
