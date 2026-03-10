@@ -3,7 +3,7 @@
 
 local M = {}
 
-M.version = "1.0.3"
+M.version = "1.0.4"
 
 -- Default configuration
 M.defaults = {
@@ -88,8 +88,12 @@ function M.setup(opts)
   require("axios.config.keymaps")
   require("axios.config.autocmds")
 
-  -- Collect plugin specs
+  -- Collect plugin specs from axios preset
   local plugins = require("axios.plugins")
+
+  -- Also import user plugin specs from ~/.config/nvim/lua/plugins/
+  -- This picks up DMS-generated specs like dankcolors.lua
+  table.insert(plugins, { import = "plugins" })
 
   -- Setup lazy.nvim with collected plugins
   require("lazy").setup(plugins, {

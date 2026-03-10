@@ -1,7 +1,7 @@
 { lib, stdenvNoCC }:
 stdenvNoCC.mkDerivation {
   pname = "axios-nvim-preset";
-  version = "1.0.3";
+  version = "1.0.4";
 
   src = ./lua;
 
