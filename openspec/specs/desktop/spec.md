@@ -255,20 +255,24 @@ The drop-down terminal uses a proper axiOS app-id and does not appear in the DMS
 
 ### Requirement: Curated Application Set
 
-The desktop module ships a focused set of applications aligned with the axiOS profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
+The desktop module SHALL organize applications into toggleable sub-groups, each with an independent enable option defaulting to `true`. Core desktop packages (file management, theming, launchers, system utilities, Wayland tools) SHALL always be installed when `desktop.enable = true`. Optional groups (media, office, streaming, social) SHALL be independently disableable.
 
-#### Scenario: Default desktop installation
+#### Scenario: Default desktop installation (all sub-options true)
 
 - **WHEN** user enables `desktop.enable = true`
+- **AND** all sub-options are at their defaults (`true`)
 - **THEN** the following application categories are present:
-  - File management (Dolphin, Ark, Filelight)
-  - Text editing (Mousepad for simple editing, Ghostwriter for Markdown)
-  - Media playback (mpv, FFmpeg, Gwenview)
-  - Media creation (Krita for drawing, OBS for recording)
-  - Communication (Discord, Gajim, Profanity, Syncterm)
-  - Productivity (Okular, Qalculate-qt, Swappy)
-  - System utilities (lxqt-openssh-askpass, pavucontrol, ImageMagick, libnotify)
-  - Wayland tools (Fuzzel, wtype, playerctl, wf-recorder, slurp, swaybg)
+  - Core: File management (Dolphin, Ark), launchers (Fuzzel), theming, system utilities (Mousepad, lxqt-openssh-askpass, pavucontrol, ImageMagick, libnotify), Wayland tools (wtype, playerctl, slurp, swaybg)
+  - Media (`desktop.media.enable`): Gwenview, Tauon, FFmpeg, wf-recorder, Swappy, Krita
+  - Office (`desktop.office.enable`): LibreOffice-qt, Ghostwriter, Okular, Qalculate-qt, Filelight
+  - Streaming (`desktop.streaming.enable`): OBS Studio (gamemode-wrapped), Discord
+  - Social (`desktop.social.enable`): Materialgram, Spotify, Zenity
+
+#### Scenario: User disables a sub-group
+
+- **WHEN** user sets any sub-option to `false` (e.g., `desktop.streaming.enable = false`)
+- **THEN** packages in that group MUST NOT be in `environment.systemPackages`
+- **AND** all other desktop groups remain functional
 - **AND** Elisa (Qt music player) is NOT included by default
 - **AND** Haruna (Qt video player) is NOT included by default
 - **AND** GStreamer packages are NOT included by default
