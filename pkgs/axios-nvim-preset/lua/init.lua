@@ -122,8 +122,13 @@ function M.setup(opts)
     },
   })
 
-  -- Apply colorscheme
-  vim.cmd.colorscheme(M.config.colorscheme)
+  -- Apply colorscheme only if base16 hasn't already set colors
+  -- DMS's dankcolors.lua applies colors via base16-colorscheme.setup()
+  -- which sets colors directly — calling vim.cmd.colorscheme() would override them
+  local base16_loaded, _ = pcall(require, "base16-colorscheme")
+  if not base16_loaded then
+    pcall(vim.cmd.colorscheme, M.config.colorscheme)
+  end
 end
 
 return M
