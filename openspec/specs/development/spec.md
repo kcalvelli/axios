@@ -10,11 +10,15 @@ Provides a comprehensive development environment with modern tools, optimized sy
 - **Implementation**: `modules/development/default.nix`
 
 ### Core Tooling
-- **Editors**: Neovim (with axios IDE preset), Visual Studio Code (with material theme integration).
-- **Languages/Runtimes**: Node.js, Bun (for theme updates), Python3, UV.
-- **Shell**: Fish (interactive default), Starship prompt, Bat, Eza, Jq, Fzf.
-- **Version Control**: Git, GitHub CLI (`gh`).
-- **Implementation**: `modules/development/default.nix`, `home/terminal/`
+- **Editors**: Visual Studio Code (with material theme integration). Neovim provided via home-manager (`axios.terminal.neovim.enable`), NOT the development module.
+- **Languages/Runtimes**: Bun (for theme updates).
+- **Shell utilities** (development module): Bat, Jq. Shell tools with home-manager `programs.*` modules (Fish, Starship, Eza, Fzf, Gh) MUST NOT be duplicated in the development module's system packages.
+- **Version Control**: Git (system), GitHub CLI (home-manager `programs.gh`).
+- **API/Network**: mitmproxy, k6, httpie, dog, wrangler.
+- **Database**: pgcli, litecli.
+- **Nix**: devenv, nil.
+- **Diff**: difftastic.
+- **Implementation**: `modules/development/default.nix` (system packages), `home/terminal/` (home-manager programs)
 
 ### Workflow Automation
 - **Direnv/Lorri**: Automatic environment loading based on directory.
