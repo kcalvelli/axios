@@ -149,6 +149,12 @@
       url = "github:kcalvelli/mcp-gateway";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # OpenSpec - Spec-driven development CLI
+    openspec = {
+      url = "github:Fission-AI/OpenSpec";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   # Binary caches (axios, niri, numtide) are configured declaratively in

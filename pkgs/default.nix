@@ -54,5 +54,8 @@ in
     _final: prev:
     lib.genAttrs packageNames (
       name: prev.callPackage (pkgsDir + "/${name}") (packageArgs.${name} or { })
-    );
+    )
+    // {
+      openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
+    };
 }
