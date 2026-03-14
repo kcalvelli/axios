@@ -77,7 +77,6 @@
 
       # Nix ecosystem tools
       fh # Flake helper CLI
-      cachix # Binary cache management CLI
     ];
 
     # Build smaller systems
