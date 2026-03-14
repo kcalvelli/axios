@@ -393,12 +393,6 @@ GitHub Actions workflows provide automated testing and validation:
 
 ### Build Workflows
 
-**Build Packages** (`.github/workflows/build-packages.yml`)
-- Builds and caches all custom axios packages
-- Weekly schedule (Mondays 2 AM UTC) to keep cache fresh
-- Triggers: push to master/PRs on `pkgs/**` or `flake.*`, weekly cron, manual
-- Uses Cachix for artifact storage
-
 **Build DevShells** (`.github/workflows/build-devshells.yml`)
 - Builds all development shells (rust, zig, qml, etc.)
 - Lists available shells with `nix flake show`
@@ -422,7 +416,6 @@ GitHub Actions workflows provide automated testing and validation:
 All workflows use:
 - DeterminateSystems/nix-installer-action for Nix installation
 - DeterminateSystems/magic-nix-cache-action for caching
-- Cachix (axios cache) for build artifact storage (where applicable)
 
 ### Manual Testing
 

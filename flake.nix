@@ -157,7 +157,7 @@
     };
   };
 
-  # Binary caches (axios, niri, numtide) are configured declaratively in
+  # Binary caches (niri) are configured declaratively in
   # modules/system/nix.nix after the first rebuild. We intentionally omit
   # nixConfig here because it only works for trusted users, and on a fresh
   # NixOS install the user is not trusted — causing noisy warnings.
