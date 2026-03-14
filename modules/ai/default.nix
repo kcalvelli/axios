@@ -193,13 +193,13 @@ in
         ]
         # Claude Code (conditional on services.ai.claude.enable)
         ++ lib.optionals cfg.claude.enable [
-          claude-code # Anthropic - MCP support, deep integration
+          claude-code-bin # Anthropic - MCP support, deep integration
           claude-desktop # Nix packaging of claude desktop for debian
           claude-code-acp # Claude Code Agent Communication Protocol
           claude-code-router # Claude Code request router
           # VSCode extension compatibility: claude-code symlink
           (writeShellScriptBin "claude-code" ''
-            exec ${claude-code}/bin/claude "$@"
+            exec ${claude-code-bin}/bin/claude "$@"
           '')
         ]
         # Gemini CLI (conditional on services.ai.gemini.enable)
