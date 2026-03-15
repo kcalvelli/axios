@@ -25,6 +25,9 @@ in
       networkmanager = {
         enable = true;
         wifi.backend = cfg.backend;
+        connectionConfig = {
+          "connection.mdns" = 2; # Enable mDNS resolution and registration
+        };
       };
       useDHCP = false;
       firewall = {
@@ -33,6 +36,7 @@ in
           5355
         ];
         allowedUDPPorts = [
+          5353
           5355
         ];
       };
@@ -59,7 +63,7 @@ in
         settings.Resolve = {
           LLMNR = "resolve";
           DNSSEC = "allow-downgrade";
-          MulticastDNS = "no";
+          MulticastDNS = "yes";
         };
       };
       openssh.enable = true;
