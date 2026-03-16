@@ -68,6 +68,7 @@ in
           "github"
           "mcp-dav"
           "axios-ai-mail"
+          "brave-search"
         ];
 
       # MCP Server Definitions
@@ -108,6 +109,27 @@ in
             # Supports multiple paths separated by colons (e.g., ~/.calendars:~/.calendars-external)
             MCP_DAV_CALENDARS = calendarPaths;
             MCP_DAV_CONTACTS = "~/.contacts";
+          };
+        };
+
+        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        # SEARCH SERVERS (Require API keys)
+        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        brave-search = {
+          enable = true;
+          command = "${pkgs.nodejs}/bin/npx";
+          args = [
+            "-y"
+            "@modelcontextprotocol/server-brave-search"
+          ];
+          passwordCommand = {
+            BRAVE_API_KEY = [
+              "${pkgs.bash}/bin/bash"
+              "-c"
+              # Check NixOS agenix path first, then home-manager agenix, then env var
+              "${pkgs.coreutils}/bin/cat /run/agenix/brave-api-key 2>/dev/null || ${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/brave-api-key 2>/dev/null | ${pkgs.coreutils}/bin/tr -d '\\n' || echo \${BRAVE_API_KEY}"
+            ];
           };
         };
       };
