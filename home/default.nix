@@ -7,14 +7,14 @@
   # See: https://github.com/kcalvelli/axios-dav
   flake = {
     homeModules = {
-      desktop = ./desktop;
-      firstBoot = ./first-boot;
-      standard = ./profiles/standard.nix;
-      normie = ./profiles/normie.nix;
-      pim = ./pim;
-      ai = ./ai;
-      immich = ./immich;
-      secrets = ./secrets;
+      desktop = import ./desktop;
+      firstBoot = import ./first-boot;
+      standard = import ./profiles/standard.nix;
+      normie = import ./profiles/normie.nix;
+      pim = import ./pim;
+      ai = import ./ai;
+      immich = import ./immich;
+      secrets = import ./secrets;
     };
   };
 }
