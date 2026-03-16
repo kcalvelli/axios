@@ -95,10 +95,6 @@
       inputs.nixpkgs-stable.follows = "nixpkgs";
     };
 
-    mcp-journal = {
-      url = "github:kcalvelli/mcp-journal";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     c64term = {
       url = "github:kcalvelli/c64term";
       inputs.nixpkgs.follows = "nixpkgs";

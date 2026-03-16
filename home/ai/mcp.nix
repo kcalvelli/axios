@@ -66,12 +66,8 @@ in
       autoEnable =
         osConfig.services.mcp-gateway.autoEnable or [
           "github"
-          "context7"
           "mcp-dav"
           "axios-ai-mail"
-          "time"
-          "brave-search"
-          "journal"
         ];
 
       # MCP Server Definitions
@@ -80,11 +76,6 @@ in
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # CORE TOOLS (No setup required)
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-        time = {
-          enable = true;
-          command = "${pkgs.mcp-server-time}/bin/mcp-server-time";
-        };
 
         github = {
           enable = true;
@@ -97,11 +88,6 @@ in
               "token"
             ];
           };
-        };
-
-        journal = {
-          enable = true;
-          command = "${inputs.mcp-journal.packages.${system}.default}/bin/mcp-journal";
         };
 
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -124,40 +110,6 @@ in
             MCP_DAV_CONTACTS = "~/.contacts";
           };
         };
-
-        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        # AI ENHANCEMENT SERVERS (No setup required)
-        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-        context7 = {
-          enable = true;
-          command = "${pkgs.nodejs}/bin/npx";
-          args = [
-            "-y"
-            "@upstash/context7-mcp"
-          ];
-        };
-
-        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        # SEARCH SERVERS (Require API keys)
-        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-        brave-search = {
-          enable = true;
-          command = "${pkgs.nodejs}/bin/npx";
-          args = [
-            "-y"
-            "@modelcontextprotocol/server-brave-search"
-          ];
-          passwordCommand = {
-            BRAVE_API_KEY = [
-              "${pkgs.bash}/bin/bash"
-              "-c"
-              # Check NixOS agenix path first, then home-manager agenix, then env var
-              "${pkgs.coreutils}/bin/cat /run/agenix/brave-api-key 2>/dev/null || ${pkgs.coreutils}/bin/cat /run/user/$(${pkgs.coreutils}/bin/id -u)/agenix/brave-api-key 2>/dev/null | ${pkgs.coreutils}/bin/tr -d '\\n' || echo \${BRAVE_API_KEY}"
-            ];
-          };
-        };
       };
     };
 
@@ -165,7 +117,6 @@ in
     home.packages = [
       inputs.axios-ai-mail.packages.${system}.default
       inputs.axios-dav.packages.${system}.mcp-dav
-      inputs.mcp-journal.packages.${system}.default
     ];
   };
 }
