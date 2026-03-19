@@ -73,11 +73,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1770317710,
-        "narHash": "sha256-Uo3kMTg7IQudUubgCA3TypyaL6WQorSUB0s6v3OIzzA=",
+        "lastModified": 1773954761,
+        "narHash": "sha256-26H1K0TqvuOcqXyterGNNpTJp6qUJOgdKCuogq+WWhI=",
         "owner": "kcalvelli",
         "repo": "axios-dav",
-        "rev": "f19634e08155654afd56fa2a2d9f31c65a460e6e",
+        "rev": "e00c3ac3f03f301a096be5dabf92d37500af01f8",
         "type": "github"
       },
       "original": {
