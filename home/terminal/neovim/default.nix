@@ -77,7 +77,7 @@ in
               run cat > "$INIT_LUA" << 'AXIOSEOF'
       ${initLuaTemplate}
       AXIOSEOF
-              verbose "Created neovim config with axios IDE preset"
+              verboseEcho "Created neovim config with axios IDE preset"
             fi
     '';
   };
