@@ -69,6 +69,9 @@ in
             NVIM_CONFIG_DIR="${config.home.homeDirectory}/.config/nvim"
             INIT_LUA="$NVIM_CONFIG_DIR/init.lua"
 
+            # Clean up home-manager backup files to prevent activation errors
+            [ -f "$INIT_LUA.hm-backup" ] && rm "$INIT_LUA.hm-backup"
+
             # Only create if no init.lua exists (preserves user customization)
             if [ ! -f "$INIT_LUA" ] || [ -L "$INIT_LUA" ]; then
               # Remove symlink if home-manager created one
