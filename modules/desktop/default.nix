@@ -33,7 +33,7 @@ in
     };
 
     streaming = {
-      enable = lib.mkEnableOption "Streaming and broadcast tools (OBS, Discord)" // {
+      enable = lib.mkEnableOption "Streaming and broadcast tools (OBS, Vesktop)" // {
         default = true;
       };
     };
@@ -108,7 +108,7 @@ in
       ]
       # === Streaming (desktop.streaming.enable) ===
       ++ lib.optionals config.desktop.streaming.enable [
-        discord # Communication platform
+        vesktop # Discord client (native Wayland screen sharing, DMS theming, Vencord)
         # OBS with VA-API support for camera format conversion
         # Wrapped with gamemoderun for optimal performance
         (

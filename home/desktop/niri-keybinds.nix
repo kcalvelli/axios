@@ -24,7 +24,7 @@ let
 
     ┌─ APPLICATION LAUNCHERS (axios) ──────────────────────────────────┐
     │ Mod + B           Launch Brave Browser                           │
-    │ Mod + D           Launch Discord                                 │
+    │ Mod + D           Launch Vesktop (Discord)                        │
     │ Mod + E           Launch File Manager (Dolphin)                  │
     │ Mod + G           Launch Google Messages (PWA)                   │
     │ Mod + Shift + V   Launch VS Code                                 │
@@ -213,7 +213,7 @@ in
       "brave"
       "--class=brave-browser"
     ];
-    "Mod+D".action.spawn = [ "discord" ]; # OK - DMS uses Mod+Space for launcher
+    "Mod+D".action.spawn = [ "vesktop" ]; # OK - DMS uses Mod+Space for launcher
     "Mod+E".action.spawn = [ "dolphin" ];
     "Mod+Return".action.spawn = "ghostty"; # Alternative terminal binding
     "Mod+G".action.spawn = [ "pwa-google-messages" ];
