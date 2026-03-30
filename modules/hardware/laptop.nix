@@ -40,5 +40,8 @@ in
 
     # SSD TRIM for laptops
     services.fstrim.enable = true;
+
+    # Fingerprint reader support for login authentication
+    services.fprintd.enable = true;
   };
 }

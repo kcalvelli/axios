@@ -73,6 +73,7 @@ let
         "audio"
         "lp"
         "scanner"
+        "greeter"
       ])
 
       # Graphics-specific groups
@@ -159,7 +160,7 @@ in
 
         Groups are added based on which modules are enabled:
         - wheel: Admin users only (isAdmin = true)
-        - networkmanager, video, input, audio, lp, scanner: desktop module
+        - networkmanager, video, input, audio, lp, scanner, greeter: desktop module
         - kvm, libvirtd, qemu-libvirtd: virt.libvirt module
         - podman: virt.containers module
         - plugdev: hardware.desktop or hardware.laptop modules
