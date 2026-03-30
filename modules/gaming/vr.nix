@@ -37,12 +37,6 @@ in
           description = "Open firewall ports for WiVRn";
         };
 
-        defaultRuntime = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-          description = "Set WiVRn as the default OpenXR runtime";
-        };
-
         autoStart = lib.mkOption {
           type = lib.types.bool;
           default = false;
@@ -72,8 +66,9 @@ in
       services.wivrn = lib.mkIf (cfg.wireless.backend == "wivrn" || cfg.wireless.backend == "both") {
         enable = true;
         openFirewall = cfg.wireless.wivrn.openFirewall;
-        defaultRuntime = cfg.wireless.wivrn.defaultRuntime;
         autoStart = cfg.wireless.wivrn.autoStart;
+        highPriority = true;
+        steam.enable = true;
 
         # Enable CUDA support for Nvidia GPUs (hardware encoding)
         package = if isNvidia then (pkgs.wivrn.override { cudaSupport = true; }) else pkgs.wivrn;
