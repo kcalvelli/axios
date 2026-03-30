@@ -66,6 +66,9 @@ in
     # Set sensible home-manager state version
     home.stateVersion = lib.mkDefault cfg.stateVersion;
 
+    # Silence git signing format deprecation warning for stateVersion < 25.05
+    programs.git.signing.format = lib.mkDefault null;
+
     # Set FLAKE_PATH for convenience with rebuild scripts
     home.sessionVariables = lib.mkIf (cfg.flakePath != null) {
       FLAKE_PATH = lib.mkDefault cfg.flakePath;
