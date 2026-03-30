@@ -57,7 +57,5 @@ in
     )
     // {
       openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
-      # Pin electron_39 to electron_38 — electron 39.8.2 has a broken patch (39-angle-patchdir)
-      electron_39 = prev.electron_38;
     };
 }
