@@ -201,8 +201,8 @@ in
               exec ${claude-code-bin}/bin/claude "$@"
             '')
           ]
-          ++ lib.optional (pkgs ? claude-code-acp) pkgs.claude-code-acp
-          ++ lib.optional (pkgs ? claude-code-router) pkgs.claude-code-router
+          ++ lib.optional (pkgs ? "claude-code-acp") pkgs.${"claude-code-acp"}
+          ++ lib.optional (pkgs ? "claude-code-router") pkgs.${"claude-code-router"}
         )
         # Gemini CLI (conditional on services.ai.gemini.enable)
         ++ lib.optionals cfg.gemini.enable [
