@@ -195,7 +195,6 @@ in
         ++ lib.optionals cfg.claude.enable [
           claude-code-bin # Anthropic - MCP support, deep integration
           claude-desktop # Nix packaging of claude desktop for debian
-          claude-code-acp # Claude Code Agent Communication Protocol
           claude-code-router # Claude Code request router
           # VSCode extension compatibility: claude-code symlink
           (writeShellScriptBin "claude-code" ''
