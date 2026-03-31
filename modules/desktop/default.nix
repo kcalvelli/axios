@@ -251,6 +251,7 @@ in
       description = "KDE Daemon";
       wantedBy = [ "graphical-session.target" ];
       partOf = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
       serviceConfig = {
         ExecStart = "${pkgs.kdePackages.kded}/bin/kded6";
         Restart = "on-failure";
