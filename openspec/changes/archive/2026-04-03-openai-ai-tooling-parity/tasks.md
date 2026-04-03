@@ -1,0 +1,21 @@
+## 1. AI Module Options And Packages
+
+- [x] 1.1 Add a `services.ai.openai` option namespace in `modules/ai/default.nix` parallel to the existing vendor toggles
+- [x] 1.2 Install `pkgs.codex` as the baseline OpenAI terminal agent when `services.ai.openai.enable = true`
+- [x] 1.3 Add an explicit companion suboption for `codex-acp` under `services.ai.openai` and wire it to the corresponding `nixpkgs` package
+
+## 2. Home Integration And Guidance
+
+- [x] 2.1 Add stable OpenAI-specific home-manager configuration only where the selected CLI tools expose supported declarative hooks; otherwise document the absence of those hooks
+- [x] 2.2 Update concrete documentation targets for OpenAI support, authentication expectations, and prompt/configuration limitations in the relevant AI/module docs
+- [x] 2.3 Document any worthwhile OpenAI ecosystem tools not available in `nixpkgs` as explicit follow-up considerations rather than first-pass dependencies
+
+## 3. Normie Workflow Integration
+
+- [x] 3.1 Add `chatgpt` to the appropriate normie-facing application surface using the axios PWA pattern, without importing `home/ai/`
+- [x] 3.2 Update normie-facing documentation/spec-backed behavior so the ChatGPT PWA is treated as an approved standalone application rather than AI power-user tooling
+
+## 4. Validation
+
+- [x] 4.1 Run `nix fmt .` after the Nix changes
+- [x] 4.2 Evaluate or build the affected AI and normie profile paths to confirm the new options resolve cleanly
