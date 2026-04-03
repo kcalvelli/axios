@@ -153,12 +153,12 @@ in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         codex_dir="$HOME/.codex"
         codex_config="$codex_dir/config.toml"
-        temp_file="$(mktemp)"
+        temp_file="$(${pkgs.coreutils}/bin/mktemp)"
 
-        mkdir -p "$codex_dir"
+        ${pkgs.coreutils}/bin/mkdir -p "$codex_dir"
 
         if [ -f "$codex_config" ]; then
-          awk '
+          ${pkgs.gawk}/bin/awk '
             BEGIN { skip = 0 }
             /^\[mcp_servers\.axios\]$/ { skip = 1; next }
             /^\[/ && skip == 1 { skip = 0 }
@@ -170,9 +170,9 @@ in
           printf "\n" >> "$temp_file"
         fi
 
-        cat ${codexMcpBlock} >> "$temp_file"
-        mv "$temp_file" "$codex_config"
-        chmod 600 "$codex_config"
+        ${pkgs.coreutils}/bin/cat ${codexMcpBlock} >> "$temp_file"
+        ${pkgs.coreutils}/bin/mv "$temp_file" "$codex_config"
+        ${pkgs.coreutils}/bin/chmod 600 "$codex_config"
       ''
     );
   };
