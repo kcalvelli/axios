@@ -42,6 +42,7 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
+| **ChatGPT** | Standalone desktop client for ChatGPT and OpenAI chat workflows | Useful for both standard and normie desktop users without enabling the AI power-user stack |
 | **Materialgram** | Fast, secure messaging client | Native Qt app with encryption and cloud sync and material design - fork of Telegram Desktop |
 | **Spotify** | Music streaming service | Large library, good playlists, native Linux client |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
@@ -303,16 +304,17 @@ Available in development shells (`nix develop .#<shell>`):
 
 Included when `services.ai.enable = true`:
 
-**CLI Coding Agents** (4 agents across 3 AI ecosystems):
+**CLI Coding Agents** (Anthropic, Google, and optional OpenAI tooling):
 
 | Tool | Provider | Description |
 |------|----------|-------------|
 | **claude-code** | Anthropic | CLI agent with MCP support and deep integration |
 | **claude-desktop** | Anthropic | Claude desktop application |
-| **claude-code-acp** | Anthropic | Claude Code Agent Communication Protocol |
 | **claude-code-router** | Anthropic | Claude Code request router |
 | **gemini** | Google | Multimodal CLI agent with free tier |
 | **antigravity** | Google | Advanced agentic assistant for axiOS development |
+| **codex** | OpenAI | Terminal coding agent, enabled via `services.ai.openai.enable` |
+| **codex-acp** | OpenAI | Optional ACP companion, enabled via `services.ai.openai.codexAcp.enable` |
 
 **Workflow & Support Tools**:
 
@@ -347,6 +349,12 @@ Included when `services.ai.local.enable = true`:
 - AMD GPU recommended (8GB+ VRAM for larger models)
 - 16GB+ system RAM recommended
 - Configure via `services.ai.local.*` options
+
+**OpenAI authentication and config notes:**
+- `codex` uses the upstream interactive login flow (`codex login`).
+- axios does not currently generate `~/.codex/config.toml` or inject an OpenAI-specific system prompt.
+- `chatgpt` is shipped through the `desktop` module as a standalone desktop app, so it can be present for normie users without enabling `services.ai`.
+- No external OpenAI-specific packages are required for this first pass; evaluate non-`nixpkgs` additions later only if the shipped package set proves insufficient.
 
 ### MCP Servers
 

@@ -128,6 +128,7 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 - **Ghostty** - Modern GPU-accelerated terminal
 - **Dolphin** - KDE file manager (split-pane, plugin ecosystem)
 - **LibreOffice** (Qt) - Full office suite with Material You theming
+- **ChatGPT** - Standalone desktop AI app available through the desktop workflow, including normie users
 - Desktop applications (text editor, calculator, PDF viewer) - See [APPLICATIONS.md](APPLICATIONS.md)
 - Fonts and icon themes
 
@@ -266,12 +267,13 @@ virt = {
 **Two-Tier Architecture:**
 
 1. **Base AI Tools** (always included when `services.ai.enable = true`):
-   - **CLI Coding Agents** (4 agents across 3 AI ecosystems):
+   - **CLI Coding Agents** (Anthropic, Google, and optional OpenAI tooling):
      - **claude-code** - Anthropic's CLI agent with MCP support
-     - **claude-code-acp** - Claude Code Agent Communication Protocol
      - **claude-code-router** - Claude Code request router
      - **gemini** - Google's multimodal CLI agent with free tier
      - **antigravity** - Advanced agentic assistant for axiOS development
+     - **codex** - OpenAI terminal coding agent when `services.ai.openai.enable = true`
+     - **codex-acp** - Optional ACP companion when `services.ai.openai.codexAcp.enable = true`
    - **Workflow & Support Tools**:
      - **openspec** - OpenSpec SDD workflow CLI for spec-driven development
      - **spec-kit** - Spec-driven development framework
@@ -290,6 +292,24 @@ virt = {
 - Needs `networking = true` for base tools
 - AMD GPU recommended for local LLM (8GB+ VRAM for larger models)
 - 16GB+ system RAM recommended for local models
+
+**OpenAI configuration:**
+```nix
+services.ai = {
+  enable = true;
+
+  openai = {
+    enable = true;
+    codexAcp.enable = true; # Optional
+  };
+};
+```
+
+**Authentication and configuration notes:**
+- `codex` uses the upstream interactive login flow (`codex login`) and axios does not currently generate `~/.codex/config.toml`.
+- axios does not inject an OpenAI-specific system prompt because the current change does not rely on a stable shared prompt hook for Codex.
+- ChatGPT desktop is provided by the `desktop` module as a standalone application, so it is available to normie users without enabling `services.ai`.
+- No additional non-`nixpkgs` OpenAI tooling is required for the first pass; future external additions should be evaluated only if a meaningful gap remains.
 
 ---
 

@@ -21,7 +21,7 @@ in
 {
   options = {
     services.ai = {
-      enable = lib.mkEnableOption "AI tools and services (claude-code, gemini-cli)";
+      enable = lib.mkEnableOption "AI tools and services (claude-code, gemini-cli, codex)";
 
       mcp = {
         enable = lib.mkEnableOption "Model Context Protocol (MCP) server integration" // {
@@ -39,6 +39,16 @@ in
       gemini = {
         enable = lib.mkEnableOption "Gemini CLI" // {
           default = true;
+        };
+      };
+
+      openai = {
+        enable = lib.mkEnableOption "OpenAI Codex CLI" // {
+          default = false;
+        };
+
+        codexAcp = {
+          enable = lib.mkEnableOption "Codex ACP companion";
         };
       };
 
@@ -205,6 +215,13 @@ in
         ++ lib.optionals cfg.gemini.enable [
           gemini-cli-bin
           inputs.antigravity-nix.packages.x86_64-linux.default
+        ]
+        # OpenAI Codex (conditional on services.ai.openai.enable)
+        ++ lib.optionals cfg.openai.enable [
+          codex
+        ]
+        ++ lib.optionals (cfg.openai.enable && cfg.openai.codexAcp.enable) [
+          codex-acp
         ];
     })
 
