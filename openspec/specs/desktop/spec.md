@@ -267,6 +267,10 @@ The desktop module SHALL organize applications into toggleable sub-groups, each 
   - Office (`desktop.office.enable`): LibreOffice-qt, Ghostwriter, Okular, Qalculate-qt, Filelight
   - Streaming (`desktop.streaming.enable`): OBS Studio (gamemode-wrapped), Discord
   - Social (`desktop.social.enable`): Materialgram, Spotify, Zenity
+- **AND** DMS community plugins are available via `programs.dank-material-shell.plugins`
+- **AND** core Niri plugins (displayManager, niriWindows, niriScreenshot, dankKDEConnect) are auto-enabled
+- **AND** conditional plugins are enabled based on system module flags
+- **AND** nixMonitor plugin is explicitly disabled (axios-monitor provides this)
 
 #### Scenario: User disables a sub-group
 
@@ -290,6 +294,47 @@ The desktop module SHALL organize applications into toggleable sub-groups, each 
 - **THEN** Elisa is installed and fully functional
 - **AND** user must also set `QT_MEDIA_BACKEND` and `GST_PLUGIN_SYSTEM_PATH_1_0` environment variables
 - **AND** no axiOS modules need to be modified
+
+### Requirement: Office Suite
+
+The desktop module SHALL include LibreOffice with Qt integration for document productivity.
+
+#### Scenario: Default desktop includes LibreOffice
+
+- **WHEN** user enables `desktop.enable = true`
+- **THEN** `libreoffice-qt` SHALL be installed
+- **AND** the application SHALL inherit Qt theming from the DMS Material You theme engine
+- **AND** LibreOffice Writer, Calc, Impress, and Draw SHALL be launchable from Fuzzel
+
+#### Scenario: User opts out of LibreOffice
+
+- **WHEN** user does not want LibreOffice installed
+- **THEN** user MAY override `environment.systemPackages` in their `extraConfig` to exclude it
+- **AND** no axiOS module changes are required
+
+### Requirement: Hoppscotch Default PWA
+
+Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, with its icon in `home/resources/pwa-icons/`, following the same pattern as all other axiOS-shipped PWAs. Downstream user configs that previously defined Hoppscotch manually can remove their duplicate entries since axiOS defaults use `mkDefault`.
+
+#### Scenario: Hoppscotch appears in launcher
+
+- **WHEN** user enables `axios.pwa.enable = true` with `includeDefaults = true` (the default)
+- **THEN** a `pwa-hoppscotch` launcher script SHALL exist on `$PATH`
+- **AND** a Hoppscotch desktop entry SHALL appear in Fuzzel
+- **AND** the PWA SHALL use `https://hoppscotch.io/` as its URL
+- **AND** the icon SHALL be sourced from `home/resources/pwa-icons/hoppscotch.png`
+
+#### Scenario: Hoppscotch respects PWA browser configuration
+
+- **WHEN** user sets `axios.pwa.browser = "brave"`
+- **THEN** Hoppscotch SHALL open in Brave
+- **AND** the PWA SHALL inherit GPU acceleration flags from `desktop.browserArgs`
+
+#### Scenario: Downstream override still works
+
+- **WHEN** a user defines `axios.pwa.apps.hoppscotch` in their user config
+- **THEN** the user's definition SHALL override the axiOS default (since defaults use `mkDefault`)
+- **AND** no conflict or duplicate entry SHALL occur
 
 ### Requirement: GStreamer is not included by default
 

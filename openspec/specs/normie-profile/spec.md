@@ -84,7 +84,7 @@ The normie profile SHALL provide only essential keybindings. All other interacti
 
 ### Requirement: Normie profile excludes AI home modules
 
-The normie profile SHALL NOT receive AI home-manager modules (claude-code, gemini, MCP servers, system prompts).
+The normie profile SHALL NOT receive AI home-manager modules (claude-code, gemini, MCP servers, system prompts). User-facing AI applications that do not depend on the AI home-manager stack MAY still be provided when they are intentionally included as normie applications.
 
 #### Scenario: AI tools not present for normie user
 
@@ -94,16 +94,28 @@ The normie profile SHALL NOT receive AI home-manager modules (claude-code, gemin
 - **AND** no `~/.mcp.json` or `~/.config/ai/` files are generated for this user
 - **AND** the system-level AI module (`services.ai`) remains unchanged
 
+#### Scenario: Normie user receives approved AI applications
+
+- **WHEN** a normie user's home-manager configuration is evaluated
+- **THEN** approved user-facing AI applications can be included without importing `home/ai/`
+- **AND** those applications do not require the broader AI power-user workflow to be enabled
+
 ### Requirement: Normie profile retains core desktop features
 
-The normie profile SHALL include the same visual polish, MIME associations, PWA apps, and media playback as the standard profile.
+The normie profile SHALL include the same visual polish, MIME associations, PWA apps, media playback, and approved user-facing applications as the standard profile where those applications improve the non-technical user experience.
 
 #### Scenario: Normie user has full PWA catalog
 
 - **WHEN** a normie user opens the DMS app launcher
-- **THEN** all default PWA apps are available (Gmail, YouTube, Google Drive, etc.)
+- **THEN** all default PWA apps are available (Gmail, YouTube, Google Drive, ChatGPT, etc.)
 - **AND** PWA desktop entries and launcher scripts are generated
 - **AND** PWA icons appear in the launcher
+
+#### Scenario: Normie user launches ChatGPT PWA
+
+- **WHEN** the ChatGPT PWA is included for the normie workflow
+- **THEN** the user can launch it from the normal application surface
+- **AND** it behaves as a standalone user-facing application rather than as part of the axios AI power-user stack
 
 #### Scenario: Normie user opens a file
 
