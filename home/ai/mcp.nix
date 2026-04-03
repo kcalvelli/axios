@@ -15,7 +15,7 @@
 let
   system = pkgs.stdenv.hostPlatform.system;
   gatewayPort = osConfig.services.mcp-gateway.port or 8085;
-  codexConfig = pkgs.writeText "codex-config.toml" ''
+  codexMcpBlock = pkgs.writeText "codex-mcp-block.toml" ''
     [mcp_servers.axios]
     url = "http://127.0.0.1:${toString gatewayPort}/mcp"
   '';
@@ -146,9 +146,34 @@ in
       inputs.axios-dav.packages.${system}.mcp-dav
     ];
 
-    # Codex supports MCP declaratively via ~/.codex/config.toml.
-    xdg.configFile = lib.mkIf (osConfig.services.ai.openai.enable or false) {
-      "codex/config.toml".source = codexConfig;
-    };
+    # Codex uses ~/.codex/config.toml rather than XDG config paths.
+    # Merge the axios MCP block into the user config so model, trust, and
+    # migration settings already present in the file are preserved.
+    home.activation.codexMcpConfig = lib.mkIf (osConfig.services.ai.openai.enable or false) (
+      lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        codex_dir="$HOME/.codex"
+        codex_config="$codex_dir/config.toml"
+        temp_file="$(mktemp)"
+
+        mkdir -p "$codex_dir"
+
+        if [ -f "$codex_config" ]; then
+          awk '
+            BEGIN { skip = 0 }
+            /^\[mcp_servers\.axios\]$/ { skip = 1; next }
+            /^\[/ && skip == 1 { skip = 0 }
+            skip == 0 { print }
+          ' "$codex_config" > "$temp_file"
+        fi
+
+        if [ -s "$temp_file" ]; then
+          printf "\n" >> "$temp_file"
+        fi
+
+        cat ${codexMcpBlock} >> "$temp_file"
+        mv "$temp_file" "$codex_config"
+        chmod 600 "$codex_config"
+      ''
+    );
   };
 }
