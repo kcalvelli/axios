@@ -45,3 +45,16 @@ axios SHALL document the supported OpenAI tools, their authentication expectatio
 - **WHEN** an OpenAI tool does not support stable declarative prompt or config injection
 - **THEN** axios documents that limitation explicitly
 - **AND** the implementation does not rely on undocumented or brittle wrapper behavior
+
+### Requirement: Codex MCP gateway integration is declarative
+When OpenAI tooling and MCP integration are both enabled, axios SHALL generate Codex MCP configuration declaratively and point Codex at the local `mcp-gateway` HTTP transport instead of requiring manual `codex mcp add` setup.
+
+#### Scenario: Codex MCP config is generated
+- **WHEN** a user sets `services.ai.enable = true`, `services.ai.openai.enable = true`, and `services.ai.mcp.enable = true`
+- **THEN** axios generates `~/.codex/config.toml`
+- **AND** that configuration registers the local `mcp-gateway` endpoint at `/mcp`
+
+#### Scenario: Codex MCP config is omitted when OpenAI tooling is disabled
+- **WHEN** a user leaves `services.ai.openai.enable = false`
+- **THEN** axios does not generate Codex MCP configuration
+- **AND** existing Claude and Gemini behavior remains unchanged

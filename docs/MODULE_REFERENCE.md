@@ -306,7 +306,8 @@ services.ai = {
 ```
 
 **Authentication and configuration notes:**
-- `codex` uses the upstream interactive login flow (`codex login`) and axios does not currently generate `~/.codex/config.toml`.
+- `codex` uses the upstream interactive login flow (`codex login`).
+- axios generates `~/.codex/config.toml` when `services.ai.openai.enable = true` and `services.ai.mcp.enable = true`, registering `mcp-gateway` at `http://127.0.0.1:<port>/mcp`.
 - axios does not inject an OpenAI-specific system prompt because the current change does not rely on a stable shared prompt hook for Codex.
 - ChatGPT is provided as a default axios PWA, so it is available to normie users without enabling `services.ai` or importing `home/ai/`.
 - No additional non-`nixpkgs` OpenAI tooling is required for the first pass; future external additions should be evaluated only if a meaningful gap remains.

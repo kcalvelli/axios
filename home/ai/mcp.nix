@@ -14,6 +14,11 @@
 }:
 let
   system = pkgs.stdenv.hostPlatform.system;
+  gatewayPort = osConfig.services.mcp-gateway.port or 8085;
+  codexConfig = pkgs.writeText "codex-config.toml" ''
+    [mcp_servers.axios]
+    url = "http://127.0.0.1:${toString gatewayPort}/mcp"
+  '';
 
   # PIM configuration for calendar paths
   pimCfg = osConfig.services.pim or { };
@@ -62,7 +67,7 @@ in
 
       # Pass through gateway settings from NixOS config (if using NixOS module)
       # Otherwise use defaults
-      port = osConfig.services.mcp-gateway.port or 8085;
+      port = gatewayPort;
       autoEnable =
         osConfig.services.mcp-gateway.autoEnable or [
           "github"
@@ -140,5 +145,10 @@ in
       inputs.axios-ai-mail.packages.${system}.default
       inputs.axios-dav.packages.${system}.mcp-dav
     ];
+
+    # Codex supports MCP declaratively via ~/.codex/config.toml.
+    xdg.configFile = lib.mkIf (osConfig.services.ai.openai.enable or false) {
+      "codex/config.toml".source = codexConfig;
+    };
   };
 }

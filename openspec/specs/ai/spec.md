@@ -16,6 +16,11 @@ Integrates advanced AI agents and local inference capabilities into the develope
     - **Authentication**: Uses an OAuth flow for Pro accounts (`gemini auth login`). API keys are not recommended for Pro users as they bypass the subscription.
     - **Configuration**: System prompt is managed via the `GEMINI_SYSTEM_MD` environment variable, set declaratively in `home/ai/mcp.nix`.
     - `antigravity`: Advanced agentic assistant for axiOS development.
+- **OpenAI Ecosystem**:
+    - `codex`: Terminal coding agent.
+    - `codex-acp`: Optional ACP companion.
+    - **Authentication**: Uses the upstream interactive login flow (`codex login`).
+    - **Configuration**: MCP access is managed declaratively via `~/.codex/config.toml`, generated from `home/ai/mcp.nix` when OpenAI tooling and MCP are enabled.
 - **Workflow Tools**:
     - `openspec`: OpenSpec SDD workflow CLI for spec-driven development.
     - `whisper-cpp`: Speech-to-text.

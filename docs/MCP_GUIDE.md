@@ -33,7 +33,7 @@ When you enable `services.ai` in axiOS, you automatically get:
 
 1. **11 Pre-configured MCP Servers** - No manual setup required
 2. **On-demand tool discovery** - Via mcp-gateway's `mcp-gw` CLI (99% token reduction)
-3. **Auto-generated configs** - `~/.mcp.json` for Claude Code
+3. **Auto-generated configs** - `~/.codex/config.toml` for Codex MCP access
 4. **System prompts** - Auto-injected into `~/.claude.json`
 5. **Pre-packaged servers** - No runtime npm installs
 
@@ -68,8 +68,8 @@ curl -s http://localhost:8085/api/tools | jq 'length'
 # View axios system prompt
 cat ~/.config/ai/prompts/axios.md
 
-# Check Claude Code MCP config
-cat ~/.mcp.json | jq '.mcpServers | keys'
+# Check Codex MCP config
+cat ~/.codex/config.toml
 ```
 
 ### First Use
@@ -84,8 +84,8 @@ cat ~/.mcp.json | jq '.mcpServers | keys'
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Claude Code   │     │   Claude.ai     │     │  Custom Apps    │
-│   (Native MCP)  │     │  (Integrations) │     │  (REST API)     │
+│  CLI Agents     │     │   Claude.ai     │     │  Custom Apps    │
+│ (Codex, etc.)   │     │  (Integrations) │     │  (REST API)     │
 └────────┬────────┘     └────────┬────────┘     └────────┬────────┘
          │                       │                       │
          │                       └───────────┬───────────┘
@@ -109,7 +109,7 @@ cat ~/.mcp.json | jq '.mcpServers | keys'
 
 The mcp-gateway module (from `github.com/kcalvelli/mcp-gateway`) generates these files:
 
-- **`~/.mcp.json`**: Claude Code MCP configuration (native integration)
+- **`~/.codex/config.toml`**: Codex MCP configuration
 - **`~/.config/mcp/mcp_servers.json`**: mcp-gateway configuration (used by `mcp-gw`)
 - **`~/.gemini/settings.json`**: Gemini CLI configuration
 - **`~/.config/ai/prompts/axios.md`**: Comprehensive system prompt
@@ -427,7 +427,7 @@ For sensitive keys in production:
 **Symptoms**: Claude Code doesn't see MCP tools
 
 **Solutions**:
-1. Verify config exists: `cat ~/.mcp.json`
+1. Verify gateway and skill are available: `systemctl --user status mcp-gateway`
 2. Check server list: `curl -s http://localhost:8085/api/servers | jq`
 3. Restart Claude Code completely
 4. Check mcp-gateway service: `systemctl --user status mcp-gateway`
@@ -444,9 +444,9 @@ For sensitive keys in production:
 
 ### Debugging Tips
 
-**View MCP server configuration**:
+**View Codex MCP configuration**:
 ```bash
-cat ~/.mcp.json | jq '.mcpServers'
+cat ~/.codex/config.toml
 ```
 
 **Check mcp-gateway service**:
