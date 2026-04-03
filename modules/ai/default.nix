@@ -44,7 +44,7 @@ in
 
       openai = {
         enable = lib.mkEnableOption "OpenAI Codex CLI" // {
-          default = false;
+          default = true;
         };
 
         codexAcp = {
