@@ -28,8 +28,8 @@ The AI module SHALL expose additional OpenAI ecosystem tools from `nixpkgs` as e
 - **THEN** the corresponding `nixpkgs` package is added to the evaluated configuration
 - **AND** the package is selected without requiring an additional flake input
 
-#### Scenario: ChatGPT desktop can exist outside the AI module
-- **WHEN** axios provides ChatGPT desktop through a non-AI user workflow such as the normie profile
+#### Scenario: ChatGPT PWA can exist outside the AI module
+- **WHEN** axios provides ChatGPT through a non-AI user workflow such as the normie profile
 - **THEN** that application is not required to depend on `services.ai.openai.enable`
 - **AND** the broader AI CLI and MCP tooling remain separately scoped
 

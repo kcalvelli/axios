@@ -42,7 +42,6 @@ This document provides a comprehensive list of all applications included in axiO
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
 | **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
-| **ChatGPT** | Standalone desktop client for ChatGPT and OpenAI chat workflows | Useful for both standard and normie desktop users without enabling the AI power-user stack |
 | **Materialgram** | Fast, secure messaging client | Native Qt app with encryption and cloud sync and material design - fork of Telegram Desktop |
 | **Spotify** | Music streaming service | Large library, good playlists, native Linux client |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
@@ -353,7 +352,7 @@ Included when `services.ai.local.enable = true`:
 **OpenAI authentication and config notes:**
 - `codex` uses the upstream interactive login flow (`codex login`).
 - axios does not currently generate `~/.codex/config.toml` or inject an OpenAI-specific system prompt.
-- `chatgpt` is shipped through the `desktop` module as a standalone desktop app, so it can be present for normie users without enabling `services.ai`.
+- `chatgpt` is shipped as a default axios PWA, so it can be present for normie users without enabling `services.ai`.
 - No external OpenAI-specific packages are required for this first pass; evaluate non-`nixpkgs` additions later only if the shipped package set proves insufficient.
 
 ### MCP Servers
@@ -398,7 +397,7 @@ axiOS ships 30+ default PWAs (enabled via `axios.pwa.includeDefaults = true`, th
 | **Google Workspace** | Gmail, Drive, Docs, Sheets, Slides, Calendar, Contacts, Keep, Forms, Classroom |
 | **Communication** | Google Chat, Google Meet, Google Messages, Google Voice, Element |
 | **Media** | YouTube, YouTube Music, Sonos |
-| **AI & Productivity** | Gemini, Google AI Studio, NotebookLM, Notion, Linear |
+| **AI & Productivity** | ChatGPT, Gemini, Google AI Studio, NotebookLM, Notion, Linear |
 | **Development** | Hoppscotch (API testing) |
 | **Design** | Figma, Excalidraw |
 | **Microsoft** | Outlook, Microsoft Teams |

@@ -135,7 +135,6 @@ in
       # === Social (desktop.social.enable) ===
       ++ lib.optionals config.desktop.social.enable [
         materialgram # Messaging client
-        chatgpt # Standalone OpenAI desktop app for standard and normie workflows
         spotify # Music streaming
         zenity # File dialogs (required for Spotify local files)
       ];

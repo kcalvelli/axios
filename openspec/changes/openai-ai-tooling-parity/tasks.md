@@ -12,8 +12,8 @@
 
 ## 3. Normie Workflow Integration
 
-- [x] 3.1 Add `chatgpt` desktop to the appropriate normie-facing application surface without importing `home/ai/`
-- [x] 3.2 Update normie-facing documentation/spec-backed behavior so ChatGPT desktop is treated as an approved standalone application rather than AI power-user tooling
+- [x] 3.1 Add `chatgpt` to the appropriate normie-facing application surface using the axios PWA pattern, without importing `home/ai/`
+- [x] 3.2 Update normie-facing documentation/spec-backed behavior so the ChatGPT PWA is treated as an approved standalone application rather than AI power-user tooling
 
 ## 4. Validation
 

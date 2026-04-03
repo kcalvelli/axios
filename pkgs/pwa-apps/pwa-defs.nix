@@ -101,6 +101,16 @@
     ];
   };
 
+  chatgpt = {
+    name = "ChatGPT";
+    url = "https://chatgpt.com/";
+    icon = "chatgpt";
+    categories = [
+      "Office"
+      "Utility"
+    ];
+  };
+
   google-ai-studio = {
     name = "Google AI Studio";
     url = "https://aistudio.google.com/";

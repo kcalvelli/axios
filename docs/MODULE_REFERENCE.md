@@ -128,7 +128,7 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 - **Ghostty** - Modern GPU-accelerated terminal
 - **Dolphin** - KDE file manager (split-pane, plugin ecosystem)
 - **LibreOffice** (Qt) - Full office suite with Material You theming
-- **ChatGPT** - Standalone desktop AI app available through the desktop workflow, including normie users
+- **ChatGPT** - Default PWA available through the desktop workflow, including normie users
 - Desktop applications (text editor, calculator, PDF viewer) - See [APPLICATIONS.md](APPLICATIONS.md)
 - Fonts and icon themes
 
@@ -308,7 +308,7 @@ services.ai = {
 **Authentication and configuration notes:**
 - `codex` uses the upstream interactive login flow (`codex login`) and axios does not currently generate `~/.codex/config.toml`.
 - axios does not inject an OpenAI-specific system prompt because the current change does not rely on a stable shared prompt hook for Codex.
-- ChatGPT desktop is provided by the `desktop` module as a standalone application, so it is available to normie users without enabling `services.ai`.
+- ChatGPT is provided as a default axios PWA, so it is available to normie users without enabling `services.ai` or importing `home/ai/`.
 - No additional non-`nixpkgs` OpenAI tooling is required for the first pass; future external additions should be evaluated only if a meaningful gap remains.
 
 ---

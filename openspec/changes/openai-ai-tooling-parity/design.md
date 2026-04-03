@@ -1,6 +1,6 @@
 ## Context
 
-The current AI module exposes vendor-level toggles for Claude and Gemini and installs their primary tooling directly from `modules/ai/default.nix`. OpenAI-oriented tooling exists in the locked `nixpkgs` set (`codex`, `codex-acp`, `chatgpt`, `chatgpt-cli`, `openai`), but axios does not currently surface those tools through `services.ai`, document how they fit into the AI workflow, or define how their configuration should relate to the existing system prompt and secrets conventions. This change adds OpenAI as an additional first-class vendor choice rather than replacing the existing Claude or Gemini paths.
+The current AI module exposes vendor-level toggles for Claude and Gemini and installs their primary tooling directly from `modules/ai/default.nix`. OpenAI-oriented tooling exists in the locked `nixpkgs` set (`codex`, `codex-acp`, `chatgpt`, `chatgpt-cli`, `openai`), but axios does not currently surface those tools through `services.ai`, document how they fit into the AI workflow, or define how their configuration should relate to the existing system prompt and secrets conventions. This change adds OpenAI as an additional first-class vendor choice rather than replacing the existing Claude or Gemini paths. On Linux, ChatGPT is implemented as a default axios PWA rather than the macOS-only `pkgs.chatgpt` desktop package.
 
 This change is cross-cutting because it touches module options, package selection, home-manager integration, the normie profile surface, and the AI spec/documentation surface. The design needs to preserve axios's reproducibility goals while avoiding a new external flake dependency unless `nixpkgs` proves insufficient.
 
@@ -10,7 +10,7 @@ This change is cross-cutting because it touches module options, package selectio
 - Add OpenAI ecosystem tooling to the `services.ai` interface at the same vendor-selection layer as Claude and Gemini.
 - Prefer packages already present in the locked `nixpkgs` set, with `codex` as the initial OpenAI terminal agent candidate for this change.
 - Define an implementation approach for companion OpenAI tools without forcing all of them into the default closure.
-- Keep `chatgpt` desktop in scope and make it available to normie users without requiring the AI power-user workflow.
+- Keep ChatGPT in scope as a default PWA and make it available to normie users without requiring the AI power-user workflow.
 - Document authentication and prompt/configuration expectations in a way that matches existing axios patterns.
 
 **Non-Goals:**
@@ -36,11 +36,12 @@ Alternatives considered:
 
 ### Decision: Use `nixpkgs` packages as the first implementation source
 
-The first implementation pass will use `codex` as the initial OpenAI terminal agent and treat `codex-acp` as an explicit AI companion package under suboptions. `chatgpt` desktop remains in scope as a supported user-facing application and is also made available to the normie workflow outside `services.ai.enable`. `chatgpt-cli`, `kardolus-chatgpt-cli`, and the Python `openai` client will not be baseline installs because they are lower-leverage wrappers or libraries rather than the closest parity match for existing vendor tooling.
+The first implementation pass will use `codex` as the initial OpenAI terminal agent and treat `codex-acp` as an explicit AI companion package under suboptions. ChatGPT remains in scope as a supported user-facing application, but on Linux it is delivered through the existing axios PWA system and made available to the normie workflow outside `services.ai.enable`. `chatgpt-cli`, `kardolus-chatgpt-cli`, and the Python `openai` client will not be baseline installs because they are lower-leverage wrappers or libraries rather than the closest parity match for existing vendor tooling.
 
 Rationale:
 - `codex` and `codex-acp` map most directly to axios's existing CLI-agent workflow.
-- `chatgpt` desktop has direct end-user value beyond the AI power-user workflow, so it should not be artificially tied to `services.ai.enable`.
+- ChatGPT has direct end-user value beyond the AI power-user workflow, so it should not be artificially tied to `services.ai.enable`.
+- The existing axios PWA mechanism is already the canonical Linux-friendly way to ship web applications with bundled icons and launcher integration.
 - Staying within `nixpkgs` keeps builds reproducible and avoids expanding flake maintenance for the first pass.
 - This decision is about package sourcing for the OpenAI addition, not about changing axios's overall vendor preference.
 
@@ -61,9 +62,9 @@ Alternatives considered:
 - Create wrapper scripts that emulate unsupported prompt/config behavior: rejected unless implementation proves the upstream surface is stable enough.
 - Require manual installation outside Nix: rejected because it defeats the parity goal.
 
-### Decision: Keep normie access limited to standalone desktop applications
+### Decision: Keep normie access limited to standalone user-facing applications
 
-The normie workflow will receive standalone user-facing OpenAI desktop applications such as `chatgpt`, but it will continue to exclude the broader AI home-manager module set, CLI coding agents, MCP configuration, and prompt injection surfaces.
+The normie workflow will receive standalone user-facing OpenAI applications such as the ChatGPT PWA, but it will continue to exclude the broader AI home-manager module set, CLI coding agents, MCP configuration, and prompt injection surfaces.
 
 Rationale:
 - Preserves the normie profile's non-technical focus.
@@ -71,7 +72,7 @@ Rationale:
 - Avoids weakening the existing separation between standard and normie workflows.
 
 Alternatives considered:
-- Keep all OpenAI applications behind `services.ai.enable`: rejected because it blocks a clearly useful normie-facing desktop app.
+- Keep all OpenAI applications behind `services.ai.enable`: rejected because it blocks a clearly useful normie-facing application.
 - Import `home/ai/` into normie when ChatGPT is enabled: rejected because it violates the current normie profile boundary.
 
 ## Risks / Trade-offs
@@ -80,11 +81,11 @@ Alternatives considered:
 - [New vendor options may increase module complexity] → Scope the first pass to one vendor namespace with a small number of suboptions.
 - [Prompt/config integration may differ from Claude/Gemini] → Specify parity at the option and documentation level, not guaranteed identical internals.
 - [Default package closure could grow too much] → Keep companion tools opt-in under `services.ai.openai`.
-- [Normie profile boundary could blur] → Limit normie additions to standalone desktop applications and keep `home/ai/` excluded.
+- [Normie profile boundary could blur] → Limit normie additions to standalone user-facing applications and keep `home/ai/` excluded.
 
 ## Migration Plan
 
-No mandatory migration is required for existing users because current Claude and Gemini behavior remains unchanged. Users who want OpenAI tooling will opt in through the new `services.ai.openai` options, while normie users can receive ChatGPT desktop through their normal application surface without enabling the AI module. If any documentation currently implies Anthropic-first defaults, it will be updated to describe vendor choice more neutrally.
+No mandatory migration is required for existing users because current Claude and Gemini behavior remains unchanged. Users who want OpenAI tooling will opt in through the new `services.ai.openai` options, while normie users can receive the ChatGPT PWA through their normal application surface without enabling the AI module. If any documentation currently implies Anthropic-first defaults, it will be updated to describe vendor choice more neutrally.
 
 ## Open Questions
 
