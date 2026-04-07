@@ -27,8 +27,8 @@
       '';
 
       character = {
-        success_symbol = "[➜](bold $palette.base) ";
-        error_symbol = "[➜](bold $palette.dim) ";
+        success_symbol = "[✓](bold $palette.base) ";
+        error_symbol = "[✗](bold $palette.red) ";
       };
 
       username = {
