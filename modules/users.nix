@@ -50,6 +50,16 @@ let
           '';
         };
 
+        linger = lib.mkOption {
+          type = lib.types.bool;
+          default = false;
+          description = ''
+            Enable lingering for this user. When true, the user's systemd
+            user manager starts at boot and persists after logout, allowing
+            user services to run without an active login session.
+          '';
+        };
+
         extraGroups = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
@@ -220,6 +230,7 @@ in
         isNormalUser = lib.mkDefault true;
         description = lib.mkDefault userDef.fullName;
         extraGroups = lib.mkDefault (groupsForUser userDef);
+        linger = lib.mkDefault userDef.linger;
       }) cfg.users;
 
       home-manager.users = lib.mapAttrs (name: userDef: {
