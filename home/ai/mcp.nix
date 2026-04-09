@@ -15,9 +15,24 @@
 let
   system = pkgs.stdenv.hostPlatform.system;
   gatewayPort = osConfig.services.mcp-gateway.port or 8085;
+
+  # AI role from the parent module. The MCP gateway is an AI concept
+  # (not a PIM concept), so we gate on the AI module's own role.
+  # Server hosts run MCP servers as stdio children locally; client
+  # hosts proxy through the remote gateway's HTTP transport.
+  aiRole = osConfig.services.ai.local.role or "server";
+  isAiServer = aiRole == "server";
+
+  # Base URL of the MCP gateway, computed once in modules/ai/default.nix
+  # and reused everywhere (the MCP_GATEWAY_URL session var, the home-manager
+  # mcp_servers.json generator, the codex config block). Consumers that
+  # need the MCP-over-HTTP transport endpoint append "/mcp".
+  gatewayUrl = osConfig.services.ai.mcp.gatewayUrl or "http://127.0.0.1:${toString gatewayPort}";
+  mcpEndpoint = "${gatewayUrl}/mcp";
+
   codexMcpBlock = pkgs.writeText "codex-mcp-block.toml" ''
-    [mcp_servers.axios]
-    url = "http://127.0.0.1:${toString gatewayPort}/mcp"
+    [mcp_servers.axios-mcp-gateway]
+    url = "${mcpEndpoint}"
   '';
 
   # PIM configuration for calendar paths
@@ -97,17 +112,20 @@ in
         };
 
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        # PIM TOOLS (Require services.pim.enable)
+        # PIM TOOLS — server role only
+        # On client hosts these stdio entries are disabled and replaced by
+        # the unified `axios` HTTP entry below, which proxies to the
+        # remote gateway's aggregated MCP-over-HTTP endpoint.
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
         axios-ai-mail = {
-          enable = true;
+          enable = isAiServer;
           command = "${inputs.axios-ai-mail.packages.${system}.default}/bin/axios-ai-mail";
           args = [ "mcp" ];
         };
 
         mcp-dav = {
-          enable = true;
+          enable = isAiServer;
           command = "${inputs.axios-dav.packages.${system}.mcp-dav}/bin/mcp-dav";
           env = {
             # Dynamic calendar paths from services.pim.calendar.accounts
@@ -115,6 +133,22 @@ in
             MCP_DAV_CALENDARS = calendarPaths;
             MCP_DAV_CONTACTS = "~/.contacts";
           };
+        };
+
+        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        # REMOTE MCP GATEWAY — client role only
+        # Single MCP-over-HTTP entry that proxies every tool exposed by
+        # the remote axios-mcp-gateway Tailscale Service (mail, dav,
+        # sentinel, home-assistant, whatever the server host has wired
+        # up). Tools come back namespaced by the gateway as
+        # `<server-id>__<tool>`, which claude-code in turn exposes as
+        # `mcp__axios-mcp-gateway__<server-id>__<tool>`.
+        # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+        axios-mcp-gateway = {
+          enable = !isAiServer;
+          transport = "http";
+          url = mcpEndpoint;
         };
 
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -158,9 +192,13 @@ in
         ${pkgs.coreutils}/bin/mkdir -p "$codex_dir"
 
         if [ -f "$codex_config" ]; then
+          # Strip any prior axios-managed mcp_servers block. Matches both
+          # the legacy [mcp_servers.axios] section name and the current
+          # [mcp_servers.axios-mcp-gateway] name so existing configs get
+          # cleaned up on rebuild.
           ${pkgs.gawk}/bin/awk '
             BEGIN { skip = 0 }
-            /^\[mcp_servers\.axios\]$/ { skip = 1; next }
+            /^\[mcp_servers\.axios(-mcp-gateway)?\]$/ { skip = 1; next }
             /^\[/ && skip == 1 { skip = 0 }
             skip == 0 { print }
           ' "$codex_config" > "$temp_file"

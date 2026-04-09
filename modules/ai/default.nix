@@ -27,6 +27,29 @@ in
         enable = lib.mkEnableOption "Model Context Protocol (MCP) server integration" // {
           default = true;
         };
+
+        gatewayUrl = lib.mkOption {
+          type = lib.types.str;
+          default = "";
+          defaultText = lib.literalExpression ''
+            if services.ai.local.role == "client"
+            then "https://axios-mcp-gateway.''${services.ai.local.tailnetDomain}"
+            else "http://127.0.0.1:''${toString services.mcp-gateway.port}"
+          '';
+          description = ''
+            Base URL of the axios MCP gateway used by AI tools (claude-code,
+            codex, etc.) and exported to the user environment as
+            MCP_GATEWAY_URL. Consumers that need the MCP-over-HTTP transport
+            endpoint append "/mcp" to this base URL.
+
+            Default is computed from services.ai.local.role:
+              - "server": local gateway at http://127.0.0.1:<gatewayPort>
+              - "client": Tailscale Service at
+                          https://axios-mcp-gateway.<tailnetDomain>
+
+            Override only if you have a non-standard gateway deployment.
+          '';
+        };
       };
 
       # Per-tool enablement (all default to true for backward compatibility)
@@ -181,6 +204,20 @@ in
       ];
     }
 
+    # MCP gateway URL — computed default, overridable.
+    # Server hosts hit the local gateway over loopback; client hosts hit
+    # the axios-mcp-gateway Tailscale Service. Both consumers (the
+    # MCP_GATEWAY_URL session var below and the home-manager mcp_servers.json
+    # generator) read this single value.
+    (lib.mkIf (cfg.enable && cfg.mcp.enable) {
+      services.ai.mcp.gatewayUrl = lib.mkDefault (
+        if cfg.local.enable && isClient then
+          "https://axios-mcp-gateway.${cfg.local.tailnetDomain}"
+        else
+          "http://127.0.0.1:${toString (config.services.mcp-gateway.port or 8085)}"
+      );
+    })
+
     # Base AI configuration (always enabled when services.ai.enable = true)
     (lib.mkIf cfg.enable {
       # Add users to systemd-journal group using userGroups
@@ -292,7 +329,7 @@ in
       # Uses Tailscale Services DNS name (no port needed)
       environment.sessionVariables = {
         OLLAMA_HOST = "https://axios-ollama.${cfg.local.tailnetDomain}";
-        MCP_GATEWAY_URL = "https://axios-mcp-gateway.${cfg.local.tailnetDomain}";
+        MCP_GATEWAY_URL = cfg.mcp.gatewayUrl;
       };
 
       # Client role packages (no GPU stack, lighter footprint)
