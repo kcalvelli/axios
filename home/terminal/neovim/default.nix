@@ -36,6 +36,11 @@ in
       vimAlias = true;
       vimdiffAlias = true;
 
+      # Adopt new nixpkgs defaults — axios preset is lua-based,
+      # no Ruby/Python3 providers needed.
+      withRuby = false;
+      withPython3 = false;
+
       # Dependencies that should always be available
       extraPackages = with pkgs; [
         # LSPs (always available)
