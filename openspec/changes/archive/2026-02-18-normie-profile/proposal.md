@@ -1,6 +1,6 @@
 ## Why
 
-Non-technical household members sharing an axiOS machine face an intimidating power-user desktop: 100+ keyboard shortcuts, tiling concepts (columns, consume/expel, workspaces), developer launchers, and AI tooling. They want what ChromeOS provides — a browser, apps, and familiar window controls. axiOS already has the building blocks (DMS shelf, 30+ PWAs, maximized-by-default windows) but no way to present a simplified surface per-user.
+Non-technical household members sharing an Cairn machine face an intimidating power-user desktop: 100+ keyboard shortcuts, tiling concepts (columns, consume/expel, workspaces), developer launchers, and AI tooling. They want what ChromeOS provides — a browser, apps, and familiar window controls. Cairn already has the building blocks (DMS shelf, 30+ PWAs, maximized-by-default windows) but no way to present a simplified surface per-user.
 
 Separately, the laptop and workstation profiles are nearly identical — the only difference is Solaar autostart for Logitech devices, which should be hardware-conditional, not profile-conditional. Consolidating them simplifies the profile model and makes the normie/standard distinction the only meaningful axis.
 
@@ -25,7 +25,7 @@ Separately, the laptop and workstation profiles are nearly identical — the onl
 
 ### Modified Capabilities
 - `multi-user`: Replace homeProfile enum (`"workstation"` | `"laptop"` | `"minimal"`) with `"standard"` | `"normie"`. Update profile resolution, default value, and documentation.
-- `desktop`: Document that normie profile uses a desktop subset (CSD enabled, simplified keybinds, no dev launchers, no drop-down terminal, no axios-help). Move Solaar autostart from workstation profile to hardware-conditional config.
+- `desktop`: Document that normie profile uses a desktop subset (CSD enabled, simplified keybinds, no dev launchers, no drop-down terminal, no cairn-help). Move Solaar autostart from workstation profile to hardware-conditional config.
 
 ## Impact
 

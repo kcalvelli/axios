@@ -23,7 +23,7 @@
 
 - [x] **2.1 Design tool namespacing**
   - Format: `server_id__tool_name` (double underscore separator)
-  - Examples: `axios-ai-mail__send_email`, `git__git_status`
+  - Examples: `cairn-mail__send_email`, `git__git_status`
   - Descriptions prefixed with `[server_id]` for clarity
 
 - [x] **2.2 Implement tool aggregation**
@@ -40,7 +40,7 @@
 - [x] **3.1 Local testing**
   - Verified initialize, tools/list, tools/call via curl
   - All 86 tools discovered
-  - Tool execution works (tested with axios-ai-mail__list_accounts)
+  - Tool execution works (tested with cairn-mail__list_accounts)
 
 - [ ] **3.2 Claude.ai Integration testing**
   - Expose via Tailscale serve
@@ -77,5 +77,5 @@
 
 **Tool namespacing:**
 - Format: `{server_id}__{tool_name}`
-- Example: `axios-ai-mail__send_email`
+- Example: `cairn-mail__send_email`
 - Parsing: Split on `__` to get server_id and tool_name

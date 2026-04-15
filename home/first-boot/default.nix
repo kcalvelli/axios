@@ -5,29 +5,29 @@
   ...
 }:
 let
-  cfg = config.axios.firstBoot;
+  cfg = config.cairn.firstBoot;
 in
 {
-  options.axios.firstBoot = {
-    enable = lib.mkEnableOption "axiOS first-boot wizard" // {
+  options.cairn.firstBoot = {
+    enable = lib.mkEnableOption "Cairn first-boot wizard" // {
       default = true;
     };
   };
 
   config = lib.mkIf cfg.enable {
-    home.packages = [ pkgs.axios-first-boot ];
+    home.packages = [ pkgs.cairn-first-boot ];
 
-    systemd.user.services.axios-first-boot = {
+    systemd.user.services.cairn-first-boot = {
       Unit = {
-        Description = "axiOS First-Boot Wizard";
+        Description = "Cairn First-Boot Wizard";
         After = [ "graphical-session.target" ];
-        ConditionPathExists = "!%h/.cache/axios-first-boot-done";
+        ConditionPathExists = "!%h/.cache/cairn-first-boot-done";
       };
 
       Service = {
         Type = "oneshot";
         ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
-        ExecStart = "${pkgs.ghostty}/bin/ghostty -e ${pkgs.axios-first-boot}/bin/axios-first-boot";
+        ExecStart = "${pkgs.ghostty}/bin/ghostty -e ${pkgs.cairn-first-boot}/bin/cairn-first-boot";
       };
 
       Install = {

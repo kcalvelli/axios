@@ -2,7 +2,7 @@
 
 ## Overview
 
-Create an MCP Gateway service exposing axios MCP servers via OpenAPI REST, with an orchestrator UI for server management.
+Create an MCP Gateway service exposing cairn MCP servers via OpenAPI REST, with an orchestrator UI for server management.
 
 **Depends On**:
 - AI Module Server/Client Refactor (#1) ✅
@@ -121,8 +121,8 @@ Create an MCP Gateway service exposing axios MCP servers via OpenAPI REST, with 
 - [ ] Import in `home/ai/default.nix`
 
 ### Task 5.2: Implement PWA
-- [ ] Desktop entry "Axios MCP Gateway"
-- [ ] Icon (follow axios pattern)
+- [ ] Desktop entry "Cairn MCP Gateway"
+- [ ] Icon (follow cairn pattern)
 - [ ] Correct StartupWMClass
 
 ---
@@ -182,7 +182,7 @@ Create an MCP Gateway service exposing axios MCP servers via OpenAPI REST, with 
 ## Phase 9: Finalization
 
 ### Task 9.1: Code Review Checklist
-- [ ] Follows axios module patterns
+- [ ] Follows cairn module patterns
 - [ ] Server/client pattern consistent
 - [ ] Security considerations addressed
 - [ ] Error handling comprehensive
@@ -200,7 +200,7 @@ Create an MCP Gateway service exposing axios MCP servers via OpenAPI REST, with 
 | `pkgs/mcp-gateway/` | Python/FastAPI gateway package |
 | `modules/ai/mcp-gateway.nix` | NixOS module |
 | `home/ai/mcp-gateway.nix` | Home-manager PWA module |
-| `home/resources/pwa-icons/axios-mcp-gateway.png` | PWA icon |
+| `home/resources/pwa-icons/cairn-mcp-gateway.png` | PWA icon |
 
 ## Files to Modify
 

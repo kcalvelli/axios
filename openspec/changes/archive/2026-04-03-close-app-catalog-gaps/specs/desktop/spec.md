@@ -15,15 +15,15 @@ The desktop module SHALL include LibreOffice with Qt integration for document pr
 
 - **WHEN** user does not want LibreOffice installed
 - **THEN** user MAY override `environment.systemPackages` in their `extraConfig` to exclude it
-- **AND** no axiOS module changes are required
+- **AND** no Cairn module changes are required
 
 ### Requirement: Hoppscotch Default PWA
 
-Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, with its icon in `home/resources/pwa-icons/`, following the same pattern as all other axios-shipped PWAs. Downstream user configs that previously defined Hoppscotch manually can remove their duplicate entries since axios defaults use `mkDefault`.
+Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, with its icon in `home/resources/pwa-icons/`, following the same pattern as all other cairn-shipped PWAs. Downstream user configs that previously defined Hoppscotch manually can remove their duplicate entries since cairn defaults use `mkDefault`.
 
 #### Scenario: Hoppscotch appears in launcher
 
-- **WHEN** user enables `axios.pwa.enable = true` with `includeDefaults = true` (the default)
+- **WHEN** user enables `cairn.pwa.enable = true` with `includeDefaults = true` (the default)
 - **THEN** a `pwa-hoppscotch` launcher script SHALL exist on `$PATH`
 - **AND** a Hoppscotch desktop entry SHALL appear in Fuzzel
 - **AND** the PWA SHALL use `https://hoppscotch.io/` as its URL
@@ -31,21 +31,21 @@ Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, w
 
 #### Scenario: Hoppscotch respects PWA browser configuration
 
-- **WHEN** user sets `axios.pwa.browser = "brave"`
+- **WHEN** user sets `cairn.pwa.browser = "brave"`
 - **THEN** Hoppscotch SHALL open in Brave
 - **AND** the PWA SHALL inherit GPU acceleration flags from `desktop.browserArgs`
 
 #### Scenario: Downstream override still works
 
-- **WHEN** a user defines `axios.pwa.apps.hoppscotch` in their user config
-- **THEN** the user's definition SHALL override the axios default (since defaults use `mkDefault`)
+- **WHEN** a user defines `cairn.pwa.apps.hoppscotch` in their user config
+- **THEN** the user's definition SHALL override the cairn default (since defaults use `mkDefault`)
 - **AND** no conflict or duplicate entry SHALL occur
 
 ## MODIFIED Requirements
 
 ### Requirement: Curated Application Set
 
-The desktop module ships a focused set of applications aligned with the axiOS profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
+The desktop module ships a focused set of applications aligned with the Cairn profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
 
 #### Scenario: Default desktop installation
 
@@ -76,4 +76,4 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
 - **WHEN** user adds `kdePackages.elisa` and GStreamer packages to their `extraConfig.environment.systemPackages`
 - **THEN** Elisa is installed and fully functional
 - **AND** user must also set `QT_MEDIA_BACKEND` and `GST_PLUGIN_SYSTEM_PATH_1_0` environment variables
-- **AND** no axiOS modules need to be modified
+- **AND** no Cairn modules need to be modified

@@ -1,6 +1,6 @@
-# Advanced Tool Use in axiOS
+# Advanced Tool Use in Cairn
 
-This document describes how to leverage advanced tool use capabilities with Claude in axiOS.
+This document describes how to leverage advanced tool use capabilities with Claude in Cairn.
 
 ## Overview
 
@@ -22,16 +22,16 @@ Claude searches for tools on-demand rather than loading all definitions upfront.
 - Improved accuracy on MCP evaluations (Opus 4: 49%→74%, Opus 4.5: 79.5%→88.1%)
 - Better for 10+ tools with >10K tokens of definitions
 
-### How axiOS Already Implements This
+### How Cairn Already Implements This
 
-**axiOS uses mcp-gateway for dynamic tool discovery!** The gateway provides on-demand tool access via REST API and `mcp-gw` CLI, achieving the same benefits:
+**Cairn uses mcp-gateway for dynamic tool discovery!** The gateway provides on-demand tool access via REST API and `mcp-gw` CLI, achieving the same benefits:
 
 ```bash
-# Dynamic discovery workflow (already available in axiOS)
+# Dynamic discovery workflow (already available in Cairn)
 curl -s http://localhost:8085/api/tools | jq          # List all tools
 curl -s -X POST http://localhost:8085/api/tools/github/search_repositories \
   -H "Content-Type: application/json" \
-  -d '{"query": "axios"}'                              # Execute a tool
+  -d '{"query": "cairn"}'                              # Execute a tool
 ```
 
 **Token savings**: ~47,000 → ~400 tokens (99% reduction!)
@@ -185,7 +185,7 @@ tools = [
 ]
 ```
 
-## Implementing in axiOS
+## Implementing in Cairn
 
 ### Option 1: API Wrapper (Recommended for Now)
 
@@ -230,7 +230,7 @@ The Claude Code CLI doesn't yet support the beta features. Monitor for updates:
 
 ### Option 3: Enhance System Prompt
 
-axiOS already auto-injects `~/.config/ai/prompts/axios.md`. Add guidance for dynamic tool discovery:
+Cairn already auto-injects `~/.config/ai/prompts/cairn.md`. Add guidance for dynamic tool discovery:
 
 ```nix
 # In your NixOS config
@@ -244,11 +244,11 @@ services.ai.systemPrompt.extraInstructions = ''
 '';
 ```
 
-## Current Best Practices in axiOS
+## Current Best Practices in Cairn
 
 ### 1. Use mcp-gateway for Dynamic Discovery
 
-Already configured! The axios system prompt teaches Claude to use mcp-gateway's on-demand tool discovery:
+Already configured! The cairn system prompt teaches Claude to use mcp-gateway's on-demand tool discovery:
 ```bash
 # List all tools via gateway API
 curl -s http://localhost:8085/api/tools | jq
@@ -304,5 +304,5 @@ When Claude Code CLI supports advanced tool use:
 
 - **Anthropic Blog**: https://www.anthropic.com/engineering/advanced-tool-use
 - **MCP Documentation**: https://docs.claude.com/en/docs/claude-code/mcp
-- **axiOS MCP Config**: `home/ai/mcp.nix`
-- **axiOS System Prompt**: `~/.config/ai/prompts/axios.md`
+- **Cairn MCP Config**: `home/ai/mcp.nix`
+- **Cairn System Prompt**: `~/.config/ai/prompts/cairn.md`

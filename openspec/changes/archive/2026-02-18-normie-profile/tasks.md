@@ -13,7 +13,7 @@
 
 ## 3. Normie Desktop Module
 
-- [x] 3.1 Create `home/desktop/normie.nix` — imports theming, wallpaper, pwa-apps, mpv, Niri home module, DMS home modules; configures DMS, MIME associations, Flatpak, gnome-keyring, KDE Connect; sets `prefer-no-csd = false`; configures spawn-at-startup WITHOUT axios-help and WITHOUT drop-down terminal
+- [x] 3.1 Create `home/desktop/normie.nix` — imports theming, wallpaper, pwa-apps, mpv, Niri home module, DMS home modules; configures DMS, MIME associations, Flatpak, gnome-keyring, KDE Connect; sets `prefer-no-csd = false`; configures spawn-at-startup WITHOUT cairn-help and WITHOUT drop-down terminal
 - [x] 3.2 Create `home/desktop/niri-keybinds-normie.nix` — only `Mod+Q` (close), `Mod+F` (maximize), `Print` (screenshot); no tiling, workspace, dev, or app launcher bindings
 - [x] 3.3 Create `home/profiles/normie.nix` — imports `base.nix` and `../desktop/normie.nix`
 - [x] 3.4 Add Solaar autostart to normie.nix conditional on `osConfig.hardware.logitech.wireless.enableGraphical or false` (same as standard)

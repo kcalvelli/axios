@@ -2,7 +2,7 @@
 
 ### Requirement: Curated Application Set
 
-The desktop module ships a focused set of applications aligned with the axiOS profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
+The desktop module ships a focused set of applications aligned with the Cairn profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
 
 #### Scenario: Default desktop installation
 
@@ -32,7 +32,7 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
 - **WHEN** user adds `kdePackages.elisa` and GStreamer packages to their `extraConfig.environment.systemPackages`
 - **THEN** Elisa is installed and fully functional
 - **AND** user must also set `QT_MEDIA_BACKEND` and `GST_PLUGIN_SYSTEM_PATH_1_0` environment variables
-- **AND** no axiOS modules need to be modified
+- **AND** no Cairn modules need to be modified
 
 ## REMOVED Requirements
 

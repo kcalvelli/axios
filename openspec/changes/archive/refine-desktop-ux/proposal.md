@@ -4,21 +4,21 @@
 
 ## Summary
 
-A targeted sweep of the axiOS desktop module to improve UX consistency, reduce bloat, and enforce the project's SSD (Server-Side Decorations) visual identity. This change covers seven areas:
+A targeted sweep of the Cairn desktop module to improve UX consistency, reduce bloat, and enforce the project's SSD (Server-Side Decorations) visual identity. This change covers seven areas:
 
 1. **Dolphin: Open Terminal Here → Ghostty** - Dolphin's "Open Terminal Here" context menu should launch Ghostty instead of Konsole.
-2. **Dolphin: Hide Activities** - The KDE "Activities" context menu item should be hidden since axiOS doesn't use KDE Activities.
+2. **Dolphin: Hide Activities** - The KDE "Activities" context menu item should be hidden since Cairn doesn't use KDE Activities.
 3. **Flatpak: One-click install from Flathub** - Clicking "Install" on the Flathub website/PWA should launch a flatpak installer (supersedes existing `flatpak-streamlined-install` backlog item).
-4. **Drop-down terminal: Dock & naming** - The drop-down terminal should not show an icon in the DMS dock, and its startup class should follow axiOS conventions (`com.github.kcalvelli.axios.dropterm`).
-5. **Application bloat reduction** - Remove applications that don't fit the axiOS profile, giving users the ability to install them separately.
+4. **Drop-down terminal: Dock & naming** - The drop-down terminal should not show an icon in the DMS dock, and its startup class should follow Cairn conventions (`com.github.kcalvelli.cairn.dropterm`).
+5. **Application bloat reduction** - Remove applications that don't fit the Cairn profile, giving users the ability to install them separately.
 6. **Replace Kate with Mousepad** - Kate is too heavy for a default text editor; replace with Mousepad (Xfce's simple text editor, GTK3, no CSD).
 7. **CSD audit & remediation** - Replace CSD-forced applications with SSD-compatible alternatives where quality alternatives exist.
 
 ## Motivation
 
-axiOS uses the Niri compositor with `prefer-no-csd = true`, establishing a clean, consistent visual language where the compositor controls window decorations. Several currently-installed applications break this by forcing CSD (Client-Side Decorations), creating a visually inconsistent experience. Additionally, the application list has grown beyond what a focused system framework should ship by default.
+Cairn uses the Niri compositor with `prefer-no-csd = true`, establishing a clean, consistent visual language where the compositor controls window decorations. Several currently-installed applications break this by forcing CSD (Client-Side Decorations), creating a visually inconsistent experience. Additionally, the application list has grown beyond what a focused system framework should ship by default.
 
-The axiOS philosophy is "Library First" - users should be empowered to install additional applications via `extraConfig`, nixpkgs, or Flatpak. The default set should be the curated essentials, not a complete app store.
+The Cairn philosophy is "Library First" - users should be empowered to install additional applications via `extraConfig`, nixpkgs, or Flatpak. The default set should be the curated essentials, not a complete app store.
 
 ## Scope
 
@@ -39,14 +39,14 @@ Configure `dolphinrc` via home-manager to set Ghostty as Dolphin's terminal:
 - This affects both the "Open Terminal Here" (Shift+F4) context menu and the F4 embedded terminal panel.
 
 ### Rationale
-Ghostty is axiOS's primary terminal emulator, already running as a singleton daemon. Using it for Dolphin terminal integration provides consistency and leverages the existing resident process for instant window creation.
+Ghostty is Cairn's primary terminal emulator, already running as a singleton daemon. Using it for Dolphin terminal integration provides consistency and leverages the existing resident process for instant window creation.
 
 ---
 
 ## 2. Dolphin: Hide Activities
 
 ### Current State
-KDE Activities are a feature of KDE Plasma that provides virtual workspace grouping. axiOS uses Niri workspaces, not KDE Activities. However, since `kdePackages.plasma-workspace` is installed (for menu spec compliance), the Activities context menu item appears in Dolphin.
+KDE Activities are a feature of KDE Plasma that provides virtual workspace grouping. Cairn uses Niri workspaces, not KDE Activities. However, since `kdePackages.plasma-workspace` is installed (for menu spec compliance), the Activities context menu item appears in Dolphin.
 
 ### Proposed Change
 Disable the Activities plugin in Dolphin via `dolphinrc`:
@@ -67,28 +67,28 @@ An existing backlog item (`openspec/changes/flatpak-streamlined-install/`) docum
 Create a minimal `.flatpakref` MIME handler:
 - Register a handler for `application/vnd.flatpak.ref` and `application/vnd.flatpak.repo` MIME types.
 - The handler spawns a Ghostty terminal window running `flatpak install <ref-file>`, giving the user clear progress and a confirmation prompt (Flatpak's default `y/N` prompt).
-- Window class set to a recognizable axiOS class for Niri window rules.
+- Window class set to a recognizable Cairn class for Niri window rules.
 - Niri window rule: **small floating window** (not full screen), centered, ~800x400px.
 - On completion, display success/failure and close after keypress.
 
 ### Rationale
-A terminal-based approach is minimal, transparent, and consistent with the axiOS desktop. It avoids adding a GUI dependency (GNOME Software, Discover) while giving users full visibility into what's being installed. This supersedes and replaces the existing `flatpak-streamlined-install` backlog change.
+A terminal-based approach is minimal, transparent, and consistent with the Cairn desktop. It avoids adding a GUI dependency (GNOME Software, Discover) while giving users full visibility into what's being installed. This supersedes and replaces the existing `flatpak-streamlined-install` backlog change.
 
 ---
 
 ## 4. Drop-down Terminal: Dock & Naming
 
 ### Current State
-- **App ID**: `com.kc.dropterm` - doesn't follow reverse-DNS conventions matching the axiOS project.
+- **App ID**: `com.kc.dropterm` - doesn't follow reverse-DNS conventions matching the Cairn project.
 - **Dock icon**: `NoDisplay=true` is set in the desktop entry, but DMS dock behavior depends on the running window's app-id, not the desktop entry. The dropdown may still appear in the dock when spawned.
 
 ### Proposed Change
-- **Rename app class** from `com.kc.dropterm` to `com.github.kcalvelli.axios.dropterm`.
+- **Rename app class** from `com.kc.dropterm` to `com.github.kcalvelli.cairn.dropterm`.
 - **Ensure no dock icon**: Add a Niri window rule `exclude-from-focus-chain = true` (if supported) or configure DMS to exclude this app-id from the dock. The desktop entry already has `NoDisplay=true`.
 - Update all references: `ghostty.nix`, `niri.nix`, `niri-keybinds.nix`.
 
 ### Rationale
-The naming convention `com.github.kcalvelli.axios.*` is consistent with the project's GitHub identity. Hiding the dock icon prevents the dropdown from cluttering the taskbar since it's a transient, keyboard-driven utility.
+The naming convention `com.github.kcalvelli.cairn.*` is consistent with the project's GitHub identity. Hiding the dock icon prevents the dropdown from cluttering the taskbar since it's a transient, keyboard-driven utility.
 
 ---
 
@@ -109,7 +109,7 @@ The desktop module ships 30+ GUI applications. Several are niche, overlapping, o
 | **LocalSend** | File sharing tool; not used | `extraConfig` / nixpkgs |
 | **Trayscale** | Tailscale system tray; not used (DMS provides VPN widget) | `extraConfig` / nixpkgs |
 | **RenderDoc** | Graphics debugger; developer/niche tool, installed by graphics module | `extraConfig` / nixpkgs |
-| **code-nautilus** | Nautilus integration for VS Code; axiOS uses Dolphin, not Nautilus | Remove entirely |
+| **code-nautilus** | Nautilus integration for VS Code; Cairn uses Dolphin, not Nautilus | Remove entirely |
 | **Kate** | Replaced by Mousepad as default editor; users who need Kate/KWrite can install via `extraConfig` | `extraConfig` / nixpkgs |
 
 ### Applications to Keep
@@ -125,19 +125,19 @@ The desktop module ships 30+ GUI applications. Several are niche, overlapping, o
 | **Filelight** | Disk usage (Qt, SSD, useful utility) |
 | **Qalculate-qt** | Calculator (Qt, SSD) |
 | **Swappy** | Screenshot workflow |
-| **Gajim** | XMPP client (needed for axios-ai-chat integration) |
+| **Gajim** | XMPP client (needed for cairn-ai-chat integration) |
 | **Discord** | Communication (kept - industry standard) |
 | **Profanity** | XMPP client (terminal, no CSD concern) |
 | **Krita** | Drawing/art (Qt, SSD - need one drawing program) |
 | **OBS Studio** | Video recording (Qt, SSD) |
-| **Syncterm** | BBS access (retro terminal, part of axiOS identity) |
+| **Syncterm** | BBS access (retro terminal, part of Cairn identity) |
 | **All Wayland tools** | Core compositor support |
 | **All theming packages** | Visual consistency |
 | **Brave browser** | Primary browser |
 | **Swaybg, ImageMagick, libnotify** | Core utilities |
 
 ### Rationale
-axiOS is a framework, not a distribution. A leaner default set:
+Cairn is a framework, not a distribution. A leaner default set:
 - Reduces system closure size and rebuild time
 - Communicates a clear identity (productivity/development, not creative suite)
 - Empowers users to curate their own application stack
@@ -180,7 +180,7 @@ With `prefer-no-csd = true` in Niri, Qt/KDE apps use SSD (compositor decorations
 | **Loupe** | GTK4/libadwaita | CSD | **Replace** |
 | **Amberol** | GTK4/libadwaita | CSD | **Replace** |
 | **Inkscape** | GTK3/4 | CSD | Remove (bloat, item 5) |
-| **Gajim** | GTK4 | CSD | Keep (needed for axios-ai-chat) |
+| **Gajim** | GTK4 | CSD | Keep (needed for cairn-ai-chat) |
 | **Pavucontrol** | GTK3 | CSD | **Replace** |
 | **Discord** | Electron | Mixed | Keep (standard, CSD less visible) |
 | **DBeaver** | Java/SWT | Native | Remove (bloat, item 5) |

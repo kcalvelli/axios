@@ -18,7 +18,7 @@ The current installer uses raw ANSI prompts, has nested questions (virtualizatio
 - `gum-tui`: Modern styled TUI with bordered boxes, spinners, and multi-select
 
 ### Modified Capabilities
-- `axios-config-generator`: Rewritten with gum TUI, flattened feature selection, auto git init + commit
+- `cairn-config-generator`: Rewritten with gum TUI, flattened feature selection, auto git init + commit
 
 ## Impact
 

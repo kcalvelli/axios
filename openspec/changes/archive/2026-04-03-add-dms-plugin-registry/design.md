@@ -1,21 +1,21 @@
 ## Context
 
-axios deeply integrates DMS as its desktop shell (Niri compositor + DankMaterialShell), with extensive home-manager configuration for theming, keybindings, feature toggles, and lifecycle management. DMS has a growing community plugin ecosystem (~75 plugins) with a Nix flake registry (`dms-plugin-registry`) that provides declarative plugin management via `programs.dank-material-shell.plugins`.
+cairn deeply integrates DMS as its desktop shell (Niri compositor + DankMaterialShell), with extensive home-manager configuration for theming, keybindings, feature toggles, and lifecycle management. DMS has a growing community plugin ecosystem (~75 plugins) with a Nix flake registry (`dms-plugin-registry`) that provides declarative plugin management via `programs.dank-material-shell.plugins`.
 
-Currently, axios uses zero community plugins. axios-monitor (a custom fork of nixMonitor) is the only DMS plugin, maintained as a separate flake input with axiOS-specific functionality (dual rebuild, flake update, axiOS version tracking).
+Currently, cairn uses zero community plugins. cairn-monitor (a custom fork of nixMonitor) is the only DMS plugin, maintained as a separate flake input with Cairn-specific functionality (dual rebuild, flake update, Cairn version tracking).
 
 ## Goals / Non-Goals
 
 **Goals:**
 - Add `dms-plugin-registry` as a flake input so plugins are available declaratively
 - Import the registry module in both desktop profiles (standard + normie)
-- Auto-enable a curated set of plugins based on existing axiOS module/hardware flags
-- Explicitly disable `nixMonitor` to avoid conflict with axios-monitor
+- Auto-enable a curated set of plugins based on existing Cairn module/hardware flags
+- Explicitly disable `nixMonitor` to avoid conflict with cairn-monitor
 - Keep all other plugins available for users to opt into downstream
 
 **Non-Goals:**
-- Replacing axios-monitor with nixMonitor (axios-monitor has axiOS-specific features)
-- Adding plugin configuration options to axiOS (users configure via `programs.dank-material-shell.plugins` directly)
+- Replacing cairn-monitor with nixMonitor (cairn-monitor has Cairn-specific features)
+- Adding plugin configuration options to Cairn (users configure via `programs.dank-material-shell.plugins` directly)
 - Making any changes to the system-level NixOS desktop module (plugins are home-manager only)
 
 ## Decisions
@@ -32,7 +32,7 @@ Home-manager modules can read NixOS-level config via `osConfig`. The signals nee
 - `osConfig.desktop.enable` — desktop is active (always true in these files, but good for clarity)
 - `osConfig.services.ai.enable or false` — AI module active
 - `osConfig.hardware.laptop.enable or false` — laptop form factor
-- `osConfig.networking.tailscale.enable or false` — tailscale active (standard NixOS option, set by axios networking module)
+- `osConfig.networking.tailscale.enable or false` — tailscale active (standard NixOS option, set by cairn networking module)
 - `osConfig.virt.enable or false` — virtualisation module active
 - `osConfig.hardware.logitech.wireless.enableGraphical or false` — already used for Solaar, pattern is established
 
@@ -56,7 +56,7 @@ Home-manager modules can read NixOS-level config via `osConfig`. The signals nee
 - `powerUsagePlugin` — when `hardware.laptop.enable` (power draw monitoring)
 
 **Explicitly disabled:**
-- `nixMonitor` — axios-monitor replaces this
+- `nixMonitor` — cairn-monitor replaces this
 
 **Alternative considered:** Enabling more plugins by default (webSearch, commandRunner, sshConnections). Rejected — keep the curated set minimal and aligned with existing module flags. Users can enable any plugin in their downstream config.
 
@@ -68,10 +68,10 @@ Both profiles get the same conditional plugins. Monitoring widgets (battery, pow
 
 ## Risks / Trade-offs
 
-**[DMS plugins option may not exist yet]** → The registry module checks `options ? programs.dank-material-shell.plugins`. If the current DMS version in axios's flake.lock doesn't expose this option, the module silently no-ops. Verify by checking DMS upstream or updating flake.lock. Low risk — the module handles this gracefully.
+**[DMS plugins option may not exist yet]** → The registry module checks `options ? programs.dank-material-shell.plugins`. If the current DMS version in cairn's flake.lock doesn't expose this option, the module silently no-ops. Verify by checking DMS upstream or updating flake.lock. Low risk — the module handles this gracefully.
 
-**[Plugin dependency chain]** → Some plugins may need external tools not in axiOS's package set. The curated plugins (displayManager, niriWindows, niriScreenshot, tailscale, etc.) should have minimal external dependencies since they interact with services already present. → Verify during implementation.
+**[Plugin dependency chain]** → Some plugins may need external tools not in Cairn's package set. The curated plugins (displayManager, niriWindows, niriScreenshot, tailscale, etc.) should have minimal external dependencies since they interact with services already present. → Verify during implementation.
 
 **[Additional flake input maintenance]** → One more input to track in flake.lock updates. Low burden — registry updates are independent and non-breaking (all plugins default to disabled).
 
-**[axios-monitor + nixMonitor conflict]** → Both provide Nix system monitoring. Explicitly disabling nixMonitor prevents dual-widget confusion. → Already handled in design.
+**[cairn-monitor + nixMonitor conflict]** → Both provide Nix system monitoring. Explicitly disabling nixMonitor prevents dual-widget confusion. → Already handled in design.

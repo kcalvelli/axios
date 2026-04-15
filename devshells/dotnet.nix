@@ -92,7 +92,7 @@ mkShell {
   env = [
     # Neovim IDE integration - enables C# LSP
     {
-      name = "AXIOS_NVIM_LANGUAGES";
+      name = "CAIRN_NVIM_LANGUAGES";
       value = "cs";
     }
     # Set globalization to invariant mode for NixOS compatibility

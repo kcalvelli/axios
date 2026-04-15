@@ -1,10 +1,10 @@
-# axiOS
+# Cairn
 
 <p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.png">
-  <img src="docs/logo.png" alt="axiOS Logo" width="400">
+  <img src="docs/logo.png" alt="Cairn Logo" width="400">
 </picture>
 </p>
 
@@ -13,18 +13,18 @@
 </p>
 
 <p align="center">
-<img src="docs/screenshots/hero-vscode-maximized.png" alt="axiOS Focused Workspace">
+<img src="docs/screenshots/hero-vscode-maximized.png" alt="Cairn Focused Workspace">
 </p>
 
 <p align="center">
 <em>Maximized windows, no borders, no distractions — designed for focused work</em>
 </p>
 
-## What is axiOS?
+## What is Cairn?
 
-axiOS is a **NixOS framework and library** that you import into your own flake to build NixOS configurations. Think of it as a curated collection of modules, packages, and home-manager configs that work together.
+Cairn is a **NixOS framework and library** that you import into your own flake to build NixOS configurations. Think of it as a curated collection of modules, packages, and home-manager configs that work together.
 
-You maintain just a few simple files (~30 lines), and axios provides everything else: desktop environment, development tools, system configuration, and more.
+You maintain just a few simple files (~30 lines), and cairn provides everything else: desktop environment, development tools, system configuration, and more.
 
 ## Quick Start
 
@@ -35,7 +35,7 @@ If you haven't installed NixOS yet, download the **graphical installer** from [n
 ### Fresh NixOS Install
 
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/cairn/master/scripts/install.sh)
 ```
 
 This handles everything: enables flakes, configures binary caches, and launches the interactive installer.
@@ -43,12 +43,12 @@ This handles everything: enables flakes, configures binary caches, and launches 
 ### Flakes Already Enabled
 
 ```bash
-nix run --refresh github:kcalvelli/axios#init
+nix run --refresh github:kcalvelli/cairn#init
 ```
 
-The installer offers three modes: scripted setup, add a host to an existing axiOS config, or AI-assisted configuration with Claude Code.
+The installer offers three modes: scripted setup, add a host to an existing Cairn config, or AI-assisted configuration with Claude Code.
 
-**After your first rebuild**, you may need to reconnect to WiFi — axiOS switches the WiFi backend to iwd, which requires re-entering your network password once.
+**After your first rebuild**, you may need to reconnect to WiFi — Cairn switches the WiFi backend to iwd, which requires re-entering your network password once.
 
 **See [docs/INSTALLATION.md](docs/INSTALLATION.md) for complete instructions.**
 
@@ -56,7 +56,7 @@ The installer offers three modes: scripted setup, add a host to an existing axiO
 
 ### Home Profiles
 
-axiOS supports **per-user desktop profiles** on multi-user systems. Each user's profile is set independently via `homeProfile` in their `users/<name>.nix` config:
+Cairn supports **per-user desktop profiles** on multi-user systems. Each user's profile is set independently via `homeProfile` in their `users/<name>.nix` config:
 
 | Profile | Experience | Target User |
 |---------|-----------|-------------|
@@ -75,7 +75,7 @@ axiOS supports **per-user desktop profiles** on multi-user systems. Each user's 
 # users/alice.nix — per-user profile override
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     homeProfile = "normie";  # or "standard" (default)
@@ -98,8 +98,8 @@ axiOS supports **per-user desktop profiles** on multi-user systems. Each user's 
 - **Curated wallpaper collection** - 18 high-quality wallpapers auto-deployed to `~/Pictures/Wallpapers`
   - Automatic updates when collection changes
   - Random wallpaper selection on first run and collection updates
-  - Enable in your `user.nix`: add `axios.wallpapers.enable = true;` under `home-manager.users.${username}`
-  - Optional: Set `axios.wallpapers.autoUpdate = false;` to disable auto-randomization
+  - Enable in your `user.nix`: add `cairn.wallpapers.enable = true;` under `home-manager.users.${username}`
+  - Optional: Set `cairn.wallpapers.autoUpdate = false;` to disable auto-randomization
 - **Wallpaper blur effects** - Automatic blur for overview mode
 - **Ghostty terminal** - Modern GPU-accelerated terminal with dropdown mode
 - **GPU Hardware Acceleration** - Automatic browser acceleration based on GPU type:
@@ -148,15 +148,15 @@ axiOS supports **per-user desktop profiles** on multi-user systems. Each user's 
 **Quick Links:**
 - [Installation Guide](docs/INSTALLATION.md) - Step-by-step setup
 - [Application Catalog](docs/APPLICATIONS.md) - See what's included
-- [Library API Reference](docs/LIBRARY_USAGE.md) - Using `axios.lib.mkSystem`
+- [Library API Reference](docs/LIBRARY_USAGE.md) - Using `cairn.lib.mkSystem`
 - [Adding Multiple Hosts](docs/ADDING_HOSTS.md) - Multi-host setups
 
 ## Library API
 
-axiOS exports `axios.lib.mkSystem` for building NixOS configurations with minimal code:
+Cairn exports `cairn.lib.mkSystem` for building NixOS configurations with minimal code:
 
 ```nix
-nixosConfigurations.myhost = axios.lib.mkSystem {
+nixosConfigurations.myhost = cairn.lib.mkSystem {
   hostname = "myhost";
   formFactor = "desktop";  # or "laptop"
   hardware = { cpu = "amd"; gpu = "amd"; };
@@ -196,7 +196,7 @@ Check out these example configurations:
 
 ### Flatpak via Flathub (Recommended) 📦
 
-axiOS ships with **Flathub** pre-configured and a built-in **one-click installer**. Visit [flathub.org](https://flathub.org), click "Install" on any app, and a terminal window opens showing the installation progress.
+Cairn ships with **Flathub** pre-configured and a built-in **one-click installer**. Visit [flathub.org](https://flathub.org), click "Install" on any app, and a terminal window opens showing the installation progress.
 
 **Why Flathub?**
 - ✅ **Sandboxed applications** — Better security isolation
@@ -234,11 +234,11 @@ extraConfig = {
 
 **Note**: Most desktop applications work well as Flatpaks due to sandboxing and independent updates. Reserve NixOS packages for system-level tools, command-line utilities, and development environments.
 
-## Why axiOS?
+## Why Cairn?
 
-- ✅ **Minimal maintenance** - Your config is ~30 lines, axios handles the rest
+- ✅ **Minimal maintenance** - Your config is ~30 lines, cairn handles the rest
 - ✅ **Selective updates** - `nix flake update` to get new features when you want
-- ✅ **Version pinning** - Lock to specific axios versions for stability
+- ✅ **Version pinning** - Lock to specific cairn versions for stability
 - ✅ **Clear separation** - Your personal configs vs framework code
 - ✅ **Easy sharing** - Your config repo is simple and understandable
 - ✅ **Community framework** - Benefit from improvements and updates
@@ -287,14 +287,14 @@ This workflow prioritizes **deep work over multitasking**, with every design dec
 
 ### Library Philosophy
 
-axiOS is designed as a **framework/library**, not a personal configuration:
+Cairn is designed as a **framework/library**, not a personal configuration:
 
 - **No regional defaults** - You must explicitly set timezone and locale (no assumptions about your location)
 - **No hardcoded preferences** - Personal choices belong in your config, not the framework
 - **Modular by design** - Enable only what you need, customize everything
 - **Multi-user ready** - Per-user home profiles (standard/normie) for diverse users on shared systems
 
-This means some options are **required** (like `axios.system.timeZone`) to force explicit configuration rather than assuming defaults that might not fit your use case.
+This means some options are **required** (like `cairn.system.timeZone`) to force explicit configuration rather than assuming defaults that might not fit your use case.
 
 ## Contributing
 
@@ -302,7 +302,7 @@ Contributions welcome! This is a public framework meant to be used by others.
 
 - Report issues for bugs or missing features
 - Submit PRs for improvements
-- Share your configurations using axios
+- Share your configurations using cairn
 - Improve documentation
 
 ## Acknowledgments

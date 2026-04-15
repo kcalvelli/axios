@@ -26,7 +26,7 @@ Place nginx on `127.0.0.1:443` with real Let's Encrypt certificates obtained via
 +----------+  LE cert    |  :443     |           |  :8080     |
      |                   +-----------+           +------------+
      |
-     | DNS lookup: axios-mail.<tailnet>.ts.net
+     | DNS lookup: cairn-mail.<tailnet>.ts.net
      v
   /etc/hosts -> 127.0.0.1  (server only)
   Tailscale DNS -> VIP     (remote clients)
@@ -44,7 +44,7 @@ Place nginx on `127.0.0.1:443` with real Let's Encrypt certificates obtained via
 
 ### Alternative 3: Caddy Instead of nginx
 
-**Considered but deferred.** axiOS already has a Caddy route registry pattern (`selfHosted.caddy.routes`), but the loopback proxy has fundamentally different requirements: it must listen only on `127.0.0.1`, uses externally-managed certificates (not ACME), and must coexist with `tailscale serve` on the Tailscale interface. Using nginx avoids coupling this concern to the Caddy registry. If Caddy is preferred later, the migration would be straightforward since the option interface is the same.
+**Considered but deferred.** Cairn already has a Caddy route registry pattern (`selfHosted.caddy.routes`), but the loopback proxy has fundamentally different requirements: it must listen only on `127.0.0.1`, uses externally-managed certificates (not ACME), and must coexist with `tailscale serve` on the Tailscale interface. Using nginx avoids coupling this concern to the Caddy registry. If Caddy is preferred later, the migration would be straightforward since the option interface is the same.
 
 ### Alternative 4: Per-Service nginx Configs in Each Module
 
@@ -61,11 +61,11 @@ Place nginx on `127.0.0.1:443` with real Let's Encrypt certificates obtained via
 
 For each service with `loopbackProxy.enable = true`, the Tailscale module generates an `nginx.virtualHosts` entry:
 
-- **`serverName`**: `<service>.<tailnetDomain>` (e.g., `axios-mail.example-tailnet.ts.net`)
+- **`serverName`**: `<service>.<tailnetDomain>` (e.g., `cairn-mail.example-tailnet.ts.net`)
 - **`listen`**: `[{ addr = "127.0.0.1"; port = 443; ssl = true; }]` -- loopback only
 - **`sslCertificate`/`sslCertificateKey`**: Paths in `/var/lib/tailscale/certs/`
 - **`locations."/"`**: `proxyPass` to the service's `backend` URL
-- **WebSocket support**: `proxyWebsockets = true` (required for axios-ai-mail real-time sync)
+- **WebSocket support**: `proxyWebsockets = true` (required for cairn-mail real-time sync)
 - **Headers**: `proxy_set_header Host $host` and standard forwarding headers
 
 nginx itself is only enabled (`services.nginx.enable = true`) if at least one service uses the loopback proxy.
@@ -76,21 +76,21 @@ The Tailscale module generates `/etc/hosts` entries mapping service FQDNs to `12
 
 **Before** (per-module, scattered):
 ```
-127.0.0.1  axios-mail.local         # in modules/pim/default.nix
-127.0.0.1  axios-immich.local       # in modules/services/immich.nix
+127.0.0.1  cairn-mail.local         # in modules/pim/default.nix
+127.0.0.1  cairn-immich.local       # in modules/services/immich.nix
 ```
 
 **After** (centralized in tailscale module):
 ```
-127.0.0.1  axios-mail.example-tailnet.ts.net     # from loopbackProxy
-127.0.0.1  axios-immich.example-tailnet.ts.net   # from loopbackProxy (future)
+127.0.0.1  cairn-mail.example-tailnet.ts.net     # from loopbackProxy
+127.0.0.1  cairn-immich.example-tailnet.ts.net   # from loopbackProxy (future)
 ```
 
 ## PWA Impact
 
 With the loopback proxy, server and client PWAs use identical URLs:
 ```
-https://axios-mail.<tailnet>.ts.net/
+https://cairn-mail.<tailnet>.ts.net/
 ```
 
 This eliminates:

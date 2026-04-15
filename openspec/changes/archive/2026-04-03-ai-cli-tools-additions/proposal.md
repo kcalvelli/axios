@@ -2,7 +2,7 @@
 
 ## Summary
 
-Blanket proposal for tracking the addition of new AI CLI tools and coding agents to axios's AI module. This is a living document that tracks individual tool integrations without requiring separate proposals for each.
+Blanket proposal for tracking the addition of new AI CLI tools and coding agents to cairn's AI module. This is a living document that tracks individual tool integrations without requiring separate proposals for each.
 
 ## Motivation
 
@@ -15,7 +15,7 @@ This proposal serves as a single tracking location for all such additions.
 
 ## Scope
 
-This proposal covers **adding existing AI CLI tools** to axios configuration. It does NOT cover:
+This proposal covers **adding existing AI CLI tools** to cairn configuration. It does NOT cover:
 - Building new custom tools (use separate proposals)
 - MCP server additions (use `mcp-server-additions` proposal)
 - Major AI infrastructure changes (Ollama, Open WebUI, etc.)

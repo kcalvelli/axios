@@ -109,7 +109,7 @@ mkShell {
   env = [
     # Neovim IDE integration - enables C++ LSP for QML development
     {
-      name = "AXIOS_NVIM_LANGUAGES";
+      name = "CAIRN_NVIM_LANGUAGES";
       value = "cpp";
     }
     # Set Qt6 to use Wayland by default

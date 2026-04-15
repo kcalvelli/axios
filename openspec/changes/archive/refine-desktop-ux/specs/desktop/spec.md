@@ -51,13 +51,13 @@ Clicking "Install" on the Flathub website triggers a transparent, terminal-based
 
 ### Requirement: Drop-down Terminal Identity
 
-The drop-down terminal uses a proper axiOS app-id and does not appear in the DMS dock.
+The drop-down terminal uses a proper Cairn app-id and does not appear in the DMS dock.
 
 #### Scenario: User toggles drop-down terminal
 
 - **Given**: User presses Mod+` (backtick)
 - **When**: The drop-down terminal appears
-- **Then**: Its app-id is `com.github.kcalvelli.axios.dropterm`
+- **Then**: Its app-id is `com.github.kcalvelli.cairn.dropterm`
 - **And**: It does not appear as a separate icon in the DMS dock
 - **And**: It floats at the top of the screen under the panel (existing behavior)
 
@@ -69,7 +69,7 @@ The drop-down terminal uses a proper axiOS app-id and does not appear in the DMS
 
 ### Requirement: Curated Application Set
 
-The desktop module ships a focused set of applications aligned with the axiOS profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
+The desktop module ships a focused set of applications aligned with the Cairn profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
 
 #### Scenario: Default desktop installation
 
@@ -96,7 +96,7 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
 - **Given**: User wants to use Inkscape for vector graphics
 - **When**: User adds `inkscape` to their `extraConfig.environment.systemPackages`
 - **Then**: Inkscape is installed and fully functional
-- **And**: No axiOS modules need to be modified
+- **And**: No Cairn modules need to be modified
 
 ### Requirement: SSD-Consistent Application Selection
 

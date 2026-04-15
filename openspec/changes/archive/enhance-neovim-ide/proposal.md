@@ -9,14 +9,14 @@ Transform the minimal neovim bootstrap into a full-featured IDE experience while
 The current neovim configuration (`home/terminal/neovim.nix`) provides only a lazy.nvim bootstrap with basic settings. Users must manually configure all IDE features, which:
 - Creates a high barrier to entry for NixOS users wanting a capable terminal editor
 - Misses the opportunity to leverage Nix's reproducibility for a consistent IDE experience
-- Doesn't integrate with axiOS features like `services.ai.enable` or devshells
+- Doesn't integrate with Cairn features like `services.ai.enable` or devshells
 
 ## Proposed Solution
 
 ### Core Approach: Preset + Override Pattern
 
-1. **axios provides a Lua preset** installed to the nix store and added to neovim's runtime path
-2. **User's init.lua imports the preset** via `require("axios")` and can override any part
+1. **cairn provides a Lua preset** installed to the nix store and added to neovim's runtime path
+2. **User's init.lua imports the preset** via `require("cairn")` and can override any part
 3. **Devshells inject language config** via environment variables that the preset reads
 4. **AI features are conditional** based on `services.ai.enable`
 
@@ -39,13 +39,13 @@ The current neovim configuration (`home/terminal/neovim.nix`) provides only a la
 
 ### Devshell Integration
 
-Devshells set `AXIOS_NVIM_LANGUAGES` environment variable:
+Devshells set `CAIRN_NVIM_LANGUAGES` environment variable:
 ```bash
 # In rust devshell
-export AXIOS_NVIM_LANGUAGES="rust"
+export CAIRN_NVIM_LANGUAGES="rust"
 
 # In zig devshell
-export AXIOS_NVIM_LANGUAGES="zig"
+export CAIRN_NVIM_LANGUAGES="zig"
 ```
 
 The neovim preset reads this and:
@@ -56,7 +56,7 @@ The neovim preset reads this and:
 ### Out-of-Box Languages
 
 Nix support is always enabled (nil LSP, nix treesitter). Other languages activate when:
-1. Explicitly in `AXIOS_NVIM_LANGUAGES`, OR
+1. Explicitly in `CAIRN_NVIM_LANGUAGES`, OR
 2. Their LSP binary is found in PATH
 
 ## Benefits
@@ -64,7 +64,7 @@ Nix support is always enabled (nil LSP, nix treesitter). Other languages activat
 - **Immediate productivity**: Users get a working IDE without configuration
 - **Reproducible**: Same experience across machines via Nix
 - **Customizable**: Override any plugin, keybind, or setting
-- **Integrated**: Works with axiOS devshells and AI module
+- **Integrated**: Works with Cairn devshells and AI module
 - **Discoverable**: which-key shows available keybinds
 
 ## Non-Goals
@@ -100,7 +100,7 @@ After review, the lazy.nvim runtime download approach is **intentionally retaine
 
 | Consideration | Decision |
 |---------------|----------|
-| Nix purity vs user experience | **User experience wins** - axios is an opinionated workflow framework, not a Nix orthodoxy enforcer |
+| Nix purity vs user experience | **User experience wins** - cairn is an opinionated workflow framework, not a Nix orthodoxy enforcer |
 | Plugin customization | Users can easily add plugins via init.lua without touching Nix |
 | Plugin versions | Latest versions from GitHub, not months-old nixpkgs |
 | Familiar workflow | Matches how neovim users expect plugin management to work |
@@ -108,9 +108,9 @@ After review, the lazy.nvim runtime download approach is **intentionally retaine
 
 ### Remaining Work
 
-Two minor adjustments needed for axios compliance:
+Two minor adjustments needed for cairn compliance:
 
-1. **Add `lib.mkIf cfg.enable` wrapper** - Module should follow axios pattern of being opt-in
+1. **Add `lib.mkIf cfg.enable` wrapper** - Module should follow cairn pattern of being opt-in
 2. **Document first-launch behavior** - Note that internet is required on first launch for plugin download
 
 ### Non-Goals (Confirmed)

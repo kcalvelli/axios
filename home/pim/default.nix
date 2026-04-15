@@ -1,4 +1,4 @@
-# PIM Home Module: axios-ai-mail user configuration and PWA registration
+# PIM Home Module: cairn-mail user configuration and PWA registration
 {
   config,
   lib,
@@ -17,20 +17,20 @@ let
   # Server uses loopback proxy (nginx on 127.0.0.1:443 with LE cert)
   # Client resolves via Tailscale DNS to the VIP
   tailnetDomain = pimCfg.pwa.tailnetDomain or "";
-  pwaUrl = "https://axios-mail.${tailnetDomain}/";
+  pwaUrl = "https://cairn-mail.${tailnetDomain}/";
 in
 {
-  # Import axios-ai-mail home module for server role (provides account config options)
+  # Import cairn-mail home module for server role (provides account config options)
   imports = lib.optional (
-    isServer && inputs ? axios-ai-mail
-  ) inputs.axios-ai-mail.homeManagerModules.default;
+    isServer && inputs ? cairn-mail
+  ) inputs.cairn-mail.homeManagerModules.default;
 
   config = lib.mkIf isEnabled {
     # Register PWA via central generator
-    axios.pwa.apps.axios-mail = lib.mkIf (pimCfg.pwa.enable or false) {
-      name = "Axios Mail";
+    cairn.pwa.apps.cairn-mail = lib.mkIf (pimCfg.pwa.enable or false) {
+      name = "Cairn Mail";
       url = pwaUrl;
-      icon = "axios-mail";
+      icon = "cairn-mail";
       categories = [
         "Network"
         "Email"

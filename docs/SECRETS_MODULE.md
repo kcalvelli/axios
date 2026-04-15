@@ -78,7 +78,7 @@ systemd.services.myapp = {
 ### In Home-Manager (User Secrets)
 ```nix
 # In your home-manager config
-axios.secrets = {
+cairn.secrets = {
   secretsDir = ./home-secrets;  # Separate folder for user secrets
 };
 
@@ -176,9 +176,9 @@ agenix --rekey
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `axios.secrets.enable` | auto | Enable user secrets (auto-enabled if system secrets enabled) |
-| `axios.secrets.secretsDir` | null | Auto-discover `.age` files for this user |
-| `axios.secrets.identityPaths` | User SSH keys | Which private keys to use for decryption |
+| `cairn.secrets.enable` | auto | Enable user secrets (auto-enabled if system secrets enabled) |
+| `cairn.secrets.secretsDir` | null | Auto-discover `.age` files for this user |
+| `cairn.secrets.identityPaths` | User SSH keys | Which private keys to use for decryption |
 
 
 ## Troubleshooting

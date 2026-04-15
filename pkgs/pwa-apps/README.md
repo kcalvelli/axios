@@ -1,6 +1,6 @@
 # PWA Apps Package
 
-Progressive Web App collection with bundled icons and launchers for axios.
+Progressive Web App collection with bundled icons and launchers for cairn.
 
 ## Overview
 
@@ -88,7 +88,7 @@ This pattern is used in:
 
 ## Adding New PWAs
 
-### Adding to axios (for public PWAs)
+### Adding to cairn (for public PWAs)
 
 1. Get the icon (128x128 PNG recommended):
    ```bash
@@ -117,7 +117,7 @@ This pattern is used in:
 
 ### Adding custom PWAs in downstream config
 
-For self-hosted services or user-specific PWAs, use the `axios.pwa` home-manager module to extend the default set:
+For self-hosted services or user-specific PWAs, use the `cairn.pwa` home-manager module to extend the default set:
 
 1. Create an icons directory in your config and add the icon:
    ```bash
@@ -130,7 +130,7 @@ For self-hosted services or user-specific PWAs, use the `axios.pwa` home-manager
    ```nix
    {
      home-manager.users.myuser = {
-       axios.pwa = {
+       cairn.pwa = {
          iconPath = ./icons;
          extraApps.my-app = {
            name = "My App";
@@ -210,4 +210,4 @@ All desktop entries, icons, and launchers are provided by the package itself, en
 
 ## License
 
-Part of the axios NixOS framework - MIT License
+Part of the cairn NixOS framework - MIT License

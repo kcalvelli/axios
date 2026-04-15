@@ -5,7 +5,7 @@
 Add OAuth2 authentication to mcp-gateway, enabling secure remote access from:
 - Claude.ai Integrations (remote MCP connectors)
 - Claude Desktop (remote MCP servers)
-- axios-ai-chat (future Claude PWA)
+- cairn-ai-chat (future Claude PWA)
 - Any OAuth2-capable client
 
 ## Motivation
@@ -17,7 +17,7 @@ Currently mcp-gateway has no authentication. To expose it securely via Tailscale
 ```
 ┌─────────────────┐     ┌──────────────────────────────────────┐     ┌─────────────┐
 │   Claude.ai     │     │           mcp-gateway                │     │ MCP Servers │
-│   axios-ai-chat │────▶│  ┌─────────────────────────────┐    │────▶│  (86 tools) │
+│   cairn-ai-chat │────▶│  ┌─────────────────────────────┐    │────▶│  (86 tools) │
 │   (clients)     │     │  │     OAuth2 Middleware       │    │     └─────────────┘
 └─────────────────┘     │  │  - Token validation         │    │
         │               │  │  - Session management       │    │

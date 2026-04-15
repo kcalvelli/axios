@@ -6,7 +6,7 @@
   - File: `modules/ai/default.nix`
   - Add to `let` block (follow graphics module pattern):
     ```nix
-    gpuType = config.axios.hardware.gpuType or null;
+    gpuType = config.cairn.hardware.gpuType or null;
     isAmdGpu = gpuType == "amd";
     isNvidiaGpu = gpuType == "nvidia";
     ```

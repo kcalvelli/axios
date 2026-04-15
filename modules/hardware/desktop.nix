@@ -1,7 +1,7 @@
 { config, lib, ... }:
 let
   cfg = config.hardware.desktop;
-  cpuType = config.axios.hardware.cpuType or null;
+  cpuType = config.cairn.hardware.cpuType or null;
 in
 {
   imports = [ ./common.nix ];

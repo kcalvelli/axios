@@ -1,6 +1,6 @@
 # Immich Service Module
 # Self-hosted photo and video backup solution with Tailscale Services HTTPS
-# Uses axios.immich namespace to avoid conflict with nixpkgs services.immich
+# Uses cairn.immich namespace to avoid conflict with nixpkgs services.immich
 {
   config,
   lib,
@@ -9,17 +9,17 @@
 }:
 
 let
-  cfg = config.axios.immich;
+  cfg = config.cairn.immich;
   tailscaleDomain = config.networking.tailscale.domain;
   tsCfg = config.networking.tailscale;
   isServer = cfg.role == "server";
   isClient = cfg.role == "client";
 
-  # Service domain: axios-immich.<tailnet>.ts.net
-  serviceDomain = "axios-immich.${tailscaleDomain}";
+  # Service domain: cairn-immich.<tailnet>.ts.net
+  serviceDomain = "cairn-immich.${tailscaleDomain}";
 in
 {
-  options.axios.immich = {
+  options.cairn.immich = {
     enable = lib.mkEnableOption "Immich photo and video backup";
 
     role = lib.mkOption {
@@ -31,8 +31,8 @@ in
       description = ''
         Immich deployment role:
         - "server": Run Immich service locally
-                    Auto-registers as axios-immich.<tailnet>.ts.net via Tailscale Services
-        - "client": PWA desktop entry only (connects to axios-immich.<tailnet>.ts.net)
+                    Auto-registers as cairn-immich.<tailnet>.ts.net via Tailscale Services
+        - "client": PWA desktop entry only (connects to cairn-immich.<tailnet>.ts.net)
       '';
     };
 
@@ -93,10 +93,10 @@ in
           {
             assertion = !cfg.pwa.enable || cfg.pwa.tailnetDomain != null;
             message = ''
-              axios.immich.pwa.enable requires pwa.tailnetDomain to be set.
+              cairn.immich.pwa.enable requires pwa.tailnetDomain to be set.
 
               Example:
-                axios.immich.pwa.tailnetDomain = "taile0fb4.ts.net";
+                cairn.immich.pwa.tailnetDomain = "taile0fb4.ts.net";
             '';
           }
         ];
@@ -108,16 +108,16 @@ in
           {
             assertion = cfg.enableGpuAcceleration -> (cfg.gpuType != null);
             message = ''
-              axios.immich.gpuType must be set when enableGpuAcceleration is true.
+              cairn.immich.gpuType must be set when enableGpuAcceleration is true.
 
               Add to your configuration:
-                axios.immich.gpuType = "amd";  # or "nvidia" or "intel"
+                cairn.immich.gpuType = "amd";  # or "nvidia" or "intel"
             '';
           }
           {
             assertion = tailscaleDomain != null;
             message = ''
-              axios.immich requires networking.tailscale.domain to be set.
+              cairn.immich requires networking.tailscale.domain to be set.
 
               Find your tailnet domain in the Tailscale admin console.
               Example: networking.tailscale.domain = "taile0fb4.ts.net";
@@ -126,7 +126,7 @@ in
           {
             assertion = tsCfg.authMode == "authkey";
             message = ''
-              axios.immich (server role) requires networking.tailscale.authMode = "authkey".
+              cairn.immich (server role) requires networking.tailscale.authMode = "authkey".
 
               Immich uses Tailscale Services for HTTPS, which requires tag-based identity.
               Set up an auth key in the Tailscale admin console with appropriate tags.
@@ -151,8 +151,8 @@ in
         };
 
         # Tailscale Services registration
-        # Provides unique DNS name: axios-immich.<tailnet>.ts.net
-        networking.tailscale.services."axios-immich" = {
+        # Provides unique DNS name: cairn-immich.<tailnet>.ts.net
+        networking.tailscale.services."cairn-immich" = {
           enable = true;
           backend = "http://127.0.0.1:${toString cfg.port}";
           loopbackProxy.enable = true;

@@ -1,7 +1,7 @@
 # System Configuration
 
 ## Purpose
-Provides the foundational NixOS configuration for axiOS systems, including user management, bootloading, performance tuning, and localization.
+Provides the foundational NixOS configuration for Cairn systems, including user management, bootloading, performance tuning, and localization.
 
 ## Components
 
@@ -21,31 +21,31 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 - **Implementation**: `modules/system/boot.nix`, `modules/system/memory.nix`
 
 ### Timezone & Locale
-- **No Regional Defaults**: Users must explicitly set `axios.system.timeZone`.
-- **Locale**: Default `en_US.UTF-8`, configurable via `axios.system.locale`.
+- **No Regional Defaults**: Users must explicitly set `cairn.system.timeZone`.
+- **Locale**: Default `en_US.UTF-8`, configurable via `cairn.system.locale`.
 - **Implementation**: `modules/system/locale.nix`
 
 ### User Management
 - **Implementation**: `modules/users.nix`
-- **Multi-user interface**: `axios.users.users.<name>` (attrsOf submodule) with per-user options:
+- **Multi-user interface**: `cairn.users.users.<name>` (attrsOf submodule) with per-user options:
   - `fullName` (str) — user's display name
   - `email` (str, default "") — for git config and home-manager
   - `isAdmin` (bool, default false) — controls wheel group and trusted-users
   - `homeProfile` (enum "standard"/"normie"/null, default null) — per-user profile override (falls back to host homeProfile)
   - `extraGroups` (list of str) — additional groups for this user
-- **Computed options**: `axios.users.firstAdminUser` — read-only, first user where `isAdmin = true` (used by greeter)
+- **Computed options**: `cairn.users.firstAdminUser` — read-only, first user where `isAdmin = true` (used by greeter)
 - **Automatic group membership**: Groups computed from enabled modules (networkmanager, video, audio, input, etc.) with `wheel` only for `isAdmin = true` users
-- **Per-user home-manager wiring**: Each user gets `home-manager.users.<name>.axios.user.email` set automatically
+- **Per-user home-manager wiring**: Each user gets `home-manager.users.<name>.cairn.user.email` set automatically
 - **Per-user XDG directories**: Created via `systemd.tmpfiles.rules` for all users
 - **Trusted users**: `nix.settings.trusted-users` set to list of admin usernames
-- **Host-user association**: Hosts declare `users = [ "name1" "name2" ]`; axiOS resolves `configDir + "/users/${name}.nix"` automatically
+- **Host-user association**: Hosts declare `users = [ "name1" "name2" ]`; Cairn resolves `configDir + "/users/${name}.nix"` automatically
 
 ### System Branding
-- **Distribution Identity**: Configures system to identify as "axiOS" instead of generic "NixOS".
-- **Logo Integration**: Installs axiOS logo to system pixmaps directory for desktop environment usage.
-- **os-release Configuration**: Sets `LOGO=axios` in `/etc/os-release` for desktop shell integration (e.g., DMS launcher).
+- **Distribution Identity**: Configures system to identify as "Cairn" instead of generic "NixOS".
+- **Logo Integration**: Installs Cairn logo to system pixmaps directory for desktop environment usage.
+- **os-release Configuration**: Sets `LOGO=cairn` in `/etc/os-release` for desktop shell integration (e.g., DMS launcher).
 - **Implementation**: `modules/system/branding.nix`
-- **Assets**: `modules/system/resources/branding/axios.png`
+- **Assets**: `modules/system/resources/branding/cairn.png`
 
 ### Systematic DMS Placeholder Generation
 - **Implementation**: `home/desktop/niri-keybinds.nix` (home.activation.dmsPlaceholders)
@@ -56,7 +56,7 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 ### Init Script Multi-user Support
 - **Implementation**: `scripts/init-config.sh`, `scripts/templates/`
 - **Purpose**: The init script (`nix run .#init`) supports creating configurations for multiple users. After gathering the primary user (marked as admin), it prompts for additional users with username, full name, email, and admin status.
-- **Output**: Generates individual `users/<username>.nix` files using `axios.users.<name>` format and a `flake.nix` using the canonical `mkHost` pattern with `configDir`.
+- **Output**: Generates individual `users/<username>.nix` files using `cairn.users.<name>` format and a `flake.nix` using the canonical `mkHost` pattern with `configDir`.
 
 ### Init Script Hardware Pre-flight Validation
 - **Implementation**: `scripts/init-config.sh`
@@ -72,22 +72,22 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 The system module SHALL provide btop as the standard system monitor. htop SHALL be retained as a lightweight fallback for constrained environments (SSH, recovery, minimal terminals).
 
 #### Scenario: System module provides btop instead of gtop
-- **WHEN** `axios.system.enable = true`
+- **WHEN** `cairn.system.enable = true`
 - **THEN** `environment.systemPackages` MUST contain btop
 - **AND** `environment.systemPackages` MUST NOT contain gtop
 
 #### Scenario: htop retained as lightweight fallback
-- **WHEN** `axios.system.enable = true`
+- **WHEN** `cairn.system.enable = true`
 - **THEN** `environment.systemPackages` MUST contain htop
 
 ### Requirement: Cachix CLI conditional on system enable
 
-The cachix CLI package SHALL be installed inside the `lib.mkIf config.axios.system.enable` guard, not unconditionally. Cache substituters are configured separately and work without the CLI binary.
+The cachix CLI package SHALL be installed inside the `lib.mkIf config.cairn.system.enable` guard, not unconditionally. Cache substituters are configured separately and work without the CLI binary.
 
 #### Scenario: Cachix installed conditionally
-- **WHEN** `axios.system.enable = true`
+- **WHEN** `cairn.system.enable = true`
 - **THEN** cachix MUST be available in `environment.systemPackages`
 
 #### Scenario: Cachix not installed when system disabled
-- **WHEN** `axios.system.enable = false`
+- **WHEN** `cairn.system.enable = false`
 - **THEN** cachix MUST NOT be in `environment.systemPackages`

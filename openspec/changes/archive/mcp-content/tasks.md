@@ -392,7 +392,7 @@ settings.servers.content = {
 - [ ] Document each tool with examples
 
 ### Task 7.2: Update System Prompt
-- [ ] Add content extraction to axios system prompt
+- [ ] Add content extraction to cairn system prompt
 - [ ] Document tool capabilities and limitations
 
 ---

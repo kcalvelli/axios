@@ -5,26 +5,26 @@
   ...
 }:
 let
-  cfg = config.axios.terminal.neovim;
+  cfg = config.cairn.terminal.neovim;
 
   # Template for user's init.lua
   initLuaTemplate = ''
-    -- axiOS Neovim Configuration
+    -- Cairn Neovim Configuration
     -- This file is user-owned - customize freely!
 
     -- Leader key (MUST be set before loading plugins)
     vim.g.mapleader = " "
     vim.g.maplocalleader = " "
 
-    -- Load axios preset with your customizations
-    require("axios").setup({})
+    -- Load cairn preset with your customizations
+    require("cairn").setup({})
 
     -- Add your custom configuration below:
   '';
 in
 {
-  options.axios.terminal.neovim = {
-    enable = lib.mkEnableOption "axiOS neovim IDE preset";
+  options.cairn.terminal.neovim = {
+    enable = lib.mkEnableOption "Cairn neovim IDE preset";
   };
 
   config = lib.mkIf cfg.enable {
@@ -36,7 +36,7 @@ in
       vimAlias = true;
       vimdiffAlias = true;
 
-      # Adopt new nixpkgs defaults — axios preset is lua-based,
+      # Adopt new nixpkgs defaults — cairn preset is lua-based,
       # no Ruby/Python3 providers needed.
       withRuby = false;
       withPython3 = false;
@@ -62,15 +62,15 @@ in
         gnumake
       ];
 
-      # Add axios preset to runtimepath via wrapper (doesn't touch user's init.lua)
+      # Add cairn preset to runtimepath via wrapper (doesn't touch user's init.lua)
       extraWrapperArgs = [
         "--add-flags"
-        "--cmd 'set runtimepath^=${pkgs.axios-nvim-preset}'"
+        "--cmd 'set runtimepath^=${pkgs.cairn-nvim-preset}'"
       ];
     };
 
     # Bootstrap init.lua if it doesn't exist (user-owned, not managed by home-manager)
-    home.activation.neovimAxiosBootstrap = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    home.activation.neovimCairnBootstrap = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             NVIM_CONFIG_DIR="${config.home.homeDirectory}/.config/nvim"
             INIT_LUA="$NVIM_CONFIG_DIR/init.lua"
 
@@ -82,10 +82,10 @@ in
               # Remove symlink if home-manager created one
               [ -L "$INIT_LUA" ] && rm "$INIT_LUA"
               run mkdir -p "$NVIM_CONFIG_DIR"
-              run cat > "$INIT_LUA" << 'AXIOSEOF'
+              run cat > "$INIT_LUA" << 'CAIRNEOF'
       ${initLuaTemplate}
-      AXIOSEOF
-              verboseEcho "Created neovim config with axios IDE preset"
+      CAIRNEOF
+              verboseEcho "Created neovim config with cairn IDE preset"
             fi
     '';
   };

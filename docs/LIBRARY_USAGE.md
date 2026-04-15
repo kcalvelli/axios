@@ -1,8 +1,8 @@
-# Using axiOS as a Library
+# Using Cairn as a Library
 
-This guide explains how to use axiOS as a library/framework to build your own NixOS configurations with minimal maintenance.
+This guide explains how to use Cairn as a library/framework to build your own NixOS configurations with minimal maintenance.
 
-## Why Use axiOS as a Library?
+## Why Use Cairn as a Library?
 
 Instead of forking and maintaining thousands of lines of configuration code, you:
 
@@ -41,13 +41,13 @@ cd ~/.config/nixos_config
   description = "My NixOS Configuration";
 
   inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
+    cairn.url = "github:kcalvelli/cairn";
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }:
+  outputs = { self, cairn, nixpkgs, ... }:
     let
-      mkHost = hostname: axios.lib.mkSystem (
+      mkHost = hostname: cairn.lib.mkSystem (
         (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
           configDir = self.outPath;
         }
@@ -97,7 +97,7 @@ cd ~/.config/nixos_config
 
     extraConfig = {
       # System timezone (required)
-      axios.system.timeZone = "America/New_York";
+      cairn.system.timeZone = "America/New_York";
     };
   };
 }
@@ -109,7 +109,7 @@ cd ~/.config/nixos_config
 ```nix
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     isAdmin = true;
@@ -117,7 +117,7 @@ cd ~/.config/nixos_config
 }
 ```
 
-That's it! axiOS automatically creates the user account, assigns groups based on enabled modules, configures home-manager, and sets up git.
+That's it! Cairn automatically creates the user account, assigns groups based on enabled modules, configures home-manager, and sets up git.
 
 ### 5. Copy Hardware Configuration
 
@@ -141,12 +141,12 @@ sudo nixos-rebuild switch --flake .#myhost
 
 ## Library API Reference
 
-### `axios.lib.mkSystem`
+### `cairn.lib.mkSystem`
 
 Main function to create a NixOS configuration.
 
 ```nix
-nixosConfigurations.<name> = axios.lib.mkSystem {
+nixosConfigurations.<name> = cairn.lib.mkSystem {
   # Required
   hostname = "string";
 
@@ -294,7 +294,7 @@ Enable only the modules you need:
 - Firewall configuration
 
 **Users (default: true):**
-- Multi-user account management via `axios.users.users.<name>`
+- Multi-user account management via `cairn.users.users.<name>`
 - Home Manager integration
 - Automatic group assignment based on enabled modules
 
@@ -319,8 +319,8 @@ Enable only the modules you need:
 - Optional local LLM stack (llama.cpp + OpenCode)
 
 **PIM:**
-- axios-ai-mail (AI-powered email)
-- Calendar and contacts via axios-dav (mcp-dav)
+- cairn-mail (AI-powered email)
+- Calendar and contacts via cairn-dav (mcp-dav)
 
 **Secrets:**
 - agenix for encrypted secrets
@@ -358,13 +358,13 @@ Manage multiple machines in one configuration:
 ```nix
 {
   inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
+    cairn.url = "github:kcalvelli/cairn";
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }:
+  outputs = { self, cairn, nixpkgs, ... }:
     let
-      mkHost = hostname: axios.lib.mkSystem (
+      mkHost = hostname: cairn.lib.mkSystem (
         (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
           configDir = self.outPath;
         }
@@ -381,11 +381,11 @@ Manage multiple machines in one configuration:
 
 See [examples/example-config/](../examples/example-config/) for a complete multi-host example.
 
-## Updating axiOS
+## Updating Cairn
 
 ### Regular Updates
 
-Get the latest features from axiOS:
+Get the latest features from Cairn:
 
 ```bash
 cd ~/.config/nixos_config
@@ -399,29 +399,29 @@ For stability, pin to a specific version:
 
 **Pin to branch:**
 ```nix
-axios.url = "github:kcalvelli/axios/master";
+cairn.url = "github:kcalvelli/cairn/master";
 ```
 
 **Pin to tag:**
 ```nix
-axios.url = "github:kcalvelli/axios/v1.0.0";
+cairn.url = "github:kcalvelli/cairn/v1.0.0";
 ```
 
 **Pin to commit:**
 ```nix
-axios.url = "github:kcalvelli/axios/abc123def456...";
+cairn.url = "github:kcalvelli/cairn/abc123def456...";
 ```
 
 ### Check What Changed
 
-Before updating, see what changed in axios:
+Before updating, see what changed in cairn:
 
 ```bash
-# View axios commit history
-nix flake metadata axios
+# View cairn commit history
+nix flake metadata cairn
 
 # Compare your pinned version to latest
-git log --oneline $(nix flake metadata --json | jq -r '.locks.nodes.axios.locked.rev')..origin/master
+git log --oneline $(nix flake metadata --json | jq -r '.locks.nodes.cairn.locked.rev')..origin/master
 ```
 
 ## Customization
@@ -431,12 +431,12 @@ git log --oneline $(nix flake metadata --json | jq -r '.locks.nodes.axios.locked
 Use `extraConfig` to override or add options:
 
 ```nix
-axios.lib.mkSystem {
+cairn.lib.mkSystem {
   # ... standard config ...
 
   extraConfig = {
     # System timezone (required)
-    axios.system.timeZone = "America/New_York";
+    cairn.system.timeZone = "America/New_York";
 
     # Enable crash diagnostics for automatic recovery from system freezes
     hardware.crashDiagnostics = {
@@ -459,10 +459,10 @@ axios.lib.mkSystem {
 
 ### Add Your Own Modules
 
-Import additional modules alongside axios:
+Import additional modules alongside cairn:
 
 ```nix
-axios.lib.mkSystem {
+cairn.lib.mkSystem {
   # ... standard config ...
 
   extraConfig = {
@@ -476,20 +476,20 @@ axios.lib.mkSystem {
 
 ### Override Packages
 
-Override specific packages from axios:
+Override specific packages from cairn:
 
 ```nix
 {
   inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
+    cairn.url = "github:kcalvelli/cairn";
+    nixpkgs.follows = "cairn/nixpkgs";
 
     # Add your own input for a specific package
     my-package.url = "github:user/my-package";
   };
 
-  outputs = { self, axios, nixpkgs, my-package, ... }: {
-    nixosConfigurations.myhost = axios.lib.mkSystem {
+  outputs = { self, cairn, nixpkgs, my-package, ... }: {
+    nixosConfigurations.myhost = cairn.lib.mkSystem {
       # ... config ...
 
       extraConfig = {
@@ -507,21 +507,21 @@ Override specific packages from axios:
 
 ## Advanced Usage
 
-### Use Specific axiOS Modules Only
+### Use Specific Cairn Modules Only
 
 If you want fine-grained control, you can import specific modules:
 
 ```nix
 {
-  inputs.axios.url = "github:kcalvelli/axios";
+  inputs.cairn.url = "github:kcalvelli/cairn";
 
-  outputs = { self, axios, nixpkgs, ... }: {
+  outputs = { self, cairn, nixpkgs, ... }: {
     nixosConfigurations.myhost = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
-        # Use only specific axios modules
-        axios.nixosModules.desktop
-        axios.nixosModules.networking
+        # Use only specific cairn modules
+        cairn.nixosModules.desktop
+        cairn.nixosModules.networking
 
         # Your own configuration
         ./configuration.nix
@@ -533,10 +533,10 @@ If you want fine-grained control, you can import specific modules:
 
 ### Fork and Customize
 
-For deep customization, fork axios:
+For deep customization, fork cairn:
 
 1. Fork the repository on GitHub
-2. Update your flake input: `axios.url = "github:yourusername/axios";`
+2. Update your flake input: `cairn.url = "github:yourusername/cairn";`
 3. Make your changes in your fork
 4. Optionally contribute improvements back upstream
 
@@ -546,18 +546,18 @@ For deep customization, fork axios:
 
 If you get build errors after updating:
 
-1. Check axios changelog for breaking changes
+1. Check cairn changelog for breaking changes
 2. Update your configuration to match new API
 3. Pin to previous version temporarily:
    ```bash
-   nix flake lock --update-input axios --override-input axios github:kcalvelli/axios/<old-commit>
+   nix flake lock --update-input cairn --override-input cairn github:kcalvelli/cairn/<old-commit>
    ```
 
 ### Module Conflicts
 
 If you have conflicting options:
 
-1. Check what axios modules are setting with `extraConfig`
+1. Check what cairn modules are setting with `extraConfig`
 2. Use `lib.mkForce` to override:
    ```nix
    extraConfig = {
@@ -567,12 +567,12 @@ If you have conflicting options:
 
 ### Missing Features
 
-If axios doesn't provide something you need:
+If cairn doesn't provide something you need:
 
 1. Add it to your `extraConfig`
 2. Create a custom module
-3. Submit a PR to axios with the feature
-4. Fork axios and add it yourself
+3. Submit a PR to cairn with the feature
+4. Fork cairn and add it yourself
 
 ## Examples
 
@@ -580,7 +580,7 @@ If axios doesn't provide something you need:
 
 ## Support
 
-- [GitHub Issues](https://github.com/kcalvelli/axios/issues) - Bug reports and feature requests
+- [GitHub Issues](https://github.com/kcalvelli/cairn/issues) - Bug reports and feature requests
 - [Documentation](../docs/) - Additional guides and references
 - [NixOS Manual](https://nixos.org/manual/nixos/stable/) - NixOS documentation
 
@@ -590,6 +590,6 @@ If you're migrating from the old `userModulePath`/`diskConfigPath` API:
 
 1. **`userModulePath` -> `users` list + `configDir`**: Replace stringly-typed path with `users = [ "username" ]` in host config and add `configDir = self.outPath`
 2. **`diskConfigPath` -> `hardwareConfigPath`**: Rename the parameter
-3. **`axios.user` -> `axios.users.users.<name>`**: Replace singular user options with multi-user submodule
+3. **`cairn.user` -> `cairn.users.users.<name>`**: Replace singular user options with multi-user submodule
 4. **`user.nix` -> `users/<name>.nix`**: Move root-level user file to `users/` directory
 5. **Host config extraction**: Move inline host configs from flake.nix to `hosts/<hostname>.nix` files

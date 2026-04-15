@@ -1,6 +1,6 @@
 ## Context
 
-The current axiOS desktop module uses GStreamer as the Qt6 multimedia backend. This architecture has proven unreliable on NixOS:
+The current Cairn desktop module uses GStreamer as the Qt6 multimedia backend. This architecture has proven unreliable on NixOS:
 
 1. **Symbol mismatch crashes**: GStreamer plugins are loaded via `g_io_module_load`, but NixOS's isolated store paths can cause glib version mismatches, leading to `undefined symbol` errors
 2. **Race conditions**: Qt6Multimedia/GStreamer initialization races with PipeWire, causing DMS/Quickshell SIGSEGV at boot

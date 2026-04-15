@@ -1,6 +1,6 @@
 # Application Catalog
 
-This document provides a comprehensive list of all applications included in axiOS, organized by category and module.
+This document provides a comprehensive list of all applications included in Cairn, organized by category and module.
 
 **Quick Navigation:**
 - [Desktop Applications](#desktop-applications)
@@ -24,10 +24,10 @@ This document provides a comprehensive list of all applications included in axiO
 | Browser | Description | Role |
 |---------|-------------|------|
 | **Brave** | Chromium-based browser with built-in ad blocking | Default browser, Brave Nightly for development |
-| **Chromium** | Open-source browser engine | PWA backend (default engine for `axios.pwa` apps) |
+| **Chromium** | Open-source browser engine | PWA backend (default engine for `cairn.pwa` apps) |
 | **Google Chrome** | Google's Chromium variant | Compatibility testing, alternative PWA engine |
 
-> **Note:** Browser GPU acceleration flags are computed automatically based on `axios.hardware.gpuType` and exposed via `desktop.browserArgs` for consistent hardware acceleration across all browsers and PWAs.
+> **Note:** Browser GPU acceleration flags are computed automatically based on `cairn.hardware.gpuType` and exposed via `desktop.browserArgs` for consistent hardware acceleration across all browsers and PWAs.
 
 ### File Management
 
@@ -94,11 +94,11 @@ This document provides a comprehensive list of all applications included in axiO
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
-| **axios-ai-mail** | AI-powered email client | Local LLM email classification and smart inbox |
+| **cairn-mail** | AI-powered email client | Local LLM email classification and smart inbox |
 | **vdirsyncer** | Calendar/contact sync tool | CLI tool for syncing multiple calendar and contact sources |
-| **mcp-dav** | Calendar/contacts MCP server | CalDAV/CardDAV integration via axios-dav |
+| **mcp-dav** | Calendar/contacts MCP server | CalDAV/CardDAV integration via cairn-dav |
 
-**Server Role (runs axios-ai-mail service):**
+**Server Role (runs cairn-mail service):**
 ```nix
 modules.pim = true;
 # In extraConfig:
@@ -311,7 +311,7 @@ Included when `services.ai.enable = true`:
 | **claude-desktop** | Anthropic | Claude desktop application |
 | **claude-code-router** | Anthropic | Claude Code request router |
 | **gemini** | Google | Multimodal CLI agent with free tier |
-| **antigravity** | Google | Advanced agentic assistant for axiOS development |
+| **antigravity** | Google | Advanced agentic assistant for Cairn development |
 | **codex** | OpenAI | Terminal coding agent, enabled via `services.ai.openai.enable` |
 | **codex-acp** | OpenAI | Optional ACP companion, enabled via `services.ai.openai.codexAcp.enable` |
 
@@ -320,7 +320,7 @@ Included when `services.ai.enable = true`:
 | Tool | Description |
 |------|-------------|
 | **openspec** | OpenSpec SDD workflow CLI for spec-driven development |
-| **spec-kit** | Spec-driven development framework (used by axiOS) |
+| **spec-kit** | Spec-driven development framework (used by Cairn) |
 | **claude-monitor** | Real-time AI session resource monitoring |
 | **whisper-cpp** | Local speech-to-text transcription |
 
@@ -351,9 +351,9 @@ Download GGUF models with `nix run .#download-llama-models` and configure via `s
 
 **OpenAI authentication and config notes:**
 - `codex` uses the upstream interactive login flow (`codex login`).
-- axios declaratively generates `~/.codex/config.toml` when both `services.ai.openai.enable` and `services.ai.mcp.enable` are enabled, registering the local `mcp-gateway` HTTP transport for Codex.
-- axios does not inject an OpenAI-specific system prompt because the current change still does not rely on a stable shared prompt hook for Codex.
-- `chatgpt` is shipped as a default axios PWA, so it can be present for normie users without enabling `services.ai`.
+- cairn declaratively generates `~/.codex/config.toml` when both `services.ai.openai.enable` and `services.ai.mcp.enable` are enabled, registering the local `mcp-gateway` HTTP transport for Codex.
+- cairn does not inject an OpenAI-specific system prompt because the current change still does not rely on a stable shared prompt hook for Codex.
+- `chatgpt` is shipped as a default cairn PWA, so it can be present for normie users without enabling `services.ai`.
 - No external OpenAI-specific packages are required for this first pass; evaluate non-`nixpkgs` additions later only if the shipped package set proves insufficient.
 
 ### MCP Servers
@@ -369,7 +369,7 @@ Model Context Protocol servers for enhanced AI context:
 - `nix-devshell-mcp` - Nix development shell integration
 
 **PIM Integration:**
-- `axios-ai-mail` - AI-powered email access and management
+- `cairn-mail` - AI-powered email access and management
 - `mcp-dav` - Calendar and contacts via CalDAV/CardDAV
 
 **AI Enhancement:**
@@ -391,7 +391,7 @@ Progressive Web Apps are installed as native applications using Brave browser.
 
 ### Default PWAs
 
-axiOS ships 30+ default PWAs (enabled via `axios.pwa.includeDefaults = true`, the default). Key defaults include:
+Cairn ships 30+ default PWAs (enabled via `cairn.pwa.includeDefaults = true`, the default). Key defaults include:
 
 | Category | PWAs |
 |----------|------|
@@ -411,7 +411,7 @@ See `pkgs/pwa-apps/pwa-defs.nix` for the complete list.
 Add to your home-manager configuration:
 
 ```nix
-axios.pwa = {
+cairn.pwa = {
   enable = true;
   apps = {
     chatgpt = {
@@ -585,7 +585,7 @@ nix search nixpkgs <keyword>
 
 ## Next Steps
 
-- **Install axiOS**: [INSTALLATION.md](INSTALLATION.md)
+- **Install Cairn**: [INSTALLATION.md](INSTALLATION.md)
 - **Module configuration**: [MODULE_REFERENCE.md](MODULE_REFERENCE.md)
 - **Customize desktop**: [THEMING.md](THEMING.md)
 - **Configure secrets**: [SECRETS_MODULE.md](SECRETS_MODULE.md)
@@ -594,4 +594,4 @@ nix search nixpkgs <keyword>
 
 **Questions?**
 
-See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues or create an issue on [GitHub](https://github.com/kcalvelli/axios/issues).
+See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues or create an issue on [GitHub](https://github.com/kcalvelli/cairn/issues).

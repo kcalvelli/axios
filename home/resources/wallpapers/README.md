@@ -1,6 +1,6 @@
 # Wallpaper Collection (Maintainer Guide)
 
-> **Note**: This document is for axiOS maintainers managing the wallpaper collection.
+> **Note**: This document is for Cairn maintainers managing the wallpaper collection.
 > **Users**: See the main [README.md](../../../README.md) for user-facing documentation.
 
 This directory contains curated wallpapers that will be deployed to `~/Pictures/Wallpapers` on systems with wallpaper collection enabled.
@@ -8,11 +8,11 @@ This directory contains curated wallpapers that will be deployed to `~/Pictures/
 ## Adding/Removing/Updating Wallpapers
 
 1. Place your wallpaper images (PNG, JPG, JPEG) in this directory
-2. Wallpapers will automatically be deployed when `axios.wallpapers.enable = true` is set
+2. Wallpapers will automatically be deployed when `cairn.wallpapers.enable = true` is set
 3. Supported formats: PNG, JPG, JPEG
 
 **When you change wallpapers in this directory:**
-- Users will receive the updated collection when they rebuild after updating their axios flake input
+- Users will receive the updated collection when they rebuild after updating their cairn flake input
 - The system automatically detects changes via SHA256 hash of wallpaper filenames
 - By default, a new random wallpaper will be set when the collection changes
 
@@ -24,7 +24,7 @@ Users add to their `user.nix` file under `home-manager.users.${username}`:
 home-manager.users.myuser = {
   # ... existing config ...
 
-  axios.wallpapers.enable = true;  # Enable curated wallpaper collection
+  cairn.wallpapers.enable = true;  # Enable curated wallpaper collection
 };
 ```
 
@@ -33,7 +33,7 @@ home-manager.users.myuser = {
 When users enable the option above:
 1. All wallpapers in this directory are deployed to `~/Pictures/Wallpapers`
 2. Collection changes are detected via SHA256 hash of filenames
-3. Hash stored in `~/.cache/axios-wallpaper-collection-hash`
+3. Hash stored in `~/.cache/cairn-wallpaper-collection-hash`
 4. Random wallpaper set when hash changes (controlled by `autoUpdate` option)
 
 ## Testing Changes

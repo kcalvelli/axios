@@ -28,13 +28,13 @@ Replace `services.ollama` with custom systemd service:
 - [x] Define `llamaPkg = if isAmdGpu then pkgs.llama-cpp-rocm else pkgs.llama-cpp`
 - [x] Keep `boot.kernelModules` for AMD
 - [x] Keep `rocmPackages.rocminfo` in server packages
-- [x] Update Tailscale Services from `axios-ollama` to `axios-llama`
-- [x] Update `networking.hosts` from `axios-ollama.local` to `axios-llama.local`
+- [x] Update Tailscale Services from `cairn-ollama` to `cairn-llama`
+- [x] Update `networking.hosts` from `cairn-ollama.local` to `cairn-llama.local`
 - [x] Add assertion: server role requires `cfg.local.model` to be set (handled by types.path — no default means Nix errors at eval)
 
 ### 3. Rewrite `modules/ai/default.nix` — client role config block
 
-- [x] Replace `OLLAMA_HOST` with `LLAMA_API_URL` pointing at `https://axios-llama.${cfg.local.tailnetDomain}`
+- [x] Replace `OLLAMA_HOST` with `LLAMA_API_URL` pointing at `https://cairn-llama.${cfg.local.tailnetDomain}`
 - [x] Remove `pkgs.ollama` from client packages (no CLI needed)
 - [x] Keep OpenCode in client packages
 

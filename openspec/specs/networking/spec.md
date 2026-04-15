@@ -138,7 +138,7 @@ The Tailscale service submodule SHALL include a `loopbackProxy` option group.
 
 - **Port Allocations**: See `openspec/specs/networking/ports.md`
 - **Services Spec**: See `openspec/specs/services/spec.md` for Caddy route registry and self-hosted services
-- **PIM Integration**: See `openspec/specs/pim/spec.md` for axios-mail loopback proxy usage
+- **PIM Integration**: See `openspec/specs/pim/spec.md` for cairn-mail loopback proxy usage
 
 ---
 

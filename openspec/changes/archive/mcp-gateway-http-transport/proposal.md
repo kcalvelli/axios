@@ -2,7 +2,7 @@
 
 ## Summary
 
-Add native MCP HTTP/SSE transport to mcp-gateway, transforming it from a REST-only gateway into a universal protocol bridge. This enables Claude.ai Integrations, Claude Desktop, and any MCP-compatible client to access axios MCP tools alongside existing REST/OpenAPI clients.
+Add native MCP HTTP/SSE transport to mcp-gateway, transforming it from a REST-only gateway into a universal protocol bridge. This enables Claude.ai Integrations, Claude Desktop, and any MCP-compatible client to access cairn MCP tools alongside existing REST/OpenAPI clients.
 
 ## Motivation
 
@@ -21,7 +21,7 @@ This works for OpenAPI clients like Open WebUI, but:
 ### The Opportunity
 
 Claude.ai (with Pro/Max subscription) now supports "Integrations" - connecting to remote MCP servers. If mcp-gateway speaks MCP HTTP transport, users can:
-- Use Claude.ai web interface with all 86+ axios MCP tools
+- Use Claude.ai web interface with all 86+ cairn MCP tools
 - Leverage their Max subscription (no API costs)
 - Access tools from any device via Tailscale
 
@@ -37,7 +37,7 @@ With this change, mcp-gateway becomes a true protocol bridge:
    MCP Servers      │                                     │
    (stdio)          │  ┌─────────────────────────────┐   │
                     │  │  Server Manager             │   │
-   ──────────────►  │  │  - axios-ai-mail            │   │
+   ──────────────►  │  │  - cairn-mail            │   │
                     │  │  - mcp-dav                  │   │
                     │  │  - git, github, filesystem  │   │
                     │  └─────────────────────────────┘   │
@@ -126,8 +126,8 @@ Client (Claude.ai)                    mcp-gateway
 ### Tool Namespacing
 
 To avoid conflicts between servers, tools will be namespaced:
-- Internal: `axios-ai-mail/send_email`
-- MCP exposed: `axios_ai_mail__send_email` or configurable
+- Internal: `cairn-mail/send_email`
+- MCP exposed: `cairn_mail__send_email` or configurable
 
 ## Configuration
 
@@ -174,13 +174,13 @@ Once deployed, users connect Claude.ai to mcp-gateway:
 - **Requires**: Tailscale serve for remote access
 - **Enables**: Claude.ai Integrations, Claude Desktop remote
 
-## Future: axios-ai-chat
+## Future: cairn-ai-chat
 
-This proposal enables a future project: **axios-ai-chat** - a purpose-built Claude chat client (separate repo) that:
+This proposal enables a future project: **cairn-ai-chat** - a purpose-built Claude chat client (separate repo) that:
 - Uses Claude Max subscription (via setup-token)
 - Connects to mcp-gateway via MCP HTTP
-- Replaces Open WebUI wrapper with axios-native experience
-- Follows axios-ai-mail / axios-dav pattern
+- Replaces Open WebUI wrapper with cairn-native experience
+- Follows cairn-mail / cairn-dav pattern
 
 That will be a separate proposal once this foundation is in place.
 

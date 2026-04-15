@@ -28,9 +28,9 @@ This hairpinning workaround currently appears in **four** modules, all using the
 
 | Module | Service | Current Pattern |
 |--------|---------|-----------------|
-| `modules/pim/default.nix` | axios-mail | `axios-mail.local:8080` |
-| `modules/ai/default.nix` | axios-ollama | `axios-ollama.local:11434` |
-| `modules/services/immich.nix` | axios-immich | `axios-immich.local:2283` |
+| `modules/pim/default.nix` | cairn-mail | `cairn-mail.local:8080` |
+| `modules/ai/default.nix` | cairn-ollama | `cairn-ollama.local:11434` |
+| `modules/services/immich.nix` | cairn-immich | `cairn-immich.local:2283` |
 | `home/ai/mcp-gateway.nix` | mcp-gateway | `mcp-gateway.local:8085` |
 
 The loopback proxy provides a single, generic solution that all services can opt into.
@@ -40,7 +40,7 @@ The loopback proxy provides a single, generic solution that all services can opt
 ### Architecture
 
 ```
-Browser -> https://axios-mail.<tailnet>.ts.net
+Browser -> https://cairn-mail.<tailnet>.ts.net
         -> /etc/hosts resolves to 127.0.0.1 (server only)
         -> nginx (127.0.0.1:443) with real LE cert from `tailscale cert`
         -> proxy_pass to 127.0.0.1:<port> (app backend)
@@ -57,20 +57,20 @@ Remote clients are completely unaffected -- they resolve via Tailscale DNS to th
 
 3. **Real LE certs via `tailscale cert`**: No self-signed certificates. The browser sees a valid chain of trust (Let's Encrypt issuer). A systemd timer renews daily.
 
-4. **`/etc/hosts` migration**: The tailscale module now manages `/etc/hosts` entries for loopback-proxied services using the real FQDN (e.g., `axios-mail.<tailnet>.ts.net -> 127.0.0.1`) instead of the old `.local` convention.
+4. **`/etc/hosts` migration**: The tailscale module now manages `/etc/hosts` entries for loopback-proxied services using the real FQDN (e.g., `cairn-mail.<tailnet>.ts.net -> 127.0.0.1`) instead of the old `.local` convention.
 
 5. **PWA URL unification**: Since both server and client now use the same HTTPS URL, all server/client conditionals and insecure Chromium flags are removed from home modules.
 
 ### Scope (This Proposal)
 
-- **Implement now**: `axios-mail` (PIM module) -- the immediate need for Web Push.
-- **Opt-in later**: `mcp-gateway`, `axios-immich`, `axios-ollama` can enable `loopbackProxy.enable = true` in future changes.
+- **Implement now**: `cairn-mail` (PIM module) -- the immediate need for Web Push.
+- **Opt-in later**: `mcp-gateway`, `cairn-immich`, `cairn-ollama` can enable `loopbackProxy.enable = true` in future changes.
 - **This proposal only modifies existing modules** -- no new module registration required.
 
 ## Capabilities Affected
 
 1. **Networking / Tailscale** (`openspec/specs/networking/`) -- new `loopbackProxy` sub-option on services, cert sync service, nginx generation, /etc/hosts generation.
-2. **PIM** (`openspec/specs/pim/spec.md`) -- enable loopback proxy for axios-mail, update PWA requirements to reflect HTTPS-only access.
+2. **PIM** (`openspec/specs/pim/spec.md`) -- enable loopback proxy for cairn-mail, update PWA requirements to reflect HTTPS-only access.
 
 ## Risks & Mitigations
 
@@ -78,7 +78,7 @@ Remote clients are completely unaffected -- they resolve via Tailscale DNS to th
 |------|------------|
 | nginx port 443 conflict with other local services | Listen only on `127.0.0.1`, not `0.0.0.0`. Check with assertions. |
 | Certificate renewal failure | Daily timer with retry logic; `tailscale cert` is idempotent. Service health unaffected (existing cert remains valid until expiry). |
-| wmClass change on server PWA | `StartupWMClass` will change from `brave-axios-mail.local__-Default` to `brave-axios-mail.<tailnet>__-Default`. User may need to re-pin the dock icon once. Documented in tasks. |
+| wmClass change on server PWA | `StartupWMClass` will change from `brave-cairn-mail.local__-Default` to `brave-cairn-mail.<tailnet>__-Default`. User may need to re-pin the dock icon once. Documented in tasks. |
 | nginx not enabled on minimal installs | nginx is only enabled when at least one service has `loopbackProxy.enable = true`. No impact on systems without it. |
 
 ## Related Documents

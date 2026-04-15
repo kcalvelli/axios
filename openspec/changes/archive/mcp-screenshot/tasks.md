@@ -349,7 +349,7 @@ settings.servers.screenshot = lib.mkIf (osConfig.programs.niri.enable or false) 
 - [ ] Document Wayland requirement
 
 ### Task 5.2: Update System Prompt
-- [ ] Add screenshot capability to axios system prompt
+- [ ] Add screenshot capability to cairn system prompt
 - [ ] Note: Interactive region selection requires user action
 
 ---

@@ -1,8 +1,8 @@
-# Upgrading Axios
+# Upgrading Cairn
 
-Quick guide for updating your Axios-based NixOS configuration to the latest version.
+Quick guide for updating your Cairn-based NixOS configuration to the latest version.
 
-Axios uses [Calendar Versioning (CalVer)](https://calver.org/) with YYYY-MM-DD format.
+Cairn uses [Calendar Versioning (CalVer)](https://calver.org/) with YYYY-MM-DD format.
 
 ## TL;DR - Latest Version
 
@@ -11,9 +11,9 @@ Axios uses [Calendar Versioning (CalVer)](https://calver.org/) with YYYY-MM-DD f
 **Action Required**: None - just update and rebuild
 
 ```bash
-# Update axios
+# Update cairn
 cd ~/my-nixos-config
-nix flake lock --update-input axios
+nix flake lock --update-input cairn
 
 # Rebuild
 sudo nixos-rebuild switch --flake .#HOSTNAME
@@ -26,13 +26,13 @@ sudo nixos-rebuild switch --flake .#HOSTNAME
 ### 1. Check What's New
 
 Before upgrading, check for breaking changes:
-- **[GitHub Releases](https://github.com/kcalvelli/axios/releases)** - Release notes and changelogs
+- **[GitHub Releases](https://github.com/kcalvelli/cairn/releases)** - Release notes and changelogs
 
-### 2. Update Axios Input
+### 2. Update Cairn Input
 
 ```bash
 cd ~/my-nixos-config
-nix flake lock --update-input axios
+nix flake lock --update-input cairn
 ```
 
 ### 3. Review the Lock File Changes
@@ -41,7 +41,7 @@ nix flake lock --update-input axios
 git diff flake.lock
 ```
 
-Look for the axios input changes to confirm the new version.
+Look for the cairn input changes to confirm the new version.
 
 ### 4. Test Build (Recommended)
 
@@ -117,14 +117,14 @@ sudo nixos-rebuild switch --rollback
 
 Use this checklist when upgrading:
 
-- [ ] Check [GitHub Releases](https://github.com/kcalvelli/axios/releases) for changes
+- [ ] Check [GitHub Releases](https://github.com/kcalvelli/cairn/releases) for changes
 - [ ] Backup important data (optional but recommended)
-- [ ] Update flake.lock: `nix flake lock --update-input axios`
+- [ ] Update flake.lock: `nix flake lock --update-input cairn`
 - [ ] Review lock file changes: `git diff flake.lock`
 - [ ] Test build: `sudo nixos-rebuild dry-build --flake .#HOSTNAME`
 - [ ] Apply update: `sudo nixos-rebuild switch --flake .#HOSTNAME`
 - [ ] Verify system functionality
-- [ ] Commit changes: `git add flake.lock && git commit -m "Update axios to YYYY-MM-DD"`
+- [ ] Commit changes: `git add flake.lock && git commit -m "Update cairn to YYYY-MM-DD"`
 
 ---
 
@@ -134,7 +134,7 @@ Use this checklist when upgrading:
 
 1. **Check error message** - often indicates missing config
 2. **Review release notes** - check for required changes
-3. **Search issues** - [GitHub Issues](https://github.com/kcalvelli/axios/issues)
+3. **Search issues** - [GitHub Issues](https://github.com/kcalvelli/cairn/issues)
 4. **Rollback** - use `--rollback` flag to revert
 
 ### New Module Options Required
@@ -176,7 +176,7 @@ nix flake update
 
 ### Watch Releases
 
-- Star the [axios repository](https://github.com/kcalvelli/axios)
+- Star the [cairn repository](https://github.com/kcalvelli/cairn)
 - Watch releases for notifications
 - Review changelog before major upgrades
 
@@ -193,17 +193,17 @@ If you need stability, pin to specific commits:
 
 ```nix
 # flake.nix
-inputs.axios.url = "github:kcalvelli/axios/COMMIT_HASH";
+inputs.cairn.url = "github:kcalvelli/cairn/COMMIT_HASH";
 ```
 
 Or pin to tags/branches:
 
 ```nix
 # Pin to specific version tag (using CalVer date)
-inputs.axios.url = "github:kcalvelli/axios/2024-12-15";
+inputs.cairn.url = "github:kcalvelli/cairn/2024-12-15";
 
 # Pin to stable branch (if available)
-inputs.axios.url = "github:kcalvelli/axios/stable";
+inputs.cairn.url = "github:kcalvelli/cairn/stable";
 ```
 
 ---
@@ -213,9 +213,9 @@ inputs.axios.url = "github:kcalvelli/axios/stable";
 If you encounter issues:
 
 1. **Check documentation**: [docs/](../docs/)
-2. **Search issues**: [GitHub Issues](https://github.com/kcalvelli/axios/issues)
+2. **Search issues**: [GitHub Issues](https://github.com/kcalvelli/cairn/issues)
 3. **Ask community**: [NixOS Discourse](https://discourse.nixos.org/)
-4. **Report bugs**: [New Issue](https://github.com/kcalvelli/axios/issues/new)
+4. **Report bugs**: [New Issue](https://github.com/kcalvelli/cairn/issues/new)
 
 When reporting upgrade issues, include:
 - Version you're upgrading from and to

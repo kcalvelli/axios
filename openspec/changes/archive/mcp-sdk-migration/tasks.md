@@ -2,7 +2,7 @@
 
 ## Overview
 
-Migrate axios MCP implementations to official SDK libraries.
+Migrate cairn MCP implementations to official SDK libraries.
 
 ---
 
@@ -35,20 +35,20 @@ Migrate axios MCP implementations to official SDK libraries.
 - [x] Test with github server (native binary) - 40 tools
 - [x] Test with filesystem server (npx) - 14 tools
 - [x] Test with context7 server (npx) - 2 tools
-- [x] Test with axios-ai-mail server - 8 tools
+- [x] Test with cairn-mail server - 8 tools
 - [x] Test with mcp-dav server - 10 tools
 - [x] Verify REST API endpoints work
 - [x] Verify Orchestrator UI works
 
 ### Task 1.6: Deploy and Verify
 - [x] Commit changes
-- [x] Push to axios
+- [x] Push to cairn
 - [x] Rebuild and test on live system
 - [x] Verify Tailscale Services registration
 
 ---
 
-## Phase 2: mcp-dav Server Migration (axios-dav repo)
+## Phase 2: mcp-dav Server Migration (cairn-dav repo)
 
 ### Task 2.1: Research FastMCP
 - [x] Review fastmcp documentation
@@ -71,15 +71,15 @@ Migrate axios MCP implementations to official SDK libraries.
 - [x] Test with mcp-gateway (10 tools connected)
 - [x] Test with mcp-cli
 
-### Task 2.5: Update axios-dav Flake
+### Task 2.5: Update cairn-dav Flake
 - [x] Update package version
 - [x] Commit and push (bd56206)
 
 ---
 
-## Phase 3: axios-ai-mail Server Migration (axios-ai-mail repo)
+## Phase 3: cairn-mail Server Migration (cairn-mail repo)
 
-**NOTE**: axios-ai-mail was ALREADY using the official MCP SDK (`mcp.server.fastmcp`).
+**NOTE**: cairn-mail was ALREADY using the official MCP SDK (`mcp.server.fastmcp`).
 No migration needed - it was built with the SDK from the start.
 
 ### Task 3.1: Research Current Implementation
@@ -95,11 +95,11 @@ No migration needed - it was built with the SDK from the start.
 - [x] All tools use `@mcp.tool()` decorators
 - [x] No custom JSON-RPC implementation
 
-### Task 3.4: Test axios-ai-mail
+### Task 3.4: Test cairn-mail
 - [x] Test with Claude Code
 - [x] Test with mcp-gateway (8 tools connected)
 
-### Task 3.5: Update axios-ai-mail Flake
+### Task 3.5: Update cairn-mail Flake
 - [x] No changes needed - already using official SDK
 
 ---
@@ -117,21 +117,21 @@ No migration needed - it was built with the SDK from the start.
 
 ## Files to Modify
 
-### axios (Phase 1)
+### cairn (Phase 1)
 | File | Changes |
 |------|---------|
 | `pkgs/mcp-gateway/pyproject.toml` | Add `mcp` dependency |
 | `pkgs/mcp-gateway/default.nix` | Add `mcp` to Nix deps |
 | `pkgs/mcp-gateway/src/mcp_gateway/server_manager.py` | Refactor to use SDK |
 
-### axios-dav (Phase 2)
+### cairn-dav (Phase 2)
 | File | Changes |
 |------|---------|
 | `pkgs/mcp-dav/pyproject.toml` | Add `fastmcp` dependency |
 | `pkgs/mcp-dav/default.nix` | Add `fastmcp` to Nix deps |
 | `pkgs/mcp-dav/src/mcp_dav/server.py` | Rewrite with FastMCP |
 
-### axios-ai-mail (Phase 3)
+### cairn-mail (Phase 3)
 | File | Changes |
 |------|---------|
 | `pyproject.toml` | Add `fastmcp` dependency |
@@ -146,6 +146,6 @@ No migration needed - it was built with the SDK from the start.
 |-------|--------|
 | Phase 1: mcp-gateway | 2-3 hours |
 | Phase 2: mcp-dav | 2-3 hours |
-| Phase 3: axios-ai-mail | 2-3 hours |
+| Phase 3: cairn-mail | 2-3 hours |
 | Phase 4: Documentation | 1 hour |
 | **Total** | **7-10 hours** |

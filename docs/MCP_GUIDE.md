@@ -1,6 +1,6 @@
-# MCP (Model Context Protocol) Guide for axiOS
+# MCP (Model Context Protocol) Guide for Cairn
 
-Complete guide to using MCP servers in axiOS for enhanced AI capabilities with Claude Code and other AI tools.
+Complete guide to using MCP servers in Cairn for enhanced AI capabilities with Claude Code and other AI tools.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Complete guide to using MCP servers in axiOS for enhanced AI capabilities with C
 
 ### What is MCP?
 
-Model Context Protocol (MCP) is a standard protocol that allows AI models to access external tools and data sources. axiOS provides a declarative, pre-configured MCP setup that enables Claude Code and other AI assistants to:
+Model Context Protocol (MCP) is a standard protocol that allows AI models to access external tools and data sources. Cairn provides a declarative, pre-configured MCP setup that enables Claude Code and other AI assistants to:
 
 - Access your filesystem, git repositories, and systemd logs
 - Search the web with Brave Search
@@ -27,9 +27,9 @@ Model Context Protocol (MCP) is a standard protocol that allows AI models to acc
 - Enhance reasoning with sequential-thinking
 - And much more!
 
-### What You Get with axiOS
+### What You Get with Cairn
 
-When you enable `services.ai` in axiOS, you automatically get:
+When you enable `services.ai` in Cairn, you automatically get:
 
 1. **11 Pre-configured MCP Servers** - No manual setup required
 2. **On-demand tool discovery** - Via mcp-gateway's `mcp-gw` CLI (99% token reduction)
@@ -65,8 +65,8 @@ curl -s http://localhost:8085/api/servers | jq
 # List available tools
 curl -s http://localhost:8085/api/tools | jq 'length'
 
-# View axios system prompt
-cat ~/.config/ai/prompts/axios.md
+# View cairn system prompt
+cat ~/.config/ai/prompts/cairn.md
 
 # Check Codex MCP config
 cat ~/.codex/config.toml
@@ -75,7 +75,7 @@ cat ~/.codex/config.toml
 ### First Use
 
 1. Restart Claude Code to load the new configuration
-2. The axios system prompt is automatically injected
+2. The cairn system prompt is automatically injected
 3. Tools are discovered on-demand via mcp-gateway
 
 ## MCP Architecture
@@ -112,18 +112,18 @@ The mcp-gateway module (from `github.com/kcalvelli/mcp-gateway`) generates these
 - **`~/.codex/config.toml`**: Codex MCP configuration
 - **`~/.config/mcp/mcp_servers.json`**: mcp-gateway configuration (used by `mcp-gw`)
 - **`~/.gemini/settings.json`**: Gemini CLI configuration
-- **`~/.config/ai/prompts/axios.md`**: Comprehensive system prompt
-- **`~/.claude.json`**: Claude Code config (auto-injected with axios prompt)
+- **`~/.config/ai/prompts/cairn.md`**: Comprehensive system prompt
+- **`~/.claude.json`**: Claude Code config (auto-injected with cairn prompt)
 
 ### Declarative Configuration
 
-axiOS uses a two-layer declarative approach:
+Cairn uses a two-layer declarative approach:
 
 1. **mcp-gateway** (external repo) provides the home-manager module
-2. **axios** imports the module and defines servers with resolved package paths
+2. **cairn** imports the module and defines servers with resolved package paths
 
 ```nix
-# axios: home/ai/mcp.nix
+# cairn: home/ai/mcp.nix
 {
   imports = [ inputs.mcp-gateway.homeManagerModules.default ];
 
@@ -163,7 +163,7 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 | **github** | GitHub API access | `gh auth login` | Requires auth |
 | **journal** | systemd logs | None | Ready |
 | **context7** | Library documentation | None | Ready |
-| **axios-ai-mail** | AI-powered email | PIM module | Ready |
+| **cairn-mail** | AI-powered email | PIM module | Ready |
 | **mcp-dav** | Calendar and contacts | PIM module | Ready |
 | **brave-search** | Web search | API key | Requires key |
 
@@ -177,8 +177,8 @@ When `services.ai.enable = true`, these MCP servers are automatically configured
 
 #### PIM Integration (Requires `modules.pim = true`)
 
-- **axios-ai-mail**: AI-powered email access and management
-- **mcp-dav**: Calendar and contacts via CalDAV/CardDAV (from axios-dav)
+- **cairn-mail**: AI-powered email access and management
+- **mcp-dav**: Calendar and contacts via CalDAV/CardDAV (from cairn-dav)
 
 #### AI Enhancement (No Setup)
 
@@ -316,7 +316,7 @@ curl -s http://localhost:8085/api/tools | jq
 # Execute a tool
 curl -s -X POST http://localhost:8085/api/tools/github/search_repositories \
   -H "Content-Type: application/json" \
-  -d '{"query": "axios"}'
+  -d '{"query": "cairn"}'
 ```
 
 ### mcp-gw CLI (provided by mcp-gateway)
@@ -347,7 +347,7 @@ curl -s -X POST http://localhost:8085/api/tools/github/search_repositories \
 
 ### Environment Variables (Current Approach)
 
-axios uses environment variables for MCP API keys:
+cairn uses environment variables for MCP API keys:
 
 ```nix
 # In your NixOS configuration
@@ -467,9 +467,9 @@ curl http://localhost:8085/api/tools | jq 'length'
 npx -y @modelcontextprotocol/server-git
 ```
 
-**Check axios system prompt**:
+**Check cairn system prompt**:
 ```bash
-cat ~/.config/ai/prompts/axios.md | less
+cat ~/.config/ai/prompts/cairn.md | less
 ```
 
 **Restart mcp-gateway after changes**:
@@ -512,7 +512,7 @@ Visual management at `http://localhost:8085`:
 - **mcp-gateway Repository**: https://github.com/kcalvelli/mcp-gateway
 - **Quick Reference**: See `docs/MCP_REFERENCE.md` for command reference
 - **Anthropic Beta Features**: See `docs/advanced-tool-use.md` for upcoming API features
-- **System Prompts**: See `~/.config/ai/prompts/axios.md` for complete AI assistant guide
+- **System Prompts**: See `~/.config/ai/prompts/cairn.md` for complete AI assistant guide
 
 ## Contributing
 
@@ -520,4 +520,4 @@ Found a useful MCP server? Add it to `home/ai/mcp.nix` with a pull request!
 
 ---
 
-**Need help?** Open an issue at https://github.com/kcalvelli/axios/issues
+**Need help?** Open an issue at https://github.com/kcalvelli/cairn/issues

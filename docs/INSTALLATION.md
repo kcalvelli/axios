@@ -1,8 +1,8 @@
-# Getting Started with axiOS
+# Getting Started with Cairn
 
-This guide shows you how to use axiOS as a library to build your NixOS configuration.
+This guide shows you how to use Cairn as a library to build your NixOS configuration.
 
-**Important**: axiOS is designed to be installed **on top of an existing NixOS installation**. Install NixOS first using the standard installer, then use axiOS to configure it.
+**Important**: Cairn is designed to be installed **on top of an existing NixOS installation**. Install NixOS first using the standard installer, then use Cairn to configure it.
 
 ## What You'll Create
 
@@ -20,13 +20,13 @@ A minimal configuration repository with just a few files:
 └── .gitignore             # Standard ignores
 ```
 
-That's it! All modules, packages, and home-manager configs come from axios.
+That's it! All modules, packages, and home-manager configs come from cairn.
 
 ## Prerequisites
 
-**You must have NixOS already installed.** axiOS configures existing NixOS systems — it does not replace the NixOS installer.
+**You must have NixOS already installed.** Cairn configures existing NixOS systems — it does not replace the NixOS installer.
 
-**IMPORTANT: axiOS requires UEFI boot mode.** BIOS/MBR systems are not supported.
+**IMPORTANT: Cairn requires UEFI boot mode.** BIOS/MBR systems are not supported.
 
 If you haven't installed NixOS yet:
 
@@ -36,7 +36,7 @@ If you haven't installed NixOS yet:
    - Physical machines: enable UEFI in firmware settings
    - VMs: enable EFI in VM settings before installation
 3. Complete the installation and reboot into your new NixOS system
-4. Return here to install axiOS
+4. Return here to install Cairn
 
 ## Install
 
@@ -45,7 +45,7 @@ If you haven't installed NixOS yet:
 On your **existing NixOS system**, run:
 
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/cairn/master/scripts/install.sh)
 ```
 
 This bootstrap script handles everything automatically:
@@ -58,7 +58,7 @@ This bootstrap script handles everything automatically:
 If you already have flakes configured:
 
 ```bash
-nix run --refresh github:kcalvelli/axios#init
+nix run --refresh github:kcalvelli/cairn#init
 ```
 
 ### Installer Modes
@@ -91,10 +91,10 @@ All modes generate a complete configuration in `~/.config/nixos_config/` and off
 
 ## Using Fish Shell Helpers
 
-axiOS provides convenient fish functions for managing your system:
+Cairn provides convenient fish functions for managing your system:
 
 ```bash
-# Update flake inputs (axios and dependencies)
+# Update flake inputs (cairn and dependencies)
 update-flake
 
 # Rebuild and switch to new configuration
@@ -132,19 +132,19 @@ cd ~/.config/nixos_config
   description = "My NixOS Configuration";
 
   inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
+    cairn.url = "github:kcalvelli/cairn";
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
   outputs =
     {
       self,
-      axios,
+      cairn,
       nixpkgs,
       ...
     }:
     let
-      mkHost = hostname: axios.lib.mkSystem (
+      mkHost = hostname: cairn.lib.mkSystem (
         (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
           configDir = self.outPath;
         }
@@ -193,7 +193,7 @@ cd ~/.config/nixos_config
 
     extraConfig = {
       # System timezone (required)
-      axios.system.timeZone = "America/New_York";
+      cairn.system.timeZone = "America/New_York";
 
       # Add any additional NixOS configuration here
       # environment.systemPackages = with pkgs; [ ... ];
@@ -207,13 +207,13 @@ cd ~/.config/nixos_config
 ```nix
 { ... }:
 {
-  axios.users.users.myuser = {
+  cairn.users.users.myuser = {
     fullName = "My Full Name";
     email = "me@example.com";
     isAdmin = true;
   };
 
-  # That's it! axiOS automatically:
+  # That's it! Cairn automatically:
   # - Creates the user account (isNormalUser = true)
   # - Assigns groups based on enabled modules (wheel, video, audio, etc.)
   # - Configures git (user.name and user.email)
@@ -244,7 +244,7 @@ sudo nixos-rebuild switch --flake .#myhost
 
 ## Updating Your System
 
-### Update axiOS Framework
+### Update Cairn Framework
 
 ```bash
 cd ~/.config/nixos_config
@@ -257,29 +257,29 @@ Or use the fish helper:
 update-flake && rebuild-switch
 ```
 
-### Update Only axios (Keep Other Inputs Locked)
+### Update Only cairn (Keep Other Inputs Locked)
 
 ```bash
-nix flake lock --update-input axios
+nix flake lock --update-input cairn
 sudo nixos-rebuild switch --flake .#myhost
 ```
 
 ### Pin to Specific Version
 
-For stability, pin to a specific axios version:
+For stability, pin to a specific cairn version:
 
 ```nix
 # In flake.nix
-inputs.axios.url = "github:kcalvelli/axios/v1.0.0";  # Pin to tag
+inputs.cairn.url = "github:kcalvelli/cairn/v1.0.0";  # Pin to tag
 # or
-inputs.axios.url = "github:kcalvelli/axios/<commit-sha>";  # Pin to commit
+inputs.cairn.url = "github:kcalvelli/cairn/<commit-sha>";  # Pin to commit
 ```
 
 ---
 
 ## What You Get
 
-By using axios as a library, you automatically get:
+By using cairn as a library, you automatically get:
 
 ✅ **Desktop Environment:**
 - Niri compositor with DankMaterialShell
@@ -322,7 +322,7 @@ Use `extraConfig` in your host configuration:
 ```nix
 extraConfig = {
   # System timezone (required)
-  axios.system.timeZone = "America/New_York";
+  cairn.system.timeZone = "America/New_York";
 
   # Add extra packages
   environment.systemPackages = with pkgs; [
@@ -340,7 +340,7 @@ extraConfig = {
 
 ### What You Get Automatically
 
-When you create a user with `axios.users.users.<name>`, the system automatically:
+When you create a user with `cairn.users.users.<name>`, the system automatically:
 
 ✅ **Creates standard directories** on first boot:
 - Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates
@@ -353,10 +353,10 @@ When you create a user with `axios.users.users.<name>`, the system automatically
 - Customize in your `users/<name>.nix` if needed:
   ```nix
   {
-    axios.users.users.alice = { ... };
+    cairn.users.users.alice = { ... };
 
     # Optional: customize FLAKE_PATH
-    axios.home.flakePath = "/custom/path";
+    cairn.home.flakePath = "/custom/path";
   }
   ```
 
@@ -404,7 +404,7 @@ nix flake check
 nix build .#nixosConfigurations.myhost.config.system.build.toplevel --show-trace
 ```
 
-### Can't Find axios
+### Can't Find cairn
 
 Make sure flake inputs are updated:
 ```bash
@@ -438,7 +438,7 @@ Update `hosts/HOSTNAME/disks.nix` with correct UUIDs.
 
 **Error**: "systemd-boot cannot be installed on this system" or similar boot errors
 
-**Cause**: axiOS requires UEFI boot mode and uses systemd-boot, which does not support BIOS/MBR systems.
+**Cause**: Cairn requires UEFI boot mode and uses systemd-boot, which does not support BIOS/MBR systems.
 
 **Solution**: Reinstall NixOS in UEFI mode:
 1. For VMs: Enable UEFI/EFI in your VM settings (e.g., VMware: Firmware Type = EFI, VirtualBox: Enable EFI)
@@ -468,6 +468,6 @@ lsblk -f | grep /boot
 
 ## Getting Help
 
-- [GitHub Issues](https://github.com/kcalvelli/axios/issues)
+- [GitHub Issues](https://github.com/kcalvelli/cairn/issues)
 - [NixOS Manual](https://nixos.org/manual/nixos/stable/)
 - [NixOS Discourse](https://discourse.nixos.org/)

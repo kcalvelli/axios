@@ -1,10 +1,10 @@
 # Adding Hosts to Your Configuration
 
-This guide shows how to manage multiple machines with axiOS.
+This guide shows how to manage multiple machines with Cairn.
 
-## Using axiOS as a Library (Recommended)
+## Using Cairn as a Library (Recommended)
 
-When using axios as a library, adding hosts is simple - just add more configurations to your flake.
+When using cairn as a library, adding hosts is simple - just add more configurations to your flake.
 
 ### Canonical Directory Structure
 
@@ -29,13 +29,13 @@ When using axios as a library, adding hosts is simple - just add more configurat
 ```nix
 {
   inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
+    cairn.url = "github:kcalvelli/cairn";
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }:
+  outputs = { self, cairn, nixpkgs, ... }:
     let
-      mkHost = hostname: axios.lib.mkSystem (
+      mkHost = hostname: cairn.lib.mkSystem (
         (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
           configDir = self.outPath;
         }
@@ -83,7 +83,7 @@ When using axios as a library, adding hosts is simple - just add more configurat
     users = [ "alice" ];
 
     extraConfig = {
-      axios.system.timeZone = "America/New_York";
+      cairn.system.timeZone = "America/New_York";
     };
   };
 }
@@ -122,7 +122,7 @@ When using axios as a library, adding hosts is simple - just add more configurat
     users = [ "alice" ];
 
     extraConfig = {
-      axios.system.timeZone = "America/New_York";
+      cairn.system.timeZone = "America/New_York";
     };
   };
 }
@@ -132,7 +132,7 @@ When using axios as a library, adding hosts is simple - just add more configurat
 ```nix
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     isAdmin = true;
@@ -249,7 +249,7 @@ Define common settings once:
 ```nix
 let
   commonConfig = {
-    axios.system.timeZone = "America/New_York";
+    cairn.system.timeZone = "America/New_York";
   };
 in
 {

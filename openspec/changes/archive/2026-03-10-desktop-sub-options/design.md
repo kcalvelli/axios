@@ -13,7 +13,7 @@ The desktop module (`modules/desktop/default.nix`) installs ~50 packages in a si
 **Non-Goals:**
 - Creating separate aspect files for each sub-option (keep in default.nix with mkIf blocks — the groups are small)
 - Changing the installer/Calamares (all defaults are true)
-- Creating a desktop.chat or axios-chat module (future work)
+- Creating a desktop.chat or cairn-chat module (future work)
 - Changing any programs.* or services.* declarations (those stay in core desktop)
 
 ## Decisions

@@ -7,7 +7,7 @@
 }:
 
 let
-  cfg = config.axios.pwa;
+  cfg = config.cairn.pwa;
 
   # Hardware acceleration flags from NixOS desktop module (GPU-aware)
   browserArgs = osConfig.desktop.browserArgs or { };
@@ -75,7 +75,7 @@ let
       browser = effectiveBrowser app;
       bin = browserBinFor browser;
       wmClass = urlToAppId browser app.url;
-      dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
+      dataDir = "${config.home.homeDirectory}/.local/share/cairn-pwa/${appId}";
       flags = argsStr browser;
       flagsPrefix = if flags != "" then "${flags} " else "";
     in
@@ -150,13 +150,13 @@ let
       browser = lib.mkOption {
         type = lib.types.nullOr browserEnum;
         default = null;
-        description = "Browser override for this app. When null, uses the global axios.pwa.browser setting.";
+        description = "Browser override for this app. When null, uses the global cairn.pwa.browser setting.";
       };
     };
   };
 in
 {
-  options.axios.pwa = {
+  options.cairn.pwa = {
     enable = lib.mkEnableOption "PWA apps with configurable browser backend";
 
     browser = lib.mkOption {
@@ -168,7 +168,7 @@ in
     includeDefaults = lib.mkOption {
       type = lib.types.bool;
       default = true;
-      description = "Include default PWA apps from axios (YouTube, Google Drive, etc.)";
+      description = "Include default PWA apps from cairn (YouTube, Google Drive, etc.)";
     };
 
     iconPath = lib.mkOption {
@@ -205,7 +205,7 @@ in
     lib.mkMerge [
       # Part 1: Default apps (conditional on includeDefaults)
       (lib.mkIf cfg.includeDefaults {
-        axios.pwa.apps = lib.mapAttrs (
+        cairn.pwa.apps = lib.mapAttrs (
           _: def:
           lib.mkDefault {
             inherit (def) name url icon;
@@ -229,7 +229,7 @@ in
             browser = effectiveBrowser app;
             bin = browserBinFor browser;
             wmClass = urlToAppId browser app.url;
-            dataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/${appId}";
+            dataDir = "${config.home.homeDirectory}/.local/share/cairn-pwa/${appId}";
           in
           {
             name = app.name;

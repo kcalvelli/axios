@@ -38,7 +38,7 @@
 
     # Extra NixOS configuration
     extraConfig = {
-      axios.system.timeZone = "America/New_York";
+      cairn.system.timeZone = "America/New_York";
     };
   };
 }

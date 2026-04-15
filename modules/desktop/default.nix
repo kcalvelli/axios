@@ -7,7 +7,7 @@
   ...
 }:
 let
-  firstAdmin = config.axios.users.firstAdminUser;
+  firstAdmin = config.cairn.users.firstAdminUser;
 in
 {
   # Note: DMS NixOS modules are imported in lib/default.nix baseModules
@@ -316,6 +316,6 @@ in
 
     # Desktop home modules are wired per-user via profile system
     # (standard profile imports home/desktop, normie profile imports home/desktop/normie.nix)
-    # Calendar/contacts sync moved to axios-dav: https://github.com/kcalvelli/axios-dav
+    # Calendar/contacts sync moved to cairn-dav: https://github.com/kcalvelli/cairn-dav
   };
 }

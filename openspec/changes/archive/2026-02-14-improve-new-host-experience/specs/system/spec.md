@@ -2,12 +2,12 @@
 
 ### Requirement: User Management
 - **Implementation**: `modules/users.nix`
-- **Options**: `axios.users.<name>.{fullName, email, isAdmin, homeProfile, extraGroups}` — multi-user interface with per-user submodules.
+- **Options**: `cairn.users.<name>.{fullName, email, isAdmin, homeProfile, extraGroups}` — multi-user interface with per-user submodules.
 - **Features**: Automatic group membership based on enabled modules with admin/non-admin distinction via `isAdmin` flag. Per-user home-manager profile selection (workstation/laptop/minimal/null). XDG directory creation for all defined users. Admin users added to `nix.settings.trusted-users`. User modules resolved from canonical `users/<name>.nix` structure via `configDir`.
-- **Removed**: `axios.user.name`, `axios.user.fullName`, `axios.user.email` (singular interface), `userModulePath` (stringly-typed path wiring).
+- **Removed**: `cairn.user.name`, `cairn.user.fullName`, `cairn.user.email` (singular interface), `userModulePath` (stringly-typed path wiring).
 
 #### Scenario: Multi-user host configuration
-- **WHEN** a host defines multiple users via `axios.users` with different admin levels and home profiles
+- **WHEN** a host defines multiple users via `cairn.users` with different admin levels and home profiles
 - **THEN** each user gets appropriate system account, groups (with/without wheel), per-user home-manager profile imports, and XDG directories
 
 #### Scenario: Host declares users by name
@@ -29,10 +29,10 @@ The desktop module SHALL maintain an authoritative list of all DMS (dankMaterial
 
 #### Scenario: DMS adds new config files in a future version
 - **WHEN** a new version of DMS introduces additional KDL include files
-- **THEN** updating the authoritative list in axiOS and rebuilding creates the new placeholders
+- **THEN** updating the authoritative list in Cairn and rebuilding creates the new placeholders
 
 ### Requirement: Init script multi-user support
-The init script (`nix run .#init`) SHALL support creating configurations for multiple users. After gathering the primary user's information (marked as admin), the script SHALL prompt whether to add additional users. For each additional user, it SHALL collect username, full name, email, and admin status. The script SHALL generate individual `users/<username>.nix` files using the `axios.users.<name>` format and a `flake.nix` that uses the canonical `mkHost` pattern with `configDir`.
+The init script (`nix run .#init`) SHALL support creating configurations for multiple users. After gathering the primary user's information (marked as admin), the script SHALL prompt whether to add additional users. For each additional user, it SHALL collect username, full name, email, and admin status. The script SHALL generate individual `users/<username>.nix` files using the `cairn.users.<name>` format and a `flake.nix` that uses the canonical `mkHost` pattern with `configDir`.
 
 #### Scenario: Single user setup
 - **WHEN** the user runs `nix run .#init` and declines to add additional users
@@ -51,7 +51,7 @@ The init script SHALL perform hardware compatibility checks after gathering conf
 
 #### Scenario: NVIDIA GPU detected with known kernel incompatibility
 - **WHEN** the init script detects an NVIDIA GPU and the running kernel is >= 6.19
-- **THEN** the script displays a warning about NVIDIA driver incompatibility and notes that axiOS will pin the kernel to 6.18
+- **THEN** the script displays a warning about NVIDIA driver incompatibility and notes that Cairn will pin the kernel to 6.18
 
 #### Scenario: All hardware checks pass
 - **WHEN** no known hardware issues are detected

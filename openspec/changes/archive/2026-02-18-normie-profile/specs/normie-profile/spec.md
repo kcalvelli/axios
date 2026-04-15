@@ -13,7 +13,7 @@ Defines the "normie" home-manager profile — a ChromeOS-like desktop experience
 ### Normie Desktop Module
 - **Implementation**: `home/desktop/normie.nix`
 - **Imports**: `theming.nix`, `wallpaper.nix`, `pwa-apps.nix`, `mpv.nix`, Niri home module, DMS home modules
-- **Does NOT import**: `niri-keybinds.nix`, `axios-monitor`, `dsearch`
+- **Does NOT import**: `niri-keybinds.nix`, `cairn-monitor`, `dsearch`
 - **Provides**: DMS shell, MIME associations, Flatpak setup, gnome-keyring, KDE Connect, simplified niri config
 
 ### Normie Keybindings
@@ -31,7 +31,7 @@ The normie profile SHALL provide a mouse-driven desktop experience where all int
 - **WHEN** a user with `homeProfile = "normie"` logs in
 - **THEN** DMS shell (taskbar, notifications, clipboard) is running
 - **AND** windows have client-side decorations (titlebars with close/minimize/maximize buttons)
-- **AND** the keybinding help overlay (axios-help) does NOT launch at startup
+- **AND** the keybinding help overlay (cairn-help) does NOT launch at startup
 - **AND** the drop-down terminal does NOT launch at startup
 - **AND** the DMS app launcher is accessible via Mod+Space or by clicking the taskbar
 

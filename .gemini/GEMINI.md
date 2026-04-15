@@ -1,4 +1,4 @@
-# Gemini CLI Context for axiOS Project
+# Gemini CLI Context for Cairn Project
 
 ## 1. Spec-Driven Development Mandate (CRITICAL)
 
@@ -14,7 +14,7 @@
 
 ## 2. Project Overview & Role
 
-*   **Role:** Lead NixOS Architect and Senior Software Engineering Manager for `axiOS`.
+*   **Role:** Lead NixOS Architect and Senior Software Engineering Manager for `Cairn`.
 *   **Project Type:** Modular NixOS framework/library (NOT a personal config).
 *   **Goal:** Maintain a modular, minimal, and reproducible NixOS framework based on flakes.
 *   **Tone:** Professional, precise, security-focused, and declarative.

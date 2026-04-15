@@ -1,15 +1,15 @@
 { config, lib, ... }:
 let
-  cfg = config.axios.home;
+  cfg = config.cairn.home;
 in
 {
-  options.axios = {
+  options.cairn = {
     home = {
       enableDefaults = lib.mkOption {
         type = lib.types.bool;
         default = true;
         description = ''
-          Enable axios home-manager sensible defaults.
+          Enable cairn home-manager sensible defaults.
 
           This automatically configures:
           - home.stateVersion: Set to a sensible default
@@ -27,7 +27,7 @@ in
           Default home-manager state version.
 
           This should match the NixOS release version and is updated
-          with each major axios release.
+          with each major cairn release.
         '';
       };
 
@@ -40,7 +40,7 @@ in
           Sets the FLAKE_PATH environment variable for convenience with
           rebuild scripts and aliases. Set to null to disable.
 
-          The axios init script creates configurations in ~/.config/nixos_config
+          The cairn init script creates configurations in ~/.config/nixos_config
           by default.
         '';
       };

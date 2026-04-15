@@ -12,14 +12,14 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 
 ### DankMaterialShell (DMS)
 - **Architecture**: Launched via Niri's `spawn-at-startup` mechanism (managed by the `dank-material-shell` niri module).
-- **Lifecycle**: Systemd integration is explicitly disabled in `axios` to eliminate race conditions with PipeWire/Wayland during boot.
+- **Lifecycle**: Systemd integration is explicitly disabled in `cairn` to eliminate race conditions with PipeWire/Wayland during boot.
 - **Features**: Material Design shell, system monitoring, clipboard, VPN status, and dynamic theming via `matugen`.
 - **Theming**: Automatic color extraction from wallpaper.
 - **Implementation**: `home/desktop/default.nix`, `home/desktop/theming.nix`, `home/desktop/niri.nix`
 
 ### Personal Information Management (PIM)
 
-**Email**: axios-ai-mail - AI-powered email management with local LLM classification.
+**Email**: cairn-mail - AI-powered email management with local LLM classification.
 - Multi-account support (Gmail OAuth, IMAP/SMTP)
 - Privacy-first local processing via OpenAI-compatible API
 - Modern web UI with PWA support
@@ -31,7 +31,7 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 - PWA apps for graphical interface (user's choice)
 
 **Contacts**: Cloud provider UIs or PWA apps
-- Future: axios-ai-mail contacts module (planned)
+- Future: cairn-mail contacts module (planned)
 
 **Implementation**:
 - `modules/pim/default.nix` (system services)
@@ -57,7 +57,7 @@ The PWA system SHALL allow selecting the underlying browser engine to balance pr
 
 #### Scenario: Brave Preference
 
-- **Given**: User sets `axios.pwa.browser = "brave"`
+- **Given**: User sets `cairn.pwa.browser = "brave"`
 - **When**: PWA apps are generated
 - **Then**: `pkgs.brave` is used
 - **And**: WMClass is `brave-{domain}-Default`
@@ -65,15 +65,15 @@ The PWA system SHALL allow selecting the underlying browser engine to balance pr
 
 #### Scenario: Chrome Preference
 
-- **Given**: User sets `axios.pwa.browser = "google-chrome"`
+- **Given**: User sets `cairn.pwa.browser = "google-chrome"`
 - **When**: PWA apps are generated
 - **Then**: `pkgs.google-chrome` is used
 - **And**: WMClass is `chrome-{domain}-Default`
 
 #### Scenario: Per-App Browser Override
 
-- **Given**: User sets `axios.pwa.apps.youtube-music.browser = "brave"`
-- **And**: Global `axios.pwa.browser` is `"chromium"`
+- **Given**: User sets `cairn.pwa.apps.youtube-music.browser = "brave"`
+- **And**: Global `cairn.pwa.browser` is `"chromium"`
 - **When**: PWA apps are generated
 - **Then**: YouTube Music uses `pkgs.brave` (Widevine DRM support)
 - **And**: All other apps use `pkgs.chromium`
@@ -85,10 +85,10 @@ Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybi
 
 #### Scenario: Launching via keybind
 
-- **Given**: `axios.pwa.apps.google-messages` is defined
+- **Given**: `cairn.pwa.apps.google-messages` is defined
 - **When**: User presses `Mod+G` (bound to `pwa-google-messages`)
 - **Then**: Google Messages opens in the configured browser
-- **And**: Changing `axios.pwa.browser` automatically updates the launcher
+- **And**: Changing `cairn.pwa.browser` automatically updates the launcher
 
 #### Scenario: Desktop entry exec
 
@@ -99,7 +99,7 @@ Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybi
 
 #### Scenario: PWA inherits browser hardware acceleration flags
 
-- **Given**: `axios.hardware.gpuType` is set to `"amd"` or `"nvidia"`
+- **Given**: `cairn.hardware.gpuType` is set to `"amd"` or `"nvidia"`
 - **And**: `desktop.browserArgs` exposes computed acceleration flags per browser
 - **When**: A PWA launcher script is generated
 - **Then**: The launcher exec line includes all flags from `desktop.browserArgs` for the effective browser
@@ -108,7 +108,7 @@ Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybi
 
 #### Scenario: PWA launch without GPU configuration
 
-- **Given**: `axios.hardware.gpuType` is not set (null)
+- **Given**: `cairn.hardware.gpuType` is not set (null)
 - **When**: A PWA launcher script is generated
 - **Then**: Only base args (`--password-store=detect`) are included
 - **And**: No GPU-specific flags are added
@@ -120,7 +120,7 @@ The desktop module SHALL expose computed browser command-line arguments as a rea
 #### Scenario: Home-manager module reads browser args
 
 - **Given**: `desktop.enable = true`
-- **And**: `axios.hardware.gpuType = "amd"`
+- **And**: `cairn.hardware.gpuType = "amd"`
 - **When**: `pwa-apps.nix` evaluates
 - **Then**: `osConfig.desktop.browserArgs.brave` contains AMD acceleration flags
 - **And**: `osConfig.desktop.browserArgs.chromium` contains the same flags
@@ -135,13 +135,13 @@ The desktop module SHALL expose computed browser command-line arguments as a rea
 
 ### Requirement: Centralized PWA Definition
 
-PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axios.pwa.apps` option to ensure consistency.
+PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `cairn.pwa.apps` option to ensure consistency.
 
 #### Scenario: Module Registration
 
 - **Given**: `pim` module is enabled
 - **When**: Configuration is evaluated
-- **Then**: `pim` module sets `axios.pwa.apps.axios-mail`
+- **Then**: `pim` module sets `cairn.pwa.apps.cairn-mail`
 - **And**: `desktop` module consumes this definition to generate the desktop entry and launcher
 - **And**: `desktop` module applies the global or per-app browser setting
 
@@ -149,7 +149,7 @@ PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axi
 
 - **Given**: `immich` module is enabled (server role)
 - **When**: PWA definition is created
-- **Then**: URL is `https://axios-immich.<tailnet>/` (unified via loopback proxy)
+- **Then**: URL is `https://cairn-immich.<tailnet>/` (unified via loopback proxy)
 - **And**: Desktop entry uses this URL, ensuring consistent app_id across devices
 
 
@@ -237,13 +237,13 @@ Clicking "Install" on the Flathub website triggers a transparent, terminal-based
 
 ### Requirement: Drop-down Terminal Identity
 
-The drop-down terminal uses a proper axiOS app-id and does not appear in the DMS dock.
+The drop-down terminal uses a proper Cairn app-id and does not appear in the DMS dock.
 
 #### Scenario: User toggles drop-down terminal
 
 - **Given**: User presses Mod+` (backtick)
 - **When**: The drop-down terminal appears
-- **Then**: Its app-id is `com.github.kcalvelli.axios.dropterm`
+- **Then**: Its app-id is `com.github.kcalvelli.cairn.dropterm`
 - **And**: It does not appear as a separate icon in the DMS dock
 - **And**: It floats at the top of the screen under the panel (existing behavior)
 
@@ -270,7 +270,7 @@ The desktop module SHALL organize applications into toggleable sub-groups, each 
 - **AND** DMS community plugins are available via `programs.dank-material-shell.plugins`
 - **AND** core Niri plugins (displayManager, niriWindows, niriScreenshot, dankKDEConnect) are auto-enabled
 - **AND** conditional plugins are enabled based on system module flags
-- **AND** nixMonitor plugin is explicitly disabled (axios-monitor provides this)
+- **AND** nixMonitor plugin is explicitly disabled (cairn-monitor provides this)
 
 #### Scenario: User disables a sub-group
 
@@ -293,7 +293,7 @@ The desktop module SHALL organize applications into toggleable sub-groups, each 
 - **WHEN** user adds `kdePackages.elisa` and GStreamer packages to their `extraConfig.environment.systemPackages`
 - **THEN** Elisa is installed and fully functional
 - **AND** user must also set `QT_MEDIA_BACKEND` and `GST_PLUGIN_SYSTEM_PATH_1_0` environment variables
-- **AND** no axiOS modules need to be modified
+- **AND** no Cairn modules need to be modified
 
 ### Requirement: Office Suite
 
@@ -310,15 +310,15 @@ The desktop module SHALL include LibreOffice with Qt integration for document pr
 
 - **WHEN** user does not want LibreOffice installed
 - **THEN** user MAY override `environment.systemPackages` in their `extraConfig` to exclude it
-- **AND** no axiOS module changes are required
+- **AND** no Cairn module changes are required
 
 ### Requirement: Hoppscotch Default PWA
 
-Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, with its icon in `home/resources/pwa-icons/`, following the same pattern as all other axiOS-shipped PWAs. Downstream user configs that previously defined Hoppscotch manually can remove their duplicate entries since axiOS defaults use `mkDefault`.
+Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, with its icon in `home/resources/pwa-icons/`, following the same pattern as all other Cairn-shipped PWAs. Downstream user configs that previously defined Hoppscotch manually can remove their duplicate entries since Cairn defaults use `mkDefault`.
 
 #### Scenario: Hoppscotch appears in launcher
 
-- **WHEN** user enables `axios.pwa.enable = true` with `includeDefaults = true` (the default)
+- **WHEN** user enables `cairn.pwa.enable = true` with `includeDefaults = true` (the default)
 - **THEN** a `pwa-hoppscotch` launcher script SHALL exist on `$PATH`
 - **AND** a Hoppscotch desktop entry SHALL appear in Fuzzel
 - **AND** the PWA SHALL use `https://hoppscotch.io/` as its URL
@@ -326,14 +326,14 @@ Hoppscotch SHALL be included as a default PWA in `pkgs/pwa-apps/pwa-defs.nix`, w
 
 #### Scenario: Hoppscotch respects PWA browser configuration
 
-- **WHEN** user sets `axios.pwa.browser = "brave"`
+- **WHEN** user sets `cairn.pwa.browser = "brave"`
 - **THEN** Hoppscotch SHALL open in Brave
 - **AND** the PWA SHALL inherit GPU acceleration flags from `desktop.browserArgs`
 
 #### Scenario: Downstream override still works
 
-- **WHEN** a user defines `axios.pwa.apps.hoppscotch` in their user config
-- **THEN** the user's definition SHALL override the axiOS default (since defaults use `mkDefault`)
+- **WHEN** a user defines `cairn.pwa.apps.hoppscotch` in their user config
+- **THEN** the user's definition SHALL override the Cairn default (since defaults use `mkDefault`)
 - **AND** no conflict or duplicate entry SHALL occur
 
 ### Requirement: GStreamer is not included by default
@@ -465,7 +465,7 @@ Mousepad serves as the default text editor, providing syntax highlighting and cl
 
 ### Requirement: GPU Resource Correlation Awareness
 
-Desktop session stability correlates with GPU memory state; axiOS documents this relationship to aid troubleshooting.
+Desktop session stability correlates with GPU memory state; Cairn documents this relationship to aid troubleshooting.
 
 #### Scenario: Login after heavy LLM inference
 

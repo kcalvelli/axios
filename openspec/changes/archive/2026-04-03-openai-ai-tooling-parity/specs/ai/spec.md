@@ -29,19 +29,19 @@ The AI module SHALL expose additional OpenAI ecosystem tools from `nixpkgs` as e
 - **AND** the package is selected without requiring an additional flake input
 
 #### Scenario: ChatGPT PWA can exist outside the AI module
-- **WHEN** axios provides ChatGPT through a non-AI user workflow such as the normie profile
+- **WHEN** cairn provides ChatGPT through a non-AI user workflow such as the normie profile
 - **THEN** that application is not required to depend on `services.ai.openai.enable`
 - **AND** the broader AI CLI and MCP tooling remain separately scoped
 
 ### Requirement: OpenAI tooling guidance is documented
-axios SHALL document the supported OpenAI tools, their authentication expectations, and any prompt/configuration integration limitations alongside the existing AI tooling guidance.
+cairn SHALL document the supported OpenAI tools, their authentication expectations, and any prompt/configuration integration limitations alongside the existing AI tooling guidance.
 
 #### Scenario: Authentication requirements are discoverable
 - **WHEN** a user reads the AI module documentation or spec-backed guidance for OpenAI tooling
 - **THEN** the documentation explains how the selected OpenAI tools authenticate
-- **AND** any recommended secret handling follows existing axios guidance rather than introducing a separate credential system
+- **AND** any recommended secret handling follows existing cairn guidance rather than introducing a separate credential system
 
 #### Scenario: Unsupported declarative hooks are called out
 - **WHEN** an OpenAI tool does not support stable declarative prompt or config injection
-- **THEN** axios documents that limitation explicitly
+- **THEN** cairn documents that limitation explicitly
 - **AND** the implementation does not rely on undocumented or brittle wrapper behavior

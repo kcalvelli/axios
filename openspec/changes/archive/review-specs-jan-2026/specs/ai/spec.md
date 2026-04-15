@@ -13,14 +13,14 @@ Integrates advanced AI agents and local inference capabilities into the develope
     - `claude-desktop`: Desktop integration layer.
 - **Gemini Ecosystem**:
     - `gemini-cli-bin`: Multimodal CLI agent.
-    - `antigravity`: Advanced agentic assistant for axiOS development.
+    - `antigravity`: Advanced agentic assistant for Cairn development.
 - **Workflow Tools**:
     - `whisper-cpp`: Speech-to-text.
     - `claude-monitor`: Resource monitoring for AI sessions.
 - **Implementation**: `modules/ai/default.nix`, `home/ai/`
 
 ### System Prompt Management
-- **Unified Prompt**: axiOS provides a comprehensive system prompt at `~/.config/ai/prompts/axios.md`.
+- **Unified Prompt**: Cairn provides a comprehensive system prompt at `~/.config/ai/prompts/cairn.md`.
 - **Auto-Injection**: Automatically injected into `~/.claude.json` during system activation.
 - **Customization**: Users can append instructions via `services.ai.systemPrompt.extraInstructions`.
 

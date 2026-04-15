@@ -9,8 +9,8 @@
 - [x] **1.1 Create GitHub OAuth App**
   - Go to GitHub → Settings → Developer settings → OAuth Apps
   - Application name: `mcp-gateway`
-  - Homepage URL: `https://axios-mcp-gateway.taile0fb4.ts.net`
-  - Callback URL: `https://axios-mcp-gateway.taile0fb4.ts.net/oauth/callback`
+  - Homepage URL: `https://cairn-mcp-gateway.taile0fb4.ts.net`
+  - Callback URL: `https://cairn-mcp-gateway.taile0fb4.ts.net/oauth/callback`
   - Save Client ID
 
 - [x] **1.2 Store secrets with agenix**
@@ -173,12 +173,12 @@
   - Add PWA options
 
 - [x] **8.2 Tailscale Services (replaces Funnel)**
-  - Use `networking.tailscale.services` from axios
-  - Unique DNS: `axios-mcp-gateway.<tailnet>.ts.net`
+  - Use `networking.tailscale.services` from cairn
+  - Unique DNS: `cairn-mcp-gateway.<tailnet>.ts.net`
   - No port suffix needed (uses 443)
 
 - [x] **8.3 PWA desktop entry**
-  - Follow axios-ai-mail pattern
+  - Follow cairn-mail pattern
   - Local URL for server (hairpinning workaround)
   - Icon created
 
@@ -202,9 +202,9 @@
 **OAuth metadata (RFC 8414):**
 ```json
 {
-  "issuer": "https://axios-mcp-gateway.taile0fb4.ts.net",
-  "authorization_endpoint": "https://axios-mcp-gateway.taile0fb4.ts.net/oauth/authorize",
-  "token_endpoint": "https://axios-mcp-gateway.taile0fb4.ts.net/oauth/token",
+  "issuer": "https://cairn-mcp-gateway.taile0fb4.ts.net",
+  "authorization_endpoint": "https://cairn-mcp-gateway.taile0fb4.ts.net/oauth/authorize",
+  "token_endpoint": "https://cairn-mcp-gateway.taile0fb4.ts.net/oauth/token",
   "response_types_supported": ["code"],
   "grant_types_supported": ["authorization_code", "refresh_token"],
   "code_challenge_methods_supported": ["S256"],

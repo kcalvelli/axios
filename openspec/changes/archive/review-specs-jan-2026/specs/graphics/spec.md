@@ -8,7 +8,7 @@ Ensures optimal hardware performance and driver support across different GPU ven
 ### GPU Driver Engine
 - **Interface**: `hardware.gpu` option in host configuration.
 - **Nvidia**: Automatically sets video drivers, enables `nvidiaSettings`, and configures Beta packages if needed.
-- **AMD**: Enables `amdgpu` kernel modules, provides `amdgpu_top`, and supports optional GPU recovery (`axios.hardware.enableGPURecovery`).
+- **AMD**: Enables `amdgpu` kernel modules, provides `amdgpu_top`, and supports optional GPU recovery (`cairn.hardware.enableGPURecovery`).
 - **Intel**: VA-API acceleration and `intel-gpu-tools`.
 - **Implementation**: `modules/graphics/default.nix`
 

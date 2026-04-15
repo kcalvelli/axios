@@ -1,6 +1,6 @@
 # MCP Server Configuration Examples
 
-This document contains ready-to-use examples of popular MCP servers for axiOS.
+This document contains ready-to-use examples of popular MCP servers for Cairn.
 Copy relevant sections to `home/ai/mcp.nix` to enable them.
 
 ## Usage

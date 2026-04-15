@@ -138,7 +138,7 @@ This document consolidates all items marked as `[TBD]` or unclear during reverse
 [Business logic or domain concepts that aren't clear from code]
 
 ### Target User Base Size
-- **Question**: How many users is axiOS designed for?
+- **Question**: How many users is Cairn designed for?
 - **Context**: Library project, but scale unclear
 - **SME Needed**: Project maintainer
 - **Source**: Inferred from code, not explicit
@@ -269,7 +269,7 @@ This document consolidates all items marked as `[TBD]` or unclear during reverse
 
 ### Deployment Guide
 - **Type**: User documentation
-- **Topic**: How downstream users deploy axiOS-based systems
+- **Topic**: How downstream users deploy Cairn-based systems
 - **Priority**: Medium
 - **Impact**: Users may misunderstand deployment model
 - **Source**: discovery-report.md

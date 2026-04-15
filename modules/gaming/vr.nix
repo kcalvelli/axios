@@ -6,7 +6,7 @@
 }:
 let
   cfg = config.gaming.vr;
-  isNvidia = config.axios.hardware.gpuType or null == "nvidia";
+  isNvidia = config.cairn.hardware.gpuType or null == "nvidia";
 in
 {
   options.gaming.vr = {

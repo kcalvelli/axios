@@ -1,6 +1,6 @@
 # Binary Cache
 
-Axios uses multiple binary caches to speed up builds and avoid compiling from source.
+Cairn uses multiple binary caches to speed up builds and avoid compiling from source.
 
 ## For Users: Binary Cache Configuration
 
@@ -15,7 +15,7 @@ No manual configuration needed - just enable the desktop module.
 
 ### Manual Configuration
 
-If you want to add the axios cache manually (for custom packages), or if you're not using the desktop module:
+If you want to add the cairn cache manually (for custom packages), or if you're not using the desktop module:
 
 ```nix
 # In your configuration.nix or flake-based config
@@ -23,14 +23,14 @@ If you want to add the axios cache manually (for custom packages), or if you're 
   nix.settings = {
     substituters = [
       "https://cache.nixos.org"
-      "https://axios.cachix.org"           # Axios custom packages
+      "https://cairn.cachix.org"           # Cairn custom packages
       "https://niri.cachix.org"            # Niri compositor
       "https://brave-previews.cachix.org"  # Brave browsers
     ];
 
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431kS1gBOk6429S9g0f1NXtv+FIsf8Xma0="
-      "axios.cachix.org-1:8c7nj72raLM0Q4Fie799J/70D2/5oDd7rxqnOuxObh4="
+      "cairn.cachix.org-1:8c7nj72raLM0Q4Fie799J/70D2/5oDd7rxqnOuxObh4="
       "niri.cachix.org-1:Wv0OmO7PsuocRKzfDoJ3mulSl7Z6oezYhGhR+3W2964="
       "brave-previews.cachix.org-1:9bLSYtgro1rYD4hUzFVASMpsNjWjHvEz11HGB2trAq4="
     ];
@@ -39,13 +39,13 @@ If you want to add the axios cache manually (for custom packages), or if you're 
 ```
 
 **Get public keys from:**
-- https://app.cachix.org/cache/axios
+- https://app.cachix.org/cache/cairn
 - https://app.cachix.org/cache/niri
 - https://app.cachix.org/cache/brave-previews
 
 ## What Gets Cached?
 
-### axios.cachix.org
+### cairn.cachix.org
 - ✅ Custom packages (pwa-apps)
 - ✅ App dependencies (init, add-pwa, fetch-pwa-icon, download-llama-models)
 
@@ -95,13 +95,13 @@ nix show-config | grep substituters
 
 **Verify cache is accessible:**
 ```bash
-curl -I https://axios.cachix.org/
+curl -I https://cairn.cachix.org/
 # Should return: HTTP/2 200
 ```
 
 **Force using the cache:**
 ```bash
-nix build --option substitute true --option substituters "https://axios.cachix.org https://cache.nixos.org"
+nix build --option substitute true --option substituters "https://cairn.cachix.org https://cache.nixos.org"
 ```
 
 ## For Maintainers: Cache Management
@@ -109,10 +109,10 @@ nix build --option substitute true --option substituters "https://axios.cachix.o
 ### Cache Statistics
 
 View cache usage at:
-- **axios**: https://app.cachix.org/cache/axios
+- **cairn**: https://app.cachix.org/cache/cairn
 - **brave-previews**: https://app.cachix.org/cache/brave-previews
 
-### What Gets Pushed to axios.cachix.org
+### What Gets Pushed to cairn.cachix.org
 
 The `build-packages.yml` workflow pushes:
 - ✅ Custom packages from `pkgs/` (pwa-apps)
@@ -137,7 +137,7 @@ The `brave-browser-previews-flake` repo workflows push:
 - Public caches only
 
 **Current usage strategy:**
-- **axios.cachix.org**: ~500MB-1GB (custom packages only, selective caching)
+- **cairn.cachix.org**: ~500MB-1GB (custom packages only, selective caching)
 - **brave-previews.cachix.org**: ~500MB-1GB (brave builds, automatic updates)
 - **Total**: Well under combined 10GB limit ✅
 
@@ -145,7 +145,7 @@ The `brave-browser-previews-flake` repo workflows push:
 - We **don't cache** full NixOS systems (would be 2-5GB per config)
 - We **don't cache** devShells (low value, moderate size)
 - We **rely on** external caches (niri.cachix.org) where available
-- We **only cache** what's unique to axios and not available elsewhere
+- We **only cache** what's unique to cairn and not available elsewhere
 
 ### Manual Push
 
@@ -156,18 +156,18 @@ To manually push builds to cache:
 nix build .#packages.x86_64-linux.pwa-apps
 
 # Push to cache
-cachix push axios ./result
+cachix push cairn ./result
 
 # Push all builds from a flake
 nix flake check --all-systems
-cachix push axios $(nix flake check --all-systems --json 2>/dev/null | jq -r '.[] | .drvPath' 2>/dev/null)
+cachix push cairn $(nix flake check --all-systems --json 2>/dev/null | jq -r '.[] | .drvPath' 2>/dev/null)
 ```
 
 ### Revoking Access
 
 If the signing key is compromised:
 
-1. Generate new keypair: `cachix generate-keypair axios`
+1. Generate new keypair: `cachix generate-keypair cairn`
 2. Update GitHub secret `CACHIX_AUTH_TOKEN`
 3. Notify users to update their trusted public keys
 

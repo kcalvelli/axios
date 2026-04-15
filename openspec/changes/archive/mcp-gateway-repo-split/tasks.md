@@ -16,7 +16,7 @@
   - Add `mcp-servers-nix` as flake input
 
 - [ ] **1.3 Migrate source code**
-  - Copy `src/mcp_gateway/` from axios
+  - Copy `src/mcp_gateway/` from cairn
   - Copy `pyproject.toml`
   - Verify build: `nix build`
 
@@ -59,18 +59,18 @@
   - Build Claude Code .mcp.json structure
   - Support env vars, commands, and agenix secrets
 
-- [ ] **2.4 Migrate prompts from axios**
-  - Move `home/ai/prompts/axios-system-prompt.md`
+- [ ] **2.4 Migrate prompts from cairn**
+  - Move `home/ai/prompts/cairn-system-prompt.md`
   - Make prompt generation dynamic based on enabled servers
   - Include available tools list in prompt
 
 - [ ] **2.5 Support external MCP servers**
-  - Allow servers from other flakes (axios-ai-mail, mcp-dav)
+  - Allow servers from other flakes (cairn-mail, mcp-dav)
   - Define interface for external server packages
   ```nix
-  servers.axios-ai-mail = {
+  servers.cairn-mail = {
     enable = true;
-    package = inputs.axios-ai-mail.packages.${system}.default;
+    package = inputs.cairn-mail.packages.${system}.default;
   };
   ```
 
@@ -95,7 +95,7 @@
   - Development setup
   - PR guidelines
 
-## Phase 4: Update axios
+## Phase 4: Update cairn
 
 - [ ] **4.1 Add mcp-gateway as flake input**
   ```nix
@@ -116,10 +116,10 @@
   };
   ```
 
-- [ ] **4.4 Remove migrated code from axios**
+- [ ] **4.4 Remove migrated code from cairn**
   - Delete `pkgs/mcp-gateway/`
   - Delete `home/ai/mcp.nix`
-  - Delete `home/ai/prompts/axios-system-prompt.md`
+  - Delete `home/ai/prompts/cairn-system-prompt.md`
   - Delete `home/ai/prompts/mcp-cli-system-prompt.md`
   - Update `modules/default.nix` registry
   - Update `pkgs/default.nix` registry
@@ -136,7 +136,7 @@
 - [ ] **5.1 Tag initial release**
   - v0.1.0 with current functionality + declarative config
 
-- [ ] **5.2 Update axios CLAUDE.md**
+- [ ] **5.2 Update cairn CLAUDE.md**
   - Document new mcp-gateway integration
   - Remove outdated MCP config references
 

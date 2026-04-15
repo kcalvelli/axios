@@ -2,20 +2,20 @@
 
 ## Summary
 
-Add Open WebUI as an axios service with server/client roles, Tailscale serve integration, and PWA desktop entry generation - following the established axios-ai-mail pattern.
+Add Open WebUI as an cairn service with server/client roles, Tailscale serve integration, and PWA desktop entry generation - following the established cairn-mail pattern.
 
 ## Motivation
 
 ### Problem Statement
 
-axios users currently have no mobile-friendly way to interact with their local LLM infrastructure. The only options are:
+cairn users currently have no mobile-friendly way to interact with their local LLM infrastructure. The only options are:
 
 1. SSH into the server and use CLI tools
 2. Use cloud AI services directly (defeats purpose of local LLMs)
 
 ### Solution
 
-Integrate Open WebUI - a mature, mobile-friendly web interface for Ollama - following the axios service pattern:
+Integrate Open WebUI - a mature, mobile-friendly web interface for Ollama - following the cairn service pattern:
 
 - **Server role**: Run Open WebUI locally, expose via Tailscale
 - **Client role**: PWA desktop entry pointing to remote server
@@ -131,11 +131,11 @@ config = lib.mkIf (cfg.webui.enable && cfg.webui.role == "client") {
 
 ```nix
 # home/ai/webui.nix
-xdg.desktopEntries.axios-ai-chat = lib.mkIf pwaEnabled {
-  name = "Axios AI Chat";
+xdg.desktopEntries.cairn-ai-chat = lib.mkIf pwaEnabled {
+  name = "Cairn AI Chat";
   comment = "AI chat interface powered by local LLMs";
   exec = "${lib.getExe pkgs.brave} --app=${pwaUrl}";
-  icon = "axios-ai-chat";
+  icon = "cairn-ai-chat";
   terminal = false;
   categories = [ "Network" "Chat" "ArtificialIntelligence" ];
   settings = {
@@ -143,9 +143,9 @@ xdg.desktopEntries.axios-ai-chat = lib.mkIf pwaEnabled {
   };
 };
 
-home.file.".local/share/icons/hicolor/128x128/apps/axios-ai-chat.png" =
+home.file.".local/share/icons/hicolor/128x128/apps/cairn-ai-chat.png" =
   lib.mkIf pwaEnabled {
-    source = ../resources/pwa-icons/axios-ai-chat.png;
+    source = ../resources/pwa-icons/cairn-ai-chat.png;
   };
 ```
 
@@ -212,17 +212,17 @@ home.file.".local/share/icons/hicolor/128x128/apps/axios-ai-chat.png" =
 
 ## Icon Design
 
-Following axios icon pattern:
-- Base: NixOS snowflake with axios colors
+Following cairn icon pattern:
+- Base: NixOS snowflake with cairn colors
 - Center element: Chat bubble icon
-- File: `home/resources/pwa-icons/axios-ai-chat.png`
+- File: `home/resources/pwa-icons/cairn-ai-chat.png`
 - Size: 128x128 PNG
 
 ## Port Allocation
 
 | Service | Local Port | Tailscale Port |
 |---------|------------|----------------|
-| axios-ai-mail | 8080 | 8443 |
+| cairn-mail | 8080 | 8443 |
 | **Open WebUI** | **8081** | **8444** |
 | Ollama API | 11434 | 8447 |
 
@@ -235,7 +235,7 @@ Following axios icon pattern:
 ## Mobile Experience
 
 1. User installs Tailscale app on phone
-2. Joins same tailnet as axios server
+2. Joins same tailnet as cairn server
 3. Navigates to `https://edge.tailnet.ts.net:8444/`
 4. Adds to home screen as PWA
 5. Full AI chat experience, secured by Tailscale
@@ -267,7 +267,7 @@ Minimal interface, no conversation history, single-model only.
 
 **Rejected**: Too limited for daily use.
 
-### Alternative 3: Build custom axios UI
+### Alternative 3: Build custom cairn UI
 
 Maximum control but significant development effort.
 
@@ -277,11 +277,11 @@ Maximum control but significant development effort.
 
 - Multi-model switching in PWA
 - Shared conversation history across devices
-- Integration with axios-ai-mail (summarize emails via chat)
+- Integration with cairn-mail (summarize emails via chat)
 - Voice input via whisper-cpp
 
 ## References
 
 - Open WebUI: https://github.com/open-webui/open-webui
-- axios-ai-mail pattern: `modules/pim/default.nix`
+- cairn-mail pattern: `modules/pim/default.nix`
 - PWA generation: `home/pim/default.nix`

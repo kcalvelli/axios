@@ -1,11 +1,11 @@
 { config, lib, ... }:
 let
-  cpuType = config.axios.hardware.cpuType or null;
+  cpuType = config.cairn.hardware.cpuType or null;
   isAmd = cpuType == "amd";
   isIntel = cpuType == "intel";
 in
 {
-  options.axios.hardware.cpuType = lib.mkOption {
+  options.cairn.hardware.cpuType = lib.mkOption {
     type = lib.types.nullOr (
       lib.types.enum [
         "amd"

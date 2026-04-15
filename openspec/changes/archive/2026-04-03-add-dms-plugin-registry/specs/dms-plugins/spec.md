@@ -9,7 +9,7 @@ The desktop module SHALL integrate the dms-plugin-registry flake input to provid
 - **WHEN** `desktop.enable = true` and user has standard or normie profile
 - **THEN** the dms-plugin-registry home-manager module is imported
 - **AND** all registry plugins are available as `programs.dank-material-shell.plugins.<id>.enable` options
-- **AND** all plugins default to disabled unless explicitly enabled by axiOS or the user
+- **AND** all plugins default to disabled unless explicitly enabled by Cairn or the user
 
 ### Requirement: Core Niri plugins are always enabled
 
@@ -91,24 +91,24 @@ Battery and power monitoring plugins SHALL be auto-enabled for laptop form facto
 
 ### Requirement: nixMonitor is explicitly disabled
 
-The nixMonitor registry plugin SHALL be explicitly disabled to prevent conflict with axios-monitor.
+The nixMonitor registry plugin SHALL be explicitly disabled to prevent conflict with cairn-monitor.
 
-#### Scenario: nixMonitor does not conflict with axios-monitor
+#### Scenario: nixMonitor does not conflict with cairn-monitor
 
 - **WHEN** `desktop.enable = true`
 - **AND** the dms-plugin-registry module is imported
 - **THEN** `programs.dank-material-shell.plugins.nixMonitor.enable` is false
-- **AND** axios-monitor continues to function as the system monitoring widget
+- **AND** cairn-monitor continues to function as the system monitoring widget
 
 ### Requirement: Users can enable additional plugins downstream
 
-Users SHALL be able to enable any registry plugin in their downstream configuration without modifying axiOS.
+Users SHALL be able to enable any registry plugin in their downstream configuration without modifying Cairn.
 
 #### Scenario: User enables webSearch plugin
 
 - **WHEN** user adds `programs.dank-material-shell.plugins.webSearch.enable = true` in their downstream config
 - **THEN** the webSearch plugin is installed and functional
-- **AND** no axiOS modules need to be modified
+- **AND** no Cairn modules need to be modified
 
 ### Requirement: Both profiles receive identical plugin configuration
 

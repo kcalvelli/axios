@@ -37,7 +37,7 @@ Improve desktop UX consistency by configuring Dolphin, adding a Flatpak installe
 - [x] Edit `home/desktop/theming.nix`:
   - Remove the kate-dankshell.mustache template reference (KTextEditor theme no longer needed)
   - Remove legacy theming mode entirely (DMS handles all theming now)
-  - Remove unused `useAxiosTemplates` option and `cfg` variable
+  - Remove unused `useCairnTemplates` option and `cfg` variable
   - Clean up unused `inputs` and `themeProjectDir` variables
 - [x] Remove `home/terminal/resources/kate-dankshell.mustache` template file
 
@@ -53,14 +53,14 @@ Improve desktop UX consistency by configuring Dolphin, adding a Flatpak installe
 
 ### Task 2.1: Rename drop-down terminal app-id
 - [x] Edit `home/terminal/ghostty.nix`:
-  - Change `com.kc.dropterm` to `com.github.kcalvelli.axios.dropterm` in desktop entry
-  - Update `--class=com.kc.dropterm` to `--class=com.github.kcalvelli.axios.dropterm` in Exec line
+  - Change `com.kc.dropterm` to `com.github.kcalvelli.cairn.dropterm` in desktop entry
+  - Update `--class=com.kc.dropterm` to `--class=com.github.kcalvelli.cairn.dropterm` in Exec line
   - Update `StartupWMClass` to match
 - [x] Edit `home/desktop/niri.nix`:
-  - Update window rule `app-id` match from `com\\.kc\\.dropterm` to `com\\.github\\.kcalvelli\\.axios\\.dropterm`
+  - Update window rule `app-id` match from `com\\.kc\\.dropterm` to `com\\.github\\.kcalvelli\\.cairn\\.dropterm`
 - [x] Edit `home/desktop/niri-keybinds.nix`:
-  - Update grep pattern for `com.kc.dropterm` to `com.github.kcalvelli.axios.dropterm`
-  - Update `--class=com.kc.dropterm` to `--class=com.github.kcalvelli.axios.dropterm`
+  - Update grep pattern for `com.kc.dropterm` to `com.github.kcalvelli.cairn.dropterm`
+  - Update `--class=com.kc.dropterm` to `--class=com.github.kcalvelli.cairn.dropterm`
 
 ### Task 2.2: Ensure drop-down terminal is hidden from dock
 - [x] Desktop entry has `NoDisplay=true` (existing behavior preserved)
@@ -85,7 +85,7 @@ Improve desktop UX consistency by configuring Dolphin, adding a Flatpak installe
 ## Phase 4: Flatpak Install Handler
 
 ### Task 4.1: Create flatpak install handler script
-- [x] Create `axios-flatpak-install` shell script in `modules/desktop/flatpak.nix`:
+- [x] Create `cairn-flatpak-install` shell script in `modules/desktop/flatpak.nix`:
   - Script accepts `.flatpakref` file path as argument
   - Displays app name, runs `flatpak install --user`, shows result
   - Pauses for user to read before closing
@@ -94,12 +94,12 @@ Improve desktop UX consistency by configuring Dolphin, adding a Flatpak installe
 ### Task 4.2: Create desktop entry and MIME registration
 - [x] Create desktop entry in `home/desktop/default.nix`:
   - `MimeType=application/vnd.flatpak.ref;application/vnd.flatpak.repo;`
-  - `Exec=ghostty --class=com.github.kcalvelli.axios.flatpak-install -e axios-flatpak-install %f`
+  - `Exec=ghostty --class=com.github.kcalvelli.cairn.flatpak-install -e cairn-flatpak-install %f`
   - `NoDisplay=true`
 - [x] Register MIME association in `xdg.mimeApps.defaultApplications`:
   - `application/vnd.flatpak.ref` → handler desktop entry
   - `application/vnd.flatpak.repo` → handler desktop entry
-- [x] Add Niri window rule for `com.github.kcalvelli.axios.flatpak-install`:
+- [x] Add Niri window rule for `com.github.kcalvelli.cairn.flatpak-install`:
   - Small floating window (NOT full screen): 800x400px, centered
   - `open-maximized = false; open-floating = true;`
 
@@ -131,7 +131,7 @@ Improve desktop UX consistency by configuring Dolphin, adding a Flatpak installe
 ## Additional Changes (User-Requested)
 
 ### Remove legacy theming mode
-- [x] Remove `useAxiosTemplates` option from `home/desktop/theming.nix`
+- [x] Remove `useCairnTemplates` option from `home/desktop/theming.nix`
 - [x] Remove legacy matugen template registration code (DMS manages all templates)
 - [x] Remove Kate themes directory activation script
 - [x] Clean up unused variables (`inputs`, `themeProjectDir`, `cfg`)

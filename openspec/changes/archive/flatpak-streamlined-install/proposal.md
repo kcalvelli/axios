@@ -104,7 +104,7 @@ flatpak install --assumeyes "$1" && \
 
 1. Does Niri/Wayland affect how URI handlers work?
 2. What's the best UX for showing install progress?
-3. Should axiOS provide a "Flathub" PWA desktop entry for quick access?
+3. Should Cairn provide a "Flathub" PWA desktop entry for quick access?
 4. How do other minimal distros (like Fedora Silverblue) handle this?
 
 ## Estimated Effort

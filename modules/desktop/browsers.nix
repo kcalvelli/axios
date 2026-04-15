@@ -8,7 +8,7 @@
 
 let
   # Get GPU type from hardware configuration
-  gpuType = config.axios.hardware.gpuType or null;
+  gpuType = config.cairn.hardware.gpuType or null;
   isAmd = gpuType == "amd";
   isNvidia = gpuType == "nvidia";
 

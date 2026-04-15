@@ -14,7 +14,7 @@ launching the same URL in the browser directly.
 ### Root Cause
 
 `browsers.nix` computes `braveArgs` and `chromeArgs` as local `let` bindings
-from `config.axios.hardware.gpuType`. These values are applied to
+from `config.cairn.hardware.gpuType`. These values are applied to
 `programs.brave.commandLineArgs` and `programs.google-chrome.commandLineArgs`
 but are **never exposed as options** that other modules can consume.
 
@@ -24,7 +24,7 @@ mechanism to receive the acceleration flags.
 
 ### Additional Gap
 
-Chromium — the **default** PWA browser (`axios.pwa.browser = "chromium"`) — is
+Chromium — the **default** PWA browser (`cairn.pwa.browser = "chromium"`) — is
 not configured in `browsers.nix` at all, so it has no acceleration flags even
 when launched normally.
 

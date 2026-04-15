@@ -1,6 +1,6 @@
 # Tasks: Spec Review & Update (Jan 2026)
 
-This task involves reviewing the legacy specs migrated from `spec-kit-baseline` and updating them to reflect the actual implementation in the `axios` codebase.
+This task involves reviewing the legacy specs migrated from `spec-kit-baseline` and updating them to reflect the actual implementation in the `cairn` codebase.
 
 ## Task List
 

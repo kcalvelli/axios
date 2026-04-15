@@ -2,11 +2,11 @@
 
 ## Overview
 
-axiOS uses [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) with [Niri compositor](https://github.com/YaLTeR/niri) to provide a cohesive Material Design-inspired desktop experience with automatic theming.
+Cairn uses [DankMaterialShell](https://github.com/AvengeMedia/DankMaterialShell) with [Niri compositor](https://github.com/YaLTeR/niri) to provide a cohesive Material Design-inspired desktop experience with automatic theming.
 
 ## Theming Architecture (DMS-First Approach)
 
-axiOS now relies primarily on DMS's built-in template management system for application theming. You control which applications receive dynamic theming via **DMS Control Panel → Matugen Templates** checkboxes.
+Cairn now relies primarily on DMS's built-in template management system for application theming. You control which applications receive dynamic theming via **DMS Control Panel → Matugen Templates** checkboxes.
 
 **DMS-Managed Applications:**
 
@@ -28,7 +28,7 @@ axiOS now relies primarily on DMS's built-in template management system for appl
 
 ## Wallpaper Blur for Overview Mode
 
-axiOS provides a wallpaper blur script that creates a blurred version of your wallpaper for Niri's overview background.
+Cairn provides a wallpaper blur script that creates a blurred version of your wallpaper for Niri's overview background.
 
 ### Setup Instructions
 
@@ -42,7 +42,7 @@ To enable automatic wallpaper blur when changing wallpapers:
 2. **Configure the Wallpaper Hook:**
    - In the DankHooks plugin settings, find **Wallpaper Changed**
    - Set the hook path to: `~/scripts/wallpaper-changed.sh`
-   - The script is automatically deployed to your home directory by axiOS
+   - The script is automatically deployed to your home directory by Cairn
 
 The hook will now automatically:
 1. Detect when wallpaper changes

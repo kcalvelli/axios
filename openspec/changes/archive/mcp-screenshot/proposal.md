@@ -21,7 +21,7 @@ This breaks the flow of AI-assisted work, especially for:
 
 ### Solution
 
-Create `mcp-screenshot` - a simple MCP server wrapping Wayland screenshot tools (grim/slurp) that axios desktop already provides.
+Create `mcp-screenshot` - a simple MCP server wrapping Wayland screenshot tools (grim/slurp) that cairn desktop already provides.
 
 ## Proposed Implementation
 

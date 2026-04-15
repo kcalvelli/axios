@@ -1,8 +1,8 @@
-# axios Port Registry
+# cairn Port Registry
 
 ## Overview
 
-This document defines port allocations for axios services. All services follow a consistent pattern:
+This document defines port allocations for cairn services. All services follow a consistent pattern:
 
 - **Local port**: Service listens on localhost (or 0.0.0.0 for LAN access)
 - **Tailscale port**: HTTPS exposure via `tailscale serve` for secure remote access
@@ -21,17 +21,17 @@ This document defines port allocations for axios services. All services follow a
 
 | Service | Local Port | Tailscale Port | Module | Status |
 |---------|------------|----------------|--------|--------|
-| axios-ai-mail | 8080 | 8443 | `pim` | Active |
+| cairn-mail | 8080 | 8443 | `pim` | Active |
 | Open WebUI | 8081 | 8444 | `ai.webui` | Active |
-| axios Portal | 8082 | 8445 | `portal` | Planned |
-| axios Calendar | 8083 | 8446 | `pim.calendar` | Planned |
+| cairn Portal | 8082 | 8445 | `portal` | Planned |
+| cairn Calendar | 8083 | 8446 | `pim.calendar` | Planned |
 | *Reserved* | 8084-8089 | — | — | Future |
 
 ### API Services
 
 | Service | Local Port | Tailscale Port | Module | Status |
 |---------|------------|----------------|--------|--------|
-| llama-server API | 11434 | axios-llama (443) | `ai.local` | Active |
+| llama-server API | 11434 | cairn-llama (443) | `ai.local` | Active |
 | MCP Gateway | 8085 | 8448 | `ai.mcpGateway` | In Progress |
 | *Reserved* | — | 8449 | — | Future APIs |
 
@@ -47,7 +47,7 @@ This document defines port allocations for axios services. All services follow a
 | Range | Purpose |
 |-------|---------|
 | 8080-8089 | Local web application services |
-| 8443-8446 | Tailscale HTTPS (axios web apps) |
+| 8443-8446 | Tailscale HTTPS (cairn web apps) |
 | 8447-8449 | Tailscale HTTPS (APIs) |
 | 8450-8459 | Tailscale HTTPS (media services) |
 | 11434 | llama-server (default) |
@@ -55,7 +55,7 @@ This document defines port allocations for axios services. All services follow a
 
 ## Adding New Services
 
-When adding a new axios service:
+When adding a new cairn service:
 
 1. **Check this registry** for conflicts
 2. **Choose next available port** in appropriate range
@@ -66,7 +66,7 @@ When adding a new axios service:
 
 ## Configuration Pattern
 
-All axios services should follow this NixOS module pattern:
+All cairn services should follow this NixOS module pattern:
 
 ```nix
 services.example = {
@@ -107,7 +107,7 @@ services.example.serverPort = 84XX;  # Matches server's httpsPort
 
 ## Cross-References
 
-- **axios-ai-mail**: See `openspec/specs/pim/spec.md`
+- **cairn-mail**: See `openspec/specs/pim/spec.md`
 - **AI/llama-server**: See `openspec/specs/ai/spec.md`
 - **Open WebUI**: See `openspec/specs/ai/spec.md` (Open WebUI section)
 - **Immich**: See `selfHosted` module documentation

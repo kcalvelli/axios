@@ -15,17 +15,17 @@
     ./niri-keybinds.nix
     ./pwa-apps.nix
     ./mpv.nix
-    inputs.axios-monitor.homeManagerModules.default
+    inputs.cairn-monitor.homeManagerModules.default
     inputs.dankMaterialShell.homeModules.dank-material-shell
     inputs.dms-plugin-registry.homeModules.default
     inputs.dsearch.homeModules.default
   ];
 
   # Enable PWA apps by default for desktop users
-  axios.pwa.enable = true;
+  cairn.pwa.enable = true;
 
-  # Enable axiOS Monitor widget by default for desktop users
-  programs.axios-monitor.enable = lib.mkDefault (osConfig.desktop.enable or false);
+  # Enable Cairn Monitor widget by default for desktop users
+  programs.cairn-monitor.enable = lib.mkDefault (osConfig.desktop.enable or false);
 
   # Configure sudo to use GUI password prompt
   home.sessionVariables = {
@@ -84,7 +84,7 @@
       dankBatteryAlerts.enable = osConfig.hardware.laptop.enable or false;
       powerUsagePlugin.enable = osConfig.hardware.laptop.enable or false;
 
-      # Explicitly disabled (axios-monitor provides this)
+      # Explicitly disabled (cairn-monitor provides this)
       nixMonitor.enable = false;
     };
   };
@@ -132,7 +132,7 @@
   };
 
   # Default application associations for all installed apps
-  # Ensures every MIME type opens with the correct axiOS-shipped application
+  # Ensures every MIME type opens with the correct Cairn-shipped application
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
@@ -140,8 +140,8 @@
       "x-scheme-handler/kdeconnect" = "org.kde.dolphin.desktop";
 
       # === Flatpak install handler ===
-      "application/vnd.flatpak.ref" = "com.github.kcalvelli.axios.flatpak-install.desktop";
-      "application/vnd.flatpak.repo" = "com.github.kcalvelli.axios.flatpak-install.desktop";
+      "application/vnd.flatpak.ref" = "com.github.kcalvelli.cairn.flatpak-install.desktop";
+      "application/vnd.flatpak.repo" = "com.github.kcalvelli.cairn.flatpak-install.desktop";
 
       # === File Manager (Dolphin) ===
       "inode/directory" = "org.kde.dolphin.desktop";
@@ -335,12 +335,12 @@
 
   # Flatpak install handler desktop entry
   # Opens .flatpakref files in a small Ghostty terminal window for transparent installation
-  xdg.dataFile."applications/com.github.kcalvelli.axios.flatpak-install.desktop".text = ''
+  xdg.dataFile."applications/com.github.kcalvelli.cairn.flatpak-install.desktop".text = ''
     [Desktop Entry]
     Type=Application
-    Name=axiOS Flatpak Installer
+    Name=Cairn Flatpak Installer
     Comment=Install Flatpak applications from .flatpakref files
-    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.axios.flatpak-install -e axios-flatpak-install %f
+    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.cairn.flatpak-install -e cairn-flatpak-install %f
     MimeType=application/vnd.flatpak.ref;application/vnd.flatpak.repo;
     NoDisplay=true
     Terminal=false
@@ -357,10 +357,10 @@
     $DRY_RUN_CMD ${pkgs.kdePackages.kconfig}/bin/kwriteconfig6 --file dolphinrc --group General --key TerminalApplication ghostty
   '';
 
-  # Mask KDE Activity Manager (axiOS uses Niri workspaces, not KDE Activities)
+  # Mask KDE Activity Manager (Cairn uses Niri workspaces, not KDE Activities)
   # This removes the "Activities" context menu item from Dolphin and other KDE apps
   systemd.user.services.plasma-kactivitymanagerd = {
-    Unit.Description = "KDE Activity Manager (masked by axiOS)";
+    Unit.Description = "KDE Activity Manager (masked by Cairn)";
     Install = { };
     Service.ExecStart = "${pkgs.coreutils}/bin/true";
   };

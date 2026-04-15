@@ -2,7 +2,7 @@
 
 ## Phase 1: Foundation ✅ COMPLETE
 
-- [x] **1.1** Create `pkgs/axios-nvim-preset/` derivation structure
+- [x] **1.1** Create `pkgs/cairn-nvim-preset/` derivation structure
 - [x] **1.2** Create preset Lua skeleton
 - [x] **1.3** Implement lazy.nvim bootstrap in preset
 
@@ -20,7 +20,7 @@
 
 ## Phase 4: LSP & Completion ✅ COMPLETE
 
-- [x] **4.1** Implement language detection via `AXIOS_NVIM_LANGUAGES`
+- [x] **4.1** Implement language detection via `CAIRN_NVIM_LANGUAGES`
 - [x] **4.2** Add nvim-lspconfig (migrated to Neovim 0.11 native API)
 - [x] **4.3** Add language-specific LSP configs (inlined in lsp.lua)
 - [x] **4.4** Add nvim-cmp completion
@@ -47,7 +47,7 @@
 
 ## Phase 9: Devshell Integration ✅ COMPLETE
 
-- [x] **9.1** Update rust devshell with `AXIOS_NVIM_LANGUAGES`
+- [x] **9.1** Update rust devshell with `CAIRN_NVIM_LANGUAGES`
 - [x] **9.2** Update zig devshell
 - [x] **9.3** Update qml.nix and dotnet.nix devshells
 

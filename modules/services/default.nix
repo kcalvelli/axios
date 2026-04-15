@@ -11,5 +11,5 @@
     ./immich.nix
   ];
 
-  # No options needed - individual services (like axios.immich) define their own
+  # No options needed - individual services (like cairn.immich) define their own
 }

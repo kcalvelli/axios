@@ -15,7 +15,7 @@ Integrates advanced AI agents and local inference capabilities into the develope
     - `gemini-cli-bin`: Multimodal CLI agent.
     - **Authentication**: Uses an OAuth flow for Pro accounts (`gemini auth login`). API keys are not recommended for Pro users as they bypass the subscription.
     - **Configuration**: System prompt is managed via the `GEMINI_SYSTEM_MD` environment variable, set declaratively in `home/ai/mcp.nix`.
-    - `antigravity`: Advanced agentic assistant for axiOS development.
+    - `antigravity`: Advanced agentic assistant for Cairn development.
 - **OpenAI Ecosystem**:
     - `codex`: Terminal coding agent.
     - `codex-acp`: Optional ACP-compatible companion for tool integrations that speak Agent Communication Protocol.
@@ -29,14 +29,14 @@ Integrates advanced AI agents and local inference capabilities into the develope
 - **Implementation**: `modules/ai/default.nix`, `home/ai/`, `pkgs/pwa-apps/pwa-defs.nix`, `home/resources/pwa-icons/chatgpt.png`
 
 ### System Prompt Management
-- **Unified Prompt**: axiOS provides a system prompt at `~/.config/ai/prompts/axios.md` containing PIM domain hints and custom user instructions.
+- **Unified Prompt**: Cairn provides a system prompt at `~/.config/ai/prompts/cairn.md` containing PIM domain hints and custom user instructions.
 - **Auto-Injection**: Automatically injected into `~/.claude.json` during system activation.
 - **Customization**: Users can append instructions via `services.ai.systemPrompt.extraInstructions`.
 
 ### Model Context Protocol (MCP)
 - **Token Reduction Strategy**: Claude Code uses built-in tools only; MCP servers are accessed on-demand via mcp-gateway's `/mcp-cli` skill and REST API, reducing context window usage by up to 99%.
 - **No Native MCP**: `~/.mcp.json` generation is disabled by default (`generateClaudeConfig = false`). Claude Code does not spawn MCP servers natively.
-- **mcp-gw**: The `mcp-gw` CLI binary, `/mcp-cli` skill, and all related configuration are fully owned by the mcp-gateway module (not axios). axios does not package or patch any CLI tool for MCP discovery.
+- **mcp-gw**: The `mcp-gw` CLI binary, `/mcp-cli` skill, and all related configuration are fully owned by the mcp-gateway module (not cairn). cairn does not package or patch any CLI tool for MCP discovery.
 - **Servers**: Git, GitHub, Filesystem, Journal, Nix-devshell, etc.
 - **Configuration**: Declarative via `services.mcp-gateway` (from external mcp-gateway repo).
 - **Implementation**: Server definitions in `home/ai/mcp.nix`, module logic in `github.com/kcalvelli/mcp-gateway`
@@ -50,13 +50,13 @@ The local LLM stack supports server/client architecture for distributed inferenc
 - **Server Role** (`role = "server"`, default):
   - Runs `llama-server` locally with GPU acceleration
   - Supports both AMD (`llama-cpp-rocm`) and Nvidia (`llama-cpp` with CUDA) GPUs
-  - Auto-registers as `axios-llama.<tailnet>.ts.net` via Tailscale Services
+  - Auto-registers as `cairn-llama.<tailnet>.ts.net` via Tailscale Services
   - Loads a single GGUF model file directly (no model management layer)
 
 - **Client Role** (`role = "client"`):
   - Connects to remote llama-server via Tailscale Services
   - No local GPU stack installed (lighter footprint)
-  - Sets `LLAMA_API_URL` to `https://axios-llama.<tailnet>.ts.net`
+  - Sets `LLAMA_API_URL` to `https://cairn-llama.<tailnet>.ts.net`
   - Only requires `tailnetDomain` configuration
   - Ideal for lightweight laptops using a desktop as inference server
 
@@ -92,18 +92,18 @@ The server role automatically detects GPU vendor from the host's `hardware.gpu` 
 **GPU Offload**: Configurable via `services.ai.local.gpuLayers` (default: -1, all layers).
 
 **Network Access**:
-- **Tailscale Services**: Auto-registers as `axios-llama.<tailnet>.ts.net` on port 443.
+- **Tailscale Services**: Auto-registers as `cairn-llama.<tailnet>.ts.net` on port 443.
 
 **Implementation**: `modules/ai/default.nix` (custom `systemd.services.llama-server` unit)
 
 ### MCP Gateway (External Repository)
 
-REST API gateway that exposes axios MCP servers via OpenAPI endpoints and MCP HTTP transport.
+REST API gateway that exposes cairn MCP servers via OpenAPI endpoints and MCP HTTP transport.
 
 **Repository**: `github.com/kcalvelli/mcp-gateway`
 
 **Purpose**:
-- Bridge between axios MCP ecosystem and tools that don't natively support MCP
+- Bridge between cairn MCP ecosystem and tools that don't natively support MCP
 - Provide MCP HTTP transport for Claude.ai Integrations and Claude Desktop
 - Own the declarative MCP configuration module (single source of truth)
 
@@ -113,14 +113,14 @@ mcp-gateway is a standalone repository that provides:
 - **Package**: `mcp-gateway` Python FastAPI application
 - **Home-Manager Module**: Declarative MCP server configuration
 
-axios imports mcp-gateway's module and layers on axios-specific features:
-- **System Prompts**: `axios.md` (in `home/ai/prompts/`) — PIM domain hints and custom user instructions
+cairn imports mcp-gateway's module and layers on cairn-specific features:
+- **System Prompts**: `cairn.md` (in `home/ai/prompts/`) — PIM domain hints and custom user instructions
 - **OpenSpec Commands**: `/proposal`, `/apply`, `/archive` (in `home/ai/commands/`)
-- **Global CLAUDE.md**: `~/.claude/CLAUDE.md` with `@import` of axios prompt
+- **Global CLAUDE.md**: `~/.claude/CLAUDE.md` with `@import` of cairn prompt
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   axios (home/ai/mcp.nix)                       │
+│                   cairn (home/ai/mcp.nix)                       │
 │  - Imports mcp-gateway's home-manager module                    │
 │  - Provides server definitions with resolved nix store paths    │
 │  - Adds system prompts (PIM hints), commands, ~/.claude/CLAUDE.md│
@@ -171,22 +171,22 @@ services.mcp-gateway = {
 **Port Allocations:**
 | Service | Local Port | Tailscale Services |
 |---------|------------|-------------------|
-| MCP Gateway | 8085 | axios-mcp-gateway (443) |
+| MCP Gateway | 8085 | cairn-mcp-gateway (443) |
 
 **Implementation**:
 - Repository: `github.com/kcalvelli/mcp-gateway`
-- axios integration: `home/ai/mcp.nix`
+- cairn integration: `home/ai/mcp.nix`
 
 **SDK Architecture:**
 The MCP Gateway uses official MCP SDK libraries for protocol compliance:
 - **Client**: Uses `mcp` package (`mcp.client.stdio`, `ClientSession`) for connecting to MCP servers
-- **Servers**: axios MCP servers use `fastmcp` or `mcp.server.fastmcp` for the server side
+- **Servers**: cairn MCP servers use `fastmcp` or `mcp.server.fastmcp` for the server side
 
 | Component | SDK | Package |
 |-----------|-----|---------|
 | mcp-gateway (client) | `mcp` | `python3Packages.mcp` |
 | mcp-dav (server) | `fastmcp` | `python3Packages.fastmcp` |
-| axios-ai-mail (server) | `mcp.server.fastmcp` | `python3Packages.mcp` |
+| cairn-mail (server) | `mcp.server.fastmcp` | `python3Packages.mcp` |
 
 **Features:**
 - `passwordCommand` support for secure secret retrieval (e.g., `gh auth token`)
@@ -235,24 +235,24 @@ The AI module SHALL expose additional OpenAI ecosystem tools from `nixpkgs` as e
 
 #### Scenario: ChatGPT PWA can exist outside the AI module
 
-- **WHEN** axios provides ChatGPT through a non-AI user workflow such as the normie profile
+- **WHEN** cairn provides ChatGPT through a non-AI user workflow such as the normie profile
 - **THEN** that application is not required to depend on `services.ai.openai.enable`
 - **AND** the broader AI CLI and MCP tooling remain separately scoped
 
 ### Requirement: OpenAI tooling guidance is documented
 
-axios SHALL document the supported OpenAI tools, their authentication expectations, and any prompt/configuration integration limitations alongside the existing AI tooling guidance.
+cairn SHALL document the supported OpenAI tools, their authentication expectations, and any prompt/configuration integration limitations alongside the existing AI tooling guidance.
 
 #### Scenario: Authentication requirements are discoverable
 
 - **WHEN** a user reads the AI module documentation or spec-backed guidance for OpenAI tooling
 - **THEN** the documentation explains how the selected OpenAI tools authenticate
-- **AND** any recommended secret handling follows existing axios guidance rather than introducing a separate credential system
+- **AND** any recommended secret handling follows existing cairn guidance rather than introducing a separate credential system
 
 #### Scenario: Unsupported declarative hooks are called out
 
 - **WHEN** an OpenAI tool does not support stable declarative prompt or config injection
-- **THEN** axios documents that limitation explicitly
+- **THEN** cairn documents that limitation explicitly
 - **AND** the implementation does not rely on undocumented or brittle wrapper behavior
 
 ## Constraints
@@ -289,7 +289,7 @@ services.ai.local.model = "/var/lib/llama-models/mistral-7b-instruct-v0.2.Q4_K_M
 
 ## References
 
-- **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
-  - llama-server API: Local 11434, Tailscale via `axios-llama`
-- **PIM Module**: See `openspec/specs/pim/spec.md` for axios-ai-mail (uses OpenAI-compatible API)
+- **Port Allocations**: See `openspec/specs/networking/ports.md` for cairn port registry
+  - llama-server API: Local 11434, Tailscale via `cairn-llama`
+- **PIM Module**: See `openspec/specs/pim/spec.md` for cairn-mail (uses OpenAI-compatible API)
 - **Crash Diagnostics**: See `openspec/specs/hardware/crash-diagnostics.md` for GPU hang recovery

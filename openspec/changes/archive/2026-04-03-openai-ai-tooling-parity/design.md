@@ -1,8 +1,8 @@
 ## Context
 
-The current AI module exposes vendor-level toggles for Claude and Gemini and installs their primary tooling directly from `modules/ai/default.nix`. OpenAI-oriented tooling exists in the locked `nixpkgs` set (`codex`, `codex-acp`, `chatgpt`, `chatgpt-cli`, `openai`), but axios does not currently surface those tools through `services.ai`, document how they fit into the AI workflow, or define how their configuration should relate to the existing system prompt and secrets conventions. This change adds OpenAI as an additional first-class vendor choice rather than replacing the existing Claude or Gemini paths. On Linux, ChatGPT is implemented as a default axios PWA rather than the macOS-only `pkgs.chatgpt` desktop package.
+The current AI module exposes vendor-level toggles for Claude and Gemini and installs their primary tooling directly from `modules/ai/default.nix`. OpenAI-oriented tooling exists in the locked `nixpkgs` set (`codex`, `codex-acp`, `chatgpt`, `chatgpt-cli`, `openai`), but cairn does not currently surface those tools through `services.ai`, document how they fit into the AI workflow, or define how their configuration should relate to the existing system prompt and secrets conventions. This change adds OpenAI as an additional first-class vendor choice rather than replacing the existing Claude or Gemini paths. On Linux, ChatGPT is implemented as a default cairn PWA rather than the macOS-only `pkgs.chatgpt` desktop package.
 
-This change is cross-cutting because it touches module options, package selection, home-manager integration, the normie profile surface, and the AI spec/documentation surface. The design needs to preserve axios's reproducibility goals while avoiding a new external flake dependency unless `nixpkgs` proves insufficient.
+This change is cross-cutting because it touches module options, package selection, home-manager integration, the normie profile surface, and the AI spec/documentation surface. The design needs to preserve cairn's reproducibility goals while avoiding a new external flake dependency unless `nixpkgs` proves insufficient.
 
 ## Goals / Non-Goals
 
@@ -11,7 +11,7 @@ This change is cross-cutting because it touches module options, package selectio
 - Prefer packages already present in the locked `nixpkgs` set, with `codex` as the initial OpenAI terminal agent candidate for this change.
 - Define an implementation approach for companion OpenAI tools without forcing all of them into the default closure.
 - Keep ChatGPT in scope as a default PWA and make it available to normie users without requiring the AI power-user workflow.
-- Document authentication and prompt/configuration expectations in a way that matches existing axios patterns.
+- Document authentication and prompt/configuration expectations in a way that matches existing cairn patterns.
 
 **Non-Goals:**
 - Replacing Claude or Gemini as the default recommended workflow.
@@ -36,14 +36,14 @@ Alternatives considered:
 
 ### Decision: Use `nixpkgs` packages as the first implementation source
 
-The first implementation pass will use `codex` as the initial OpenAI terminal agent and treat `codex-acp` as an explicit AI companion package under suboptions. ChatGPT remains in scope as a supported user-facing application, but on Linux it is delivered through the existing axios PWA system and made available to the normie workflow outside `services.ai.enable`. `chatgpt-cli`, `kardolus-chatgpt-cli`, and the Python `openai` client will not be baseline installs because they are lower-leverage wrappers or libraries rather than the closest parity match for existing vendor tooling.
+The first implementation pass will use `codex` as the initial OpenAI terminal agent and treat `codex-acp` as an explicit AI companion package under suboptions. ChatGPT remains in scope as a supported user-facing application, but on Linux it is delivered through the existing cairn PWA system and made available to the normie workflow outside `services.ai.enable`. `chatgpt-cli`, `kardolus-chatgpt-cli`, and the Python `openai` client will not be baseline installs because they are lower-leverage wrappers or libraries rather than the closest parity match for existing vendor tooling.
 
 Rationale:
-- `codex` and `codex-acp` map most directly to axios's existing CLI-agent workflow.
+- `codex` and `codex-acp` map most directly to cairn's existing CLI-agent workflow.
 - ChatGPT has direct end-user value beyond the AI power-user workflow, so it should not be artificially tied to `services.ai.enable`.
-- The existing axios PWA mechanism is already the canonical Linux-friendly way to ship web applications with bundled icons and launcher integration.
+- The existing cairn PWA mechanism is already the canonical Linux-friendly way to ship web applications with bundled icons and launcher integration.
 - Staying within `nixpkgs` keeps builds reproducible and avoids expanding flake maintenance for the first pass.
-- This decision is about package sourcing for the OpenAI addition, not about changing axios's overall vendor preference.
+- This decision is about package sourcing for the OpenAI addition, not about changing cairn's overall vendor preference.
 
 Alternatives considered:
 - Add all OpenAI-related `nixpkgs` packages by default: rejected as noisy and hard to justify.
@@ -51,12 +51,12 @@ Alternatives considered:
 
 ### Decision: Keep configuration declarative where possible, and document the rest
 
-Implementation will follow the same pattern used elsewhere in axios: package installation and any supported environment/config file setup are declarative; credentials remain user-managed, preferably via `agenix`-backed environment exposure where practical. If a selected OpenAI tool does not expose a stable declarative prompt/config hook, axios will document that limitation rather than inventing brittle wrappers.
+Implementation will follow the same pattern used elsewhere in cairn: package installation and any supported environment/config file setup are declarative; credentials remain user-managed, preferably via `agenix`-backed environment exposure where practical. If a selected OpenAI tool does not expose a stable declarative prompt/config hook, cairn will document that limitation rather than inventing brittle wrappers.
 
 Rationale:
 - Preserves reproducibility without overpromising unsupported integration.
 - Aligns with existing AI guidance, where provider-specific authentication varies by vendor.
-- Avoids binding axios to reverse-engineered config internals that may churn quickly.
+- Avoids binding cairn to reverse-engineered config internals that may churn quickly.
 
 Alternatives considered:
 - Create wrapper scripts that emulate unsupported prompt/config behavior: rejected unless implementation proves the upstream surface is stable enough.

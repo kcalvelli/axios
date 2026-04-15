@@ -16,7 +16,7 @@
       '';
     };
 
-    axios.system.performance = {
+    cairn.system.performance = {
       swappiness = lib.mkOption {
         type = lib.types.int;
         default = 10;
@@ -56,11 +56,11 @@
       kernel.sysctl = {
         # Development workload optimizations
         "fs.inotify.max_user_watches" = 524288; # For IDEs and dev tools
-        "vm.swappiness" = config.axios.system.performance.swappiness;
+        "vm.swappiness" = config.cairn.system.performance.swappiness;
         "vm.dirty_ratio" = 3; # Better for SSDs
         "vm.dirty_background_ratio" = 2;
       }
-      // lib.optionalAttrs config.axios.system.performance.enableNetworkOptimizations {
+      // lib.optionalAttrs config.cairn.system.performance.enableNetworkOptimizations {
         # BBR congestion control (modern, efficient)
         "net.core.default_qdisc" = "fq";
         "net.ipv4.tcp_congestion_control" = "bbr";
@@ -107,7 +107,7 @@
     zramSwap = {
       enable = true;
       algorithm = "zstd";
-      memoryPercent = config.axios.system.performance.zramPercent;
+      memoryPercent = config.cairn.system.performance.zramPercent;
     };
   };
 }

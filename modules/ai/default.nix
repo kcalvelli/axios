@@ -14,7 +14,7 @@ let
   useServices = tsCfg.authMode == "authkey";
 
   # GPU type detection (follows graphics module pattern)
-  gpuType = config.axios.hardware.gpuType or null;
+  gpuType = config.cairn.hardware.gpuType or null;
   isAmdGpu = gpuType == "amd";
   isNvidiaGpu = gpuType == "nvidia";
 
@@ -51,11 +51,11 @@ in
           default = "";
           defaultText = lib.literalExpression ''
             if services.ai.local.role == "client"
-            then "https://axios-mcp-gateway.''${services.ai.local.tailnetDomain}"
+            then "https://cairn-mcp-gateway.''${services.ai.local.tailnetDomain}"
             else "http://127.0.0.1:''${toString services.mcp-gateway.port}"
           '';
           description = ''
-            Base URL of the axios MCP gateway used by AI tools (claude-code,
+            Base URL of the cairn MCP gateway used by AI tools (claude-code,
             codex, etc.) and exported to the user environment as
             MCP_GATEWAY_URL. Consumers that need the MCP-over-HTTP transport
             endpoint append "/mcp" to this base URL.
@@ -63,7 +63,7 @@ in
             Default is computed from services.ai.local.role:
               - "server": local gateway at http://127.0.0.1:<gatewayPort>
               - "client": Tailscale Service at
-                          https://axios-mcp-gateway.<tailnetDomain>
+                          https://cairn-mcp-gateway.<tailnetDomain>
 
             Override only if you have a non-standard gateway deployment.
           '';
@@ -103,7 +103,7 @@ in
           type = lib.types.lines;
           default = "";
           description = ''
-            Additional custom instructions appended to the axiOS system prompt.
+            Additional custom instructions appended to the Cairn system prompt.
             These are added under the "Custom User Instructions" section.
 
             Example:
@@ -134,7 +134,7 @@ in
           description = ''
             Local LLM deployment role:
             - "server": Run llama-server locally with GPU acceleration
-                        Auto-registers as axios-llama.<tailnet>.ts.net via Tailscale Services
+                        Auto-registers as cairn-llama.<tailnet>.ts.net via Tailscale Services
             - "client": Use remote llama-server via Tailscale Services (no local GPU required)
           '';
         };
@@ -224,13 +224,13 @@ in
 
     # MCP gateway URL — computed default, overridable.
     # Server hosts hit the local gateway over loopback; client hosts hit
-    # the axios-mcp-gateway Tailscale Service. Both consumers (the
+    # the cairn-mcp-gateway Tailscale Service. Both consumers (the
     # MCP_GATEWAY_URL session var below and the home-manager mcp_servers.json
     # generator) read this single value.
     (lib.mkIf (cfg.enable && cfg.mcp.enable) {
       services.ai.mcp.gatewayUrl = lib.mkDefault (
         if cfg.local.enable && isClient then
-          "https://axios-mcp-gateway.${cfg.local.tailnetDomain}"
+          "https://cairn-mcp-gateway.${cfg.local.tailnetDomain}"
         else
           "http://127.0.0.1:${toString (config.services.mcp-gateway.port or 8085)}"
       );
@@ -319,21 +319,21 @@ in
         lib.optionals isAmdGpu [ rocmPackages.rocminfo ] ++ lib.optional cfg.local.cli pkgs.opencode;
 
       # Tailscale Services registration
-      networking.tailscale.services."axios-llama" = {
+      networking.tailscale.services."cairn-llama" = {
         enable = true;
         backend = "http://127.0.0.1:${toString cfg.local.port}";
       };
 
       # Local hostname for server access (hairpinning workaround)
       networking.hosts = {
-        "127.0.0.1" = [ "axios-llama.local" ];
+        "127.0.0.1" = [ "cairn-llama.local" ];
       };
     })
 
     # Client role: Remote llama-server via Tailscale Services
     (lib.mkIf (cfg.enable && cfg.local.enable && isClient) {
       environment.sessionVariables = {
-        LLAMA_API_URL = "https://axios-llama.${cfg.local.tailnetDomain}";
+        LLAMA_API_URL = "https://cairn-llama.${cfg.local.tailnetDomain}";
         MCP_GATEWAY_URL = cfg.mcp.gatewayUrl;
       };
 

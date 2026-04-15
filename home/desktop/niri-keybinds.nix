@@ -5,12 +5,12 @@
   ...
 }:
 let
-  # Keybinding reference for axios niri configuration
-  # Union of Niri defaults + DMS features + axios customizations
+  # Keybinding reference for cairn niri configuration
+  # Union of Niri defaults + DMS features + cairn customizations
   keybindingGuide = pkgs.writeText "niri-keybindings.txt" ''
     ╔══════════════════════════════════════════════════════════════════╗
-    ║              axiOS Niri Keybinding Reference                     ║
-    ║         Niri Defaults + DMS Features + axios Apps                ║
+    ║              Cairn Niri Keybinding Reference                     ║
+    ║         Niri Defaults + DMS Features + cairn Apps                ║
     ╚══════════════════════════════════════════════════════════════════╝
 
     ┌─ CORE ACTIONS ───────────────────────────────────────────────────┐
@@ -22,7 +22,7 @@ let
     │ Mod + Shift + /   Show this keybinding guide                     │
     └──────────────────────────────────────────────────────────────────┘
 
-    ┌─ APPLICATION LAUNCHERS (axios) ──────────────────────────────────┐
+    ┌─ APPLICATION LAUNCHERS (cairn) ──────────────────────────────────┐
     │ Mod + B           Launch Brave Browser                           │
     │ Mod + D           Launch Vesktop (Discord)                        │
     │ Mod + E           Launch File Manager (Dolphin)                  │
@@ -157,7 +157,7 @@ let
     │ This configuration provides the union of:                        │
     │   - Niri default keybindings (no conflicts)                      │
     │   - DMS system integration features                              │
-    │   - axios custom application launchers                           │
+    │   - cairn custom application launchers                           │
     └──────────────────────────────────────────────────────────────────┘
   '';
 
@@ -188,11 +188,11 @@ in
 {
   # Make the keybinding guide available as a command
   home.packages = [
-    (pkgs.writeShellScriptBin "axios-help" ''
+    (pkgs.writeShellScriptBin "cairn-help" ''
       # Display in a floating terminal window sized for readability on all screens
       # Note: Window rule matches by title since Ghostty doesn't allow custom app-id
       ${pkgs.ghostty}/bin/ghostty \
-        --title="Niri Keybindings - axiOS" \
+        --title="Niri Keybindings - Cairn" \
         --window-width=80 \
         --window-height=40 \
         -e ${showKeybindings}
@@ -201,14 +201,14 @@ in
 
   # Add keybinding to show the guide
   programs.niri.settings.binds = {
-    "Mod+Shift+Slash".action.spawn = [ "axios-help" ];
+    "Mod+Shift+Slash".action.spawn = [ "cairn-help" ];
 
     # --- NIRI DEFAULTS: Core Actions ---
     "Mod+T".action.spawn = "ghostty"; # Niri default terminal
     "Mod+Q".action."close-window" = [ ];
     "Mod+Shift+E".action."quit" = [ ];
 
-    # --- AXIOS: App launches (non-conflicting keys) ---
+    # --- CAIRN: App launches (non-conflicting keys) ---
     "Mod+B".action.spawn = [
       "brave"
       "--class=brave-browser"
@@ -247,7 +247,7 @@ in
     "Mod+Home".action.focus-column-first = [ ];
     "Mod+End".action.focus-column-last = [ ];
 
-    # AXIOS: Mouse wheel focus column left/right
+    # CAIRN: Mouse wheel focus column left/right
     "Mod+WheelScrollLeft" = {
       cooldown-ms = 150;
       action.focus-column-left = [ ];
@@ -338,7 +338,7 @@ in
     "Mod+BracketLeft".action.consume-or-expel-window-left = [ ];
     "Mod+BracketRight".action.consume-or-expel-window-right = [ ];
 
-    # --- AXIOS: Overview ---
+    # --- CAIRN: Overview ---
     "Mod+Tab".action."toggle-overview" = [ ];
 
     # --- NIRI DEFAULTS: Floating ---
@@ -354,7 +354,7 @@ in
     "Mod+Page_Down".action.focus-workspace-down = { };
     "Mod+Page_Up".action.focus-workspace-up = { };
 
-    # AXIOS: Wheel scroll variants
+    # CAIRN: Wheel scroll variants
     "Mod+WheelScrollDown" = {
       cooldown-ms = 150;
       action.focus-workspace-down = { };
@@ -373,7 +373,7 @@ in
     "Mod+Ctrl+Page_Down".action.move-column-to-workspace-down = { };
     "Mod+Ctrl+Page_Up".action.move-column-to-workspace-up = { };
 
-    # AXIOS: Wheel scroll variants
+    # CAIRN: Wheel scroll variants
     "Mod+Ctrl+WheelScrollDown" = {
       cooldown-ms = 150;
       action.move-column-to-workspace-down = { };
@@ -383,7 +383,7 @@ in
       action.move-column-to-workspace-up = { };
     };
 
-    # --- AXIOS: Volume control (wheel only, removed keyboard) ---
+    # --- CAIRN: Volume control (wheel only, removed keyboard) ---
     # Wheel bindings
     "Mod+Shift+WheelScrollLeft".action.spawn = [
       "dms"
@@ -419,14 +419,14 @@ in
       write-to-disk = true;
     };
 
-    # AXIOS: Alternative screenshot bindings (keep for compatibility)
+    # CAIRN: Alternative screenshot bindings (keep for compatibility)
     "Mod+Shift+S".action.screenshot = { };
     "Mod+Ctrl+S".action.screenshot-screen = {
       write-to-disk = true;
     };
     "Mod+Alt+S".action.screenshot-screen = { };
 
-    # --- AXIOS: Screen Recording ---
+    # --- CAIRN: Screen Recording ---
     # MOVED from Mod+Shift+R to Mod+Alt+R (was conflicting)
     "Mod+Alt+R".action.spawn = [
       "${pkgs.bash}/bin/bash"
@@ -454,13 +454,13 @@ in
       ''
     ];
 
-    # --- AXIOS: Quake style drop down terminal ---
+    # --- CAIRN: Quake style drop down terminal ---
     "Mod+grave".action.spawn = [
       "${pkgs.bash}/bin/bash"
       "-c"
       ''
         # Get dropterm window ID if it exists
-        dropterm_id=$(niri msg windows | ${pkgs.gnugrep}/bin/grep -B2 'App ID: "com.github.kcalvelli.axios.dropterm"' | ${pkgs.gnugrep}/bin/grep 'Window ID' | ${pkgs.gawk}/bin/awk '{print $3}' | ${pkgs.gnused}/bin/sed 's/://')
+        dropterm_id=$(niri msg windows | ${pkgs.gnugrep}/bin/grep -B2 'App ID: "com.github.kcalvelli.cairn.dropterm"' | ${pkgs.gnugrep}/bin/grep 'Window ID' | ${pkgs.gawk}/bin/awk '{print $3}' | ${pkgs.gnused}/bin/sed 's/://')
 
         if [ -n "$dropterm_id" ]; then
           # Check if it's focused
@@ -475,7 +475,7 @@ in
           # Spawn new window using resident daemon (instant)
           ${pkgs.ghostty}/bin/ghostty \
             --gtk-single-instance=true \
-            --class=com.github.kcalvelli.axios.dropterm \
+            --class=com.github.kcalvelli.cairn.dropterm \
             --window-decoration=none &
         fi
       ''
@@ -487,7 +487,7 @@ in
   programs.niri.settings.window-rules = [
     {
       matches = [
-        { title = "Niri Keybindings - axiOS"; }
+        { title = "Niri Keybindings - Cairn"; }
       ];
       open-maximized = false;
       open-floating = true;

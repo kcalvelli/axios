@@ -1,6 +1,6 @@
-# axiOS Library Functions
+# Cairn Library Functions
 
-This directory contains library functions that can be used by downstream flakes to build NixOS configurations using axiOS as a base.
+This directory contains library functions that can be used by downstream flakes to build NixOS configurations using Cairn as a base.
 
 **For complete documentation, see [docs/LIBRARY_USAGE.md](../docs/LIBRARY_USAGE.md)**
 
@@ -11,7 +11,7 @@ This directory contains library functions that can be used by downstream flakes 
 Build a NixOS configuration from a host specification:
 
 ```nix
-axios.lib.mkSystem {
+cairn.lib.mkSystem {
   hostname = "myhost";
   system = "x86_64-linux";
   formFactor = "desktop" | "laptop";
@@ -35,13 +35,13 @@ The main function to create a NixOS system configuration.
 ```nix
 {
   inputs = {
-    axios.url = "github:kcalvelli/axios";
-    nixpkgs.follows = "axios/nixpkgs";
+    cairn.url = "github:kcalvelli/cairn";
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }:
+  outputs = { self, cairn, nixpkgs, ... }:
     let
-      mkHost = hostname: axios.lib.mkSystem (
+      mkHost = hostname: cairn.lib.mkSystem (
         (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
           configDir = self.outPath;
         }
@@ -68,7 +68,7 @@ Helper function that builds a list of nixos-hardware modules based on hardware c
 
 ### `buildModules`
 
-Helper function that builds the complete module list for a host configuration. Combines base modules, hardware modules, axiOS modules, and host-specific configuration.
+Helper function that builds the complete module list for a host configuration. Combines base modules, hardware modules, Cairn modules, and host-specific configuration.
 
 **Parameters:**
 - `hostCfg`: Host configuration attribute set (same as `mkSystem` parameter)

@@ -1,6 +1,6 @@
 ## Context
 
-axiOS provides curated application sets within its desktop and development modules. An audit against the target persona (AI-enabled software engineers and power users) identified gaps: missing database clients, API testing tools, structural diff, system/network diagnostics, and no office suite. Additionally, three browsers are installed but undocumented, and Hoppscotch exists locally but isn't distributed as a default PWA.
+Cairn provides curated application sets within its desktop and development modules. An audit against the target persona (AI-enabled software engineers and power users) identified gaps: missing database clients, API testing tools, structural diff, system/network diagnostics, and no office suite. Additionally, three browsers are installed but undocumented, and Hoppscotch exists locally but isn't distributed as a default PWA.
 
 The existing module structure cleanly accommodates these additions — packages go inline within `mkIf` blocks in their respective modules.
 
@@ -9,7 +9,7 @@ The existing module structure cleanly accommodates these additions — packages 
 **Goals:**
 - Add missing CLI tools to development module (pgcli, litecli, httpie, difftastic, btop, mtr, dog)
 - Add libreoffice-qt to the desktop module for office productivity
-- Add Hoppscotch as a default PWA via the existing `axios.pwa.apps` system
+- Add Hoppscotch as a default PWA via the existing `cairn.pwa.apps` system
 - Update APPLICATIONS.md to accurately reflect all installed applications
 
 **Non-Goals:**
@@ -32,9 +32,9 @@ The existing module structure cleanly accommodates these additions — packages 
 
 ### D2: Hoppscotch as default PWA — promote from downstream to `pwa-defs.nix`
 
-**Decision**: Add Hoppscotch to `pkgs/pwa-apps/pwa-defs.nix` (the axios default PWA definitions) and copy the icon from the local config (`~/.config/nixos_config/pwa-icons/hoppscotch.png`) into `home/resources/pwa-icons/`. Downstream user configs can then remove their duplicate Hoppscotch entries since `mkDefault` from the defaults will provide it automatically.
+**Decision**: Add Hoppscotch to `pkgs/pwa-apps/pwa-defs.nix` (the cairn default PWA definitions) and copy the icon from the local config (`~/.config/nixos_config/pwa-icons/hoppscotch.png`) into `home/resources/pwa-icons/`. Downstream user configs can then remove their duplicate Hoppscotch entries since `mkDefault` from the defaults will provide it automatically.
 
-**Rationale**: The PWA default system (`pwa-defs.nix` + `home/resources/pwa-icons/`) is the single source of truth for axios-shipped PWAs. Adding Hoppscotch here follows the exact same pattern as Google Drive, YouTube, Element, and all other defaults. This avoids duplicating the definition across user configs and keeps the icon in the canonical location.
+**Rationale**: The PWA default system (`pwa-defs.nix` + `home/resources/pwa-icons/`) is the single source of truth for cairn-shipped PWAs. Adding Hoppscotch here follows the exact same pattern as Google Drive, YouTube, Element, and all other defaults. This avoids duplicating the definition across user configs and keeps the icon in the canonical location.
 
 **Alternatives considered**:
 - Add to `home/desktop/pwa-apps.nix` directly: Wrong layer — `pwa-apps.nix` is the module logic; `pwa-defs.nix` is where default app definitions live.

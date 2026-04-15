@@ -15,7 +15,7 @@ on:
 
 jobs:
   test-init:
-    name: Test axios init command
+    name: Test cairn init command
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

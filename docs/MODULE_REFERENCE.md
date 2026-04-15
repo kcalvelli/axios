@@ -1,6 +1,6 @@
 # Module Reference
 
-This guide explains every module axiOS provides, what it does, and when to use it.
+This guide explains every module Cairn provides, what it does, and when to use it.
 
 **Quick Navigation:**
 - [Core Modules](#core-modules) - Essential system configuration
@@ -14,7 +14,7 @@ This guide explains every module axiOS provides, what it does, and when to use i
 
 ## How Modules Work
 
-Each module in axiOS is like a feature toggle. When you enable a module, you get:
+Each module in Cairn is like a feature toggle. When you enable a module, you get:
 - All necessary packages pre-installed
 - Everything configured and working together
 - Sensible defaults you can customize
@@ -38,7 +38,7 @@ modules = {
 - Boot configuration with Plymouth branded splash screen
 - Nix settings and garbage collection
 - Core system packages (file utilities, compression tools, monitoring)
-- Timezone and locale management (`axios.system.locale`, defaults to en_US.UTF-8)
+- Timezone and locale management (`cairn.system.locale`, defaults to en_US.UTF-8)
 - systemd-oomd for out-of-memory management
 - PipeWire audio stack
 - CUPS printing support
@@ -52,18 +52,18 @@ modules.system = true;
 
 extraConfig = {
   # REQUIRED: Set your timezone
-  axios.system.timeZone = "America/New_York";
+  cairn.system.timeZone = "America/New_York";
 
   # Optional: Override locale (defaults to en_US.UTF-8)
-  axios.system.locale = "en_GB.UTF-8";
+  cairn.system.locale = "en_GB.UTF-8";
 };
 ```
 
 **Why is timezone required?**
 
-axiOS is a library framework designed for users worldwide. Unlike personal configurations, we don't assume your location or preferences. Requiring explicit timezone configuration ensures your system matches your actual location rather than a hardcoded default that might be wrong.
+Cairn is a library framework designed for users worldwide. Unlike personal configurations, we don't assume your location or preferences. Requiring explicit timezone configuration ensures your system matches your actual location rather than a hardcoded default that might be wrong.
 
-This "library philosophy" applies throughout axiOS - no regional defaults, no hardcoded personal preferences. Your configuration expresses your choices explicitly.
+This "library philosophy" applies throughout Cairn - no regional defaults, no hardcoded personal preferences. Your configuration expresses your choices explicitly.
 
 ---
 
@@ -71,7 +71,7 @@ This "library philosophy" applies throughout axiOS - no regional defaults, no ha
 **What it does:** Multi-user account management and home directory setup.
 
 **Includes:**
-- User account creation via `axios.users.users.<name>` submodule
+- User account creation via `cairn.users.users.<name>` submodule
 - Automatic group assignment based on enabled modules
 - Home Manager integration with per-user profiles
 - Git configuration from user's fullName and email
@@ -143,12 +143,12 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 ---
 
 ### pim
-**What it does:** Personal Information Management with axios-ai-mail.
+**What it does:** Personal Information Management with cairn-mail.
 
 **Includes:**
-- **axios-ai-mail** - AI-powered email client with local LLM classification
+- **cairn-mail** - AI-powered email client with local LLM classification
 - **vdirsyncer** - CLI tool for syncing calendars and contacts
-- **mcp-dav** - Calendar and contacts access via CalDAV/CardDAV (from axios-dav)
+- **mcp-dav** - Calendar and contacts access via CalDAV/CardDAV (from cairn-dav)
 
 **When to use:** If you need email with AI-powered smart inbox features
 
@@ -156,7 +156,7 @@ hardware.gpu = "amd";  # Automatically loads AMD drivers + GPU recovery
 
 Supports **server/client roles** for distributed deployment across your tailnet.
 
-**Server Role** (runs axios-ai-mail service):
+**Server Role** (runs cairn-mail service):
 ```nix
 modules.pim = true;
 
@@ -182,7 +182,7 @@ extraConfig = {
 };
 ```
 
-**Access:** Via PWA at `https://axios-mail.<tailnet>.ts.net`
+**Access:** Via PWA at `https://cairn-mail.<tailnet>.ts.net`
 
 See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale Services setup.
 
@@ -194,7 +194,7 @@ See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale Services setup.
 **What it does:** Programming tools and development environments.
 
 **Includes:**
-- **Editors:** VS Code, Neovim (with axios IDE preset)
+- **Editors:** VS Code, Neovim (with cairn IDE preset)
 - **Version control:** Git, GitHub CLI
 - **Compilers:** GCC, Clang, Rust, Zig toolchains
 - **Build tools:** Make, CMake, Meson
@@ -208,9 +208,9 @@ See [TAILSCALE_SERVICES.md](TAILSCALE_SERVICES.md) for Tailscale Services setup.
 
 **DevShells Available:**
 ```bash
-nix develop github:kcalvelli/axios#rust   # Rust environment
-nix develop github:kcalvelli/axios#zig    # Zig environment
-nix develop github:kcalvelli/axios#qml    # Qt/QML environment
+nix develop github:kcalvelli/cairn#rust   # Rust environment
+nix develop github:kcalvelli/cairn#zig    # Zig environment
+nix develop github:kcalvelli/cairn#qml    # Qt/QML environment
 ```
 
 ---
@@ -271,7 +271,7 @@ virt = {
      - **claude-code** - Anthropic's CLI agent with MCP support
      - **claude-code-router** - Claude Code request router
      - **gemini** - Google's multimodal CLI agent with free tier
-     - **antigravity** - Advanced agentic assistant for axiOS development
+     - **antigravity** - Advanced agentic assistant for Cairn development
      - **codex** - OpenAI terminal coding agent when `services.ai.openai.enable = true`
      - **codex-acp** - Optional ACP companion when `services.ai.openai.codexAcp.enable = true`
    - **Workflow & Support Tools**:
@@ -307,9 +307,9 @@ services.ai = {
 
 **Authentication and configuration notes:**
 - `codex` uses the upstream interactive login flow (`codex login`).
-- axios generates `~/.codex/config.toml` when `services.ai.openai.enable = true` and `services.ai.mcp.enable = true`, registering `mcp-gateway` at `http://127.0.0.1:<port>/mcp`.
-- axios does not inject an OpenAI-specific system prompt because the current change does not rely on a stable shared prompt hook for Codex.
-- ChatGPT is provided as a default axios PWA, so it is available to normie users without enabling `services.ai` or importing `home/ai/`.
+- cairn generates `~/.codex/config.toml` when `services.ai.openai.enable = true` and `services.ai.mcp.enable = true`, registering `mcp-gateway` at `http://127.0.0.1:<port>/mcp`.
+- cairn does not inject an OpenAI-specific system prompt because the current change does not rely on a stable shared prompt hook for Codex.
+- ChatGPT is provided as a default cairn PWA, so it is available to normie users without enabling `services.ai` or importing `home/ai/`.
 - No additional non-`nixpkgs` OpenAI tooling is required for the first pass; future external additions should be evaluated only if a meaningful gap remains.
 
 ---
@@ -360,7 +360,7 @@ services.ai.local = {
 };
 ```
 
-The server registers as `axios-llama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via `LLAMA_API_URL` and `MCP_GATEWAY_URL` environment variables.
+The server registers as `cairn-llama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via `LLAMA_API_URL` and `MCP_GATEWAY_URL` environment variables.
 
 **Features (Server Role):**
 - **OpenAI-compatible API** (`/v1/chat/completions`)
@@ -394,7 +394,7 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 - `nix-devshell-mcp` - Nix development shell integration
 
 **PIM Integration:**
-- `axios-ai-mail` - AI-powered email access and management
+- `cairn-mail` - AI-powered email access and management
 - `mcp-dav` - Calendar and contacts via CalDAV/CardDAV
 
 **AI Enhancement:**
@@ -434,7 +434,7 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 ---
 
 ### syncthing
-**What it does:** Peer-to-peer XDG directory synchronization across axiOS hosts via Tailscale.
+**What it does:** Peer-to-peer XDG directory synchronization across Cairn hosts via Tailscale.
 
 **Includes:**
 - **Syncthing** daemon with declarative folder and device configuration
@@ -442,7 +442,7 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 - XDG-aware folders (declare `documents`, `music`, `pictures`, etc. instead of raw paths)
 - MagicDNS device addressing (devices referenced by Tailscale machine name)
 
-**When to use:** To keep Documents, Music, Pictures, and other XDG directories in sync across multiple axiOS machines
+**When to use:** To keep Documents, Music, Pictures, and other XDG directories in sync across multiple Cairn machines
 
 **Requirements:** Needs `networking = true` (for Tailscale). `networking.tailscale.domain` must be set.
 
@@ -452,7 +452,7 @@ Model Context Protocol servers provide enhanced context to AI assistants:
 modules.syncthing = true;
 
 extraConfig = {
-  axios.syncthing = {
+  cairn.syncthing = {
     user = "alice";  # User whose XDG dirs are synced
 
     # Declare peer devices (attr name = Tailscale machine name)
@@ -519,13 +519,13 @@ folders.documents = {
 
 **When to use:** Run your own cloud services instead of relying on third parties
 
-**Enables:** The `axios.immich` configuration section (see below)
+**Enables:** The `cairn.immich` configuration section (see below)
 
 ---
 
 ## Self-Hosted Services
 
-### axios.immich (Immich Photo Backup)
+### cairn.immich (Immich Photo Backup)
 
 When you enable `modules.services = true`, you can configure Immich.
 
@@ -548,7 +548,7 @@ Supports **server/client roles** for distributed deployment across your tailnet.
 modules.services = true;
 
 # In hostConfig (outside extraConfig):
-axios = {
+cairn = {
   immich = {
     enable = true;
     enableGpuAcceleration = true;  # Use GPU for ML (faster)
@@ -566,7 +566,7 @@ axios = {
 modules.services = true;
 
 extraConfig = {
-  axios.immich = {
+  cairn.immich = {
     enable = true;
     role = "client";
     pwa = {
@@ -577,7 +577,7 @@ extraConfig = {
 };
 ```
 
-**Access:** Via PWA at `https://axios-immich.<tailnet>.ts.net`
+**Access:** Via PWA at `https://cairn-immich.<tailnet>.ts.net`
 
 **Requirements:**
 - Tailscale for secure remote access
@@ -663,7 +663,7 @@ Some modules require others to work properly:
 | `ai` | `networking` | AI tools need internet access |
 | `syncthing` | `networking` | Syncthing uses Tailscale for transport |
 
-axiOS automatically checks these and will show a clear error if dependencies are missing.
+Cairn automatically checks these and will show a clear error if dependencies are missing.
 
 ---
 
@@ -720,12 +720,12 @@ All options can be set in `extraConfig` within your host configuration.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `axios.system.timeZone` | string | *required* | IANA timezone (e.g., "America/New_York") |
-| `axios.system.locale` | string | `"en_US.UTF-8"` | System locale |
-| `axios.system.bluetooth.powerOnBoot` | bool | `true` | Auto-power Bluetooth at boot |
-| `axios.system.performance.swappiness` | int | `10` | VM swappiness (0-100) |
-| `axios.system.performance.zramPercent` | int | `25` | Percentage of RAM for zram swap |
-| `axios.system.performance.enableNetworkOptimizations` | bool | `true` | BBR congestion control + optimized buffers |
+| `cairn.system.timeZone` | string | *required* | IANA timezone (e.g., "America/New_York") |
+| `cairn.system.locale` | string | `"en_US.UTF-8"` | System locale |
+| `cairn.system.bluetooth.powerOnBoot` | bool | `true` | Auto-power Bluetooth at boot |
+| `cairn.system.performance.swappiness` | int | `10` | VM swappiness (0-100) |
+| `cairn.system.performance.zramPercent` | int | `25` | Percentage of RAM for zram swap |
+| `cairn.system.performance.enableNetworkOptimizations` | bool | `true` | BBR congestion control + optimized buffers |
 
 ### Hardware Options
 
@@ -734,8 +734,8 @@ All options can be set in `extraConfig` within your host configuration.
 | `hardware.desktop.cpuGovernor` | string | `"powersave"` | CPU frequency governor for desktops |
 | `hardware.desktop.enableLogitechSupport` | bool | `false` | Logitech Unifying receiver support |
 | `hardware.laptop.cpuGovernor` | string | `"powersave"` | CPU frequency governor for laptops |
-| `axios.hardware.enableGPURecovery` | bool | `true` (AMD) | Auto GPU hang recovery (AMD only) |
-| `axios.hardware.nvidiaDriver` | enum | `"stable"` | Nvidia driver: "stable", "beta", "production" |
+| `cairn.hardware.enableGPURecovery` | bool | `true` (AMD) | Auto GPU hang recovery (AMD only) |
+| `cairn.hardware.nvidiaDriver` | enum | `"stable"` | Nvidia driver: "stable", "beta", "production" |
 
 ### Boot Options
 

@@ -1,6 +1,6 @@
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     isAdmin = true;

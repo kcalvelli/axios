@@ -1,6 +1,6 @@
 ## Context
 
-axiOS enables PipeWire with WirePlumber for all audio (`modules/system/sound.nix`) and Bluetooth unconditionally (`modules/system/bluetooth.nix`). The current bluetooth config sets `enable = true` and `powerOnBoot` but does nothing about HFP/HSP profile ownership. By default, bluetoothd registers these profiles itself, conflicting with PipeWire's native bluetooth backend which also wants to own them. This causes connection failures and codec negotiation issues with BT headsets.
+Cairn enables PipeWire with WirePlumber for all audio (`modules/system/sound.nix`) and Bluetooth unconditionally (`modules/system/bluetooth.nix`). The current bluetooth config sets `enable = true` and `powerOnBoot` but does nothing about HFP/HSP profile ownership. By default, bluetoothd registers these profiles itself, conflicting with PipeWire's native bluetooth backend which also wants to own them. This causes connection failures and codec negotiation issues with BT headsets.
 
 Separately, WirePlumber's bluez seat monitoring assumes an active logind seat. Headless machines (servers, kiosks) without a graphical seat get bluez connections refused because WirePlumber thinks nobody's home.
 
@@ -21,15 +21,15 @@ Separately, WirePlumber's bluez seat monitoring assumes an active logind seat. H
 
 **Decision**: Always set `hardware.bluetooth.settings.General.Disable = "Headset"` when bluetooth is enabled.
 
-**Rationale**: axiOS always enables PipeWire with WirePlumber. There is no supported configuration where bluetoothd should own HFP/HSP profiles. Making this conditional would add complexity for a scenario that doesn't exist in this distribution.
+**Rationale**: Cairn always enables PipeWire with WirePlumber. There is no supported configuration where bluetoothd should own HFP/HSP profiles. Making this conditional would add complexity for a scenario that doesn't exist in this distribution.
 
-**Alternative considered**: Making it opt-in via an option. Rejected because every axiOS system runs PipeWire — there's no valid reason to keep bluetoothd's headset profiles active.
+**Alternative considered**: Making it opt-in via an option. Rejected because every Cairn system runs PipeWire — there's no valid reason to keep bluetoothd's headset profiles active.
 
 ### 2. WirePlumber seat monitoring as opt-in option
 
-**Decision**: Add `axios.system.bluetooth.disableSeatMonitoring` (default `false`) that writes a WirePlumber config fragment via `services.pipewire.wireplumber.configPackages`.
+**Decision**: Add `cairn.system.bluetooth.disableSeatMonitoring` (default `false`) that writes a WirePlumber config fragment via `services.pipewire.wireplumber.configPackages`.
 
-**Rationale**: Most axiOS machines are desktops/laptops with active logind seats. Headless is the exception. Default-off keeps the common case simple while providing a clean toggle for edge cases.
+**Rationale**: Most Cairn machines are desktops/laptops with active logind seats. Headless is the exception. Default-off keeps the common case simple while providing a clean toggle for edge cases.
 
 **Alternative considered**: Auto-detecting headless via `!config.desktop.enable`. Rejected because not all non-desktop machines are headless, and the user knows better than heuristics whether they have a seat.
 
@@ -41,6 +41,6 @@ Separately, WirePlumber's bluez seat monitoring assumes an active logind seat. H
 
 ## Risks / Trade-offs
 
-- **[Risk] Disabling Headset profiles breaks non-PipeWire setups** → Mitigated by the fact that axiOS always enables PipeWire. If someone imports only the bluetooth module without sound, they'd get a broken HFP/HSP — but that's not a supported configuration.
+- **[Risk] Disabling Headset profiles breaks non-PipeWire setups** → Mitigated by the fact that Cairn always enables PipeWire. If someone imports only the bluetooth module without sound, they'd get a broken HFP/HSP — but that's not a supported configuration.
 - **[Risk] WirePlumber configPackages syntax changes upstream** → Low risk. The `monitor.bluez.properties` path is stable WirePlumber 0.4+ API. If it changes, it'll break everyone, not just us.
 - **[Trade-off] Unconditional vs conditional Headset disable** → We lose the ability to let bluetoothd handle headset profiles. This is intentional — PipeWire does it better, and the dual-registration is the bug.

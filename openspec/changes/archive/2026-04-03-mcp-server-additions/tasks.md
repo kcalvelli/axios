@@ -2,19 +2,19 @@
 
 ## Completed
 
-### axios-ai-mail MCP Server
+### cairn-mail MCP Server
 
 **Date Added**: 2025-01-24
 **Status**: Complete ✅
 
-axios-ai-mail provides an MCP server for AI-powered email management.
+cairn-mail provides an MCP server for AI-powered email management.
 
 **Server Configuration**:
 ```json
 {
   "mcpServers": {
-    "axios-ai-mail": {
-      "command": "axios-ai-mail",
+    "cairn-mail": {
+      "command": "cairn-mail",
       "args": ["mcp"]
     }
   }

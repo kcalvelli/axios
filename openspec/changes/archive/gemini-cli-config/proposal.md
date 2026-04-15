@@ -2,7 +2,7 @@
 
 ## Problem
 
-The initial investigation into `gemini-cli`'s failures revealed a reliance on an external `axios-gemini` script, which was not part of the `axiOS` repository. The initial proposed solution was to manage the `gemini-cli` API key declaratively using `agenix`.
+The initial investigation into `gemini-cli`'s failures revealed a reliance on an external `cairn-gemini` script, which was not part of the `Cairn` repository. The initial proposed solution was to manage the `gemini-cli` API key declaratively using `agenix`.
 
 **This was incorrect.**
 

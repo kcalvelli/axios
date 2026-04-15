@@ -1,9 +1,9 @@
-# MCP Configuration for axios
+# MCP Configuration for cairn
 # This module imports mcp-gateway's home-manager module and configures
-# the MCP servers using axios's flake inputs.
+# the MCP servers using cairn's flake inputs.
 #
 # mcp-gateway owns the declarative config module and generates all config files.
-# axios provides server definitions, prompts, commands, and aliases.
+# cairn provides server definitions, prompts, commands, and aliases.
 {
   config,
   lib,
@@ -31,7 +31,7 @@ let
   mcpEndpoint = "${gatewayUrl}/mcp";
 
   codexMcpBlock = pkgs.writeText "codex-mcp-block.toml" ''
-    [mcp_servers.axios-mcp-gateway]
+    [mcp_servers.cairn-mcp-gateway]
     url = "${mcpEndpoint}"
   '';
 
@@ -72,7 +72,7 @@ in
   ];
 
   config = lib.mkIf (osConfig.services.ai.mcp.enable or false) {
-    # Configure mcp-gateway with axios's server definitions
+    # Configure mcp-gateway with cairn's server definitions
     services.mcp-gateway = {
       enable = true;
 
@@ -87,12 +87,12 @@ in
         osConfig.services.mcp-gateway.autoEnable or [
           "github"
           "mcp-dav"
-          "axios-ai-mail"
+          "cairn-mail"
           "brave-search"
         ];
 
       # MCP Server Definitions
-      # All servers with fully resolved paths from axios inputs
+      # All servers with fully resolved paths from cairn inputs
       servers = {
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # CORE TOOLS (No setup required)
@@ -114,19 +114,19 @@ in
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # PIM TOOLS — server role only
         # On client hosts these stdio entries are disabled and replaced by
-        # the unified `axios` HTTP entry below, which proxies to the
+        # the unified `cairn` HTTP entry below, which proxies to the
         # remote gateway's aggregated MCP-over-HTTP endpoint.
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        axios-ai-mail = {
+        cairn-mail = {
           enable = isAiServer;
-          command = "${inputs.axios-ai-mail.packages.${system}.default}/bin/axios-ai-mail";
+          command = "${inputs.cairn-mail.packages.${system}.default}/bin/cairn-mail";
           args = [ "mcp" ];
         };
 
         mcp-dav = {
           enable = isAiServer;
-          command = "${inputs.axios-dav.packages.${system}.mcp-dav}/bin/mcp-dav";
+          command = "${inputs.cairn-dav.packages.${system}.mcp-dav}/bin/mcp-dav";
           env = {
             # Dynamic calendar paths from services.pim.calendar.accounts
             # Supports multiple paths separated by colons (e.g., ~/.calendars:~/.calendars-external)
@@ -138,14 +138,14 @@ in
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
         # REMOTE MCP GATEWAY — client role only
         # Single MCP-over-HTTP entry that proxies every tool exposed by
-        # the remote axios-mcp-gateway Tailscale Service (mail, dav,
+        # the remote cairn-mcp-gateway Tailscale Service (mail, dav,
         # sentinel, home-assistant, whatever the server host has wired
         # up). Tools come back namespaced by the gateway as
         # `<server-id>__<tool>`, which claude-code in turn exposes as
-        # `mcp__axios-mcp-gateway__<server-id>__<tool>`.
+        # `mcp__cairn-mcp-gateway__<server-id>__<tool>`.
         # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-        axios-mcp-gateway = {
+        cairn-mcp-gateway = {
           enable = !isAiServer;
           transport = "http";
           url = mcpEndpoint;
@@ -176,12 +176,12 @@ in
 
     # Install MCP server packages
     home.packages = [
-      inputs.axios-ai-mail.packages.${system}.default
-      inputs.axios-dav.packages.${system}.mcp-dav
+      inputs.cairn-mail.packages.${system}.default
+      inputs.cairn-dav.packages.${system}.mcp-dav
     ];
 
     # Codex uses ~/.codex/config.toml rather than XDG config paths.
-    # Merge the axios MCP block into the user config so model, trust, and
+    # Merge the cairn MCP block into the user config so model, trust, and
     # migration settings already present in the file are preserved.
     home.activation.codexMcpConfig = lib.mkIf (osConfig.services.ai.openai.enable or false) (
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -192,13 +192,13 @@ in
         ${pkgs.coreutils}/bin/mkdir -p "$codex_dir"
 
         if [ -f "$codex_config" ]; then
-          # Strip any prior axios-managed mcp_servers block. Matches both
-          # the legacy [mcp_servers.axios] section name and the current
-          # [mcp_servers.axios-mcp-gateway] name so existing configs get
+          # Strip any prior cairn-managed mcp_servers block. Matches both
+          # the legacy [mcp_servers.cairn] section name and the current
+          # [mcp_servers.cairn-mcp-gateway] name so existing configs get
           # cleaned up on rebuild.
           ${pkgs.gawk}/bin/awk '
             BEGIN { skip = 0 }
-            /^\[mcp_servers\.axios(-mcp-gateway)?\]$/ { skip = 1; next }
+            /^\[mcp_servers\.cairn(-mcp-gateway)?\]$/ { skip = 1; next }
             /^\[/ && skip == 1 { skip = 0 }
             skip == 0 { print }
           ' "$codex_config" > "$temp_file"

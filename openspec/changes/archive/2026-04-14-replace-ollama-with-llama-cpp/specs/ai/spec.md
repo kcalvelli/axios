@@ -13,12 +13,12 @@ _(Server/client architecture unchanged in concept, implementation details update
 - **Server Role** (`role = "server"`, default):
   - Runs `llama-server` locally with GPU acceleration
   - Supports both AMD (`llama-cpp-rocm`) and Nvidia (`llama-cpp` with CUDA) GPUs
-  - Auto-registers as `axios-llama.<tailnet>.ts.net` via Tailscale Services
+  - Auto-registers as `cairn-llama.<tailnet>.ts.net` via Tailscale Services
 
 - **Client Role** (`role = "client"`):
   - Connects to remote llama-server via Tailscale Services
   - No local GPU stack installed
-  - Sets `LLAMA_API_URL` to `https://axios-llama.<tailnet>.ts.net`
+  - Sets `LLAMA_API_URL` to `https://cairn-llama.<tailnet>.ts.net`
   - No client-side binary needed (consumers use HTTP API directly)
 
 ### Model Management
@@ -74,5 +74,5 @@ services.ai.local.model = "/path/to/model.gguf";
 
 ## Updated References
 
-- **Port Allocations**: llama-server uses port 11434 (same as Ollama was). Tailscale service name changes to `axios-llama`.
-- **PIM Module**: axios-ai-mail uses OpenAI-compatible API — no change needed, already migrated.
+- **Port Allocations**: llama-server uses port 11434 (same as Ollama was). Tailscale service name changes to `cairn-llama`.
+- **PIM Module**: cairn-mail uses OpenAI-compatible API — no change needed, already migrated.

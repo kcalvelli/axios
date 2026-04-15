@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Declarative Syncthing module for peer-to-peer XDG directory synchronization across axiOS hosts via Tailscale MagicDNS.
+Declarative Syncthing module for peer-to-peer XDG directory synchronization across Cairn hosts via Tailscale MagicDNS.
 
 ## Components
 
@@ -17,16 +17,16 @@ Declarative Syncthing module for peer-to-peer XDG directory synchronization acro
 
 ### Requirement: Syncthing XDG sync module
 
-The system SHALL provide an `axios.syncthing` NixOS module that configures Syncthing to synchronize XDG directories between axiOS hosts over Tailscale.
+The system SHALL provide an `cairn.syncthing` NixOS module that configures Syncthing to synchronize XDG directories between Cairn hosts over Tailscale.
 
 #### Scenario: Module enabled with devices and folders
 
-- **WHEN** `axios.syncthing.enable` is `true`
-- **AND** `axios.syncthing.user` is set to a valid username
-- **AND** at least one device is declared in `axios.syncthing.devices`
-- **AND** at least one folder is declared in `axios.syncthing.folders`
+- **WHEN** `cairn.syncthing.enable` is `true`
+- **AND** `cairn.syncthing.user` is set to a valid username
+- **AND** at least one device is declared in `cairn.syncthing.devices`
+- **AND** at least one folder is declared in `cairn.syncthing.folders`
 - **THEN** `services.syncthing.enable` SHALL be `true`
-- **AND** `services.syncthing.user` SHALL match `axios.syncthing.user`
+- **AND** `services.syncthing.user` SHALL match `cairn.syncthing.user`
 - **AND** `services.syncthing.dataDir` SHALL be the user's home directory
 - **AND** `services.syncthing.settings.options.globalAnnounceEnabled` SHALL be `false`
 - **AND** `services.syncthing.settings.options.localAnnounceEnabled` SHALL be `false`
@@ -35,7 +35,7 @@ The system SHALL provide an `axios.syncthing` NixOS module that configures Synct
 
 #### Scenario: Module disabled
 
-- **WHEN** `axios.syncthing.enable` is `false`
+- **WHEN** `cairn.syncthing.enable` is `false`
 - **THEN** no Syncthing service or configuration SHALL be generated
 
 ### Requirement: XDG folder name resolution
@@ -44,8 +44,8 @@ The module SHALL accept folder declarations by XDG directory name and resolve th
 
 #### Scenario: Folder declared by XDG name
 
-- **WHEN** a folder is declared as `axios.syncthing.folders.documents`
-- **AND** `axios.syncthing.user` is `"alice"`
+- **WHEN** a folder is declared as `cairn.syncthing.folders.documents`
+- **AND** `cairn.syncthing.user` is `"alice"`
 - **THEN** the Syncthing folder path SHALL resolve to `/home/alice/Documents`
 
 #### Scenario: All supported XDG names
@@ -69,7 +69,7 @@ The module SHALL accept device declarations that specify Syncthing device IDs an
 
 #### Scenario: Device addressed by MagicDNS name (default)
 
-- **WHEN** a device is declared as `axios.syncthing.devices.pangolin` with `id` set
+- **WHEN** a device is declared as `cairn.syncthing.devices.pangolin` with `id` set
 - **AND** `networking.tailscale.domain` is `"example-tailnet.ts.net"`
 - **AND** `tailscaleName` is not set
 - **THEN** `services.syncthing.settings.devices.pangolin.id` SHALL be set to the declared device ID
@@ -77,7 +77,7 @@ The module SHALL accept device declarations that specify Syncthing device IDs an
 
 #### Scenario: Device with explicit Tailscale name override
 
-- **WHEN** a device is declared as `axios.syncthing.devices.phone` with `tailscaleName = "google-pixel-10"`
+- **WHEN** a device is declared as `cairn.syncthing.devices.phone` with `tailscaleName = "google-pixel-10"`
 - **AND** `networking.tailscale.domain` is `"example-tailnet.ts.net"`
 - **THEN** `services.syncthing.settings.devices.phone.addresses` SHALL be set to `[ "tcp://google-pixel-10.example-tailnet.ts.net:22000" ]`
 
@@ -88,7 +88,7 @@ The module SHALL accept device declarations that specify Syncthing device IDs an
 
 #### Scenario: Tailscale domain required
 
-- **WHEN** `axios.syncthing.enable` is `true`
+- **WHEN** `cairn.syncthing.enable` is `true`
 - **AND** `networking.tailscale.domain` is not set
 - **AND** no device overrides `addresses` explicitly
 - **THEN** an assertion SHALL fail with a message instructing the user to set `networking.tailscale.domain`
@@ -152,26 +152,26 @@ The module SHALL require a `user` option specifying which system user owns the S
 
 #### Scenario: User option set
 
-- **WHEN** `axios.syncthing.user` is set to `"alice"`
+- **WHEN** `cairn.syncthing.user` is set to `"alice"`
 - **THEN** the Syncthing service SHALL run as user `"alice"`
 - **AND** `services.syncthing.dataDir` SHALL be `/home/alice`
 - **AND** `services.syncthing.configDir` SHALL be `/home/alice/.config/syncthing`
 
 #### Scenario: User option not set
 
-- **WHEN** `axios.syncthing.enable` is `true`
-- **AND** `axios.syncthing.user` is not set
-- **THEN** an assertion SHALL fail with a message instructing the user to set `axios.syncthing.user`
+- **WHEN** `cairn.syncthing.enable` is `true`
+- **AND** `cairn.syncthing.user` is not set
+- **THEN** an assertion SHALL fail with a message instructing the user to set `cairn.syncthing.user`
 
 ### Requirement: Module registration
 
-The module SHALL be registered in the axiOS module system following existing conventions.
+The module SHALL be registered in the Cairn module system following existing conventions.
 
 #### Scenario: Module available via modules flag
 
 - **WHEN** a host config sets `modules.syncthing = true`
 - **THEN** the `syncthing` NixOS module SHALL be imported
-- **AND** `axios.syncthing.enable` SHALL be set to `true` via `lib/default.nix` hostModule wiring
+- **AND** `cairn.syncthing.enable` SHALL be set to `true` via `lib/default.nix` hostModule wiring
 
 #### Scenario: Module not imported by default
 

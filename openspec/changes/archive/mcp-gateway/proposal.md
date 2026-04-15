@@ -2,21 +2,21 @@
 
 ## Summary
 
-Create an MCP Gateway service that exposes axios MCP servers via OpenAPI REST endpoints, with a web-based orchestrator UI for enabling/disabling servers. This bridges the gap between the axios MCP ecosystem and tools that don't natively support MCP (Open WebUI, custom apps, mobile clients).
+Create an MCP Gateway service that exposes cairn MCP servers via OpenAPI REST endpoints, with a web-based orchestrator UI for enabling/disabling servers. This bridges the gap between the cairn MCP ecosystem and tools that don't natively support MCP (Open WebUI, custom apps, mobile clients).
 
 ## Architecture Decision
 
-**Location**: Part of axios (not a separate repo)
+**Location**: Part of cairn (not a separate repo)
 
-**Rationale**: Unlike axios-ai-mail and axios-dav which have standalone value, mcp-gateway:
-- Is tightly coupled to axios's MCP configuration (`home/ai/mcp.nix`)
-- Has no value without axios's MCP server definitions
+**Rationale**: Unlike cairn-mail and cairn-dav which have standalone value, mcp-gateway:
+- Is tightly coupled to cairn's MCP configuration (`home/ai/mcp.nix`)
+- Has no value without cairn's MCP server definitions
 - Follows the mcp-cli pattern (also in `pkgs/mcp-cli/`)
-- Is infrastructure for axios, not a standalone service
+- Is infrastructure for cairn, not a standalone service
 
 **Structure**:
 ```
-axios/
+cairn/
 ├── modules/ai/mcp-gateway.nix    # NixOS module
 ├── pkgs/mcp-gateway/             # FastAPI service package
 └── home/ai/mcp-gateway.nix       # PWA desktop entry
@@ -26,7 +26,7 @@ axios/
 
 ### Problem Statement
 
-The axios MCP ecosystem provides powerful tools (filesystem, git, github, journal, context7, etc.) that work excellently with Claude Code. However:
+The cairn MCP ecosystem provides powerful tools (filesystem, git, github, journal, context7, etc.) that work excellently with Claude Code. However:
 
 1. **Open WebUI is isolated** - It can only chat with Ollama; no access to MCP tools
 2. **mcp-cli is CLI-only** - Great for Claude Code, not usable by web UIs
@@ -299,5 +299,5 @@ async def read_file(path: str) -> str:
 ## References
 
 - MCP Specification: https://modelcontextprotocol.io/
-- mcp-servers-nix: axios input for MCP server packages
+- mcp-servers-nix: cairn input for MCP server packages
 - Open WebUI Functions: https://docs.openwebui.com/features/functions/

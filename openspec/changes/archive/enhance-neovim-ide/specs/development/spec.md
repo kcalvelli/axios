@@ -10,7 +10,7 @@ Provides a comprehensive development environment with modern tools, optimized sy
 - **Implementation**: `modules/development/default.nix`
 
 ### Core Tooling
-- **Editors**: Neovim (with axios IDE preset), Visual Studio Code (with material theme integration).
+- **Editors**: Neovim (with cairn IDE preset), Visual Studio Code (with material theme integration).
 - **Languages/Runtimes**: Node.js, Bun (for theme updates), Python3, UV.
 - **Shell**: Fish (interactive default), Starship prompt, Bat, Eza, Jq, Fzf.
 - **Version Control**: Git, GitHub CLI (`gh`).
@@ -24,30 +24,30 @@ Provides a comprehensive development environment with modern tools, optimized sy
 ### Developer Shells (DevShells)
 - **Profiles**: Pre-configured shells for Rust, Zig, QML, etc.
 - **Access**: `nix develop .#profile-name`.
-- **Neovim Integration**: Devshells set `AXIOS_NVIM_LANGUAGES` to auto-configure IDE features.
+- **Neovim Integration**: Devshells set `CAIRN_NVIM_LANGUAGES` to auto-configure IDE features.
 - **Implementation**: `devshells/`
 
 ## ADDED Requirements
 
 ### Requirement: Neovim IDE Preset
 
-axiOS SHALL provide a comprehensive neovim IDE preset that delivers a productive development environment out of the box while allowing full user customization.
+Cairn SHALL provide a comprehensive neovim IDE preset that delivers a productive development environment out of the box while allowing full user customization.
 
 #### Scenario: Fresh installation with no existing neovim config
 - **Given** the user has no `~/.config/nvim/init.lua`
 - **When** home-manager activates
-- **Then** an init.lua is generated that loads the axios preset via `require("axios").setup({})`
+- **Then** an init.lua is generated that loads the cairn preset via `require("cairn").setup({})`
 - **And** the user can edit this file to customize their experience
 
 #### Scenario: Existing neovim configuration
 - **Given** the user has an existing `~/.config/nvim/init.lua`
 - **When** home-manager activates
 - **Then** the existing init.lua MUST be preserved unchanged
-- **And** the user can opt-in by adding `require("axios").setup({})` to their config
+- **And** the user can opt-in by adding `require("cairn").setup({})` to their config
 
 #### Scenario: User customizes preset
-- **Given** the user has the axios preset loaded
-- **When** they pass options to `require("axios").setup({ colorscheme = "tokyonight" })`
+- **Given** the user has the cairn preset loaded
+- **When** they pass options to `require("cairn").setup({ colorscheme = "tokyonight" })`
 - **Then** the preset MUST respect their overrides
 - **And** defaults are used for unspecified options
 
@@ -63,7 +63,7 @@ The neovim preset SHALL automatically configure LSP based on language detection.
 
 #### Scenario: Devshell language detection
 - **Given** the user enters a rust devshell (`nix develop .#rust`)
-- **And** `AXIOS_NVIM_LANGUAGES` is set to `"rust,toml"`
+- **And** `CAIRN_NVIM_LANGUAGES` is set to `"rust,toml"`
 - **When** they open a `.rs` file in neovim
 - **Then** rust-analyzer LSP MUST attach (using the binary from devshell PATH)
 - **And** Rust-specific treesitter highlighting MUST be enabled
@@ -81,13 +81,13 @@ The neovim preset SHALL automatically configure LSP based on language detection.
 The neovim IDE preset SHALL be opt-in via an enable flag.
 
 #### Scenario: Enable neovim preset
-- **Given** the user sets `axios.terminal.neovim.enable = true`
+- **Given** the user sets `cairn.terminal.neovim.enable = true`
 - **When** home-manager activates
 - **Then** the neovim IDE preset MUST be configured
 - **And** all features are available
 
 #### Scenario: Disable neovim preset
-- **Given** the user does not set `axios.terminal.neovim.enable`
+- **Given** the user does not set `cairn.terminal.neovim.enable`
 - **When** home-manager activates
 - **Then** the neovim IDE preset MUST NOT be configured
 - **And** home-manager's default neovim behavior applies
@@ -114,7 +114,7 @@ The neovim preset SHALL download plugins on first launch via lazy.nvim.
 All plugins SHALL be lazy-loaded to ensure fast startup.
 
 #### Scenario: Startup time
-- **Given** a fresh neovim installation with the axios preset
+- **Given** a fresh neovim installation with the cairn preset
 - **When** neovim starts with no file argument
 - **Then** startup MUST complete in under 100ms
 - **And** only essential UI plugins are loaded

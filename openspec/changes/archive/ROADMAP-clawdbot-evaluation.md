@@ -2,13 +2,13 @@
 
 ## Origin
 
-These proposals emerged from evaluating [nix-clawdbot](https://github.com/clawdbot/nix-clawdbot) for potential axios integration.
+These proposals emerged from evaluating [nix-clawdbot](https://github.com/clawdbot/nix-clawdbot) for potential cairn integration.
 
-**Conclusion**: Rather than adopting clawdbot (which would utilize only ~40% of its features due to macOS-centric design), we identified feature gaps and designed native axios solutions that:
+**Conclusion**: Rather than adopting clawdbot (which would utilize only ~40% of its features due to macOS-centric design), we identified feature gaps and designed native cairn solutions that:
 
 - Extend existing infrastructure (vdirsyncer, MCP ecosystem)
 - Follow established patterns (server/client roles, Tailscale serve, PWAs)
-- Integrate with axios's MCP-centric architecture
+- Integrate with cairn's MCP-centric architecture
 - Provide better value for Linux-first users
 
 ---
@@ -21,7 +21,7 @@ These proposals emerged from evaluating [nix-clawdbot](https://github.com/clawdb
 | 2 | [Open WebUI Integration](#2-open-webui-integration) | HIGH | Draft | `open-webui-integration/` |
 | 3 | [Port Registry Governance](#3-port-registry-governance) | MED | Draft | `port-registry-governance/` |
 | 4 | [MCP Calendar](#4-mcp-calendar) | HIGH | Draft | `mcp-calendar/` |
-| 5 | [axios Portal PWA](#5-axios-portal-pwa) | MED | Draft | `axios-portal/` |
+| 5 | [cairn Portal PWA](#5-cairn-portal-pwa) | MED | Draft | `cairn-portal/` |
 | 6 | [MCP Content Extraction](#6-mcp-content-extraction) | MED | Draft | `mcp-content/` |
 | 7 | [MCP Screenshot](#7-mcp-screenshot) | LOW | Draft | `mcp-screenshot/` |
 | 8 | [TTS Integration](#8-tts-integration) | LOW | Draft | `tts-integration/` |
@@ -48,7 +48,7 @@ These proposals emerged from evaluating [nix-clawdbot](https://github.com/clawdb
                      │
                      ▼
            ┌─────────────────┐
-           │ axios Portal(#5)│
+           │ cairn Portal(#5)│
            │ (service disco) │
            └─────────────────┘
 
@@ -91,9 +91,9 @@ Independent:
 
 **Key Changes**:
 - Add `services.ai.webui` module
-- Server/client roles (matching axios-ai-mail pattern)
+- Server/client roles (matching cairn-mail pattern)
 - Tailscale serve on port 8444
-- PWA desktop entry "Axios AI Chat"
+- PWA desktop entry "Cairn AI Chat"
 
 **Depends On**: #1 (AI Module Refactor)
 
@@ -130,17 +130,17 @@ Independent:
 
 ---
 
-### 5. axios Portal PWA
+### 5. cairn Portal PWA
 
-**Directory**: `axios-portal/`
+**Directory**: `cairn-portal/`
 
-**Purpose**: Service discovery dashboard for axios ecosystem.
+**Purpose**: Service discovery dashboard for cairn ecosystem.
 
 **Key Changes**:
 - Add `services.portal` module
-- Auto-discover configured axios services
+- Auto-discover configured cairn services
 - Visual dashboard with status indicators
-- PWA "Axios Portal" on port 8445
+- PWA "Cairn Portal" on port 8445
 
 **Depends On**: #2 (Open WebUI), #3 (Port Registry)
 
@@ -185,7 +185,7 @@ Independent:
 **Key Changes**:
 - Add `services.ai.tts` module
 - Integrate piper-tts (high-quality neural TTS)
-- `axios-speak` CLI command
+- `cairn-speak` CLI command
 - Optional MCP tool for AI-initiated speech
 
 **Depends On**: None
@@ -196,23 +196,23 @@ Independent:
 
 | Service | Local Port | Tailscale Port | Proposal |
 |---------|------------|----------------|----------|
-| axios-ai-mail | 8080 | 8443 | Existing |
+| cairn-mail | 8080 | 8443 | Existing |
 | Open WebUI | 8081 | 8444 | #2 |
-| axios Portal | 8082 | 8445 | #5 |
-| axios-calendar | 8083 | 8446 | #4 (future) |
+| cairn Portal | 8082 | 8445 | #5 |
+| cairn-calendar | 8083 | 8446 | #4 (future) |
 | Ollama API | 11434 | 8447 | #1 |
 
 ---
 
 ## Icon Requirements
 
-All PWAs follow axios icon pattern (NixOS snowflake + axios colors + center element):
+All PWAs follow cairn icon pattern (NixOS snowflake + cairn colors + center element):
 
 | Service | Center Element | File |
 |---------|----------------|------|
-| axios-ai-mail | Envelope | `axios-ai-mail.png` (exists) |
-| axios Portal | Grid/dashboard | `axios-portal.png` (new) |
-| axios Calendar | Calendar | `axios-calendar.png` (future) |
+| cairn-mail | Envelope | `cairn-mail.png` (exists) |
+| cairn Portal | Grid/dashboard | `cairn-portal.png` (new) |
+| cairn Calendar | Calendar | `cairn-calendar.png` (future) |
 
 ---
 
@@ -227,7 +227,7 @@ All PWAs follow axios icon pattern (NixOS snowflake + axios colors + center elem
 4. **MCP Calendar** - Can be parallel with #3
 
 ### Wave 3 (Polish)
-5. **axios Portal** - Ties ecosystem together
+5. **cairn Portal** - Ties ecosystem together
 6. **MCP Content** - Enhances AI capabilities
 
 ### Wave 4 (Nice to Have)
@@ -244,7 +244,7 @@ All PWAs follow axios icon pattern (NixOS snowflake + axios colors + center elem
 | Telegram bot | Open WebUI provides better UX |
 | Matrix bridge | Complexity not justified |
 | Webhook receiver | Open WebUI covers this better |
-| Cloud TTS | Privacy, cost, axios philosophy |
+| Cloud TTS | Privacy, cost, cairn philosophy |
 
 ---
 

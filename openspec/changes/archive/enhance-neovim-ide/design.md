@@ -12,36 +12,36 @@ This document describes the technical architecture for the neovim IDE enhancemen
 │  ┌─────────────────────────────────────────────────────────────────┐   │
 │  │ init.lua (user-owned, generated once)                            │   │
 │  │   • Sets leader key                                              │   │
-│  │   • require("axios").setup({ ... })  -- load preset with opts    │   │
+│  │   • require("cairn").setup({ ... })  -- load preset with opts    │   │
 │  │   • User's custom plugins/config below                           │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│              Nix Store: axios-nvim-preset (Lua module)                  │
+│              Nix Store: cairn-nvim-preset (Lua module)                  │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │ lua/axios/init.lua                                               │   │
+│  │ lua/cairn/init.lua                                               │   │
 │  │   • setup(opts) - merges user opts with defaults                 │   │
-│  │   • Reads AXIOS_NVIM_LANGUAGES env var                           │   │
-│  │   • Reads AXIOS_AI_ENABLED env var                               │   │
+│  │   • Reads CAIRN_NVIM_LANGUAGES env var                           │   │
+│  │   • Reads CAIRN_AI_ENABLED env var                               │   │
 │  │   • Bootstraps lazy.nvim if needed                               │   │
 │  │   • Loads plugin specs                                           │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │ lua/axios/plugins/*.lua                                          │   │
+│  │ lua/cairn/plugins/*.lua                                          │   │
 │  │   • lsp.lua - LSP configuration                                  │   │
 │  │   • completion.lua - nvim-cmp setup                              │   │
 │  │   • treesitter.lua - syntax highlighting                         │   │
 │  │   • telescope.lua - fuzzy finder                                 │   │
 │  │   • git.lua - gitsigns, lazygit                                  │   │
-│  │   • ai.lua - avante.nvim (conditional on AXIOS_AI_ENABLED)        │   │
+│  │   • ai.lua - avante.nvim (conditional on CAIRN_AI_ENABLED)        │   │
 │  │   • ui.lua - lualine, bufferline, etc.                           │   │
 │  │   • editor.lua - autopairs, comments, surround                   │   │
 │  │   • debug.lua - DAP configuration                                │   │
 │  └─────────────────────────────────────────────────────────────────┘   │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
-│  │ lua/axios/languages/*.lua                                        │   │
+│  │ lua/cairn/languages/*.lua                                        │   │
 │  │   • nix.lua - nil_ls config (always loaded)                      │   │
 │  │   • rust.lua - rust-analyzer config                              │   │
 │  │   • zig.lua - zls config                                         │   │
@@ -55,30 +55,30 @@ This document describes the technical architecture for the neovim IDE enhancemen
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                    Environment (from devshell or system)                │
-│  AXIOS_NVIM_LANGUAGES="rust,toml"   # Set by devshell                  │
-│  AXIOS_AI_ENABLED="1"               # Set by home-manager if ai.enable │
+│  CAIRN_NVIM_LANGUAGES="rust,toml"   # Set by devshell                  │
+│  CAIRN_AI_ENABLED="1"               # Set by home-manager if ai.enable │
 │  PATH includes: rust-analyzer, nil, etc.                                │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Component Details
 
-### 1. axios-nvim-preset Package
+### 1. cairn-nvim-preset Package
 
 A derivation that builds the Lua preset module:
 
 ```nix
-# pkgs/axios-nvim-preset/default.nix
+# pkgs/cairn-nvim-preset/default.nix
 { lib, stdenvNoCC }:
 stdenvNoCC.mkDerivation {
-  pname = "axios-nvim-preset";
+  pname = "cairn-nvim-preset";
   version = "1.0.0";
 
   src = ./lua;
 
   installPhase = ''
     mkdir -p $out/lua
-    cp -r . $out/lua/axios
+    cp -r . $out/lua/cairn
   '';
 }
 ```
@@ -99,13 +99,13 @@ programs.neovim = {
 
   # Add preset to runtime path
   extraLuaConfig = ''
-    vim.opt.rtp:prepend("${pkgs.axios-nvim-preset}")
+    vim.opt.rtp:prepend("${pkgs.cairn-nvim-preset}")
   '';
 };
 
 # Set AI env var based on system config
 home.sessionVariables = lib.mkIf (osConfig.services.ai.enable or false) {
-  AXIOS_AI_ENABLED = "1";
+  CAIRN_AI_ENABLED = "1";
 };
 ```
 
@@ -117,7 +117,7 @@ Each devshell exports language configuration:
 # devshells/rust.nix
 mkShell {
   env = [
-    { name = "AXIOS_NVIM_LANGUAGES"; value = "rust,toml"; }
+    { name = "CAIRN_NVIM_LANGUAGES"; value = "rust,toml"; }
   ];
   packages = [ toolchain ];  # includes rust-analyzer
 }
@@ -128,14 +128,14 @@ mkShell {
 Generated on first run:
 
 ```lua
--- ~/.config/nvim/init.lua (generated by axios, user-owned)
+-- ~/.config/nvim/init.lua (generated by cairn, user-owned)
 
 -- Leader key (MUST be set before loading plugins)
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- Load axios preset with optional overrides
-require("axios").setup({
+-- Load cairn preset with optional overrides
+require("cairn").setup({
   -- Override any defaults here
   -- colorscheme = "tokyonight",
   -- plugins = {
@@ -168,7 +168,7 @@ require("axios").setup({
 
 **Rationale**:
 - Reproducible across machines
-- Updates via `nix flake update` like other axiOS components
+- Updates via `nix flake update` like other Cairn components
 - User can still override anything via their init.lua
 - No conflicts with user's lua/ directory
 
@@ -176,7 +176,7 @@ require("axios").setup({
 
 ### D2: Environment Variables for Language Detection
 
-**Decision**: Use `AXIOS_NVIM_LANGUAGES` env var set by devshells.
+**Decision**: Use `CAIRN_NVIM_LANGUAGES` env var set by devshells.
 
 **Alternatives Considered**:
 1. **Mason.nvim auto-install**: Rejected - duplicates Nix's job, non-reproducible
@@ -186,17 +186,17 @@ require("axios").setup({
 **Rationale**:
 - Explicit and predictable
 - Devshells already set environment
-- Easy to debug (`echo $AXIOS_NVIM_LANGUAGES`)
+- Easy to debug (`echo $CAIRN_NVIM_LANGUAGES`)
 - Graceful fallback: if LSP not in PATH, show message
 
 ### D3: AI Plugins Conditional on services.ai.enable
 
-**Decision**: Set `AXIOS_AI_ENABLED=1` when AI module is active.
+**Decision**: Set `CAIRN_AI_ENABLED=1` when AI module is active.
 
 **Rationale**:
 - Respects user's system configuration
 - Avoids loading unused plugins
-- Consistent with axiOS philosophy (modules are conditional)
+- Consistent with Cairn philosophy (modules are conditional)
 
 ### D4: Lazy-Loading Strategy
 
@@ -224,7 +224,7 @@ require("axios").setup({
 
 **Configuration Options**:
 ```lua
-require("axios").setup({
+require("cairn").setup({
   ai = {
     provider = "claude",  -- "claude", "openai", "gemini", "ollama"
     claude = {
@@ -282,7 +282,7 @@ home/terminal/neovim/
 ├── wrapper.nix           # Neovim package wrapper
 └── preset/               # Lua preset source
     └── lua/
-        └── axios/
+        └── cairn/
             ├── init.lua
             ├── config/
             │   ├── options.lua
@@ -308,8 +308,8 @@ home/terminal/neovim/
                 └── ...
 
 devshells/
-├── rust.nix              # + AXIOS_NVIM_LANGUAGES
-├── zig.nix               # + AXIOS_NVIM_LANGUAGES
+├── rust.nix              # + CAIRN_NVIM_LANGUAGES
+├── zig.nix               # + CAIRN_NVIM_LANGUAGES
 └── ...
 ```
 
@@ -317,10 +317,10 @@ devshells/
 
 For users with existing neovim configs:
 
-1. **No action needed**: axios only generates init.lua if none exists
-2. **Opt-in**: Users can add `require("axios").setup({})` to their config
+1. **No action needed**: cairn only generates init.lua if none exists
+2. **Opt-in**: Users can add `require("cairn").setup({})` to their config
 3. **Gradual adoption**: Users can enable specific modules:
    ```lua
-   require("axios.plugins.lsp").setup({})
-   require("axios.plugins.telescope").setup({})
+   require("cairn.plugins.lsp").setup({})
+   require("cairn.plugins.telescope").setup({})
    ```

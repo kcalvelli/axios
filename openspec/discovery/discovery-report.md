@@ -58,7 +58,7 @@
 ## Entry Points
 
 ### Services/Servers
-- **NixOS Modules**: Exposed via `inputs.axios.nixosModules.<name>`
+- **NixOS Modules**: Exposed via `inputs.cairn.nixosModules.<name>`
   - system: System configuration (locale, users, timezone)
   - desktop: Desktop environment setup
   - development: Development tools and environments
@@ -74,13 +74,13 @@
   - services: System services (Immich, PWA apps, Caddy, etc.)
 
 ### CLI Commands
-- **init**: `nix run github:kcalvelli/axios#init` - Interactive configuration generator (evidence: flake.nix:141-148)
+- **init**: `nix run github:kcalvelli/cairn#init` - Interactive configuration generator (evidence: flake.nix:141-148)
 - **fmt**: `nix fmt` - Format Nix code with nixpkgs-fmt
 - **flake check**: `nix flake check` - Validate flake structure
 - **devshell**: `nix develop .#<rust|zig|qml>` - Enter development environments
 
 ### APIs
-- **Flake Library**: `inputs.axios.lib` - Helper functions for downstream configurations (evidence: flake.nix:160-164)
+- **Flake Library**: `inputs.cairn.lib` - Helper functions for downstream configurations (evidence: flake.nix:160-164)
   - Located in ./lib directory
   - Provides utility functions for building NixOS configurations
 
@@ -131,7 +131,7 @@
 - `scripts/templates/`: Configuration templates
 
 ### Examples (`examples/`)
-- `examples/minimal-flake/`: Minimal axiOS configuration example
+- `examples/minimal-flake/`: Minimal Cairn configuration example
 - `examples/multi-host/`: Multi-host configuration example
 
 ## Dependency Graph Summary

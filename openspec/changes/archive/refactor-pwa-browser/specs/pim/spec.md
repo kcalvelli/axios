@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Provides AI-powered email management for axiOS desktop users through axios-ai-mail.
+Provides AI-powered email management for Cairn desktop users through cairn-mail.
 
 ## Components
 
-### Email: axios-ai-mail
+### Email: cairn-mail
 
-**axios-ai-mail** is an AI-powered email management system designed for NixOS users.
+**cairn-mail** is an AI-powered email management system designed for NixOS users.
 
 #### Features
 - **Multi-Account Support**: Gmail (OAuth2), IMAP/SMTP, Outlook (planned)
@@ -30,7 +30,7 @@ Email Providers (Gmail/IMAP) + Ollama AI + SQLite
 #### Implementation
 - **NixOS Module**: `modules/pim/default.nix` (system services)
 - **Home Module**: `home/pim/default.nix` (user configuration)
-- **External Flake**: `inputs.axios-ai-mail`
+- **External Flake**: `inputs.cairn-mail`
 
 ### Calendar
 
@@ -49,7 +49,7 @@ Calendar functionality uses a layered approach (unchanged from previous architec
 Contacts are managed through external services:
 
 - **Cloud Providers**: Gmail, iCloud, Outlook (web UI)
-- **Future**: axios-ai-mail contacts module (planned)
+- **Future**: cairn-mail contacts module (planned)
 
 ## Configuration
 
@@ -57,16 +57,16 @@ Contacts are managed through external services:
 
 ```nix
 pim = {
-  enable = lib.mkEnableOption "Personal Information Management (axios-ai-mail)";
+  enable = lib.mkEnableOption "Personal Information Management (cairn-mail)";
 
   role = lib.mkOption {
     type = lib.types.enum [ "server" "client" ];
     default = "server";
     description = ''
       PIM deployment role:
-      - "server": Run axios-ai-mail backend service (requires AI module)
-                  Auto-registers as axios-mail.<tailnet>.ts.net via Tailscale Services
-      - "client": PWA desktop entry only (connects to axios-mail.<tailnet>.ts.net)
+      - "server": Run cairn-mail backend service (requires AI module)
+                  Auto-registers as cairn-mail.<tailnet>.ts.net via Tailscale Services
+      - "client": PWA desktop entry only (connects to cairn-mail.<tailnet>.ts.net)
     '';
   };
 
@@ -74,12 +74,12 @@ pim = {
   port = lib.mkOption {
     type = lib.types.port;
     default = 8080;
-    description = "Port for axios-ai-mail web UI (server role only)";
+    description = "Port for cairn-mail web UI (server role only)";
   };
 
   user = lib.mkOption {
     type = lib.types.str;
-    description = "User to run axios-ai-mail service as (server role only)";
+    description = "User to run cairn-mail service as (server role only)";
   };
 
   sync = {
@@ -97,27 +97,27 @@ pim = {
 
   # PWA options (both roles)
   pwa = {
-    enable = lib.mkEnableOption "Generate axios-ai-mail PWA desktop entry";
+    enable = lib.mkEnableOption "Generate cairn-mail PWA desktop entry";
     tailnetDomain = lib.mkOption {
       type = lib.types.str;
       example = "taile0fb4.ts.net";
       description = ''
         Tailscale tailnet domain for PWA URL generation.
         Required when pwa.enable = true.
-        PWA points to: https://axios-mail.<tailnetDomain>/
+        PWA points to: https://cairn-mail.<tailnetDomain>/
       '';
     };
   };
 };
 ```
 
-> **Note**: Client role requires a server with `networking.tailscale.authMode = "authkey"` running on the tailnet. The server must be deployed first to register the Tailscale Service `axios-mail`.
+> **Note**: Client role requires a server with `networking.tailscale.authMode = "authkey"` running on the tailnet. The server must be deployed first to register the Tailscale Service `cairn-mail`.
 
 ### Home-Manager Module Options
 
 ```nix
-programs.axios-ai-mail = {
-  enable = lib.mkEnableOption "axios-ai-mail email client";
+programs.cairn-mail = {
+  enable = lib.mkEnableOption "cairn-mail email client";
 
   accounts.<name> = {
     provider = lib.mkOption {
@@ -201,7 +201,7 @@ PIM module SHALL support multi-host Tailnet deployments via role-based configura
 - **Given**: User has `modules.pim = true`
 - **And**: `pim.role = "server"` (default)
 - **When**: NixOS configuration is evaluated
-- **Then**: axios-ai-mail service is enabled
+- **Then**: cairn-mail service is enabled
 - **And**: AI module is required (assertion)
 - **And**: Background sync is enabled
 - **And**: SQLite database is local
@@ -212,9 +212,9 @@ PIM module SHALL support multi-host Tailnet deployments via role-based configura
 - **And**: `pim.role = "client"`
 - **And**: `pim.pwa.tailnetDomain = "taile0fb4.ts.net"`
 - **When**: NixOS configuration is evaluated
-- **Then**: axios-ai-mail service is NOT installed
+- **Then**: cairn-mail service is NOT installed
 - **And**: AI module is NOT required
-- **And**: PWA desktop entry points to `https://axios-mail.${tailnetDomain}/`
+- **And**: PWA desktop entry points to `https://cairn-mail.${tailnetDomain}/`
 
 > **Note**: Client assumes a server with Tailscale Services is running. Deploy server first.
 
@@ -249,11 +249,11 @@ PIM server role REQUIRES the AI module to be enabled.
 
 ### Requirement: AI-Powered Email Classification
 
-axios-ai-mail SHALL provide local AI-powered email classification.
+cairn-mail SHALL provide local AI-powered email classification.
 
 #### Scenario: New email arrives
 
-- **Given**: User has axios-ai-mail configured with Ollama
+- **Given**: User has cairn-mail configured with Ollama
 - **And**: AI classification is enabled (`ai.enable = true`)
 - **When**: A new email is synced
 - **Then**: The email is classified using the configured model
@@ -269,7 +269,7 @@ Email accounts SHALL be configurable via Nix modules.
 - **Given**: User configures `accounts.personal.provider = "gmail"`
 - **And**: User provides `oauthTokenFile` path (agenix secret)
 - **When**: System activates
-- **Then**: Account is available in axios-ai-mail
+- **Then**: Account is available in cairn-mail
 - **And**: OAuth token is loaded securely from file
 
 #### Scenario: IMAP account
@@ -277,12 +277,12 @@ Email accounts SHALL be configurable via Nix modules.
 - **Given**: User configures `accounts.work.provider = "imap"`
 - **And**: User provides IMAP/SMTP settings and `passwordFile`
 - **When**: System activates
-- **Then**: Account is available in axios-ai-mail
+- **Then**: Account is available in cairn-mail
 - **And**: Password is loaded securely from file
 
 ### Requirement: Background Sync
 
-axios-ai-mail SHALL provide automated background email synchronization.
+cairn-mail SHALL provide automated background email synchronization.
 
 #### Scenario: Periodic sync
 
@@ -294,22 +294,22 @@ axios-ai-mail SHALL provide automated background email synchronization.
 
 ### Requirement: Cross-Device Access
 
-axios-ai-mail SHALL support secure cross-device access via Tailscale Services.
+cairn-mail SHALL support secure cross-device access via Tailscale Services.
 
 #### Scenario: Tailscale Services (server with authkey mode)
 
 - **Given**: Server has `networking.tailscale.authMode = "authkey"`
 - **And**: `pim.role = "server"`
 - **And**: Device is connected to tailnet
-- **When**: User accesses `https://axios-mail.<tailnet>.ts.net`
-- **Then**: User can access axios-ai-mail web UI securely
+- **When**: User accesses `https://cairn-mail.<tailnet>.ts.net`
+- **Then**: User can access cairn-mail web UI securely
 - **And**: Service is auto-registered via Tailscale Services
 
 #### Scenario: Server-local access via loopback proxy
 
 - **Given**: `pim.role = "server"`
-- **And**: `loopbackProxy.enable = true` on the `axios-mail` Tailscale service
-- **When**: The server's browser navigates to `https://axios-mail.<tailnet>.ts.net`
+- **And**: `loopbackProxy.enable = true` on the `cairn-mail` Tailscale service
+- **When**: The server's browser navigates to `https://cairn-mail.<tailnet>.ts.net`
 - **Then**: `/etc/hosts` resolves the FQDN to `127.0.0.1`
 - **And**: nginx on `127.0.0.1:443` serves the request with a valid LE certificate
 - **And**: nginx proxies the request to `http://127.0.0.1:<pim.port>/`
@@ -318,16 +318,16 @@ axios-ai-mail SHALL support secure cross-device access via Tailscale Services.
 
 ### Requirement: Centralized PWA Registration
 
-PIM module SHALL register its PWA via the `axios.pwa.apps` option, delegating desktop entry generation to the desktop module.
+PIM module SHALL register its PWA via the `cairn.pwa.apps` option, delegating desktop entry generation to the desktop module.
 
 #### Scenario: PWA Registration
 
 - **Given**: `pim.pwa.enable = true`
 - **When**: Configuration is evaluated
-- **Then**: `axios.pwa.apps.axios-mail` is defined
-- **And**: `url` is `https://axios-mail.<tailnetDomain>/`
+- **Then**: `cairn.pwa.apps.cairn-mail` is defined
+- **And**: `url` is `https://cairn-mail.<tailnetDomain>/`
 - **And**: `isolated` is `true` (uses dedicated profile)
-- **And**: Browser selection is handled by `axios.pwa.browser` (global setting)
+- **And**: Browser selection is handled by `cairn.pwa.browser` (global setting)
 
 ### Requirement: Unified URL Strategy
 
@@ -336,7 +336,7 @@ PIM PWA SHALL use the same HTTPS URL for both server and client roles.
 #### Scenario: Server URL Resolution
 
 - **Given**: `pim.role = "server"`
-- **And**: User launches PWA (`https://axios-mail.<tailnet>/`)
+- **And**: User launches PWA (`https://cairn-mail.<tailnet>/`)
 - **When**: Request is made
 - **Then**: `/etc/hosts` resolves domain to `127.0.0.1` (loopback proxy)
 - **And**: Connection is secure (HTTPS)
@@ -352,13 +352,13 @@ PIM PWA SHALL use the same HTTPS URL for both server and client roles.
 
 ### Requirement: Tailscale Service Registration (Server)
 
-PIM server role SHALL register an `axios-mail` Tailscale service with loopback proxy enabled.
+PIM server role SHALL register an `cairn-mail` Tailscale service with loopback proxy enabled.
 
 #### Scenario: Server role Tailscale service
 
 - **Given**: `pim.role = "server"`
 - **When**: NixOS configuration is evaluated
-- **Then**: `networking.tailscale.services."axios-mail"` is enabled
+- **Then**: `networking.tailscale.services."cairn-mail"` is enabled
 - **And**: `backend` is `http://127.0.0.1:${pim.port}`
 - **And**: `loopbackProxy.enable` is `true`
 
@@ -367,7 +367,7 @@ PIM server role SHALL register an `axios-mail` Tailscale service with loopback p
 - **AI Module Required (Server Only)**: PIM server role requires `modules.ai = true` (enforced via assertion)
 - **Client Role Exempt**: PIM client role does NOT require AI module
 - **Ollama Required (Server Only)**: AI classification requires Ollama running on server
-- **Tailscale Services**: Cross-device access uses Tailscale Services (`axios-mail.<tailnet>.ts.net`)
+- **Tailscale Services**: Cross-device access uses Tailscale Services (`cairn-mail.<tailnet>.ts.net`)
 - **Loopback Proxy (Server)**: Server role enables `loopbackProxy` for valid HTTPS secure context on localhost (enables Web Push API)
 - **Server First**: Client role requires server with `authMode = "authkey"` to be deployed first
 - **Secret Management**: Credentials MUST use file-based secrets (agenix, sops-nix)
@@ -381,7 +381,7 @@ PIM server role SHALL register an `axios-mail` Tailscale service with loopback p
 
 **Solution**:
 ```bash
-axios-ai-mail auth gmail --account personal
+cairn-mail auth gmail --account personal
 # Follow OAuth flow in browser
 ```
 
@@ -392,7 +392,7 @@ axios-ai-mail auth gmail --account personal
 **Check**:
 1. Ollama running: `systemctl status ollama`
 2. Model available: `ollama list | grep llama3.2`
-3. AI enabled: Check `programs.axios-ai-mail.ai.enable`
+3. AI enabled: Check `programs.cairn-mail.ai.enable`
 
 ### Sync Service Not Running
 
@@ -400,8 +400,8 @@ axios-ai-mail auth gmail --account personal
 
 **Check**:
 ```bash
-systemctl --user status axios-ai-mail-sync.timer
-journalctl --user -u axios-ai-mail-sync
+systemctl --user status cairn-mail-sync.timer
+journalctl --user -u cairn-mail-sync
 ```
 
 ### PWA Not Appearing
@@ -415,9 +415,9 @@ journalctl --user -u axios-ai-mail-sync
 
 ## References
 
-- **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
+- **Port Allocations**: See `openspec/specs/networking/ports.md` for cairn port registry
   - Local port: 8080 (default)
-  - Tailscale Services: `axios-mail.<tailnet>.ts.net` (port 443)
+  - Tailscale Services: `cairn-mail.<tailnet>.ts.net` (port 443)
 - **AI Module**: See `openspec/specs/ai/spec.md` for Ollama configuration
 - **Loopback Proxy**: See `openspec/specs/networking/spec.md` for the generic loopback proxy mechanism
-- **Upstream**: [axios-ai-mail repository](https://github.com/kcalvelli/axios-ai-mail)
+- **Upstream**: [cairn-mail repository](https://github.com/kcalvelli/cairn-mail)

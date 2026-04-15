@@ -34,4 +34,4 @@ The normie profile SHALL include the same visual polish, MIME associations, PWA 
 
 - **WHEN** the ChatGPT PWA is included for the normie workflow
 - **THEN** the user can launch it from the normal application surface
-- **AND** it behaves as a standalone user-facing application rather than as part of the axios AI power-user stack
+- **AND** it behaves as a standalone user-facing application rather than as part of the cairn AI power-user stack

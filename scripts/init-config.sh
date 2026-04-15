@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# axios init - Interactive configuration generator for axiOS
+# cairn init - Interactive configuration generator for Cairn
 # Uses gum (charmbracelet/gum) for a modern TUI experience
 set -euo pipefail
 
@@ -8,19 +8,19 @@ set -euo pipefail
 # ──────────────────────────────────────────────────────────────────
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   cat <<EOF
-Usage: nix run github:kcalvelli/axios#init [OPTIONS]
+Usage: nix run github:kcalvelli/cairn#init [OPTIONS]
 
-Initialize or extend an axiOS NixOS configuration.
+Initialize or extend an Cairn NixOS configuration.
 
 Options:
   -h, --help    Show this help message and exit
 
 Modes:
-  New configuration          Create a fresh axiOS config in ~/.config/nixos_config
+  New configuration          Create a fresh Cairn config in ~/.config/nixos_config
   Add host to existing       Clone an existing config repo and add a new host
   AI-assisted configuration  Launch Claude Code to interactively guide setup
 
-For more information, see: https://github.com/kcalvelli/axios
+For more information, see: https://github.com/kcalvelli/cairn
 EOF
   exit 0
 fi
@@ -30,7 +30,7 @@ fi
 # ──────────────────────────────────────────────────────────────────
 if ! command -v gum >/dev/null 2>&1; then
   echo "Error: gum is required but not found on PATH."
-  echo "This script should be run via: nix run github:kcalvelli/axios#init"
+  echo "This script should be run via: nix run github:kcalvelli/cairn#init"
   exit 1
 fi
 
@@ -48,7 +48,7 @@ trap cleanup INT
 # Template directory
 # ──────────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TEMPLATE_DIR="${AXIOS_TEMPLATE_DIR:-${SCRIPT_DIR}/templates}"
+TEMPLATE_DIR="${CAIRN_TEMPLATE_DIR:-${SCRIPT_DIR}/templates}"
 
 # ──────────────────────────────────────────────────────────────────
 # Gum wrapper functions
@@ -303,7 +303,7 @@ collect_features() {
   local selected
   selected=$(ask_multi "Select optional features (space to toggle, enter to confirm):" \
     "Gaming (Steam, GameMode, Proton)" \
-    "PIM (axios-ai-mail email)" \
+    "PIM (cairn-mail email)" \
     "Immich (photo/video backup)" \
     "Local LLM (llama.cpp + OpenCode)" \
     "Secure Boot (Lanzaboote)" \
@@ -437,14 +437,14 @@ compute_derived() {
   fi
 
   if [ "$ENABLE_PIM" = "true" ]; then
-    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # PIM (axios-ai-mail)\\n      services.pim.role = \"${PIM_ROLE}\";"
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # PIM (cairn-mail)\\n      services.pim.role = \"${PIM_ROLE}\";"
     if [ "$PIM_ROLE" = "server" ]; then
       EXTRA_CONFIG="${EXTRA_CONFIG}\\n      services.pim.user = \"${PIM_USER}\";"
     fi
   fi
 
   if [ "$ENABLE_IMMICH" = "true" ]; then
-    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Immich photo/video backup\\n      axios.immich.enable = true;\\n      axios.immich.role = \"${IMMICH_ROLE}\";"
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Immich photo/video backup\\n      cairn.immich.enable = true;\\n      cairn.immich.role = \"${IMMICH_ROLE}\";"
   fi
 
   if [ "$ENABLE_LOCAL_LLM" = "true" ]; then
@@ -471,7 +471,7 @@ nvidia_preflight() {
     gum style --foreground 208 \
       "Hardware Note: NVIDIA GPU detected with kernel ${kernel_version}" \
       "NVIDIA drivers are not yet compatible with kernel 6.19+." \
-      "axiOS will automatically pin your kernel to 6.18 for NVIDIA systems."
+      "Cairn will automatically pin your kernel to 6.18 for NVIDIA systems."
   fi
 }
 
@@ -635,7 +635,7 @@ This directory is for age-encrypted secrets.
 
 4. Rebuild and the secret will be available at `/run/agenix/my-secret`
 
-See https://github.com/kcalvelli/axios/blob/master/docs/SECRETS_MODULE.md for details.
+See https://github.com/kcalvelli/cairn/blob/master/docs/SECRETS_MODULE.md for details.
 EOF
   fi
 }
@@ -681,7 +681,7 @@ show_next_steps_new() {
   fi
 
   echo ""
-  gum style --foreground 33 "Welcome to axiOS!"
+  gum style --foreground 33 "Welcome to Cairn!"
 }
 
 show_next_steps_add() {
@@ -703,7 +703,7 @@ show_next_steps_add() {
     "   sudo nixos-rebuild switch --flake <repo-url>#${HOSTNAME}"
 
   echo ""
-  gum style --foreground 33 "Welcome to axiOS!"
+  gum style --foreground 33 "Welcome to Cairn!"
 }
 
 # ══════════════════════════════════════════════════════════════════
@@ -795,7 +795,7 @@ new_config_flow() {
     cd "${CONFIG_DIR}"
     git init -q
     git add .
-    git commit -q -m "Initial axiOS configuration for ${HOSTNAME}"
+    git commit -q -m "Initial Cairn configuration for ${HOSTNAME}"
   )
 
   show_next_steps_new
@@ -835,7 +835,7 @@ add_host_flow() {
   # Validate structure
   if [ ! -f "${CONFIG_DIR}/flake.nix" ]; then
     gum style --foreground 196 "Error: No flake.nix found in ${CONFIG_DIR}"
-    echo "This does not appear to be a valid axiOS configuration."
+    echo "This does not appear to be a valid Cairn configuration."
     exit 1
   fi
 
@@ -1016,7 +1016,7 @@ ai_config_flow() {
   # Info box about requirements
   info_box \
     "AI-assisted configuration uses Claude Code to interactively" \
-    "guide you through axiOS setup. Claude will detect your hardware," \
+    "guide you through Cairn setup. Claude will detect your hardware," \
     "ask questions, and generate all configuration files." \
     "" \
     "Requirements:" \
@@ -1082,7 +1082,7 @@ ai_config_flow() {
 
   (
     cd "${CONFIG_DIR}"
-    claude --system-prompt "$system_prompt" "Help me set up my axiOS configuration."
+    claude --system-prompt "$system_prompt" "Help me set up my Cairn configuration."
   )
 
   # Post-session check
@@ -1136,7 +1136,7 @@ ai_config_flow() {
   fi
 
   echo ""
-  gum style --foreground 33 "Welcome to axiOS!"
+  gum style --foreground 33 "Welcome to Cairn!"
 }
 
 # ══════════════════════════════════════════════════════════════════

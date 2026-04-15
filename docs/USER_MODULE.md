@@ -2,7 +2,7 @@
 
 ## Overview
 
-axiOS provides a multi-user system through the `axios.users.users.<name>` submodule. Users are defined in per-user files and referenced by name from host configurations.
+Cairn provides a multi-user system through the `cairn.users.users.<name>` submodule. Users are defined in per-user files and referenced by name from host configurations.
 
 ## Quick Start
 
@@ -13,7 +13,7 @@ Create `users/alice.nix` in your configuration repository:
 ```nix
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     isAdmin = true;
@@ -38,18 +38,18 @@ In `hosts/myhost.nix`:
 ### 3. Set configDir in flake.nix
 
 ```nix
-mkHost = hostname: axios.lib.mkSystem (
+mkHost = hostname: cairn.lib.mkSystem (
   (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
-    configDir = self.outPath;  # Required: tells axiOS where users/ directory is
+    configDir = self.outPath;  # Required: tells Cairn where users/ directory is
   }
 );
 ```
 
-That's it! axiOS automatically creates the user account, assigns groups, configures home-manager, and sets up git.
+That's it! Cairn automatically creates the user account, assigns groups, configures home-manager, and sets up git.
 
 ## User Options Reference
 
-### `axios.users.users.<name>`
+### `cairn.users.users.<name>`
 
 Each attribute key is a username. Available options per user:
 
@@ -69,7 +69,7 @@ When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting
 # users/alice.nix
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     isAdmin = true;
@@ -80,7 +80,7 @@ When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting
 # users/bob.nix
 { ... }:
 {
-  axios.users.users.bob = {
+  cairn.users.users.bob = {
     fullName = "Bob Jones";
     isAdmin = false;
     homeProfile = "normie";  # Override: Bob gets normie profile regardless of host
@@ -101,9 +101,9 @@ When `homeProfile` is `null`, the user inherits the host's `homeProfile` setting
 
 Result: Alice gets `workstation` profile (inherited), Bob gets `minimal` profile (explicit override).
 
-## What axiOS Automatically Provides
+## What Cairn Automatically Provides
 
-### 1. Group Membership (`axios.users.autoGroups`)
+### 1. Group Membership (`cairn.users.autoGroups`)
 
 **Default:** `true`
 
@@ -130,7 +130,7 @@ Groups are automatically assigned based on enabled modules:
 
 Admin users (`isAdmin = true`) are automatically added to `nix.settings.trusted-users`.
 
-### 3. Home-Manager Defaults (`axios.home.enableDefaults`)
+### 3. Home-Manager Defaults (`cairn.home.enableDefaults`)
 
 **Default:** `true`
 
@@ -156,12 +156,12 @@ When enabled, automatically creates shares for common directories (Music, Pictur
 
 ## Global User Options
 
-### `axios.users.autoGroups`
+### `cairn.users.autoGroups`
 - **Type:** bool
 - **Default:** `true`
 - **Description:** Automatically add groups based on enabled modules
 
-### `axios.users.extraGroups`
+### `cairn.users.extraGroups`
 - **Type:** list of strings
 - **Default:** `[]`
 - **Description:** Additional groups to add to all users (on top of module-based groups)
@@ -174,22 +174,22 @@ If you need full control over group membership:
 
 ```nix
 # In host config extraConfig
-axios.users.autoGroups = false;
+cairn.users.autoGroups = false;
 ```
 
 ### Adding Extra Groups for All Users
 
 ```nix
 # In host config extraConfig
-axios.users.extraGroups = [ "dialout" "i2c" ];
+cairn.users.extraGroups = [ "dialout" "i2c" ];
 ```
 
 ### Overriding Home-Manager Defaults
 
 ```nix
 home-manager.users.alice = {
-  # Disable axios defaults
-  axios.home.enableDefaults = false;
+  # Disable cairn defaults
+  cairn.home.enableDefaults = false;
 
   # Or override individual values
   home.stateVersion = lib.mkForce "23.11";
@@ -199,22 +199,22 @@ home-manager.users.alice = {
 
 ## Home-Manager Options
 
-### `axios.home.enableDefaults`
+### `cairn.home.enableDefaults`
 - **Type:** bool
 - **Default:** `true`
-- **Description:** Enable axios home-manager defaults
+- **Description:** Enable cairn home-manager defaults
 
-### `axios.home.stateVersion`
+### `cairn.home.stateVersion`
 - **Type:** string
 - **Default:** `"24.11"`
 - **Description:** Default home-manager state version
 
-### `axios.home.flakePath`
+### `cairn.home.flakePath`
 - **Type:** null or string
 - **Default:** `"${HOME}/.config/nixos"`
 - **Description:** Path to NixOS flake (sets FLAKE_PATH variable)
 
-### `axios.users.users.<name>.email`
+### `cairn.users.users.<name>.email`
 - **Type:** string
 - **Default:** `""`
 - **Description:** User's email address - automatically used for git commits and other tools
@@ -242,6 +242,6 @@ networking.samba.enableUserShares = true;
 
 ## See Also
 
-- [LIBRARY_USAGE.md](LIBRARY_USAGE.md) - Using axios as a library (mkSystem API)
+- [LIBRARY_USAGE.md](LIBRARY_USAGE.md) - Using cairn as a library (mkSystem API)
 - [ADDING_HOSTS.md](ADDING_HOSTS.md) - Adding new hosts
 - [SECRETS_MODULE.md](SECRETS_MODULE.md) - Secrets management

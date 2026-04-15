@@ -6,7 +6,7 @@ When PipeWire handles Bluetooth audio, bluetoothd still registers HFP/HSP profil
 
 - Add `hardware.bluetooth.settings.General.Disable = "Headset"` unconditionally in `modules/system/bluetooth.nix` — prevents bluetoothd from registering HFP/HSP profiles so PipeWire owns them exclusively
 - Add an optional WirePlumber configuration to disable bluez seat monitoring via `configPackages` — for headless machines without an active logind seat
-- Expose a new option `axios.system.bluetooth.disableSeatMonitoring` (default `false`) to control the WirePlumber override
+- Expose a new option `cairn.system.bluetooth.disableSeatMonitoring` (default `false`) to control the WirePlumber override
 
 ## Capabilities
 

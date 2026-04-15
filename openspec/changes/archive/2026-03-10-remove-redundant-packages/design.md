@@ -1,6 +1,6 @@
 ## Context
 
-axiOS modules install packages at two levels: NixOS system packages (`environment.systemPackages`) and home-manager packages (`home.packages` / `programs.*`). Several CLI tools are installed at both levels — the system-level install provides a bare binary while home-manager provides the same binary plus shell integration, aliases, and configuration. This results in redundant store paths and a larger system closure.
+Cairn modules install packages at two levels: NixOS system packages (`environment.systemPackages`) and home-manager packages (`home.packages` / `programs.*`). Several CLI tools are installed at both levels — the system-level install provides a bare binary while home-manager provides the same binary plus shell integration, aliases, and configuration. This results in redundant store paths and a larger system closure.
 
 Additionally, some system packages are installed outside `lib.mkIf` blocks, violating the framework's conditional evaluation pattern.
 
@@ -47,7 +47,7 @@ Additionally, some system packages are installed outside `lib.mkIf` blocks, viol
 
 ### 5. Wrap cachix in system enable guard
 
-**Decision**: Move cachix inside the existing `lib.mkIf config.axios.system.enable` block in `modules/system/default.nix` rather than leaving it unconditional in `nix.nix`.
+**Decision**: Move cachix inside the existing `lib.mkIf config.cairn.system.enable` block in `modules/system/default.nix` rather than leaving it unconditional in `nix.nix`.
 
 **Rationale**: The cache substituters are configured separately in nix settings and work without the CLI. The CLI is only needed for manual `cachix push` operations. Wrapping it in the system enable guard is sufficient.
 

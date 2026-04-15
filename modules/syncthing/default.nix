@@ -1,6 +1,6 @@
 # Syncthing XDG Sync Module
 # Declarative Syncthing configuration for peer-to-peer XDG directory
-# synchronization across axiOS hosts via Tailscale MagicDNS.
+# synchronization across Cairn hosts via Tailscale MagicDNS.
 {
   config,
   lib,
@@ -8,7 +8,7 @@
 }:
 
 let
-  cfg = config.axios.syncthing;
+  cfg = config.cairn.syncthing;
   tailscaleDomain = config.networking.tailscale.domain;
 
   # XDG directory name → subdirectory under $HOME
@@ -117,7 +117,7 @@ let
   };
 in
 {
-  options.axios.syncthing = {
+  options.cairn.syncthing = {
     enable = lib.mkEnableOption "Syncthing XDG directory sync over Tailscale";
 
     user = lib.mkOption {
@@ -148,10 +148,10 @@ in
       {
         assertion = cfg.user != null;
         message = ''
-          axios.syncthing.user must be set when Syncthing is enabled.
+          cairn.syncthing.user must be set when Syncthing is enabled.
 
           Example:
-            axios.syncthing.user = "alice";
+            cairn.syncthing.user = "alice";
         '';
       }
       {
@@ -167,7 +167,7 @@ in
       {
         assertion = lib.all (name: lib.elem name supportedXdgNames) (lib.attrNames cfg.folders);
         message = ''
-          axios.syncthing.folders contains invalid XDG directory names.
+          cairn.syncthing.folders contains invalid XDG directory names.
 
           Supported names: ${lib.concatStringsSep ", " supportedXdgNames}
         '';

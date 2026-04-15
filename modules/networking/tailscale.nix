@@ -259,7 +259,7 @@ in
       type = lib.types.attrsOf serviceModule;
       default = { };
       example = {
-        "axios-mail" = {
+        "cairn-mail" = {
           enable = true;
           backend = "http://127.0.0.1:8080";
         };

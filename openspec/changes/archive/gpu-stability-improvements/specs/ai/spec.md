@@ -13,14 +13,14 @@ Integrates advanced AI agents and local inference capabilities into the develope
     - `claude-desktop`: Desktop integration layer.
 - **Gemini Ecosystem**:
     - `gemini-cli-bin`: Multimodal CLI agent.
-    - `antigravity`: Advanced agentic assistant for axiOS development.
+    - `antigravity`: Advanced agentic assistant for Cairn development.
 - **Workflow Tools**:
     - `whisper-cpp`: Speech-to-text.
     - `claude-monitor`: Resource monitoring for AI sessions.
 - **Implementation**: `modules/ai/default.nix`, `home/ai/`
 
 ### System Prompt Management
-- **Unified Prompt**: axiOS provides a comprehensive system prompt at `~/.config/ai/prompts/axios.md`.
+- **Unified Prompt**: Cairn provides a comprehensive system prompt at `~/.config/ai/prompts/cairn.md`.
 - **Auto-Injection**: Automatically injected into `~/.claude.json` during system activation.
 - **Customization**: Users can append instructions via `services.ai.systemPrompt.extraInstructions`.
 
@@ -45,7 +45,7 @@ Integrates advanced AI agents and local inference capabilities into the develope
 
 ### Requirement: GPU Discovery Timeout Awareness
 
-Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configured by axiOS.
+Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configured by Cairn.
 
 #### Known Limitation
 
@@ -126,6 +126,6 @@ services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
 **Cause**: ROCm compute queue oversubscription from multiple GPU processes or oversized models.
 
 **Mitigations**:
-1. Ensure `OLLAMA_MAX_LOADED_MODELS=1` (default in axiOS)
+1. Ensure `OLLAMA_MAX_LOADED_MODELS=1` (default in Cairn)
 2. Avoid models that require CPU offload
 3. Check `amd_smi` or `rocm-smi` for VRAM usage before loading large models

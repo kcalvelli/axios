@@ -225,7 +225,7 @@ assertions = [
 - [x] All new options documented
 - [x] Assertions cover edge cases
 - [x] No hardcoded values (use options)
-- [x] Follows axios module patterns
+- [x] Follows cairn module patterns
 
 ### Task 7.2: Merge Specs
 - [x] Specs updated in `openspec/specs/ai/spec.md` (done during implementation)

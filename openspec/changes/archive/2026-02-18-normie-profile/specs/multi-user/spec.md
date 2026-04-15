@@ -6,14 +6,14 @@ The `homeProfile` option SHALL use the enum `"standard"` | `"normie"` for both p
 
 #### Scenario: User with explicit normie profile
 
-- **WHEN** `axios.users.users.traci.homeProfile = "normie"` is set
+- **WHEN** `cairn.users.users.traci.homeProfile = "normie"` is set
 - **AND** the host's `homeProfile` is `"standard"`
 - **THEN** Traci's home-manager imports the normie profile module
 - **AND** other users without explicit `homeProfile` inherit the host's `"standard"` profile
 
 #### Scenario: User inherits host default
 
-- **WHEN** `axios.users.users.keith.homeProfile` is null (default)
+- **WHEN** `cairn.users.users.keith.homeProfile` is null (default)
 - **AND** the host's `homeProfile` is `"standard"`
 - **THEN** Keith's home-manager imports the standard profile module
 

@@ -14,7 +14,7 @@
 
 3.  **Implement the new configuration (Initial Implementation - Incorrect):**
     *   [x] Modify `home/ai/mcp.nix` to add the `home.file` block for `~/.gemini/settings.json`.
-    *   [x] Modify `home/terminal/fish.nix` to remove the `axios-gemini` alias and replace it with a direct alias to `gemini-cli`.
+    *   [x] Modify `home/terminal/fish.nix` to remove the `cairn-gemini` alias and replace it with a direct alias to `gemini-cli`.
 
 4.  **Correct the implementation based on new information about OAuth:**
     *   [x] Revert the changes in `home/ai/mcp.nix` that added `settings.json` and `GEMINI_API_KEY`.

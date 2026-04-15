@@ -3,7 +3,7 @@
 ## Summary
 **Defect**: AMD GPU instability after extended Ollama usage due to VRAM exhaustion from models remaining loaded indefinitely.
 
-**Root Cause**: Ollama's default `OLLAMA_KEEP_ALIVE` is 5 minutes, but without explicit configuration, models loaded via frequent API calls (e.g., axios-ai-mail) accumulate in GPU memory, leading to:
+**Root Cause**: Ollama's default `OLLAMA_KEEP_ALIVE` is 5 minutes, but without explicit configuration, models loaded via frequent API calls (e.g., cairn-mail) accumulate in GPU memory, leading to:
 - AMDGPU memory eviction warnings
 - GPU queue evictions
 - Hard system freezes (no kernel panic logged)

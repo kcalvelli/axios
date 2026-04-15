@@ -21,6 +21,6 @@ The AI module currently presents Anthropic and Gemini tooling as first-class cho
 
 ## Impact
 
-- Affected code: [`modules/ai/default.nix`](/home/keith/Projects/axios/modules/ai/default.nix), normie profile and desktop modules under [`home/`](/home/keith/Projects/axios/home), and AI-related documentation.
+- Affected code: [`modules/ai/default.nix`](/home/keith/Projects/cairn/modules/ai/default.nix), normie profile and desktop modules under [`home/`](/home/keith/Projects/cairn/home), and AI-related documentation.
 - Affected behavior: package selection, tool enablement options, prompt/configuration injection, supported vendor guidance for AI tooling, and the default application set available to normie users.
 - Dependencies: primarily `nixpkgs` packages, with optional follow-up evaluation for external OpenAI ecosystem tooling only if the package gap is material.

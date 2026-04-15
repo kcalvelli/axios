@@ -6,7 +6,7 @@
   ...
 }:
 let
-  cfg = config.axios.users;
+  cfg = config.cairn.users;
 
   # Per-user submodule type
   userSubmodule =
@@ -140,7 +140,7 @@ let
   firstAdmin = if adminNames != [ ] then lib.head adminNames else null;
 in
 {
-  options.axios.users = {
+  options.cairn.users = {
     users = lib.mkOption {
       type = lib.types.attrsOf (lib.types.submodule userSubmodule);
       default = { };
@@ -149,12 +149,12 @@ in
         configures that user's system account, groups, and home-manager profile.
 
         Example:
-          axios.users.users.keith = {
+          cairn.users.users.keith = {
             fullName = "Keith";
             email = "keith@example.com";
             isAdmin = true;
           };
-          axios.users.users.traci = {
+          cairn.users.users.traci = {
             fullName = "Traci";
             isAdmin = false;
             homeProfile = "normie";
@@ -166,7 +166,7 @@ in
       type = lib.types.bool;
       default = true;
       description = ''
-        Automatically add users to groups based on enabled axios modules.
+        Automatically add users to groups based on enabled cairn modules.
 
         Groups are added based on which modules are enabled:
         - wheel: Admin users only (isAdmin = true)
@@ -235,7 +235,7 @@ in
 
       home-manager.users = lib.mapAttrs (name: userDef: {
         # Email passed through to home-manager for git config
-        axios.user.email = lib.mkDefault userDef.email;
+        cairn.user.email = lib.mkDefault userDef.email;
       }) cfg.users;
 
       # Trusted nix users = admin users only

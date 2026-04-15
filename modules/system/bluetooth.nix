@@ -1,9 +1,9 @@
 { config, lib, ... }:
 let
-  cfg = config.axios.system.bluetooth;
+  cfg = config.cairn.system.bluetooth;
 in
 {
-  options.axios.system.bluetooth = {
+  options.cairn.system.bluetooth = {
     powerOnBoot = lib.mkOption {
       type = lib.types.bool;
       default = true;

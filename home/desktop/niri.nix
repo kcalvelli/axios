@@ -61,7 +61,7 @@
         # configured in home/terminal/ghostty.nix with singleton mode for drop-down terminal support
         # Show keybinding guide on first login (helpful for new users)
         {
-          command = [ "axios-help" ];
+          command = [ "cairn-help" ];
         }
       ];
 
@@ -270,7 +270,7 @@
         }
         # Drop-down Ghostty: float, matches panel width, short height, stick to the top center
         {
-          matches = [ { app-id = "^com\\.github\\.kcalvelli\\.axios\\.dropterm$"; } ];
+          matches = [ { app-id = "^com\\.github\\.kcalvelli\\.cairn\\.dropterm$"; } ];
 
           open-floating = true;
 
@@ -346,7 +346,7 @@
         # Flatpak installer: small floating window for transparent installation
         {
           matches = [
-            { app-id = "^com\\.github\\.kcalvelli\\.axios\\.flatpak-install$"; }
+            { app-id = "^com\\.github\\.kcalvelli\\.cairn\\.flatpak-install$"; }
           ];
 
           open-maximized = false;

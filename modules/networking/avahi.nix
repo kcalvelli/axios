@@ -1,10 +1,10 @@
 { config, lib, ... }:
 let
-  cfg = config.axios.networking.avahi;
+  cfg = config.cairn.networking.avahi;
   sambaCfg = config.networking.samba;
 in
 {
-  options.axios.networking.avahi = {
+  options.cairn.networking.avahi = {
     enable = lib.mkEnableOption "Avahi mDNS/DNS-SD service discovery" // {
       default = sambaCfg.enable or false;
     };

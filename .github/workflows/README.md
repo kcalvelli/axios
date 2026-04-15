@@ -1,6 +1,6 @@
 # GitHub Actions Workflows
 
-This directory contains automated workflows for the axios flake library.
+This directory contains automated workflows for the cairn flake library.
 
 ## Active Workflows
 
@@ -37,7 +37,7 @@ This directory contains automated workflows for the axios flake library.
 **File:** `build-packages.yml`
 **Schedule:** Weekly on Mondays at 2 AM UTC
 **Triggers:** Changes to pkgs, flake files, push to master, pull requests, weekly
-**Purpose:** Builds and caches all custom axios packages.
+**Purpose:** Builds and caches all custom cairn packages.
 
 - Lists all available packages via `nix flake show`
 - Builds each package and pushes to Cachix
@@ -55,7 +55,7 @@ This directory contains automated workflows for the axios flake library.
 ### Test Init Script
 **File:** `test-init-script.yml`
 **Triggers:** Changes to scripts, push to master, pull requests
-**Purpose:** Ensures the `nix run github:kcalvelli/axios#init` command works.
+**Purpose:** Ensures the `nix run github:kcalvelli/cairn#init` command works.
 
 - Tests that the init app can be invoked
 - Validates script functionality for downstream users

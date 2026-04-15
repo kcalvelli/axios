@@ -6,7 +6,7 @@ Defect fix
 ## Problem
 
 `ksshaskpass` unconditionally tries to contact `org.kde.kwalletd6` for
-password caching. axiOS uses GNOME Keyring (not KWallet), so kwalletd6
+password caching. Cairn uses GNOME Keyring (not KWallet), so kwalletd6
 doesn't exist, producing repeated D-Bus errors:
 
 ```
@@ -21,7 +21,7 @@ ksshaskpass — it's hardcoded.
 
 Replace `kdePackages.ksshaskpass` with `lxqt.lxqt-openssh-askpass`:
 - Simple Qt6 password dialog, no wallet dependency
-- Fits axiOS's Qt-heavy desktop (Dolphin, Okular, Haruna, etc.)
+- Fits Cairn's Qt-heavy desktop (Dolphin, Okular, Haruna, etc.)
 - No D-Bus errors, no KWallet coupling
 
 ### Changes

@@ -1,10 +1,10 @@
 # Tailscale Services Setup Guide
 
-This guide explains how to configure Tailscale Services for axios, enabling unique DNS names for each service (e.g., `axios-mail.your-tailnet.ts.net`).
+This guide explains how to configure Tailscale Services for cairn, enabling unique DNS names for each service (e.g., `cairn-mail.your-tailnet.ts.net`).
 
 ## Why Tailscale Services?
 
-axios uses Tailscale Services to provide:
+cairn uses Tailscale Services to provide:
 
 1. **Unique DNS names per service** - Each service gets its own hostname
 2. **Automatic HTTPS** - TLS certificates managed by Tailscale
@@ -16,7 +16,7 @@ Without Tailscale Services, all PWAs served from the same host would share ident
 ## Prerequisites
 
 - Tailscale account with admin access
-- axios server machine (e.g., `edge`)
+- cairn server machine (e.g., `edge`)
 - agenix configured for secrets management
 
 ## Step 1: Configure Tailscale ACLs
@@ -41,9 +41,9 @@ Go to [Tailscale Admin Console](https://login.tailscale.com/admin/acls) and conf
 
     "autoApprovers": {
         "services": {
-            "svc:axios-mail":    ["tag:server"],
-                        "svc:axios-llama":  ["tag:server"],
-            "svc:axios-immich":  ["tag:server"]
+            "svc:cairn-mail":    ["tag:server"],
+                        "svc:cairn-llama":  ["tag:server"],
+            "svc:cairn-immich":  ["tag:server"]
         }
     }
 }
@@ -81,7 +81,7 @@ Tailscale Services require tag-based device identity (not user-owned).
 1. Go to [Tailscale Admin → Settings → Keys](https://login.tailscale.com/admin/settings/keys)
 2. Click **Generate auth key**
 3. Configure:
-   - **Description**: `axios-server`
+   - **Description**: `cairn-server`
    - **Reusable**: Yes (allows rebuilds without new keys)
    - **Expiration**: No expiry (or manage rotation)
    - **Tags**: `tag:server`
@@ -107,7 +107,7 @@ age.secrets.tailscale-server-key = {
 };
 ```
 
-## Step 4: Configure axios Server
+## Step 4: Configure cairn Server
 
 In your server host configuration (e.g., `hosts/edge.nix`):
 
@@ -125,7 +125,7 @@ In your server host configuration (e.g., `hosts/edge.nix`):
 }
 ```
 
-## Step 5: Configure axios Client
+## Step 5: Configure cairn Client
 
 Client machines (laptops, etc.) stay user-owned and just need `acceptRoutes`:
 
@@ -162,7 +162,7 @@ Services auto-register with Tailscale when enabled:
 }
 
 # In hostConfig (outside extraConfig)
-axios = {
+cairn = {
   immich = {
     enable = true;
     pwa.enable = true;
@@ -187,7 +187,7 @@ axios = {
       tailnetDomain = "your-tailnet.ts.net";
     };
 
-    axios.immich = {
+    cairn.immich = {
       enable = true;
       role = "client";
       pwa.enable = true;
@@ -210,17 +210,17 @@ sudo nixos-rebuild switch --flake .#pangolin
 ### Verify Services are Registered
 
 Check the Tailscale admin console → Services tab. You should see:
-- `axios-mail` (1 online)
-- `axios-llama` (1 online)
-- `axios-immich` (1 online)
+- `cairn-mail` (1 online)
+- `cairn-llama` (1 online)
+- `cairn-immich` (1 online)
 
 ### Test from Client
 
 ```bash
 # Should return HTTP 200
-curl -I https://axios-mail.your-tailnet.ts.net
-curl -I https://axios-llama.your-tailnet.ts.net
-curl -I https://axios-immich.your-tailnet.ts.net
+curl -I https://cairn-mail.your-tailnet.ts.net
+curl -I https://cairn-llama.your-tailnet.ts.net
+curl -I https://cairn-immich.your-tailnet.ts.net
 ```
 
 ## Troubleshooting
@@ -230,7 +230,7 @@ curl -I https://axios-immich.your-tailnet.ts.net
 1. Verify auth key has `tag:server`
 2. Check `autoApprovers.services` in ACL
 3. Ensure `authMode = "authkey"` in NixOS config
-4. Check systemd service: `systemctl status tailscale-serve-axios-mail`
+4. Check systemd service: `systemctl status tailscale-serve-cairn-mail`
 
 ### Client Can't Access Services (Connection Timeout)
 
@@ -240,23 +240,23 @@ curl -I https://axios-immich.your-tailnet.ts.net
 
 ### PWA Icons Still Shared
 
-1. Clear PWA profile: `rm -rf ~/.local/share/axios-pwa/<service>`
+1. Clear PWA profile: `rm -rf ~/.local/share/cairn-pwa/<service>`
 2. Relaunch from desktop entry (not bookmark)
 3. Verify StartupWMClass in desktop entry matches window app_id
 
 ### Server Can't Access Own Services
 
 This is expected - Tailscale Services has a hairpinning restriction. Servers use local domains via `/etc/hosts`:
-- `axios-mail.local` → `127.0.0.1`
+- `cairn-mail.local` → `127.0.0.1`
 - etc.
 
 ## Service DNS Names
 
 | Service | DNS Name | Config Path |
 |---------|----------|-------------|
-| Mail (PIM) | `axios-mail.<tailnet>.ts.net` | `services.pim` |
-| llama-server | `axios-llama.<tailnet>.ts.net` | `services.ai.local` |
-| Immich | `axios-immich.<tailnet>.ts.net` | `axios.immich` |
+| Mail (PIM) | `cairn-mail.<tailnet>.ts.net` | `services.pim` |
+| llama-server | `cairn-llama.<tailnet>.ts.net` | `services.ai.local` |
+| Immich | `cairn-immich.<tailnet>.ts.net` | `cairn.immich` |
 
 ## References
 

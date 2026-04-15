@@ -10,7 +10,7 @@ Provides a comprehensive development environment with modern tools, optimized sy
 - **Implementation**: `modules/development/default.nix`
 
 ### Core Tooling
-- **Editors**: Visual Studio Code (with material theme integration). Neovim provided via home-manager (`axios.terminal.neovim.enable`), NOT the development module.
+- **Editors**: Visual Studio Code (with material theme integration). Neovim provided via home-manager (`cairn.terminal.neovim.enable`), NOT the development module.
 - **Languages/Runtimes**: Bun (for theme updates).
 - **Shell utilities** (development module): Bat, Jq. Shell tools with home-manager `programs.*` modules (Fish, Starship, Eza, Fzf, Gh) MUST NOT be duplicated in the development module's system packages.
 - **Version Control**: Git (system), GitHub CLI (home-manager `programs.gh`).
@@ -28,7 +28,7 @@ Provides a comprehensive development environment with modern tools, optimized sy
 ### Developer Shells (DevShells)
 - **Profiles**: Pre-configured shells for Rust, Zig, QML, etc.
 - **Access**: `nix develop .#profile-name`.
-- **Neovim Integration**: Devshells set `AXIOS_NVIM_LANGUAGES` to auto-configure IDE features.
+- **Neovim Integration**: Devshells set `CAIRN_NVIM_LANGUAGES` to auto-configure IDE features.
 - **Implementation**: `devshells/`
 
 ## ADDED Requirements
@@ -87,23 +87,23 @@ The development module SHALL include modern system monitoring and network diagno
 
 ### Requirement: Neovim IDE Preset
 
-axiOS SHALL provide a comprehensive neovim IDE preset that delivers a productive development environment out of the box while allowing full user customization.
+Cairn SHALL provide a comprehensive neovim IDE preset that delivers a productive development environment out of the box while allowing full user customization.
 
 #### Scenario: Fresh installation with no existing neovim config
 - **Given** the user has no `~/.config/nvim/init.lua`
 - **When** home-manager activates
-- **Then** an init.lua is generated that loads the axios preset via `require("axios").setup({})`
+- **Then** an init.lua is generated that loads the cairn preset via `require("cairn").setup({})`
 - **And** the user can edit this file to customize their experience
 
 #### Scenario: Existing neovim configuration
 - **Given** the user has an existing `~/.config/nvim/init.lua`
 - **When** home-manager activates
 - **Then** the existing init.lua MUST be preserved unchanged
-- **And** the user can opt-in by adding `require("axios").setup({})` to their config
+- **And** the user can opt-in by adding `require("cairn").setup({})` to their config
 
 #### Scenario: User customizes preset
-- **Given** the user has the axios preset loaded
-- **When** they pass options to `require("axios").setup({ colorscheme = "tokyonight" })`
+- **Given** the user has the cairn preset loaded
+- **When** they pass options to `require("cairn").setup({ colorscheme = "tokyonight" })`
 - **Then** the preset MUST respect their overrides
 - **And** defaults are used for unspecified options
 
@@ -119,7 +119,7 @@ The neovim preset SHALL automatically configure LSP based on language detection.
 
 #### Scenario: Devshell language detection
 - **Given** the user enters a rust devshell (`nix develop .#rust`)
-- **And** `AXIOS_NVIM_LANGUAGES` is set to `"rust,toml"`
+- **And** `CAIRN_NVIM_LANGUAGES` is set to `"rust,toml"`
 - **When** they open a `.rs` file in neovim
 - **Then** rust-analyzer LSP MUST attach (using the binary from devshell PATH)
 - **And** Rust-specific treesitter highlighting MUST be enabled
@@ -138,14 +138,14 @@ AI coding features SHALL be enabled only when the system AI module is active, us
 
 #### Scenario: AI module enabled
 - **Given** the system has `services.ai.enable = true`
-- **And** `AXIOS_AI_ENABLED=1` is set in the environment
+- **And** `CAIRN_AI_ENABLED=1` is set in the environment
 - **When** the user starts neovim
 - **Then** avante.nvim MUST be available via `<leader>a` keymaps
 - **And** Claude SHALL be the default AI provider
 
 #### Scenario: AI module disabled
 - **Given** the system has `services.ai.enable = false`
-- **And** `AXIOS_AI_ENABLED` is not set
+- **And** `CAIRN_AI_ENABLED` is not set
 - **When** the user starts neovim
 - **Then** avante.nvim SHALL NOT be loaded
 - **And** `<leader>a` keymaps MUST NOT be registered
@@ -161,7 +161,7 @@ AI coding features SHALL be enabled only when the system AI module is active, us
 All plugins SHALL be lazy-loaded to ensure fast startup.
 
 #### Scenario: Startup time
-- **Given** a fresh neovim installation with the axios preset
+- **Given** a fresh neovim installation with the cairn preset
 - **When** neovim starts with no file argument
 - **Then** startup MUST complete in under 100ms
 - **And** only essential UI plugins are loaded

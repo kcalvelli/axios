@@ -3,8 +3,8 @@
   # Define home modules for different setups
   # This explicit list serves as API documentation for library consumers
   #
-  # NOTE: Calendar/contacts sync has moved to axios-dav
-  # See: https://github.com/kcalvelli/axios-dav
+  # NOTE: Calendar/contacts sync has moved to cairn-dav
+  # See: https://github.com/kcalvelli/cairn-dav
   flake = {
     homeModules = {
       desktop = import ./desktop;

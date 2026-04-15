@@ -6,7 +6,7 @@
   ...
 }:
 let
-  cfg = config.axios.installer;
+  cfg = config.cairn.installer;
 
   # Calamares ships without the Qt Wayland plugin. We add it via
   # QT_PLUGIN_PATH and run as root via sudo (live ISO = passwordless).
@@ -22,8 +22,8 @@ let
     # Call the raw calamares binary directly (not calamares-nixos wrapper)
     # to avoid upstream calamares-nixos-extensions being prepended to XDG dirs.
     # Set XDG dirs to ONLY our extensions.
-    export XDG_CONFIG_DIRS="${pkgs.calamares-axios-extensions}/etc"
-    export XDG_DATA_DIRS="${pkgs.calamares-axios-extensions}/share"
+    export XDG_CONFIG_DIRS="${pkgs.calamares-cairn-extensions}/etc"
+    export XDG_DATA_DIRS="${pkgs.calamares-cairn-extensions}/share"
     exec ${pkgs.calamares}/bin/calamares --xdg-config "$@"
   '';
 
@@ -37,15 +37,15 @@ let
   calamares-autostart = pkgs.writeTextDir "etc/xdg/autostart/calamares.desktop" ''
     [Desktop Entry]
     Type=Application
-    Name=Install axiOS
+    Name=Install Cairn
     Exec=${calamares-launcher}/bin/calamares-launcher
     Icon=calamares
     X-GNOME-Autostart-enabled=true
   '';
 in
 {
-  options.axios.installer = {
-    enable = lib.mkEnableOption "axiOS graphical installer (Calamares)";
+  options.cairn.installer = {
+    enable = lib.mkEnableOption "Cairn graphical installer (Calamares)";
   };
 
   config = lib.mkIf cfg.enable {
@@ -171,7 +171,7 @@ in
       calamares-launcher
       calamares-autostart
       pkgs.calamares-nixos
-      pkgs.calamares-axios-extensions
+      pkgs.calamares-cairn-extensions
       pkgs.glibcLocales
       pkgs.xwayland-satellite
 
@@ -181,7 +181,7 @@ in
       pkgs.papirus-icon-theme
       pkgs.hicolor-icon-theme
 
-      # axiOS live session apps (normie subset)
+      # Cairn live session apps (normie subset)
       pkgs.brave
       pkgs.kdePackages.dolphin
       pkgs.kdePackages.ark

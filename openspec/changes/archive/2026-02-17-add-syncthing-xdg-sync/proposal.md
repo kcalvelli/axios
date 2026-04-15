@@ -1,10 +1,10 @@
 ## Why
 
-axiOS has no reliable mechanism for syncing common XDG directories (Documents, Music, Pictures, etc.) across installations. The existing approach uses an rclone-to-Google-Drive script (`home/desktop/gdrive-sync.nix`) that is fragile and dependent on Google's API stability. A previous attempt with Syncthing failed due to connectivity and discovery issues. Since all axiOS hosts already run Tailscale, Syncthing can use Tailscale IPs for direct peer-to-peer connectivity, eliminating NAT traversal and relay problems entirely.
+Cairn has no reliable mechanism for syncing common XDG directories (Documents, Music, Pictures, etc.) across installations. The existing approach uses an rclone-to-Google-Drive script (`home/desktop/gdrive-sync.nix`) that is fragile and dependent on Google's API stability. A previous attempt with Syncthing failed due to connectivity and discovery issues. Since all Cairn hosts already run Tailscale, Syncthing can use Tailscale IPs for direct peer-to-peer connectivity, eliminating NAT traversal and relay problems entirely.
 
 ## What Changes
 
-- Add a new NixOS module (`modules/syncthing/default.nix`) that declaratively configures Syncthing with axiOS-specific defaults and XDG-aware folder configuration
+- Add a new NixOS module (`modules/syncthing/default.nix`) that declaratively configures Syncthing with Cairn-specific defaults and XDG-aware folder configuration
 - Folders are defined by XDG directory name (e.g., `"documents"`, `"pictures"`) rather than raw paths; the module resolves to the correct XDG path per user
 - Tailscale-only transport: disable global discovery, default relaying, and NAT traversal; address devices by Tailscale MagicDNS names
 - Per-host device and folder declarations: each host declares which XDG dirs it participates in and which peer devices it syncs with; device attr names map to Tailscale machine names automatically
@@ -16,7 +16,7 @@ axiOS has no reliable mechanism for syncing common XDG directories (Documents, M
 ## Capabilities
 
 ### New Capabilities
-- `syncthing-xdg-sync`: Declarative Syncthing module for peer-to-peer XDG directory synchronization across axiOS hosts via Tailscale
+- `syncthing-xdg-sync`: Declarative Syncthing module for peer-to-peer XDG directory synchronization across Cairn hosts via Tailscale
 
 ### Modified Capabilities
 - `services`: Update File Synchronization section to reflect Syncthing replacing Google Drive sync

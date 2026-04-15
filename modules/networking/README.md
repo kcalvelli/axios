@@ -16,7 +16,7 @@ Provides network manager configuration, SSH, and optional network services like 
 
 ### Avahi (`avahi.nix`)
 Local network service discovery (mDNS/DNS-SD).
-- Enable with: `axios.networking.avahi.enable = true`
+- Enable with: `cairn.networking.avahi.enable = true`
 - **Default behavior**: Auto-enabled when Samba is enabled, disabled otherwise
 - Use for: Local network device discovery, `.local` domains, Samba auto-discovery
 - **Note**: Disable explicitly to reduce network noise if you don't need auto-discovery
@@ -56,10 +56,10 @@ VPN mesh network for secure remote access.
   };
 
   # To disable Avahi even with Samba:
-  axios.networking.avahi.enable = false;
+  cairn.networking.avahi.enable = false;
 
   # To enable Avahi without Samba:
-  axios.networking.avahi.enable = true;
+  cairn.networking.avahi.enable = true;
 }
 ```
 

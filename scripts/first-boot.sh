@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# axiOS First-Boot Wizard
+# Cairn First-Boot Wizard
 # Collects values that couldn't be gathered during installation
 # (email, tailnet domain) and writes them into the NixOS config.
 set -euo pipefail
 
-MARKER="${HOME}/.cache/axios-first-boot-done"
+MARKER="${HOME}/.cache/cairn-first-boot-done"
 CONFIG_DIR="/etc/nixos"
 
 # ──────────────────────────────────────────────────────────────────
@@ -12,9 +12,9 @@ CONFIG_DIR="/etc/nixos"
 # ──────────────────────────────────────────────────────────────────
 if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
   cat <<EOF
-Usage: axios-first-boot [OPTIONS]
+Usage: cairn-first-boot [OPTIONS]
 
-axiOS first-boot wizard — collects email and tailnet domain.
+Cairn first-boot wizard — collects email and tailnet domain.
 
 Options:
   -h, --help    Show this help message
@@ -46,7 +46,7 @@ fi
 # ──────────────────────────────────────────────────────────────────
 cleanup() {
   echo ""
-  gum style --foreground 208 "Cancelled. Run 'axios-first-boot' to try again."
+  gum style --foreground 208 "Cancelled. Run 'cairn-first-boot' to try again."
   exit 130
 }
 trap cleanup INT
@@ -122,7 +122,7 @@ banner
 
 echo ""
 info_box \
-  "Welcome to axiOS!" \
+  "Welcome to Cairn!" \
   "" \
   "This wizard collects a few values that couldn't be" \
   "gathered during installation. It only runs once."
@@ -208,7 +208,7 @@ info_box "${summary_lines[@]}"
 
 echo ""
 if ! ask_confirm "Apply these changes?"; then
-  gum style --foreground 208 "Cancelled. Run 'axios-first-boot' to try again."
+  gum style --foreground 208 "Cancelled. Run 'cairn-first-boot' to try again."
   exit 0
 fi
 
@@ -218,16 +218,16 @@ fi
 section_header "Applying changes..."
 
 if [ -n "$EMAIL" ] && [ -f "$USER_FILE" ]; then
-  # Insert email into axios.users.users block
-  if grep -q "axios.users.users.${CURRENT_USER}" "$USER_FILE"; then
+  # Insert email into cairn.users.users block
+  if grep -q "cairn.users.users.${CURRENT_USER}" "$USER_FILE"; then
     # Add email after fullName line
     sudo sed -i "/fullName\s*=/a\\    email = \"${EMAIL}\";" "$USER_FILE"
   fi
 
   # Insert email into home-manager.users block if it exists
   if grep -q "home-manager.users.${CURRENT_USER}" "$USER_FILE"; then
-    # Add axios.user.email inside the home-manager block
-    sudo sed -i "/home-manager.users.${CURRENT_USER}\s*=\s*{/a\\    axios.user.email = \"${EMAIL}\";" "$USER_FILE"
+    # Add cairn.user.email inside the home-manager block
+    sudo sed -i "/home-manager.users.${CURRENT_USER}\s*=\s*{/a\\    cairn.user.email = \"${EMAIL}\";" "$USER_FILE"
   fi
   gum style --foreground 42 "  Updated email in ${USER_FILE}"
 fi

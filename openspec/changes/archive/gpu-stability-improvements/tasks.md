@@ -23,7 +23,7 @@ Address GPU stability issues causing hard freezes and application crashes on AMD
     - Model load: 5 minutes (`OLLAMA_LOAD_TIMEOUT`, configurable but unrelated)
   - **Upstream**: PR #13186 (open, not merged) would extend to 10s when `HSA_OVERRIDE_GFX_VERSION` is set
 - [x] If not supported: Document the limitation
-  - Limitation documented below; no axios-side fix possible
+  - Limitation documented below; no cairn-side fix possible
 - [ ] Consider upstream contribution to add `OLLAMA_GPU_DISCOVERY_TIMEOUT` (optional, future work)
 
 ### Phase 3: GPU Memory Headroom (Deferred)
@@ -78,7 +78,7 @@ enableGPURecovery = lib.mkOption {
 };
 
 boot.kernelParams =
-  lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
+  lib.optionals (isAmd && config.cairn.hardware.enableGPURecovery) [
     "amdgpu.gpu_recovery=1"
     "amdgpu.lockup_timeout=5000"  # Detect GPU hangs within 5 seconds
   ]
@@ -123,9 +123,9 @@ systemd.extraConfig = lib.mkIf cfg.enableHardwareWatchdog ''
 | Queue evictions | VRAM oversubscription | Document, recommend smaller models | Documented |
 | Quickshell crashes | Upstream issue, exacerbated by GPU state | Document correlation | Documented |
 
-### axios-ai-mail Correlation Analysis
+### cairn-mail Correlation Analysis
 
-Investigation of `~/Projects/axios-ai-mail` revealed the likely trigger for consistent hard freezes:
+Investigation of `~/Projects/cairn-mail` revealed the likely trigger for consistent hard freezes:
 
 **Finding**: The `ai_classifier.py` uses `keep_alive: 0`, causing model load/unload for every email:
 ```python
@@ -137,11 +137,11 @@ Investigation of `~/Projects/axios-ai-mail` revealed the likely trigger for cons
 - GPU memory allocation/deallocation storms
 - Increased probability of GPU hang during transitions
 
-**Recommendation** (for axios-ai-mail, not axios):
+**Recommendation** (for cairn-mail, not cairn):
 - Change `keep_alive` from `0` to `300` (5 minutes) to reduce GPU memory churn
 - This would allow model to stay loaded across batch processing
 
-**axiOS Fix**: GPU recovery enabled by default mitigates the freeze risk regardless of workload patterns.
+**Cairn Fix**: GPU recovery enabled by default mitigates the freeze risk regardless of workload patterns.
 
 ## Acceptance Criteria
 
@@ -161,6 +161,6 @@ Users who experience issues with GPU resets can disable it:
 
 ```nix
 {
-  axios.hardware.enableGPURecovery = false;
+  cairn.hardware.enableGPURecovery = false;
 }
 ```

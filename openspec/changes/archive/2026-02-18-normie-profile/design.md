@@ -1,12 +1,12 @@
 ## Context
 
-axiOS home profiles control per-user desktop experience via home-manager. The current profile system has three issues:
+Cairn home profiles control per-user desktop experience via home-manager. The current profile system has three issues:
 
 1. **No simplified mode** — all desktop users get the full power-user surface (100+ keybinds, dev launchers, AI tools)
 2. **Workstation/laptop split is vestigial** — the only difference is Solaar autostart, which is a hardware concern not a profile concern
 3. **`"minimal"` is a dead enum value** — defined in the type but never implemented (no `home/profiles/minimal.nix` exists)
 
-The desktop module (`home/desktop/`) is currently monolithic — `default.nix` imports niri config, keybinds, theming, wallpaper, PWAs, mpv, DMS, axios-monitor, and dsearch as a single unit. Profiles (`workstation.nix`, `laptop.nix`) import `../desktop` wholesale. There is no way for a profile to select a subset.
+The desktop module (`home/desktop/`) is currently monolithic — `default.nix` imports niri config, keybinds, theming, wallpaper, PWAs, mpv, DMS, cairn-monitor, and dsearch as a single unit. Profiles (`workstation.nix`, `laptop.nix`) import `../desktop` wholesale. There is no way for a profile to select a subset.
 
 AI home modules (`home/ai/`) are applied to ALL users via `sharedModules` in `lib/default.nix`, with no per-profile opt-out.
 
@@ -32,7 +32,7 @@ AI home modules (`home/ai/`) are applied to ALL users via `sharedModules` in `li
 
 **Rationale**: The existing `home/desktop/default.nix` imports 10 modules and configures DMS, services, MIME types, Flatpak, etc. Threading a profile option through all of these would add complexity throughout. Instead, the normie profile imports a new `home/desktop/normie.nix` that cherry-picks the subset it needs (theming, wallpaper, PWAs, MIME, DMS, mpv, Flatpak, gnome-keyring, KDE Connect) while providing its own simplified niri config.
 
-**Alternative considered**: A single desktop module with `axios.desktop.profile = "standard" | "normie"` option. Rejected because it would require pervasive `mkIf` branching in keybinds, spawn-at-startup, DMS config, and package lists — harder to read and maintain than two clean compositions.
+**Alternative considered**: A single desktop module with `cairn.desktop.profile = "standard" | "normie"` option. Rejected because it would require pervasive `mkIf` branching in keybinds, spawn-at-startup, DMS config, and package lists — harder to read and maintain than two clean compositions.
 
 ### 2. CSD via `prefer-no-csd = false` for normie profile
 
@@ -64,7 +64,7 @@ AI home modules (`home/ai/`) are applied to ALL users via `sharedModules` in `li
 - `Print` — screenshot
 - DMS-injected bindings (media keys, Mod+Space launcher, Mod+N notifications, Mod+X power menu, Mod+V clipboard, Super+Alt+L lock) come automatically via `enableKeybinds = true`
 
-No tiling binds, no workspace navigation, no dev launchers, no drop-down terminal, no axios-help. The user interacts entirely via DMS panel clicks and Alt+Tab.
+No tiling binds, no workspace navigation, no dev launchers, no drop-down terminal, no cairn-help. The user interacts entirely via DMS panel clicks and Alt+Tab.
 
 ### 6. Standard profile is a rename of workstation, not a rewrite
 

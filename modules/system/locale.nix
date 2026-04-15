@@ -1,9 +1,9 @@
 { config, lib, ... }:
 let
-  cfg = config.axios.system;
+  cfg = config.cairn.system;
 in
 {
-  options.axios.system = {
+  options.cairn.system = {
     timeZone = lib.mkOption {
       type = lib.types.str;
       description = ''
@@ -30,11 +30,11 @@ in
     assertions = [
       {
         assertion = cfg.timeZone != "";
-        message = "axios.system.timeZone must be set in your host configuration";
+        message = "cairn.system.timeZone must be set in your host configuration";
       }
     ];
 
-    # Set timezone from axios.system option
+    # Set timezone from cairn.system option
     time.timeZone = cfg.timeZone;
 
     # Locale configuration with sensible UTF-8 defaults

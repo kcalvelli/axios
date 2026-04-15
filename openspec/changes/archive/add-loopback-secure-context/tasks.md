@@ -58,11 +58,11 @@
 
 - [x] **1.8** Verify: `nix flake check` passes with the new tailscale module options
 
-## Phase 2: PIM Module -- Enable loopbackProxy for axios-mail
+## Phase 2: PIM Module -- Enable loopbackProxy for cairn-mail
 
-- [x] **2.1** Update `modules/pim/default.nix`: enable `loopbackProxy` on axios-mail service
+- [x] **2.1** Update `modules/pim/default.nix`: enable `loopbackProxy` on cairn-mail service
   ```nix
-  networking.tailscale.services."axios-mail" = lib.mkIf isServer {
+  networking.tailscale.services."cairn-mail" = lib.mkIf isServer {
     enable = true;
     backend = "http://127.0.0.1:${toString cfg.port}";
     loopbackProxy.enable = true;
@@ -70,7 +70,7 @@
   ```
 
 - [x] **2.2** Remove the old `networking.hosts` block from `modules/pim/default.nix`
-  - Deleted the `networking.hosts = lib.mkIf isServer { "127.0.0.1" = [ "axios-mail.local" ]; };` block
+  - Deleted the `networking.hosts = lib.mkIf isServer { "127.0.0.1" = [ "cairn-mail.local" ]; };` block
   - The Tailscale module now handles `/etc/hosts` with the real FQDN
 
 - [x] **2.3** Verify: `nix flake check` passes after PIM module changes
@@ -79,19 +79,19 @@
 
 - [x] **3.1** Update `home/pim/default.nix`: unify `pwaUrl` to always use HTTPS
   - Removed the `if isServer then ... else ...` conditional
-  - Set: `pwaUrl = "https://axios-mail.${tailnetDomain}/";`
+  - Set: `pwaUrl = "https://cairn-mail.${tailnetDomain}/";`
 
 - [x] **3.2** Update `home/pim/default.nix`: unify `pwaHost`
   - Removed the `if isServer then ... else ...` conditional
-  - Set: `pwaHost = "axios-mail.${tailnetDomain}";`
+  - Set: `pwaHost = "cairn-mail.${tailnetDomain}";`
 
 - [x] **3.3** Remove insecure Chromium flags from the PWA exec command
-  - Removed: `--test-type --unsafely-treat-insecure-origin-as-secure=http://axios-mail.local:${toString localPort}`
+  - Removed: `--test-type --unsafely-treat-insecure-origin-as-secure=http://cairn-mail.local:${toString localPort}`
   - The `localPort` variable is no longer needed
 
 - [x] **3.4** Clean up unused `let` bindings
   - Removed `localPort` (was only used for server URL and insecure flag)
-  - `isServer` retained for the `imports` conditional (axios-ai-mail home module import)
+  - `isServer` retained for the `imports` conditional (cairn-mail home module import)
 
 - [x] **3.5** Verify: `nix flake check` passes after home module changes
 
@@ -121,7 +121,7 @@
 
 - [x] **6.3** Verify nginx starts on `127.0.0.1:443` with valid LE cert
   ```bash
-  curl -v https://axios-mail.<tailnet>/api/version
+  curl -v https://cairn-mail.<tailnet>/api/version
   ```
   - TLS 1.3, LE cert (issuer E8), HTTP/2, 200 OK ✅
 
@@ -137,6 +137,6 @@
 
 ## Notes
 
-- **wmClass change**: The server PWA's `StartupWMClass` changes from `brave-axios-mail.local__-Default` to `brave-axios-mail.<tailnet>__-Default`. The user will need to re-pin the dock icon after the first rebuild.
+- **wmClass change**: The server PWA's `StartupWMClass` changes from `brave-cairn-mail.local__-Default` to `brave-cairn-mail.<tailnet>__-Default`. The user will need to re-pin the dock icon after the first rebuild.
 - **Parallelizable**: Phases 1 and 3 can be developed in parallel since they modify different files. Phase 2 depends on Phase 1.
-- **Future services**: After this change lands, `axios-immich`, `axios-ollama`, and `mcp-gateway` can opt into the loopback proxy by adding `loopbackProxy.enable = true` to their service definitions in separate changes.
+- **Future services**: After this change lands, `cairn-immich`, `cairn-ollama`, and `mcp-gateway` can opt into the loopback proxy by adding `loopbackProxy.enable = true` to their service definitions in separate changes.

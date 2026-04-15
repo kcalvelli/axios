@@ -6,17 +6,17 @@
 
 **Was:**
 - Claude Code spawns MCP servers natively via `~/.mcp.json`
-- `mcp-cli` binary provided by axios (`modules/ai/default.nix`)
+- `mcp-cli` binary provided by cairn (`modules/ai/default.nix`)
 - mcp-cli system prompt deployed to `~/.config/ai/prompts/mcp-cli.md`
-- axios system prompt contains mcp-cli usage instructions
+- cairn system prompt contains mcp-cli usage instructions
 
 **Now:**
 - Claude Code uses built-in tools only; MCP servers accessed via `/mcp-cli` skill
 - `~/.mcp.json` generation disabled by default (`generateClaudeConfig = false`)
 - `mcp-cli` binary provided by mcp-gateway module (`home.packages`)
 - `/mcp-cli` skill installed to `~/.claude/commands/mcp-cli.md` by mcp-gateway
-- mcp-cli prompt removed from axios (superseded by skill)
-- axios system prompt trimmed to PIM domain hints only
+- mcp-cli prompt removed from cairn (superseded by skill)
+- cairn system prompt trimmed to PIM domain hints only
 
 #### Scenario: Claude Code discovers MCP tools on demand
 - **Given**: Claude Code is running without native MCP servers
@@ -32,7 +32,7 @@
 ### System Prompt Management
 
 **Was:**
-- Unified prompt at `~/.config/ai/prompts/axios.md` contained mcp-cli usage section
+- Unified prompt at `~/.config/ai/prompts/cairn.md` contained mcp-cli usage section
 - Separate mcp-cli prompt at `~/.config/ai/prompts/mcp-cli.md`
 
 **Now:**
@@ -53,7 +53,7 @@
 Updated architecture diagram:
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   axios (home/ai/mcp.nix)                       │
+│                   cairn (home/ai/mcp.nix)                       │
 │  - Imports mcp-gateway's home-manager module                    │
 │  - Provides server definitions with resolved nix store paths    │
 │  - Adds system prompts (PIM hints), commands, ~/.claude/CLAUDE.md│

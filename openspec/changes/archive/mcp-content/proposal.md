@@ -282,7 +282,7 @@ This article from TechCrunch discusses recent AI developments:
 
 - Enables AI to work with PDFs, videos, web content
 - Leverages existing tools (poppler, yt-dlp, whisper)
-- Integrates with axios's whisper-cpp already installed
+- Integrates with cairn's whisper-cpp already installed
 - Works with all MCP-compatible AI agents
 
 ### Resource Considerations
@@ -320,7 +320,7 @@ Three separate servers: mcp-pdf, mcp-youtube, mcp-web.
 
 Use cloud services for transcription/extraction.
 
-**Rejected**: Privacy concerns, axios philosophy favors local processing.
+**Rejected**: Privacy concerns, cairn philosophy favors local processing.
 
 ### Alternative 3: Browser extension approach
 

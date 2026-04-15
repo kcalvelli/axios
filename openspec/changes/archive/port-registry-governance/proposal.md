@@ -2,13 +2,13 @@
 
 ## Summary
 
-Establish a formal port allocation registry for axios services, documenting both local service ports and Tailscale HTTPS ports to prevent conflicts and provide clear documentation.
+Establish a formal port allocation registry for cairn services, documenting both local service ports and Tailscale HTTPS ports to prevent conflicts and provide clear documentation.
 
 ## Motivation
 
 ### Problem Statement
 
-As axios expands its service ecosystem (axios-ai-mail, Open WebUI, Ollama API, future services), port allocation becomes critical:
+As cairn expands its service ecosystem (cairn-mail, Open WebUI, Ollama API, future services), port allocation becomes critical:
 
 - Services must not conflict on local ports
 - Tailscale serve ports need coordination
@@ -27,11 +27,11 @@ Create a governance document that:
 ### New Document: openspec/specs/networking/ports.md
 
 ```markdown
-# axios Port Registry
+# cairn Port Registry
 
 ## Overview
 
-This document defines port allocations for axios services. All services follow a consistent pattern:
+This document defines port allocations for cairn services. All services follow a consistent pattern:
 
 - **Local port**: Service listens on localhost
 - **Tailscale port**: HTTPS exposure via `tailscale serve`
@@ -49,10 +49,10 @@ This document defines port allocations for axios services. All services follow a
 
 | Service | Local Port | Tailscale Port | Status |
 |---------|------------|----------------|--------|
-| axios-ai-mail | 8080 | 8443 | Active |
+| cairn-mail | 8080 | 8443 | Active |
 | Open WebUI | 8081 | 8444 | Proposed |
-| axios-portal | 8082 | 8445 | Planned |
-| axios-calendar | 8083 | 8446 | Planned |
+| cairn-portal | 8082 | 8445 | Planned |
+| cairn-calendar | 8083 | 8446 | Planned |
 | *Reserved* | 8084-8089 | 8447-8452 | Future |
 
 ### API Services
@@ -82,7 +82,7 @@ This document defines port allocations for axios services. All services follow a
 
 ## Adding New Services
 
-When adding a new axios service:
+When adding a new cairn service:
 
 1. Check this registry for conflicts
 2. Choose next available port in appropriate range
@@ -91,7 +91,7 @@ When adding a new axios service:
 
 ## Configuration Pattern
 
-All axios services should follow this pattern:
+All cairn services should follow this pattern:
 
 ```nix
 services.example = {
@@ -141,5 +141,5 @@ This is documentation only - no code changes required.
 
 ## References
 
-- axios-ai-mail: `modules/pim/default.nix`
+- cairn-mail: `modules/pim/default.nix`
 - Tailscale serve documentation

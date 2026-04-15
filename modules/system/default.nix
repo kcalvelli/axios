@@ -7,8 +7,8 @@
   ...
 }:
 {
-  options.axios.system = {
-    enable = lib.mkEnableOption "core axiOS system configuration" // {
+  options.cairn.system = {
+    enable = lib.mkEnableOption "core Cairn system configuration" // {
       default = true;
     };
   };
@@ -25,7 +25,7 @@
     ./bluetooth.nix
   ];
 
-  config = lib.mkIf config.axios.system.enable {
+  config = lib.mkIf config.cairn.system.enable {
     # Apply overlays to system pkgs (makes packages available to home-manager via useGlobalPkgs)
     nixpkgs.overlays = [
       self.overlays.default

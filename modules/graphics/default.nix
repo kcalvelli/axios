@@ -6,8 +6,8 @@
 }:
 let
   # Get GPU type and form factor from host configuration (passed through from lib/default.nix)
-  gpuType = config.axios.hardware.gpuType or null;
-  isLaptop = config.axios.hardware.isLaptop or false;
+  gpuType = config.cairn.hardware.gpuType or null;
+  isLaptop = config.cairn.hardware.isLaptop or false;
 
   isAmd = gpuType == "amd";
   isNvidia = gpuType == "nvidia";
@@ -16,7 +16,7 @@ let
 in
 {
   # Options for GPU type and form factor (set by lib/default.nix hostModule)
-  options.axios.hardware = {
+  options.cairn.hardware = {
     gpuType = lib.mkOption {
       type = lib.types.nullOr (
         lib.types.enum [
@@ -67,8 +67,8 @@ in
     # Assertion: enableGPURecovery requires AMD GPU
     assertions = [
       {
-        assertion = !config.axios.hardware.enableGPURecovery || isAmd;
-        message = "axios.hardware.enableGPURecovery can only be enabled with AMD GPUs (gpuType must be 'amd')";
+        assertion = !config.cairn.hardware.enableGPURecovery || isAmd;
+        message = "cairn.hardware.enableGPURecovery can only be enabled with AMD GPUs (gpuType must be 'amd')";
       }
     ];
 
@@ -108,7 +108,7 @@ in
       # Nvidia-specific hardware config
       nvidia = lib.mkIf isNvidia {
         modesetting.enable = true;
-        # Driver package selection based on axios.hardware.nvidiaDriver option
+        # Driver package selection based on cairn.hardware.nvidiaDriver option
         package =
           let
             nvidiaPackages = config.boot.kernelPackages.nvidiaPackages;
@@ -118,7 +118,7 @@ in
             beta = nvidiaPackages.beta;
             production = nvidiaPackages.production;
           }
-          .${config.axios.hardware.nvidiaDriver};
+          .${config.cairn.hardware.nvidiaDriver};
 
         # Use open-source kernel module (recommended for RTX 20-series/Turing and newer)
         # For pre-Turing GPUs (GTX 10-series and older), override with: hardware.nvidia.open = false;
@@ -160,7 +160,7 @@ in
 
     # === Kernel Parameters ===
     boot.kernelParams =
-      lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
+      lib.optionals (isAmd && config.cairn.hardware.enableGPURecovery) [
         "amdgpu.gpu_recovery=1" # Enable GPU reset on hang
         "amdgpu.lockup_timeout=5000" # Detect GPU hangs within 5 seconds
       ]

@@ -1,7 +1,7 @@
 # Tasks: Refactor PWA Browser Configuration
 
 ## Context
-Currently, all PWA applications (axios-ai-mail, immich, and generic PWA apps) are hardcoded to use Brave browser. Brave requires manual configuration ("Use Google services for push messaging") in each isolated profile for push notifications to work. Switching to Chromium or Google Chrome resolves this by enabling push support out-of-the-box. Additionally, PWA definitions are duplicated across modules.
+Currently, all PWA applications (cairn-mail, immich, and generic PWA apps) are hardcoded to use Brave browser. Brave requires manual configuration ("Use Google services for push messaging") in each isolated profile for push notifications to work. Switching to Chromium or Google Chrome resolves this by enabling push support out-of-the-box. Additionally, PWA definitions are duplicated across modules.
 
 ## Objective
 Centralize PWA creation logic in `home/desktop/pwa-apps.nix` to support configurable browsers (`chromium` default) and unified URL handling.
@@ -9,7 +9,7 @@ Centralize PWA creation logic in `home/desktop/pwa-apps.nix` to support configur
 ## Implementation Steps
 
 ### 1. Refactor `home/desktop/pwa-apps.nix`
-- [ ] Define `axios.pwa.apps` option (attrsOf submodule) to replace `extraApps`.
+- [ ] Define `cairn.pwa.apps` option (attrsOf submodule) to replace `extraApps`.
 - [ ] Submodule structure:
     - `name` (str)
     - `url` (str)
@@ -19,31 +19,31 @@ Centralize PWA creation logic in `home/desktop/pwa-apps.nix` to support configur
     - `mimeTypes` (list of str, default `[]`)
     - `actions` (attrsOf submodule, default `{}`)
     - `description` (str, optional)
-- [ ] Add `axios.pwa.browser` option (enum: `brave`, `chromium`, `google-chrome`).
-- [ ] Preserve `axios.pwa.includeDefaults` (bool, default `true`) and `axios.pwa.iconPath` (path, default `null`).
-    - If `includeDefaults` is true, merge default apps from `pkgs/pwa-apps/pwa-defs.nix` into `config.axios.pwa.apps`.
+- [ ] Add `cairn.pwa.browser` option (enum: `brave`, `chromium`, `google-chrome`).
+- [ ] Preserve `cairn.pwa.includeDefaults` (bool, default `true`) and `cairn.pwa.iconPath` (path, default `null`).
+    - If `includeDefaults` is true, merge default apps from `pkgs/pwa-apps/pwa-defs.nix` into `config.cairn.pwa.apps`.
     - If `iconPath` is set, use it as an additional source for icon resolution.
 - [ ] Implement `xdg.desktopEntries` generation logic:
-    - Iterate over `config.axios.pwa.apps`.
+    - Iterate over `config.cairn.pwa.apps`.
     - Generate `Exec` command based on `browser` selection.
     - Handle `isolated` flag (add `--user-data-dir`).
     - Generate correct `StartupWMClass` based on browser type (`brave-`, `chromium-`, `chrome-`).
 - [ ] Ensure `pkgs.chromium`, `pkgs.brave`, or `pkgs.google-chrome` is added to packages.
 
 ### 2. Update `modules/services/immich.nix`
-- [ ] Enable `loopbackProxy` in `networking.tailscale.services."axios-immich"`.
+- [ ] Enable `loopbackProxy` in `networking.tailscale.services."cairn-immich"`.
 - [ ] Remove manual `networking.hosts` hack for server role.
 
 ### 3. Refactor `home/pim/default.nix`
 - [ ] Remove `xdg.desktopEntries` and `home.file` definitions.
-- [ ] Configure `axios.pwa.apps.axios-mail` using the unified URL (`https://axios-mail.<tailnet>/`).
+- [ ] Configure `cairn.pwa.apps.cairn-mail` using the unified URL (`https://cairn-mail.<tailnet>/`).
 
 ### 4. Refactor `home/immich/default.nix`
 - [ ] Remove `xdg.desktopEntries` and `home.file` definitions.
-- [ ] Configure `axios.pwa.apps.axios-immich` using the unified URL (`https://axios-immich.<tailnet>/`).
+- [ ] Configure `cairn.pwa.apps.cairn-immich` using the unified URL (`https://cairn-immich.<tailnet>/`).
 
 ### 5. Update `scripts/add-pwa.sh`
-- [ ] Update script to generate `axios.pwa.apps.<name>` blocks instead of `axios.pwa.extraApps.<name>`.
+- [ ] Update script to generate `cairn.pwa.apps.<name>` blocks instead of `cairn.pwa.extraApps.<name>`.
 - [ ] Verify `mimeTypes` and `actions` are correctly populated in the new structure.
 
 ### 6. Refactor `pkgs/pwa-apps`

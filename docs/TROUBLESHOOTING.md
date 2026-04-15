@@ -16,7 +16,7 @@ error: getting attributes of path '/nix/store/...-gnu-config-...': No such file 
 ### Solutions (Try in Order)
 
 #### 1. Remove FlakeHub References
-Already done in axios as of commit `0728065`. Verify your config:
+Already done in cairn as of commit `0728065`. Verify your config:
 
 ```bash
 cd ~/my-nixos-config
@@ -26,7 +26,7 @@ cat flake.lock | jq '[.nodes | to_entries[] | select(.value.locked.url != null a
 
 If not zero:
 ```bash
-nix flake lock --override-input axios /path/to/axios
+nix flake lock --override-input cairn /path/to/cairn
 ```
 
 #### 2. Clean Nix Store
@@ -81,7 +81,7 @@ If Determinate Nix itself is causing issues:
 ### Pin Stable Versions
 For critical systems:
 ```nix
-inputs.axios.url = "github:kcalvelli/axios/KNOWN-GOOD-COMMIT";
+inputs.cairn.url = "github:kcalvelli/cairn/KNOWN-GOOD-COMMIT";
 ```
 
 ### Monitor Store Health
@@ -97,7 +97,7 @@ nix-collect-garbage --delete-older-than 30d
 ## Known Issues
 
 ### FlakeHub After Account Expiration
-- **Status:** RESOLVED (removed from axios)
+- **Status:** RESOLVED (removed from cairn)
 - **Commit:** 0728065
 - **Date:** 2025-10-29
 
@@ -111,9 +111,9 @@ nix-collect-garbage --delete-older-than 30d
 
 - **Status:** KNOWN LIMITATION
 - **Affects:** DMS-provided keybindings (Mod+Space, Mod+V, media keys, etc.)
-- **Does NOT affect:** axiOS keybindings (Mod+B, Mod+T, etc.) or Niri window management keys
+- **Does NOT affect:** Cairn keybindings (Mod+B, Mod+T, etc.) or Niri window management keys
 
-**Symptom:** After running `rebuild-switch` (or `nixos-rebuild switch`), DMS keybindings like the application launcher (Mod+Space), clipboard manager (Mod+V), and media keys stop responding. axiOS and Niri keybindings continue to work normally.
+**Symptom:** After running `rebuild-switch` (or `nixos-rebuild switch`), DMS keybindings like the application launcher (Mod+Space), clipboard manager (Mod+V), and media keys stop responding. Cairn and Niri keybindings continue to work normally.
 
 **Cause:** DMS keybindings work by invoking `dms ipc call ...`, which discovers the running DMS instance via a quickshell IPC socket keyed to the nix store path. After a rebuild, the `dms` CLI updates to a new store path but the running DMS instance is still registered under the old path. The CLI can't find the running instance:
 
@@ -125,7 +125,7 @@ No running instances for "/nix/store/<new-hash>-dms-shell-.../share/quickshell/d
 
 ## Hardware-Specific Issues
 
-axiOS provides generic hardware support (CPU/GPU types, form factors), but vendor-specific quirks belong in your downstream configuration via the `extraConfig` section.
+Cairn provides generic hardware support (CPU/GPU types, form factors), but vendor-specific quirks belong in your downstream configuration via the `extraConfig` section.
 
 ### Common Hardware Quirk Patterns
 
@@ -258,8 +258,8 @@ sudo rmmod problematic-module
 
 **Don't add quirks for**:
 - Things that work automatically (NixOS detects most hardware)
-- Generic features (CPU/GPU type handled by axios hardware.cpu/hardware.gpu)
-- Features provided by axios modules (desktop, laptop, graphics modules)
+- Generic features (CPU/GPU type handled by cairn hardware.cpu/hardware.gpu)
+- Features provided by cairn modules (desktop, laptop, graphics modules)
 
 **Only add quirks for**:
 - Vendor-specific hardware needing special configuration
@@ -268,7 +268,7 @@ sudo rmmod problematic-module
 
 ## GStreamer Configuration
 
-axiOS no longer includes GStreamer by default. The multimedia stack now uses mpv with FFmpeg for decoding and PipeWire for audio, which is more reliable on NixOS.
+Cairn no longer includes GStreamer by default. The multimedia stack now uses mpv with FFmpeg for decoding and PipeWire for audio, which is more reliable on NixOS.
 
 ### Why GStreamer Was Removed
 
@@ -313,7 +313,7 @@ extraConfig = {
 
 If issues persist after trying all solutions:
 
-1. Check axios repository issues: https://github.com/kcalvelli/axios/issues
+1. Check cairn repository issues: https://github.com/kcalvelli/cairn/issues
 2. Document your error with:
    - Full error message
    - Output of `nix --version`

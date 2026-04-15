@@ -4,7 +4,7 @@
 
 ## Overview
 
-Enable tag-based Tailscale identity for axios server machines, with automatic Tailscale Services registration for unique DNS names per service. Solves PWA icon/app_id problem on Wayland.
+Enable tag-based Tailscale identity for cairn server machines, with automatic Tailscale Services registration for unique DNS names per service. Solves PWA icon/app_id problem on Wayland.
 
 ---
 
@@ -50,18 +50,18 @@ Enable tag-based Tailscale identity for axios server machines, with automatic Ta
 
 ## Phase 3: Service Auto-Registration
 
-### Task 3.1: Update PIM Module (axios-ai-mail)
-- [ ] Server role registers `axios-mail` service
+### Task 3.1: Update PIM Module (cairn-mail)
+- [ ] Server role registers `cairn-mail` service
 - [ ] Remove legacy tailscaleServe options (deprecate)
 - [ ] Update port configuration
 
-### Task 3.2: Update AI WebUI Module (axios-ai-chat)
-- [ ] Server role registers `axios-chat` service
+### Task 3.2: Update AI WebUI Module (cairn-ai-chat)
+- [ ] Server role registers `cairn-chat` service
 - [ ] Remove legacy tailscaleServe options (deprecate)
 - [ ] Update port configuration
 
 ### Task 3.3: Update AI Ollama Module
-- [ ] Server role registers `axios-ollama` service
+- [ ] Server role registers `cairn-ollama` service
 - [ ] Remove legacy tailscaleServe options (deprecate)
 - [ ] Update port configuration
 
@@ -176,7 +176,7 @@ Enable tag-based Tailscale identity for axios server machines, with automatic Ta
 
 When implementing, user must:
 
-1. [ ] Create Tailscale auth key with `tag:axios-server`
+1. [ ] Create Tailscale auth key with `tag:cairn-server`
 2. [ ] Configure ACLs in Tailscale admin
 3. [ ] Create agenix secret for auth key
 4. [ ] Update edge.nix with new config
@@ -200,9 +200,9 @@ When implementing, user must:
 |------|---------|
 | `modules/networking/default.nix` | Import tailscale.nix |
 | `modules/default.nix` | Register tailscale module |
-| `modules/pim/default.nix` | Register axios-mail service |
-| `modules/ai/webui.nix` | Register axios-chat service |
-| `modules/ai/default.nix` | Register axios-ollama service |
+| `modules/pim/default.nix` | Register cairn-mail service |
+| `modules/ai/webui.nix` | Register cairn-chat service |
+| `modules/ai/default.nix` | Register cairn-ollama service |
 | `home/pim/default.nix` | Service-based PWA URL |
 | `home/ai/webui.nix` | Service-based PWA URL |
 | `docs/MODULE_REFERENCE.md` | Document new options |
@@ -217,17 +217,17 @@ None - ready to implement.
 ## Blocks
 
 - Open WebUI testing (icons won't work correctly until this is done)
-- Future axios services (all should use this pattern)
+- Future cairn services (all should use this pattern)
 
 ---
 
 ## Open Questions
 
-1. **Service naming convention**: `axios-mail` vs `mail` vs `axios-ai-mail`?
-   - Proposal: Use `axios-` prefix to avoid conflicts
+1. **Service naming convention**: `cairn-mail` vs `mail` vs `cairn-mail`?
+   - Proposal: Use `cairn-` prefix to avoid conflicts
 
 2. **Default HTTPS port**: 443 for all services, or unique ports?
    - Proposal: All services on 443 (cleaner URLs)
 
 3. **Immich integration**: Should Immich also use this pattern?
-   - Proposal: Yes, add `axios-photos` service
+   - Proposal: Yes, add `cairn-photos` service

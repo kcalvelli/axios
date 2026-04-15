@@ -7,18 +7,18 @@
   ...
 }:
 let
-  immichCfg = osConfig.axios.immich or { };
+  immichCfg = osConfig.cairn.immich or { };
   isEnabled = immichCfg.enable or false;
   pwaEnabled = immichCfg.pwa.enable or false;
   tailnetDomain = immichCfg.pwa.tailnetDomain or "";
-  pwaUrl = "https://axios-immich.${tailnetDomain}/";
+  pwaUrl = "https://cairn-immich.${tailnetDomain}/";
 in
 {
   config = lib.mkIf (isEnabled && pwaEnabled) {
-    axios.pwa.apps.axios-immich = {
-      name = "Axios Photos";
+    cairn.pwa.apps.cairn-immich = {
+      name = "Cairn Photos";
       url = pwaUrl;
-      icon = "axios-immich";
+      icon = "cairn-immich";
       categories = [
         "Graphics"
         "Photography"

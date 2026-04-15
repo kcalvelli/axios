@@ -15,7 +15,7 @@ mkShell {
   # Neovim IDE integration - enables Rust LSP and debugging
   env = [
     {
-      name = "AXIOS_NVIM_LANGUAGES";
+      name = "CAIRN_NVIM_LANGUAGES";
       value = "rust,toml";
     }
   ];

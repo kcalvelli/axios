@@ -6,7 +6,7 @@ The bluetooth module SHALL disable bluetoothd's HFP/HSP profile registration so 
 
 #### Scenario: Bluetooth headset connects on a standard desktop
 
-- **WHEN** bluetooth is enabled (default axiOS configuration)
+- **WHEN** bluetooth is enabled (default Cairn configuration)
 - **AND** a user pairs a Bluetooth headset
 - **THEN** `hardware.bluetooth.settings.General.Disable` SHALL include `"Headset"`
 - **AND** PipeWire's WirePlumber bluez backend SHALL be the sole owner of HFP/HSP profiles
@@ -31,19 +31,19 @@ The bluetooth module SHALL expose an option to disable WirePlumber's bluez seat 
 
 #### Scenario: Default configuration on a desktop machine
 
-- **WHEN** `axios.system.bluetooth.disableSeatMonitoring` is `false` (default)
+- **WHEN** `cairn.system.bluetooth.disableSeatMonitoring` is `false` (default)
 - **THEN** no WirePlumber bluez seat monitoring override SHALL be generated
 - **AND** WirePlumber SHALL use its default seat monitoring behavior
 
 #### Scenario: Headless machine enables seat monitoring override
 
-- **WHEN** `axios.system.bluetooth.disableSeatMonitoring` is `true`
+- **WHEN** `cairn.system.bluetooth.disableSeatMonitoring` is `true`
 - **THEN** a WirePlumber configuration fragment SHALL be added via `services.pipewire.wireplumber.configPackages`
 - **AND** the fragment SHALL set `monitor.bluez.properties` with `bluez5.seat-monitoring = false` (or equivalent WirePlumber 0.4+ syntax)
 - **AND** Bluetooth audio connections SHALL succeed without an active logind seat
 
 #### Scenario: Desktop user accidentally enables seat monitoring override
 
-- **WHEN** `axios.system.bluetooth.disableSeatMonitoring` is `true` on a machine with an active logind seat
+- **WHEN** `cairn.system.bluetooth.disableSeatMonitoring` is `true` on a machine with an active logind seat
 - **THEN** Bluetooth audio SHALL still function normally
 - **AND** the only effect SHALL be that WirePlumber skips the seat check (no negative impact on seated sessions)

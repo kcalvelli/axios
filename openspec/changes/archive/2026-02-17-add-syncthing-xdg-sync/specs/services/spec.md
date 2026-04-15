@@ -2,7 +2,7 @@
 
 ### Requirement: File Synchronization
 
-The system SHALL provide peer-to-peer file synchronization for XDG directories across axiOS hosts using Syncthing over Tailscale.
+The system SHALL provide peer-to-peer file synchronization for XDG directories across Cairn hosts using Syncthing over Tailscale.
 
 #### Scenario: File synchronization components
 

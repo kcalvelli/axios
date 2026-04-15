@@ -6,7 +6,7 @@
   ...
 }:
 let
-  userCfg = config.axios.user;
+  userCfg = config.cairn.user;
   # Get user's full name from system user description, fallback to username
   userName = osConfig.users.users.${config.home.username}.description or config.home.username;
   userEmail = userCfg.email;
@@ -18,7 +18,7 @@ in
         enable = true;
         # User name and email are automatically configured from:
         # - Full name: users.users.${username}.description (system account)
-        # - Email: axios.user.email (home-manager)
+        # - Email: cairn.user.email (home-manager)
         settings = lib.mkMerge [
           {
             core.pager = "${pkgs.delta}/bin/delta";
@@ -51,7 +51,7 @@ in
             };
           }
 
-          # Automatically configure git user from system account + axios.user.email
+          # Automatically configure git user from system account + cairn.user.email
           (lib.mkIf (userEmail != "") {
             user = {
               name = userName;

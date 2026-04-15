@@ -1,13 +1,13 @@
 ## Context
 
-axiOS hosts need to sync common XDG directories (Documents, Music, Pictures, Videos, etc.) across installations. The current mechanism uses rclone bisync to Google Drive (`home/desktop/gdrive-sync.nix`), which is fragile and dependent on Google's API stability. A previous attempt with Syncthing failed due to NAT traversal and relay discovery issues. All axiOS hosts already run Tailscale via the `modules/networking/tailscale.nix` module, providing a reliable mesh network with stable IPs that eliminates Syncthing's connectivity problems entirely.
+Cairn hosts need to sync common XDG directories (Documents, Music, Pictures, Videos, etc.) across installations. The current mechanism uses rclone bisync to Google Drive (`home/desktop/gdrive-sync.nix`), which is fragile and dependent on Google's API stability. A previous attempt with Syncthing failed due to NAT traversal and relay discovery issues. All Cairn hosts already run Tailscale via the `modules/networking/tailscale.nix` module, providing a reliable mesh network with stable IPs that eliminates Syncthing's connectivity problems entirely.
 
-NixOS ships a built-in `services.syncthing` module that manages the Syncthing daemon, including declarative folder and device configuration via `services.syncthing.settings`. The axiOS module wraps this to provide XDG-aware folder semantics and Tailscale-only transport defaults.
+NixOS ships a built-in `services.syncthing` module that manages the Syncthing daemon, including declarative folder and device configuration via `services.syncthing.settings`. The Cairn module wraps this to provide XDG-aware folder semantics and Tailscale-only transport defaults.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Declarative Syncthing configuration via an `axios.syncthing` NixOS module
+- Declarative Syncthing configuration via an `cairn.syncthing` NixOS module
 - XDG-semantic folder names (e.g., `"documents"`, `"pictures"`) that resolve to correct user paths
 - Tailscale-only transport: no global discovery, no relaying, no NAT traversal
 - Per-host selective sync: each host declares which XDG dirs it participates in
@@ -26,9 +26,9 @@ NixOS ships a built-in `services.syncthing` module that manages the Syncthing da
 
 ### Decision 1: NixOS module, not home-manager module
 
-**Choice**: Implement as a NixOS module at `modules/syncthing/default.nix` using the `axios.syncthing` namespace.
+**Choice**: Implement as a NixOS module at `modules/syncthing/default.nix` using the `cairn.syncthing` namespace.
 
-**Rationale**: NixOS's `services.syncthing` is a system-level service module. While Syncthing runs as a specific user, the NixOS module handles user/group configuration, the systemd service, and firewall rules. This matches the pattern used by `axios.immich` (system module with `axios.*` namespace). A home-manager module would be insufficient since it can't manage system services or firewall rules.
+**Rationale**: NixOS's `services.syncthing` is a system-level service module. While Syncthing runs as a specific user, the NixOS module handles user/group configuration, the systemd service, and firewall rules. This matches the pattern used by `cairn.immich` (system module with `cairn.*` namespace). A home-manager module would be insufficient since it can't manage system services or firewall rules.
 
 **Alternative considered**: Home-manager-only module using `systemd.user.services`. Rejected because NixOS already provides a well-tested `services.syncthing` module, and we'd lose firewall integration and system service management.
 
@@ -61,7 +61,7 @@ NixOS ships a built-in `services.syncthing` module that manages the Syncthing da
 
 Devices are addressed by Tailscale MagicDNS names (e.g., `tcp://pangolin.<tailnet>.ts.net:22000`). The device attr name is used as the Tailscale machine name by default, with a `tailscaleName` override for cases where they differ. The module reads `config.networking.tailscale.domain` to construct the full FQDN. An `addresses` option provides a full escape hatch for non-standard scenarios.
 
-**Rationale**: MagicDNS names are human-readable and stable. Using them instead of raw IPs makes configs self-documenting and eliminates the need to look up CGNAT addresses. All axiOS hosts run Tailscale with MagicDNS enabled, so hostname resolution is guaranteed. This also solves the (already unlikely) edge case of Tailscale IP reassignment after device re-registration.
+**Rationale**: MagicDNS names are human-readable and stable. Using them instead of raw IPs makes configs self-documenting and eliminates the need to look up CGNAT addresses. All Cairn hosts run Tailscale with MagicDNS enabled, so hostname resolution is guaranteed. This also solves the (already unlikely) edge case of Tailscale IP reassignment after device re-registration.
 
 **Alternative considered**: Raw Tailscale IPs (e.g., `tcp://100.64.x.y:22000`). Rejected because IPs are harder to read, require manual lookup, and offer no advantage over MagicDNS on a tailnet where all devices have DNS names.
 
@@ -73,9 +73,9 @@ Devices are addressed by Tailscale MagicDNS names (e.g., `tcp://pangolin.<tailne
 
 ### Decision 5: Single-user per host
 
-**Choice**: The module configures one Syncthing instance per host, running as a single user specified via `axios.syncthing.user`. XDG folder paths are resolved relative to that user's home directory.
+**Choice**: The module configures one Syncthing instance per host, running as a single user specified via `cairn.syncthing.user`. XDG folder paths are resolved relative to that user's home directory.
 
-**Rationale**: Syncthing's NixOS module runs a single daemon per host. Multi-user Syncthing would require multiple daemon instances and significantly more complexity. The typical axiOS deployment has one primary user per host. Users who need multi-user sync can extend with raw `services.syncthing` configuration.
+**Rationale**: Syncthing's NixOS module runs a single daemon per host. Multi-user Syncthing would require multiple daemon instances and significantly more complexity. The typical Cairn deployment has one primary user per host. Users who need multi-user sync can extend with raw `services.syncthing` configuration.
 
 ### Decision 6: Module registration as flagged module
 
@@ -91,7 +91,7 @@ Devices are addressed by Tailscale MagicDNS names (e.g., `tcp://pangolin.<tailne
 
 - **[Trade-off] Device ID bootstrap** → Users must obtain each device's Syncthing device ID before full config is possible. The ID is generated on first Syncthing start and can be retrieved via `syncthing --device-id` (no GUI needed). Bootstrap workflow: enable module → rebuild → grab ID from CLI → add IDs to config → rebuild again. This is a one-time process per device.
 
-- **[Trade-off] Single user limitation** → Only one user's XDG dirs can be synced per host. Acceptable for the typical axiOS use case (single primary user per machine).
+- **[Trade-off] Single user limitation** → Only one user's XDG dirs can be synced per host. Acceptable for the typical Cairn use case (single primary user per machine).
 
 ## Migration Plan
 

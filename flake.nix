@@ -1,5 +1,5 @@
 {
-  description = "axiOS - A modular NixOS distribution";
+  description = "Cairn - A modular NixOS distribution";
 
   inputs = {
 
@@ -78,8 +78,8 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    axios-monitor = {
-      url = "github:kcalvelli/axios-monitor";
+    cairn-monitor = {
+      url = "github:kcalvelli/cairn-monitor";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -129,14 +129,14 @@
     };
 
     # AI-powered email management
-    axios-ai-mail = {
-      url = "github:kcalvelli/axios-ai-mail";
+    cairn-mail = {
+      url = "github:kcalvelli/cairn-mail";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # CalDAV/CardDAV sync with MCP server for calendar/contacts access
-    axios-dav = {
-      url = "github:kcalvelli/axios-dav";
+    cairn-dav = {
+      url = "github:kcalvelli/cairn-dav";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -181,12 +181,12 @@
               }
             );
 
-            # Apps - exposed as `nix run github:kcalvelli/axios#<app>`
+            # Apps - exposed as `nix run github:kcalvelli/cairn#<app>`
             apps = {
               init = {
                 type = "app";
                 program = toString (
-                  pkgs.writeShellScript "axios-init" ''
+                  pkgs.writeShellScript "cairn-init" ''
                     export PATH="${
                       pkgs.lib.makeBinPath [
                         pkgs.bash
@@ -202,11 +202,11 @@
                         pkgs.gh
                       ]
                     }:$PATH"
-                    export AXIOS_TEMPLATE_DIR="${./scripts/templates}"
+                    export CAIRN_TEMPLATE_DIR="${./scripts/templates}"
                     exec bash ${./scripts/init-config.sh} "$@"
                   ''
                 );
-                meta.description = "Initialize or extend an axiOS configuration";
+                meta.description = "Initialize or extend an Cairn configuration";
               };
 
               download-llama-models = {
@@ -222,7 +222,7 @@
               add-pwa = {
                 type = "app";
                 program = toString (
-                  pkgs.writeShellScript "axios-add-pwa" ''
+                  pkgs.writeShellScript "cairn-add-pwa" ''
                     export PATH="${
                       pkgs.lib.makeBinPath [
                         pkgs.bash
@@ -245,7 +245,7 @@
               fetch-pwa-icon = {
                 type = "app";
                 program = toString (
-                  pkgs.writeShellScript "axios-fetch-pwa-icon" ''
+                  pkgs.writeShellScript "cairn-fetch-pwa-icon" ''
                     export PATH="${
                       pkgs.lib.makeBinPath [
                         pkgs.bash
@@ -281,7 +281,7 @@
           lib = nixpkgs.lib;
         };
 
-        # axiOS installer ISO — boots into a live Niri + DMS session
+        # Cairn installer ISO — boots into a live Niri + DMS session
         flake.nixosConfigurations.iso = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit inputs; };
@@ -293,7 +293,7 @@
             self.nixosModules.installer
             {
               nixpkgs.overlays = [ self.overlays.default ];
-              axios.installer.enable = true;
+              cairn.installer.enable = true;
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
             }

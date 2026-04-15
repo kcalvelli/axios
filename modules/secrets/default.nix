@@ -37,7 +37,7 @@ in
         example = lib.literalExpression "./secrets";
         description = ''
           Optional path to a directory containing .age secret files.
-          If set, axios will automatically register all .age files found
+          If set, cairn will automatically register all .age files found
           in this directory as secrets, making them available at
           /run/agenix/<filename> (without the .age extension).
 

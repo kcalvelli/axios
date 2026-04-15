@@ -19,7 +19,7 @@ Defines the procedures for system installation, automated validation, and contin
 - **Implementation**: `.github/workflows/`
 
 ### Deployment Patterns
-- **Library Model**: axiOS is exported as a flake library. Downstream hosts import modules and call `mkSystem`.
+- **Library Model**: Cairn is exported as a flake library. Downstream hosts import modules and call `mkSystem`.
 - **Secrets Management**:
     - `agenix`: System-level secrets (SSH keys, config files).
     - Session Variables: AI API keys (Brave, GitHub).

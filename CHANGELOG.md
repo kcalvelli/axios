@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Axios will be documented in this file.
+All notable changes to Cairn will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-DD format).
@@ -8,7 +8,7 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 ## [Unreleased]
 
 ### ⚠️ BREAKING CHANGES
-- **Replace Ollama with llama.cpp**: Local inference now uses `llama-server` from llama.cpp instead of Ollama. GGUF models are loaded directly — no model pull system. Options changed: `models` → `model` (single GGUF path), `keepAlive` and `rocmOverrideGfx` removed, new `contextSize`, `gpuLayers`, `extraArgs` options. Tailscale service renamed `axios-ollama` → `axios-llama`. Client env var `OLLAMA_HOST` → `LLAMA_API_URL`.
+- **Replace Ollama with llama.cpp**: Local inference now uses `llama-server` from llama.cpp instead of Ollama. GGUF models are loaded directly — no model pull system. Options changed: `models` → `model` (single GGUF path), `keepAlive` and `rocmOverrideGfx` removed, new `contextSize`, `gpuLayers`, `extraArgs` options. Tailscale service renamed `cairn-ollama` → `cairn-llama`. Client env var `OLLAMA_HOST` → `LLAMA_API_URL`.
 
 ## [v2026.01.13] - 2026-01-13
 
@@ -49,12 +49,12 @@ Major release with 329 commits over 33 days. Includes new PIM and C64 modules, e
 #### AI & MCP Enhancements
 
 - **System Prompts for AI Agents**
-  - Comprehensive axios system prompt (auto-injected into Claude Code)
+  - Comprehensive cairn system prompt (auto-injected into Claude Code)
   - MCP server usage guides for AI agents
   - Dynamic tool discovery with mcp-cli documentation
   - Per-tool enablement (claude.enable, gemini.enable)
   - Unified AI coding experience
-  - Custom instructions support via `~/.config/ai/prompts/axios.md`
+  - Custom instructions support via `~/.config/ai/prompts/cairn.md`
   - Auto-injection into `~/.claude.json` during home-manager switch
 
 - **MCP Examples**
@@ -67,7 +67,7 @@ Major release with 329 commits over 33 days. Includes new PIM and C64 modules, e
 - **Enhanced PWA Workflow**
   - `add-pwa` script now auto-updates configuration
   - Auto-format with `nix fmt` after insertion
-  - Smart insertion detection for axios project structure
+  - Smart insertion detection for cairn project structure
   - Auto-sanitize manifest categories to Freedesktop standards
   - Improved icon fetching with better quality and transparency handling
   - 20+ PWA icons updated (Google suite, productivity apps)
@@ -213,7 +213,7 @@ environment.sessionVariables = {
 - **Migration Guide**
   - Added comprehensive migration guide from `diskConfigPath` to `hardwareConfigPath`
   - Documented backward compatibility (both options supported)
-  - Clarified UEFI-only requirement for axiOS (BIOS/MBR not supported)
+  - Clarified UEFI-only requirement for Cairn (BIOS/MBR not supported)
   - Updated all examples and templates to use new `hardwareConfigPath`
 
 ### Backward Compatibility
@@ -290,7 +290,7 @@ environment.sessionVariables = {
   - Updated to DMS v0.6.2 with new NixOS module architecture
   - Removed dms-cli input (DMS now packages dmsCli directly)
   - Moved DMS NixOS modules to baseModules in lib/default.nix
-  - Auto-detect greeter configHome from axios.user.name
+  - Auto-detect greeter configHome from cairn.user.name
   - Removed 9 redundant packages now provided by DMS:
     - wl-clipboard, cava, hyprpicker, matugen, qt6ct
     - Fonts: fira-code, inter, material-symbols
@@ -326,7 +326,7 @@ environment.sessionVariables = {
 ### Changed
 - **Module Architecture Refactoring**
 - Implemented CODE_REVIEW.md recommendations for home module architecture
-- Added axios.system.enable option with mkIf guards for consistency
+- Added cairn.system.enable option with mkIf guards for consistency
 - Moved browser and calendar modules to desktop.enable conditional loading
 - Fixed AI module to follow conditional import pattern at system level
 - Cleaned up base profile to include only core tools (security, terminal)
@@ -418,7 +418,7 @@ environment.sessionVariables = {
 - Restored required `config`, `osConfig`, and `inputs` to secrets module
 - Fixed duplicate gnome-keyring.enable definition in desktop module
 - Corrected import paths in profile modules (./profiles/base.nix → ./base.nix)
-- Added required `axios.system.timeZone` to example configurations
+- Added required `cairn.system.timeZone` to example configurations
 - Fixed init app missing meta.description attribute
 
 ### CI/CD
@@ -433,7 +433,7 @@ environment.sessionVariables = {
 
 ## [2024-XX-XX] - Initial Release
 
-Initial release of Axios as a NixOS library.
+Initial release of Cairn as a NixOS library.
 
 ### Added
 - Core library API with `mkSystem` function
@@ -442,7 +442,7 @@ Initial release of Axios as a NixOS library.
 - Hardware support for AMD/Intel CPUs, AMD/Nvidia GPUs, System76/MSI hardware
 - Niri compositor with DankMaterialShell integration
 - AI module with Ollama, OpenWebUI, and Claude Code support
-- Interactive config generator (`nix run github:kcalvelli/axios#init`)
+- Interactive config generator (`nix run github:kcalvelli/cairn#init`)
 - Comprehensive documentation and examples
 - CI/CD with automated testing and binary cache
 
@@ -450,7 +450,7 @@ Initial release of Axios as a NixOS library.
 
 ## Versioning Policy
 
-Axios follows [Calendar Versioning (CalVer)](https://calver.org/) using **YYYY-MM-DD** format.
+Cairn follows [Calendar Versioning (CalVer)](https://calver.org/) using **YYYY-MM-DD** format.
 
 ### Version Format
 
@@ -460,7 +460,7 @@ Releases are dated by when they were released:
 
 ### Release Cadence
 
-Axios doesn't follow a fixed schedule. New releases when:
+Cairn doesn't follow a fixed schedule. New releases when:
 - Significant features are added
 - Important bug fixes accumulate
 - Breaking changes are necessary (rare)

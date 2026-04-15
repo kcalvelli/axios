@@ -2,13 +2,13 @@
 
 ## Summary
 
-Add text-to-speech capabilities to axios, enabling AI agents to speak responses and providing accessibility features for users.
+Add text-to-speech capabilities to cairn, enabling AI agents to speak responses and providing accessibility features for users.
 
 ## Motivation
 
 ### Problem Statement
 
-axios currently has speech-to-text (whisper-cpp) but no text-to-speech. This limits:
+cairn currently has speech-to-text (whisper-cpp) but no text-to-speech. This limits:
 
 1. **Accessibility**: Users with visual impairments can't have responses read aloud
 2. **Hands-free workflows**: Can't listen to AI responses while doing other tasks
@@ -78,11 +78,11 @@ config = lib.mkIf cfg.tts.enable {
 
 ### CLI Wrapper
 
-Create a simple `axios-speak` command:
+Create a simple `cairn-speak` command:
 
 ```bash
 #!/usr/bin/env bash
-# axios-speak - Speak text using configured TTS engine
+# cairn-speak - Speak text using configured TTS engine
 
 TEXT="$*"
 if [ -z "$TEXT" ]; then
@@ -97,8 +97,8 @@ echo "$TEXT" | piper \
 
 Usage:
 ```bash
-echo "Hello, world" | axios-speak
-axios-speak "The build completed successfully"
+echo "Hello, world" | cairn-speak
+cairn-speak "The build completed successfully"
 ```
 
 ### MCP Tool (Optional)
@@ -152,7 +152,7 @@ def speak(text: str, voice: str = None, speed: float = 1.0) -> dict:
 # Speak important notifications
 services.dunst.settings.global.script = ''
   case "$DUNST_URGENCY" in
-    CRITICAL) axios-speak "$DUNST_SUMMARY: $DUNST_BODY" ;;
+    CRITICAL) cairn-speak "$DUNST_SUMMARY: $DUNST_BODY" ;;
   esac
 '';
 ```
@@ -161,7 +161,7 @@ services.dunst.settings.global.script = ''
 
 ```bash
 # Speak last AI response
-alias speak-last='tail -1 ~/.cache/claude-code/last-response.txt | axios-speak'
+alias speak-last='tail -1 ~/.cache/claude-code/last-response.txt | cairn-speak'
 ```
 
 #### 3. Terminal Bell Replacement
@@ -169,7 +169,7 @@ alias speak-last='tail -1 ~/.cache/claude-code/last-response.txt | axios-speak'
 ```bash
 # In .bashrc/.zshrc
 command_not_found_handler() {
-  axios-speak "Command not found: $1"
+  cairn-speak "Command not found: $1"
 }
 ```
 
@@ -266,7 +266,7 @@ Users can install additional voices from: https://github.com/rhasspy/piper/relea
 ## Testing Requirements
 
 - [ ] piper-tts installed and working
-- [ ] axios-speak command works
+- [ ] cairn-speak command works
 - [ ] Voice model downloads correctly
 - [ ] Speed adjustment works
 - [ ] MCP tool speaks (when enabled)

@@ -11,7 +11,7 @@
 - [x] 2.4 Add networking-conditional plugin: `tailscale` (when `osConfig.services.tailscale.enable or false`)
 - [x] 2.5 Add virtualisation-conditional plugin: `dockerManager` (when `osConfig.virt.enable or false`)
 - [x] 2.6 Add laptop-conditional plugins: `dankBatteryAlerts`, `powerUsagePlugin` (when `osConfig.hardware.laptop.enable or false`)
-- [x] 2.7 Explicitly disable `nixMonitor` to prevent conflict with axios-monitor
+- [x] 2.7 Explicitly disable `nixMonitor` to prevent conflict with cairn-monitor
 
 ## 3. Normie Profile Integration
 

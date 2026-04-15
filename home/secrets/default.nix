@@ -7,7 +7,7 @@
 }:
 
 let
-  cfg = config.axios.secrets;
+  cfg = config.cairn.secrets;
   # Check if secrets are enabled at system level (NixOS option, not renamed)
   systemSecretsEnabled = osConfig.secrets.enable or false;
 in
@@ -16,7 +16,7 @@ in
     inputs.agenix.homeManagerModules.default
   ];
 
-  options.axios.secrets = {
+  options.cairn.secrets = {
     enable = lib.mkEnableOption "age-encrypted secrets management for home-manager" // {
       default = systemSecretsEnabled;
     };
@@ -39,7 +39,7 @@ in
       example = lib.literalExpression "./secrets";
       description = ''
         Optional path to a directory containing .age secret files for this user.
-        If set, axios will automatically register all .age files found
+        If set, cairn will automatically register all .age files found
         in this directory as secrets, making them available at
         ~/.config/agenix/<filename> (without the .age extension).
 

@@ -2,7 +2,7 @@
 
 ## Summary
 
-Blanket proposal for tracking the addition of new MCP servers to axios's AI configuration. This is a living document that tracks individual MCP server integrations without requiring separate proposals for each.
+Blanket proposal for tracking the addition of new MCP servers to cairn's AI configuration. This is a living document that tracks individual MCP server integrations without requiring separate proposals for each.
 
 ## Motivation
 
@@ -15,7 +15,7 @@ This proposal serves as a single tracking location for all such additions.
 
 ## Scope
 
-This proposal covers **adding existing MCP servers** to axios configuration. It does NOT cover:
+This proposal covers **adding existing MCP servers** to cairn configuration. It does NOT cover:
 - Building new MCP servers (use separate proposals like `mcp-calendar`, `mcp-screenshot`)
 - Major MCP infrastructure changes
 - Changes to the mcp-servers-nix library
@@ -35,7 +35,7 @@ When adding a new MCP server:
 
 | Server | Status | Date | Notes |
 |--------|--------|------|-------|
-| axios-ai-mail | Complete | 2025-01-24 | Email management via axios-ai-mail MCP mode |
+| cairn-mail | Complete | 2025-01-24 | Email management via cairn-mail MCP mode |
 
 ## References
 

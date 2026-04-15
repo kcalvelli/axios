@@ -1,4 +1,4 @@
-# axiOS Library Functions
+# Cairn Library Functions
 # These functions can be used by downstream flakes to build NixOS configurations
 {
   inputs,
@@ -41,7 +41,7 @@ let
             {
               assertion = hostCfg ? hostname;
               message = ''
-                axiOS configuration error: 'hostname' is required but not specified.
+                Cairn configuration error: 'hostname' is required but not specified.
 
                 Add to your configuration:
                   hostname = "myhostname";
@@ -57,7 +57,7 @@ let
                   "intel"
                 ];
               message = ''
-                axiOS configuration error: Invalid hardware.cpu value: "${lib.generators.toPretty { } cpu}"
+                Cairn configuration error: Invalid hardware.cpu value: "${lib.generators.toPretty { } cpu}"
 
                 Valid options: "amd", "intel", or null
                 Note: Values are case-sensitive (use lowercase).
@@ -74,7 +74,7 @@ let
                   "intel"
                 ];
               message = ''
-                axiOS configuration error: Invalid hardware.gpu value: "${lib.generators.toPretty { } gpu}"
+                Cairn configuration error: Invalid hardware.gpu value: "${lib.generators.toPretty { } gpu}"
 
                 Valid options: "amd", "nvidia", "intel", or null
               '';
@@ -89,7 +89,7 @@ let
                   "laptop"
                 ];
               message = ''
-                axiOS configuration error: Invalid formFactor value: "${lib.generators.toPretty { } formFactor}"
+                Cairn configuration error: Invalid formFactor value: "${lib.generators.toPretty { } formFactor}"
 
                 Valid options: "desktop", "laptop"
               '';
@@ -104,7 +104,7 @@ let
                   "normie"
                 ];
               message = ''
-                axiOS configuration error: Invalid homeProfile value: "${lib.generators.toPretty { } homeProfile}"
+                Cairn configuration error: Invalid homeProfile value: "${lib.generators.toPretty { } homeProfile}"
 
                 Valid options: "standard", "normie"
               '';
@@ -114,7 +114,7 @@ let
             {
               assertion = !isLaptop || formFactor == "laptop";
               message = ''
-                axiOS configuration error: Inconsistent laptop configuration.
+                Cairn configuration error: Inconsistent laptop configuration.
 
                 You have:
                   hardware.isLaptop = true
@@ -130,7 +130,7 @@ let
             {
               assertion = formFactor != "desktop" || !isLaptop;
               message = ''
-                axiOS configuration error: Inconsistent desktop configuration.
+                Cairn configuration error: Inconsistent desktop configuration.
 
                 You have:
                   formFactor = "desktop"
@@ -141,18 +141,18 @@ let
               '';
             }
 
-            # Vendor constraint: axiOS only supports System76 laptops
+            # Vendor constraint: Cairn only supports System76 laptops
             {
               assertion = vendor != "system76" || formFactor == "laptop";
               message = ''
-                axiOS configuration error: System76 vendor requires laptop form factor.
+                Cairn configuration error: System76 vendor requires laptop form factor.
 
                 You have:
                   hardware.vendor = "system76"
                   formFactor = "${formFactor}"
 
-                axiOS currently only supports System76 laptop configurations.
-                While System76 does make desktops (Thelio), axiOS doesn't have
+                Cairn currently only supports System76 laptop configurations.
+                While System76 does make desktops (Thelio), Cairn doesn't have
                 hardware modules for them yet.
 
                 Fix by setting:
@@ -166,7 +166,7 @@ let
             {
               assertion = vendor != "msi" || formFactor == "desktop";
               message = ''
-                axiOS configuration error: MSI vendor requires desktop form factor.
+                Cairn configuration error: MSI vendor requires desktop form factor.
 
                 You have:
                   hardware.vendor = "msi"
@@ -183,7 +183,7 @@ let
             {
               assertion = !(modules.ai or false) || (modules.networking or true);
               message = ''
-                axiOS configuration error: AI module requires networking module.
+                Cairn configuration error: AI module requires networking module.
 
                 You have:
                   modules.ai = true
@@ -202,7 +202,7 @@ let
             {
               assertion = !(modules.gaming or false) || (modules.graphics or false);
               message = ''
-                axiOS configuration error: Gaming module requires graphics module.
+                Cairn configuration error: Gaming module requires graphics module.
 
                 You have:
                   modules.gaming = true
@@ -217,7 +217,7 @@ let
             {
               assertion = !(modules.desktop or false) || (modules.networking or true);
               message = ''
-                axiOS configuration error: Desktop module requires networking module.
+                Cairn configuration error: Desktop module requires networking module.
 
                 You have:
                   modules.desktop = true
@@ -237,12 +237,12 @@ let
                 in
                 users == [ ] || configDir != null;
               message = ''
-                axiOS configuration error: 'configDir' is required when 'users' list is non-empty.
+                Cairn configuration error: 'configDir' is required when 'users' list is non-empty.
 
                 You have users defined but no configDir. Add to your host config:
                   configDir = self.outPath;
 
-                This tells axiOS where to find users/<name>.nix files.
+                This tells Cairn where to find users/<name>.nix files.
               '';
             }
           ];
@@ -255,7 +255,7 @@ let
         inputs.home-manager.nixosModules.home-manager
         inputs.lanzaboote.nixosModules.lanzaboote
         inputs.vscode-server.nixosModules.default
-        # Standalone project modules (like axios-ai-mail pattern)
+        # Standalone project modules (like cairn-mail pattern)
         inputs.mcp-gateway.nixosModules.default
       ];
 
@@ -266,7 +266,7 @@ let
       coreModules = with self.nixosModules; [
         crashDiagnostics # Always available for extraConfig.hardware.crashDiagnostics
         hardware # Parent hardware module
-        services # Always available for axios.immich (Tailscale Services integration)
+        services # Always available for cairn.immich (Tailscale Services integration)
       ];
 
       # Modules controlled by modules.X flags
@@ -327,12 +327,12 @@ let
             (if extraCfgIsModule then { } else extraCfg)
             # Pass CPU type to hardware modules (if CPU type is specified)
             (lib.optionalAttrs (hwCpu != null) {
-              axios.hardware.cpuType = hwCpu;
+              cairn.hardware.cpuType = hwCpu;
             })
             # Pass GPU type and form factor to graphics module (if graphics module is enabled)
             (lib.optionalAttrs ((hostCfg.modules.graphics or false) && (hwGpu != null)) {
-              axios.hardware.gpuType = hwGpu;
-              axios.hardware.isLaptop = hostCfg.hardware.isLaptop or false;
+              cairn.hardware.gpuType = hwGpu;
+              cairn.hardware.isLaptop = hostCfg.hardware.isLaptop or false;
             })
             # Auto-enable desktop hardware module when conditionally imported
             (lib.optionalAttrs enableDesktopHardware {
@@ -376,11 +376,11 @@ let
             })
             # Enable Syncthing module if specified
             (lib.optionalAttrs (hostCfg.modules.syncthing or false) {
-              axios.syncthing.enable = true;
+              cairn.syncthing.enable = true;
             })
-            # Add axios config (immich, etc.) if module is enabled and config exists
-            (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? axios)) {
-              axios = hostCfg.axios;
+            # Add cairn config (immich, etc.) if module is enabled and config exists
+            (lib.optionalAttrs ((hostCfg.modules.services or false) && (hostCfg ? cairn)) {
+              cairn = hostCfg.cairn;
             })
           ];
         in
@@ -432,7 +432,7 @@ let
               {
                 imports = profileModules ++ aiModules;
               }
-            ) config.axios.users.users;
+            ) config.cairn.users.users;
           }
         ];
 

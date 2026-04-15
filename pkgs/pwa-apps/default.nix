@@ -47,7 +47,7 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "PWA icon collection for axiOS";
+    description = "PWA icon collection for Cairn";
     platforms = lib.platforms.linux;
   };
 }

@@ -7,7 +7,7 @@
 ## 2. System Module Cleanup
 
 - [x] 2.1 Replace gtop with btop in `modules/system/default.nix` (line 62)
-- [x] 2.2 Move cachix from `modules/system/nix.nix` (unconditional) into the `environment.systemPackages` block in `modules/system/default.nix` (inside existing `mkIf config.axios.system.enable`)
+- [x] 2.2 Move cachix from `modules/system/nix.nix` (unconditional) into the `environment.systemPackages` block in `modules/system/default.nix` (inside existing `mkIf config.cairn.system.enable`)
 - [x] 2.3 Remove the `environment.systemPackages` block from `modules/system/nix.nix`
 
 ## 3. AI Module Deduplication

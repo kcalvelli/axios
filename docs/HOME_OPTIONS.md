@@ -1,27 +1,27 @@
 # Home-Manager Options Reference
 
-This document lists all axiOS home-manager options available for user configuration.
+This document lists all Cairn home-manager options available for user configuration.
 
 ## Quick Reference
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `axios.terminal.neovim.enable` | bool | `false` | Enable neovim IDE preset |
-| `axios.pwa.enable` | bool | `false` | Enable PWA app generation |
-| `axios.wallpapers.enable` | bool | `false` | Enable curated wallpaper collection |
-| `axios.secrets.enable` | bool | auto | Enable age-encrypted secrets |
-| `axios.home.enableDefaults` | bool | `true` | Enable default home configuration |
+| `cairn.terminal.neovim.enable` | bool | `false` | Enable neovim IDE preset |
+| `cairn.pwa.enable` | bool | `false` | Enable PWA app generation |
+| `cairn.wallpapers.enable` | bool | `false` | Enable curated wallpaper collection |
+| `cairn.secrets.enable` | bool | auto | Enable age-encrypted secrets |
+| `cairn.home.enableDefaults` | bool | `true` | Enable default home configuration |
 
 ---
 
 ## Terminal
 
-### axios.terminal.neovim
+### cairn.terminal.neovim
 
 Full-featured neovim IDE with LSP, treesitter, telescope, git integration, and more.
 
 ```nix
-axios.terminal.neovim.enable = true;
+cairn.terminal.neovim.enable = true;
 ```
 
 **What you get:**
@@ -44,12 +44,12 @@ axios.terminal.neovim.enable = true;
 
 ## Desktop
 
-### axios.pwa
+### cairn.pwa
 
 Generate Progressive Web App (PWA) desktop entries for web applications.
 
 ```nix
-axios.pwa = {
+cairn.pwa = {
   enable = true;
   browser = "chromium";  # or "firefox"
   includeDefaults = true;
@@ -70,7 +70,7 @@ axios.pwa = {
 |--------|------|---------|-------------|
 | `enable` | bool | `false` | Enable PWA generation |
 | `browser` | enum | `"chromium"` | Browser backend (`"chromium"` or `"firefox"`) |
-| `includeDefaults` | bool | `true` | Include default axiOS PWAs |
+| `includeDefaults` | bool | `true` | Include default Cairn PWAs |
 | `iconPath` | path | `null` | Custom icon directory |
 | `apps` | attrset | `{}` | Custom PWA definitions |
 
@@ -89,12 +89,12 @@ axios.pwa = {
 
 ---
 
-### axios.wallpapers
+### cairn.wallpapers
 
 Curated wallpaper collection with automatic updates.
 
 ```nix
-axios.wallpapers = {
+cairn.wallpapers = {
   enable = true;
   autoUpdate = true;
 };
@@ -111,18 +111,18 @@ axios.wallpapers = {
 
 ## Secrets
 
-### axios.secrets
+### cairn.secrets
 
 Age-encrypted secrets management for home-manager (powered by agenix).
 
 ```nix
-axios.secrets = {
+cairn.secrets = {
   enable = true;
   identityPaths = [ "/home/user/.ssh/id_ed25519" ];
   secretsDir = ./secrets;
 };
 
-# Define secrets (agenix options, not axios)
+# Define secrets (agenix options, not cairn)
 age.secrets.my-api-key = {
   file = ./secrets/my-api-key.age;
 };
@@ -132,9 +132,9 @@ age.secrets.my-api-key = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `axios.secrets.enable` | bool | auto | Enable secrets (auto-enabled if system secrets enabled) |
-| `axios.secrets.identityPaths` | list | `[]` | SSH keys for decryption |
-| `axios.secrets.secretsDir` | path | `null` | Directory containing .age files |
+| `cairn.secrets.enable` | bool | auto | Enable secrets (auto-enabled if system secrets enabled) |
+| `cairn.secrets.identityPaths` | list | `[]` | SSH keys for decryption |
+| `cairn.secrets.secretsDir` | path | `null` | Directory containing .age files |
 
 **See:** [SECRETS_MODULE.md](SECRETS_MODULE.md) for complete guide
 
@@ -142,12 +142,12 @@ age.secrets.my-api-key = {
 
 ## Profile Defaults
 
-### axios.home
+### cairn.home
 
-Core home-manager defaults set by axiOS profiles.
+Core home-manager defaults set by Cairn profiles.
 
 ```nix
-axios.home = {
+cairn.home = {
   enableDefaults = true;
   stateVersion = "24.05";
   flakePath = "/home/user/.config/nixos";
@@ -159,7 +159,7 @@ axios.home = {
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `enableDefaults` | bool | `true` | Enable axiOS default home configuration |
+| `enableDefaults` | bool | `true` | Enable Cairn default home configuration |
 | `stateVersion` | string | required | Home-manager state version |
 | `flakePath` | string | `null` | Path to your config flake |
 | `email` | string | required | User email (for git, etc.) |
@@ -175,26 +175,26 @@ Complete example showing all home-manager options:
 { config, lib, pkgs, ... }:
 {
   # Core settings
-  axios.home = {
+  cairn.home = {
     enableDefaults = true;
     stateVersion = "24.05";
     email = "me@example.com";
   };
 
   # Neovim IDE
-  axios.terminal.neovim.enable = true;
+  cairn.terminal.neovim.enable = true;
 
   # PWA apps
-  axios.pwa = {
+  cairn.pwa = {
     enable = true;
     browser = "chromium";
   };
 
   # Wallpapers
-  axios.wallpapers.enable = true;
+  cairn.wallpapers.enable = true;
 
   # Secrets (if you have API keys)
-  axios.secrets.enable = true;
+  cairn.secrets.enable = true;
   age.secrets.brave-api-key.file = ./secrets/brave-api-key.age;
 }
 ```

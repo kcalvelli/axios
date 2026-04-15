@@ -1,7 +1,7 @@
 schema: spec-driven
 
 context: |
-  axiOS is a modular NixOS framework and library for building reproducible
+  Cairn is a modular NixOS framework and library for building reproducible
   NixOS systems. It provides reusable NixOS and home-manager modules.
 
   Tech Stack:

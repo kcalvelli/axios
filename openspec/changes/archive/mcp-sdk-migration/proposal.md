@@ -2,19 +2,19 @@
 
 ## Summary
 
-Migrate all axios MCP implementations from custom JSON-RPC handling to the official MCP Python SDK (`mcp` package for clients, `fastmcp` for servers).
+Migrate all cairn MCP implementations from custom JSON-RPC handling to the official MCP Python SDK (`mcp` package for clients, `fastmcp` for servers).
 
 ## Motivation
 
 ### Problem Statement
 
-Current axios MCP implementations use hand-rolled JSON-RPC over stdio:
+Current cairn MCP implementations use hand-rolled JSON-RPC over stdio:
 
 | Project | Role | Current Implementation | Issues |
 |---------|------|----------------------|--------|
 | mcp-gateway | Client | Custom asyncio stdio | Timeouts with npx servers |
 | mcp-dav | Server | Custom request handler | May have protocol gaps |
-| axios-ai-mail | Server | Custom implementation | Inconsistent with spec |
+| cairn-mail | Server | Custom implementation | Inconsistent with spec |
 
 This leads to:
 1. **Protocol bugs** - Timeouts, connection failures with some MCP servers
@@ -25,11 +25,11 @@ This leads to:
 
 Adopt official MCP libraries:
 - **Clients** (mcp-gateway): Use `mcp` package (`mcp.client.stdio`)
-- **Servers** (mcp-dav, axios-ai-mail): Use `fastmcp` package
+- **Servers** (mcp-dav, cairn-mail): Use `fastmcp` package
 
 ## Affected Projects
 
-### 1. mcp-gateway (axios)
+### 1. mcp-gateway (cairn)
 
 **Role**: MCP Client (connects to servers, exposes REST API)
 
@@ -50,7 +50,7 @@ async with stdio_client(StdioServerParameters(command=cmd, args=args)) as (read,
         result = await session.call_tool(name, arguments)
 ```
 
-### 2. mcp-dav (axios-dav)
+### 2. mcp-dav (cairn-dav)
 
 **Role**: MCP Server (provides calendar/contacts tools)
 
@@ -72,7 +72,7 @@ def list_events(start_date: str, end_date: str) -> list[dict]:
 mcp.run()
 ```
 
-### 3. axios-ai-mail (axios-ai-mail)
+### 3. cairn-mail (cairn-mail)
 
 **Role**: MCP Server (provides email tools)
 
@@ -95,14 +95,14 @@ mcp.run()
 1. Add `fastmcp` package to dependencies
 2. Rewrite server using `@mcp.tool()` decorators
 3. Test with Claude Code and mcp-gateway
-4. Update axios-dav flake
+4. Update cairn-dav flake
 
-### Phase 3: axios-ai-mail (Server Migration)
+### Phase 3: cairn-mail (Server Migration)
 
 1. Add `fastmcp` package to dependencies
 2. Rewrite MCP mode using `@mcp.tool()` decorators
 3. Test with Claude Code and mcp-gateway
-4. Update axios-ai-mail flake
+4. Update cairn-mail flake
 
 ## Dependencies
 
@@ -114,7 +114,7 @@ dependencies = [
     "mcp>=1.0.0",
 ]
 
-# For servers (mcp-dav, axios-ai-mail)
+# For servers (mcp-dav, cairn-mail)
 dependencies = [
     "fastmcp>=0.1.0",
 ]
@@ -122,7 +122,7 @@ dependencies = [
 
 ### Nix Packaging
 
-Both `mcp` and `fastmcp` need to be available in nixpkgs or packaged in axios:
+Both `mcp` and `fastmcp` need to be available in nixpkgs or packaged in cairn:
 - Check nixpkgs for existing packages
 - If not available, add to `pkgs/` or use `python3Packages.buildPythonPackage`
 
@@ -145,8 +145,8 @@ Both `mcp` and `fastmcp` need to be available in nixpkgs or packaged in axios:
 - [ ] mcp-gateway handles npx-based servers without timeout
 - [ ] mcp-dav tools work from Claude Code
 - [ ] mcp-dav tools work from mcp-gateway REST API
-- [ ] axios-ai-mail tools work from Claude Code
-- [ ] axios-ai-mail tools work from mcp-gateway REST API
+- [ ] cairn-mail tools work from Claude Code
+- [ ] cairn-mail tools work from mcp-gateway REST API
 
 ## References
 

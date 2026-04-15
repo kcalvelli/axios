@@ -2,7 +2,7 @@
 
 ## Overview
 
-Establish a formal port allocation registry for axios services. This is a documentation-only proposal with no code changes.
+Establish a formal port allocation registry for cairn services. This is a documentation-only proposal with no code changes.
 
 ---
 
@@ -14,7 +14,7 @@ Establish a formal port allocation registry for axios services. This is a docume
 ### Task 1.2: Write Port Registry Spec
 - [x] Create `openspec/specs/networking/ports.md`
 - [x] Document allocation principles
-- [x] List all current allocations (axios-ai-mail, Ollama, Immich)
+- [x] List all current allocations (cairn-mail, Ollama, Immich)
 - [x] Define reserved ranges
 - [x] Add configuration pattern examples
 
@@ -38,7 +38,7 @@ Establish a formal port allocation registry for axios services. This is a docume
 ## Phase 3: Validation ✅
 
 ### Task 3.1: Audit Existing Code
-- [x] Verified axios-ai-mail uses 8080/8443 (pim module defaults)
+- [x] Verified cairn-mail uses 8080/8443 (pim module defaults)
 - [x] Verified Ollama uses 11434/8447 (ai module defaults)
 - [x] No conflicts found
 

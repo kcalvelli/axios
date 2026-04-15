@@ -6,13 +6,13 @@
 }:
 let
   # Flatpak install handler script for .flatpakref files
-  axios-flatpak-install = pkgs.writeShellScriptBin "axios-flatpak-install" ''
+  cairn-flatpak-install = pkgs.writeShellScriptBin "cairn-flatpak-install" ''
     set -euo pipefail
 
     REF_FILE="''${1:-}"
 
     if [ -z "$REF_FILE" ]; then
-      echo "Usage: axios-flatpak-install <file.flatpakref>"
+      echo "Usage: cairn-flatpak-install <file.flatpakref>"
       echo ""
       echo "Press Enter to close..."
       read -r
@@ -22,7 +22,7 @@ let
     APP_NAME=$(${pkgs.gnugrep}/bin/grep -oP '^Name=\K.*' "$REF_FILE" 2>/dev/null || ${pkgs.coreutils}/bin/basename "$REF_FILE" .flatpakref)
 
     echo ""
-    echo "  axiOS Flatpak Installer"
+    echo "  Cairn Flatpak Installer"
     echo ""
     echo "  Installing: $APP_NAME"
     echo ""
@@ -52,7 +52,7 @@ in
       # The Janitor (Manage remotes and delete leftover user data)
       warehouse
       # Flatpak install handler for .flatpakref files (used by MIME handler)
-      axios-flatpak-install
+      cairn-flatpak-install
     ];
 
     # === Flathub Remote Setup ===

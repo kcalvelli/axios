@@ -15,7 +15,7 @@
   # Override systemd service to keep ghostty resident for drop-down terminal
   # Default service exits when all windows close, breaking Mod+` drop-down
   # Use drop-in override file to avoid conflict with ghostty module's service file
-  xdg.configFile."systemd/user/app-com.mitchellh.ghostty.service.d/axios-override.conf".text = ''
+  xdg.configFile."systemd/user/app-com.mitchellh.ghostty.service.d/cairn-override.conf".text = ''
     [Service]
     ExecStart=
     ExecStart=${pkgs.ghostty}/bin/ghostty --gtk-single-instance=true --initial-window=false --quit-after-last-window-closed=false
@@ -43,16 +43,16 @@
   '';
 
   # Create desktop entry for drop-down terminal to use Ghostty's icon
-  xdg.dataFile."applications/com.github.kcalvelli.axios.dropterm.desktop".text = ''
+  xdg.dataFile."applications/com.github.kcalvelli.cairn.dropterm.desktop".text = ''
     [Desktop Entry]
     Type=Application
     Name=Ghostty Drop-down Terminal
     Comment=Drop-down terminal using Ghostty
     Icon=com.mitchellh.ghostty
-    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.axios.dropterm
+    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.cairn.dropterm
     Terminal=false
     Categories=System;TerminalEmulator;
-    StartupWMClass=com.github.kcalvelli.axios.dropterm
+    StartupWMClass=com.github.kcalvelli.cairn.dropterm
     NoDisplay=true
   '';
 }

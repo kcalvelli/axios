@@ -12,14 +12,14 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 
 ### DankMaterialShell (DMS)
 - **Architecture**: Launched via Niri's `spawn-at-startup` mechanism (managed by the `dank-material-shell` niri module).
-- **Lifecycle**: Systemd integration is explicitly disabled in `axios` to eliminate race conditions with PipeWire/Wayland during boot.
+- **Lifecycle**: Systemd integration is explicitly disabled in `cairn` to eliminate race conditions with PipeWire/Wayland during boot.
 - **Features**: Material Design shell, system monitoring, clipboard, VPN status, and dynamic theming via `matugen`.
 - **Theming**: Automatic color extraction from wallpaper.
 - **Implementation**: `home/desktop/default.nix`, `home/desktop/theming.nix`, `home/desktop/niri.nix`
 
 ### Personal Information Management (PIM)
 
-**Email**: axios-ai-mail - AI-powered email management with local LLM classification.
+**Email**: cairn-mail - AI-powered email management with local LLM classification.
 - Multi-account support (Gmail OAuth, IMAP/SMTP)
 - Privacy-first local processing via Ollama
 - Modern web UI with PWA support
@@ -31,7 +31,7 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 - PWA apps for graphical interface (user's choice)
 
 **Contacts**: Cloud provider UIs or PWA apps
-- Future: axios-ai-mail contacts module (planned)
+- Future: cairn-mail contacts module (planned)
 
 **Implementation**:
 - `modules/pim/default.nix` (system services)
@@ -57,7 +57,7 @@ The PWA system SHALL allow selecting the underlying browser engine to balance pr
 
 #### Scenario: Brave Preference
 
-- **Given**: User sets `axios.pwa.browser = "brave"`
+- **Given**: User sets `cairn.pwa.browser = "brave"`
 - **When**: PWA apps are generated
 - **Then**: `pkgs.brave` is used
 - **And**: WMClass is `brave-{domain}-Default`
@@ -65,15 +65,15 @@ The PWA system SHALL allow selecting the underlying browser engine to balance pr
 
 #### Scenario: Chrome Preference
 
-- **Given**: User sets `axios.pwa.browser = "google-chrome"`
+- **Given**: User sets `cairn.pwa.browser = "google-chrome"`
 - **When**: PWA apps are generated
 - **Then**: `pkgs.google-chrome` is used
 - **And**: WMClass is `chrome-{domain}-Default`
 
 #### Scenario: Per-App Browser Override
 
-- **Given**: User sets `axios.pwa.apps.youtube-music.browser = "brave"`
-- **And**: Global `axios.pwa.browser` is `"chromium"`
+- **Given**: User sets `cairn.pwa.apps.youtube-music.browser = "brave"`
+- **And**: Global `cairn.pwa.browser` is `"chromium"`
 - **When**: PWA apps are generated
 - **Then**: YouTube Music uses `pkgs.brave` (Widevine DRM support)
 - **And**: All other apps use `pkgs.chromium`
@@ -85,10 +85,10 @@ Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybi
 
 #### Scenario: Launching via keybind
 
-- **Given**: `axios.pwa.apps.google-messages` is defined
+- **Given**: `cairn.pwa.apps.google-messages` is defined
 - **When**: User presses `Mod+G` (bound to `pwa-google-messages`)
 - **Then**: Google Messages opens in the configured browser
-- **And**: Changing `axios.pwa.browser` automatically updates the launcher
+- **And**: Changing `cairn.pwa.browser` automatically updates the launcher
 
 #### Scenario: Desktop entry exec
 
@@ -99,13 +99,13 @@ Each PWA SHALL have a `pwa-{appId}` launcher script on `$PATH`, decoupling keybi
 
 ### Requirement: Centralized PWA Definition
 
-PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axios.pwa.apps` option to ensure consistency.
+PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `cairn.pwa.apps` option to ensure consistency.
 
 #### Scenario: Module Registration
 
 - **Given**: `pim` module is enabled
 - **When**: Configuration is evaluated
-- **Then**: `pim` module sets `axios.pwa.apps.axios-mail`
+- **Then**: `pim` module sets `cairn.pwa.apps.cairn-mail`
 - **And**: `desktop` module consumes this definition to generate the desktop entry and launcher
 - **And**: `desktop` module applies the global or per-app browser setting
 
@@ -113,7 +113,7 @@ PWA applications (PIM, Immich, generic apps) SHALL be defined via a central `axi
 
 - **Given**: `immich` module is enabled (server role)
 - **When**: PWA definition is created
-- **Then**: URL is `https://axios-immich.<tailnet>/` (unified via loopback proxy)
+- **Then**: URL is `https://cairn-immich.<tailnet>/` (unified via loopback proxy)
 - **And**: Desktop entry uses this URL, ensuring consistent app_id across devices
 
 
@@ -201,13 +201,13 @@ Clicking "Install" on the Flathub website triggers a transparent, terminal-based
 
 ### Requirement: Drop-down Terminal Identity
 
-The drop-down terminal uses a proper axiOS app-id and does not appear in the DMS dock.
+The drop-down terminal uses a proper Cairn app-id and does not appear in the DMS dock.
 
 #### Scenario: User toggles drop-down terminal
 
 - **Given**: User presses Mod+` (backtick)
 - **When**: The drop-down terminal appears
-- **Then**: Its app-id is `com.github.kcalvelli.axios.dropterm`
+- **Then**: Its app-id is `com.github.kcalvelli.cairn.dropterm`
 - **And**: It does not appear as a separate icon in the DMS dock
 - **And**: It floats at the top of the screen under the panel (existing behavior)
 
@@ -219,7 +219,7 @@ The drop-down terminal uses a proper axiOS app-id and does not appear in the DMS
 
 ### Requirement: Curated Application Set
 
-The desktop module ships a focused set of applications aligned with the axiOS profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
+The desktop module ships a focused set of applications aligned with the Cairn profile (productivity, development, system administration). Creative and niche tools are available via user configuration.
 
 #### Scenario: Default desktop installation
 
@@ -246,7 +246,7 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
 - **Given**: User wants to use Inkscape for vector graphics
 - **When**: User adds `inkscape` to their `extraConfig.environment.systemPackages`
 - **Then**: Inkscape is installed and fully functional
-- **And**: No axiOS modules need to be modified
+- **And**: No Cairn modules need to be modified
 
 ### Requirement: SSD-Consistent Application Selection
 
@@ -287,7 +287,7 @@ Mousepad serves as the default text editor, providing syntax highlighting and cl
 
 ### Requirement: GPU Resource Correlation Awareness
 
-Desktop session stability correlates with GPU memory state; axiOS documents this relationship to aid troubleshooting.
+Desktop session stability correlates with GPU memory state; Cairn documents this relationship to aid troubleshooting.
 
 #### Scenario: Login after heavy ollama usage
 

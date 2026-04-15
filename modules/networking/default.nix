@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  cfg = config.axios.networking;
+  cfg = config.cairn.networking;
 in
 {
   imports = [
@@ -9,7 +9,7 @@ in
     ./tailscale.nix # Tailscale service configuration
   ];
 
-  options.axios.networking = {
+  options.cairn.networking = {
     backend = lib.mkOption {
       type = lib.types.enum [
         "iwd"

@@ -8,7 +8,7 @@ Ensures optimal hardware performance and driver support across different GPU ven
 ### GPU Driver Engine
 - **Interface**: `hardware.gpu` option in host configuration.
 - **Nvidia**: Automatically sets video drivers, enables `nvidiaSettings`, and configures Beta packages if needed.
-- **AMD**: Enables `amdgpu` kernel modules, provides `amdgpu_top`, and enables GPU recovery by default (`axios.hardware.enableGPURecovery`).
+- **AMD**: Enables `amdgpu` kernel modules, provides `amdgpu_top`, and enables GPU recovery by default (`cairn.hardware.enableGPURecovery`).
 - **Intel**: VA-API acceleration and `intel-gpu-tools`.
 - **Implementation**: `modules/graphics/default.nix`
 
@@ -30,7 +30,7 @@ AMD GPUs MUST have hang recovery enabled by default to prevent system freezes fr
 #### Scenario: GPU hang with recovery enabled (default)
 
 - **Given**: User has AMD GPU (gpuType = "amd")
-- **And**: `axios.hardware.enableGPURecovery` is enabled (default: true for AMD)
+- **And**: `cairn.hardware.enableGPURecovery` is enabled (default: true for AMD)
 - **When**: GPU hangs due to queue oversubscription or compute timeout
 - **Then**: Kernel detects hang within lockup_timeout (5 seconds)
 - **And**: Kernel resets GPU instead of freezing entire system
@@ -39,19 +39,19 @@ AMD GPUs MUST have hang recovery enabled by default to prevent system freezes fr
 #### Scenario: User explicitly disables GPU recovery
 
 - **Given**: User has AMD GPU
-- **And**: User has set `axios.hardware.enableGPURecovery = false`
+- **And**: User has set `cairn.hardware.enableGPURecovery = false`
 - **When**: GPU hangs due to heavy workload
 - **Then**: System may freeze completely
 - **And**: User must power cycle to recover
 
 ### Requirement: GPU Lockup Timeout Configuration
 
-When GPU recovery is enabled, axios MUST also configure lockup timeout for faster detection.
+When GPU recovery is enabled, cairn MUST also configure lockup timeout for faster detection.
 
 #### Implementation
 
 ```nix
-boot.kernelParams = lib.optionals (isAmd && config.axios.hardware.enableGPURecovery) [
+boot.kernelParams = lib.optionals (isAmd && config.cairn.hardware.enableGPURecovery) [
   "amdgpu.gpu_recovery=1"       # Enable GPU reset on hang
   "amdgpu.lockup_timeout=5000"  # Detect hangs within 5 seconds
 ];
@@ -72,7 +72,7 @@ boot.kernelParams = lib.optionals (isAmd && config.axios.hardware.enableGPURecov
 
 **Fix**: Ensure GPU recovery is enabled (this is now the default):
 ```nix
-axios.hardware.enableGPURecovery = true;  # default for AMD
+cairn.hardware.enableGPURecovery = true;  # default for AMD
 ```
 
 ### GPU resets unexpectedly
@@ -88,5 +88,5 @@ axios.hardware.enableGPURecovery = true;  # default for AMD
 
 **If false positives**: Disable recovery (not recommended):
 ```nix
-axios.hardware.enableGPURecovery = false;
+cairn.hardware.enableGPURecovery = false;
 ```

@@ -17,7 +17,7 @@ NC=$'\e[0m' # No Color
 
 print_header() {
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-    echo -e "${BLUE}  axiOS PWA Setup Helper${NC}"
+    echo -e "${BLUE}  Cairn PWA Setup Helper${NC}"
     echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
 }
@@ -495,7 +495,7 @@ cat << EOF
 Add this configuration:
 
 {
-  axios.pwa = {
+  cairn.pwa = {
     enable = true;
     iconPath = ${REL_ICON_PATH};
     apps = {
@@ -514,7 +514,7 @@ ${BLUE}Option 2: Create modular pwa.nix file${NC}
 ${YELLOW}Create: ${CONFIG_DIR:-.}/pwa.nix${NC}
 
 {
-  axios.pwa = {
+  cairn.pwa = {
     enable = true;
     iconPath = ${REL_ICON_PATH};
     apps = {
@@ -583,11 +583,11 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
     echo ""
 
     # Detect insertion point early for preview
-    HAS_PWA_BLOCK=$(grep -q "axios\.pwa" "$CONFIG_FILE" && echo "yes" || echo "no")
+    HAS_PWA_BLOCK=$(grep -q "cairn\.pwa" "$CONFIG_FILE" && echo "yes" || echo "no")
     HAS_HM_BLOCK=$(grep -q "home-manager.users\." "$CONFIG_FILE" && echo "yes" || echo "no")
     
     TARGET_LINE=""
-    # We used to try to be clever and insert after the last axios.pwa line, but that risks
+    # We used to try to be clever and insert after the last cairn.pwa line, but that risks
     # inserting INSIDE a multi-line attribute set (e.g. inside extraApps.immich = { ... }).
     # Safe strategy: Always append to the end of the block.
     
@@ -627,8 +627,8 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
         else
             print_info "Updating configuration..."
             
-            # Check for any axios.pwa definition (including dot notation like axios.pwa.enable)
-            if grep -q "axios\.pwa" "$CONFIG_FILE"; then
+            # Check for any cairn.pwa definition (including dot notation like cairn.pwa.enable)
+            if grep -q "cairn\.pwa" "$CONFIG_FILE"; then
                 HAS_PWA_BLOCK="yes"
             else
                 HAS_PWA_BLOCK="no"
@@ -636,7 +636,7 @@ if [ -n "$CONFIG_FILE" ] && [ -f "$CONFIG_FILE" ]; then
 
             if [ "$HAS_PWA_BLOCK" = "yes" ]; then
                 read -r -d '' INSERT_BLOCK << EOM || true
-  axios.pwa.apps.${PWA_ID} = {
+  cairn.pwa.apps.${PWA_ID} = {
     name = "${PWA_NAME}";
     url = "${PWA_URL}";
     icon = "${PWA_ID}";
@@ -674,9 +674,9 @@ EOM
                 read -r -d '' INSERT_BLOCK << EOM || true
 
   # Generated PWA: ${PWA_NAME}
-  axios.pwa.enable = lib.mkDefault true;
-  axios.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
-  axios.pwa.apps.${PWA_ID} = {
+  cairn.pwa.enable = lib.mkDefault true;
+  cairn.pwa.iconPath = lib.mkDefault ${REL_ICON_PATH};
+  cairn.pwa.apps.${PWA_ID} = {
     name = "${PWA_NAME}";
     url = "${PWA_URL}";
     icon = "${PWA_ID}";

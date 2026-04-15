@@ -1,6 +1,6 @@
 ## Context
 
-The axiOS installer (`scripts/init-config.sh`) generates a downstream NixOS configuration. It currently uses raw ANSI escape codes for prompts and has no way to add a host to an existing configuration. The downstream config format was recently standardized (multi-user, canonical directory layout with `hosts/` and `users/`), and the installer needs to support both fresh setups and adding machines to existing configs.
+The Cairn installer (`scripts/init-config.sh`) generates a downstream NixOS configuration. It currently uses raw ANSI escape codes for prompts and has no way to add a host to an existing configuration. The downstream config format was recently standardized (multi-user, canonical directory layout with `hosts/` and `users/`), and the installer needs to support both fresh setups and adding machines to existing configs.
 
 ## Goals / Non-Goals
 

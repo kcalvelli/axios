@@ -1,27 +1,27 @@
 {
-  description = "Multi-host axiOS configuration example";
+  description = "Multi-host Cairn configuration example";
 
   inputs = {
-    # Import axiOS as the base framework
-    axios.url = "github:kcalvelli/axios";
+    # Import Cairn as the base framework
+    cairn.url = "github:kcalvelli/cairn";
 
-    # Follow axios's nixpkgs for compatibility
-    nixpkgs.follows = "axios/nixpkgs";
+    # Follow cairn's nixpkgs for compatibility
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
   outputs =
     {
       self,
-      axios,
+      cairn,
       nixpkgs,
       ...
     }:
     let
       # Helper to build a host configuration
-      # Each host declares its users by name; axiOS resolves users/<name>.nix automatically
+      # Each host declares its users by name; Cairn resolves users/<name>.nix automatically
       mkHost =
         hostname:
-        axios.lib.mkSystem (
+        cairn.lib.mkSystem (
           (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig
           // {
             configDir = self.outPath;

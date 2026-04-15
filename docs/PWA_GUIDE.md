@@ -1,22 +1,22 @@
-# Adding Custom PWAs to axiOS
+# Adding Custom PWAs to Cairn
 
-axiOS provides a Progressive Web App (PWA) system that allows you to run web applications as desktop apps using Brave browser. This guide shows how to add your own custom PWAs to your personal configuration.
+Cairn provides a Progressive Web App (PWA) system that allows you to run web applications as desktop apps using Brave browser. This guide shows how to add your own custom PWAs to your personal configuration.
 
 ## Quick Start
 
-axiOS includes default PWAs (Google Workspace, Figma, Linear, Hoppscotch, etc.), but you can easily add your own.
+Cairn includes default PWAs (Google Workspace, Figma, Linear, Hoppscotch, etc.), but you can easily add your own.
 
 ### Option 1: Using the Helper Script (Recommended)
 
 ```bash
 # From your nixos config directory
-nix run github:kcalvelli/axios#add-pwa
+nix run github:kcalvelli/cairn#add-pwa
 
 # Or specify the icon directory explicitly
-nix run github:kcalvelli/axios#add-pwa -- /path/to/your/config/pwa-icons
+nix run github:kcalvelli/cairn#add-pwa -- /path/to/your/config/pwa-icons
 
 # Or set FLAKE_PATH environment variable
-FLAKE_PATH=~/.config/nixos_config nix run github:kcalvelli/axios#add-pwa
+FLAKE_PATH=~/.config/nixos_config nix run github:kcalvelli/cairn#add-pwa
 ```
 
 **Smart directory detection** (in priority order):
@@ -67,13 +67,13 @@ The script will:
 mkdir -p ~/.config/nixos_config/pwa-icons
 
 # Fetch icon from the website
-nix run github:kcalvelli/axios#fetch-pwa-icon -- \
+nix run github:kcalvelli/cairn#fetch-pwa-icon -- \
   https://example.com \
   my-app
 
 # Icon saved to: ./home/resources/pwa-icons/my-app.png
 # Copy it to your config:
-cp /path/to/axios/home/resources/pwa-icons/my-app.png \
+cp /path/to/cairn/home/resources/pwa-icons/my-app.png \
    ~/.config/nixos_config/pwa-icons/
 ```
 
@@ -84,7 +84,7 @@ Add to your home-manager configuration file (common names: `home.nix`, `user.nix
 ```nix
 {
   # Enable PWA support
-  axios.pwa = {
+  cairn.pwa = {
     enable = true;
 
     # Optional: disable default PWAs if you only want custom ones
@@ -184,7 +184,7 @@ mkdir -p "$ICON_DIR"
 fetch_icon() {
   local url="$1"
   local name="$2"
-  nix run github:kcalvelli/axios#fetch-pwa-icon -- "$url" "$name"
+  nix run github:kcalvelli/cairn#fetch-pwa-icon -- "$url" "$name"
   mv "./home/resources/pwa-icons/${name}.png" "$ICON_DIR/"
 }
 
@@ -230,7 +230,7 @@ If you prefer to define all PWAs yourself:
 
 ```nix
 {
-  axios.pwa = {
+  cairn.pwa = {
     enable = true;
     includeDefaults = false;  # No Google/Microsoft PWAs
     iconPath = ./pwa-icons;
@@ -314,7 +314,7 @@ If automatic fetching fails:
 
 ## Examples
 
-See [`pkgs/pwa-apps/pwa-defs.nix`](../pkgs/pwa-apps/pwa-defs.nix) for examples of all default PWAs included in axiOS.
+See [`pkgs/pwa-apps/pwa-defs.nix`](../pkgs/pwa-apps/pwa-defs.nix) for examples of all default PWAs included in Cairn.
 
 Popular additions users might want:
 
@@ -348,7 +348,7 @@ Popular additions users might want:
 
 ## Contributing
 
-Found a great PWA that should be included by default? Submit a PR to [axiOS](https://github.com/kcalvelli/axios) with:
+Found a great PWA that should be included by default? Submit a PR to [Cairn](https://github.com/kcalvelli/cairn) with:
 1. Icon (128x128 PNG) in `home/resources/pwa-icons/`
 2. Definition in `pkgs/pwa-apps/pwa-defs.nix`
 3. Description in the PR explaining why it fits the target user

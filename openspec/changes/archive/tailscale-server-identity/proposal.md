@@ -15,9 +15,9 @@ The root cause: Brave generates app_id from domain only, stripping port numbers.
 ## Solution: Tailscale Services
 
 Tailscale Services provide unique DNS names per service:
-- `axios-mail.tailnet.ts.net` → Mail PWA
-- `axios-chat.tailnet.ts.net` → Open WebUI PWA
-- `axios-ollama.tailnet.ts.net` → Ollama API
+- `cairn-mail.tailnet.ts.net` → Mail PWA
+- `cairn-chat.tailnet.ts.net` → Open WebUI PWA
+- `cairn-ollama.tailnet.ts.net` → Ollama API
 
 Each service gets a distinct hostname → distinct Brave app_id → distinct icon.
 
@@ -28,8 +28,8 @@ Each service gets a distinct hostname → distinct Brave app_id → distinct ico
 ### Current State
 ```
 edge (user-owned)
-├── axios-ai-mail    → https://edge.tailnet:8443
-├── axios-ai-chat    → https://edge.tailnet:8444
+├── cairn-mail    → https://edge.tailnet:8443
+├── cairn-ai-chat    → https://edge.tailnet:8444
 └── ollama           → https://edge.tailnet:8447
 
 All PWAs get app_id: brave-edge.tailnet.ts.net__-Default
@@ -37,14 +37,14 @@ All PWAs get app_id: brave-edge.tailnet.ts.net__-Default
 
 ### Target State
 ```
-edge (tag:axios-server)
-├── svc:axios-mail   → https://axios-mail.tailnet.ts.net
-├── svc:axios-chat   → https://axios-chat.tailnet.ts.net
-└── svc:axios-ollama → https://axios-ollama.tailnet.ts.net
+edge (tag:cairn-server)
+├── svc:cairn-mail   → https://cairn-mail.tailnet.ts.net
+├── svc:cairn-chat   → https://cairn-chat.tailnet.ts.net
+└── svc:cairn-ollama → https://cairn-ollama.tailnet.ts.net
 
 PWA app_ids:
-- brave-axios-mail.tailnet.ts.net-Default
-- brave-axios-chat.tailnet.ts.net-Default
+- brave-cairn-mail.tailnet.ts.net-Default
+- brave-cairn-chat.tailnet.ts.net-Default
 ```
 
 ## Implementation Design
@@ -79,7 +79,7 @@ networking.tailscale = {
   tags = lib.mkOption {
     type = lib.types.listOf lib.types.str;
     default = [ ];
-    example = [ "axios-server" ];
+    example = [ "cairn-server" ];
     description = "Tailscale tags for this device (requires authkey mode)";
   };
 };
@@ -107,7 +107,7 @@ networking.tailscale.services = lib.mkOption {
   });
   default = { };
   example = {
-    "axios-mail" = {
+    "cairn-mail" = {
       enable = true;
       port = 443;
       backend = "http://127.0.0.1:8080";
@@ -123,7 +123,7 @@ When modules enable services, they auto-register with Tailscale Services:
 ```nix
 # In modules/pim/default.nix (server role)
 config = lib.mkIf (cfg.enable && isServer) {
-  networking.tailscale.services."axios-mail" = {
+  networking.tailscale.services."cairn-mail" = {
     enable = true;
     backend = "http://127.0.0.1:${toString cfg.port}";
   };
@@ -131,7 +131,7 @@ config = lib.mkIf (cfg.enable && isServer) {
 
 # In modules/ai/webui.nix (server role)
 config = lib.mkIf (cfg.enable && isServer) {
-  networking.tailscale.services."axios-chat" = {
+  networking.tailscale.services."cairn-chat" = {
     enable = true;
     backend = "http://127.0.0.1:${toString cfg.port}";
   };
@@ -144,7 +144,7 @@ Update PWA modules to use service DNS names:
 
 ```nix
 # Instead of: https://edge.tailnet:8443
-# Generate:   https://axios-mail.tailnet.ts.net
+# Generate:   https://cairn-mail.tailnet.ts.net
 
 pwaUrl = "https://${serviceName}.${tailnetDomain}/";
 ```
@@ -175,7 +175,7 @@ systemd.services."tailscale-service-${name}" = {
 
 1. Go to Tailscale Admin Console → Settings → Keys
 2. Generate auth key with:
-   - Tags: `tag:axios-server`
+   - Tags: `tag:cairn-server`
    - Reusable: Yes (for rebuilds)
    - Expiration: No expiry (or manage rotation)
 
@@ -184,13 +184,13 @@ systemd.services."tailscale-service-${name}" = {
 ```json
 {
   "tagOwners": {
-    "tag:axios-server": ["autogroup:admin"]
+    "tag:cairn-server": ["autogroup:admin"]
   },
   "acls": [
     {
       "action": "accept",
       "src": ["autogroup:member"],
-      "dst": ["tag:axios-server:*"]
+      "dst": ["tag:cairn-server:*"]
     }
   ]
 }
@@ -211,7 +211,7 @@ echo "tskey-auth-xxxxx" | agenix -e secrets/tailscale-server-key.age
     enable = true;
     authMode = "authkey";
     authKeySecret = "tailscale-server-key";
-    tags = [ "axios-server" ];
+    tags = [ "cairn-server" ];
   };
 
   # Services auto-register when enabled
@@ -260,13 +260,13 @@ echo "tskey-auth-xxxxx" | agenix -e secrets/tailscale-server-key.age
 |------|------------|
 | Auth key exposure | Store in agenix, proper permissions |
 | ACL misconfiguration | Document clearly, provide examples |
-| Service name conflicts | Use `axios-` prefix for all services |
+| Service name conflicts | Use `cairn-` prefix for all services |
 | Migration disruption | Backwards compatible, opt-in |
 
 ## Success Criteria
 
 1. ✅ Server machines use tag-based identity
-2. ✅ Each axios service has unique DNS name
+2. ✅ Each cairn service has unique DNS name
 3. ✅ PWAs have distinct Wayland app_ids
 4. ✅ Icons display correctly in dock
 5. ✅ Client machines (user-owned) connect to services

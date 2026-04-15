@@ -1,6 +1,6 @@
-# axiOS Neovim IDE Guide
+# Cairn Neovim IDE Guide
 
-axiOS provides a full-featured neovim IDE experience out of the box. This guide covers what's included and how to use it effectively.
+Cairn provides a full-featured neovim IDE experience out of the box. This guide covers what's included and how to use it effectively.
 
 ## Prerequisites
 
@@ -8,7 +8,7 @@ axiOS provides a full-featured neovim IDE experience out of the box. This guide 
 
 **Enable the module**: Add to your home-manager config:
 ```nix
-axios.terminal.neovim.enable = true;
+cairn.terminal.neovim.enable = true;
 ```
 
 ## What's Included
@@ -271,7 +271,7 @@ Sessions are saved automatically per directory.
 
 ## DevShell Integration
 
-When you enter an axiOS devshell, neovim automatically configures for that language:
+When you enter an Cairn devshell, neovim automatically configures for that language:
 
 ```bash
 # Enter rust devshell
@@ -292,7 +292,7 @@ Available devshells:
 Your config lives at `~/.config/nvim/init.lua`:
 
 ```lua
-require("axios").setup({
+require("cairn").setup({
   -- Change colorscheme
   colorscheme = "tokyonight",
 
@@ -321,10 +321,10 @@ vim.opt.colorcolumn = "80"
 
 ### Adding Plugins
 
-Add plugins after the axios setup:
+Add plugins after the cairn setup:
 
 ```lua
-require("axios").setup({})
+require("cairn").setup({})
 
 -- Add your own plugins
 require("lazy").setup({

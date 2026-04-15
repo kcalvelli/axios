@@ -8,7 +8,7 @@ By removing `~/.mcp.json` and replacing it with the `/mcp-cli` skill for on-dema
 
 1. **Reduce context usage by ~99%** (~47K tokens -> ~400 tokens)
 2. **Fix GitHub auth** — `passwordCommand` works through mcp-cli -> mcp-gateway path
-3. **Clean ownership boundaries** — mcp-gateway owns mcp-cli binary + skill, axios provides server definitions
+3. **Clean ownership boundaries** — mcp-gateway owns mcp-cli binary + skill, cairn provides server definitions
 
 ## Architecture
 
@@ -23,7 +23,7 @@ Claude Code -> built-in tools + /mcp-cli skill -> mcp-cli -> mcp_servers.json (~
 ```
 
 Ownership:
-- **axios**: Server definitions with Nix store paths, PIM domain hints in system prompt
+- **cairn**: Server definitions with Nix store paths, PIM domain hints in system prompt
 - **mcp-gateway**: Config generation, mcp-cli binary, /mcp-cli skill, REST API
 - **Claude Code**: Built-in tools + invokes /mcp-cli skill when external tools needed
 
@@ -32,20 +32,20 @@ Ownership:
 ### mcp-gateway
 - `generateClaudeConfig` default: `true` -> `false` (stop generating `~/.mcp.json`)
 - New option: `generateClaudeSkill` (default: `true`) — installs `~/.claude/commands/mcp-cli.md`
-- Add `mcp-cli` package to module's `home.packages` (moved from axios)
+- Add `mcp-cli` package to module's `home.packages` (moved from cairn)
 - New file: `commands/mcp-cli.md` (skill source based on upstream SKILL.md)
 
-### axios
+### cairn
 - Remove `mcp-cli` from `environment.systemPackages` (now in mcp-gateway module)
 - Remove `~/.config/ai/prompts/mcp-cli.md` deployment from `home/ai/mcp.nix`
 - Delete `home/ai/prompts/mcp-cli-system-prompt.md` (superseded by skill)
-- Remove "MCP Tools via mcp-cli" section from `axios-system-prompt.md` (replaced by skill)
+- Remove "MCP Tools via mcp-cli" section from `cairn-system-prompt.md` (replaced by skill)
 
 ## What Stays the Same
 
 - Server definitions in `home/ai/mcp.nix`
 - `~/.config/mcp/mcp_servers.json` generation
 - mcp-gateway REST API service
-- `~/.claude/CLAUDE.md` with `@import` of axios prompt
+- `~/.claude/CLAUDE.md` with `@import` of cairn prompt
 - `GEMINI_SYSTEM_MD` env var
 - OpenSpec commands (`/proposal`, `/apply`, `/archive`)

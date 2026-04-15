@@ -1,6 +1,6 @@
-# axiOS Scripts
+# Cairn Scripts
 
-Utility scripts for axiOS framework.
+Utility scripts for Cairn framework.
 
 ## Directory Structure
 
@@ -18,16 +18,16 @@ scripts/
 
 ### init-config.sh
 
-**Interactive configuration generator for axiOS.**
+**Interactive configuration generator for Cairn.**
 
 **Fresh NixOS install:**
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/cairn/master/scripts/install.sh)
 ```
 
 **Flakes already enabled:**
 ```bash
-nix run --refresh github:kcalvelli/axios#init
+nix run --refresh github:kcalvelli/cairn#init
 ```
 
 Offers three modes: scripted setup, add host to existing config, or AI-assisted with Claude Code. Detects hardware, collects preferences, generates all config files, and offers to rebuild.
@@ -58,13 +58,13 @@ This script runs automatically when your wallpaper changes via DankMaterialShell
 
 ---
 
-## For axiOS Library Users
+## For Cairn Library Users
 
-If you're using axiOS as a library (recommended), scripts work automatically:
+If you're using Cairn as a library (recommended), scripts work automatically:
 
 ```nix
-# In your flake that uses axios
-axios.lib.mkSystem {
+# In your flake that uses cairn
+cairn.lib.mkSystem {
   modules.desktop = true;  # Enables wallpaper-changed.sh integration
   modules.ai = true;       # MCP configured declaratively (no script needed)
 }

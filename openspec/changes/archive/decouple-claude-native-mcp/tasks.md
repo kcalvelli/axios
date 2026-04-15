@@ -8,17 +8,17 @@
 - [x] Create `commands/mcp-cli.md` skill file
 - [x] Update module header comments
 
-## axios changes
+## cairn changes
 
 - [x] Remove `mcp-cli` from `environment.systemPackages` in `modules/ai/default.nix`
 - [x] Remove mcp-cli prompt deployment from `home/ai/mcp.nix`
 - [x] Delete `home/ai/prompts/mcp-cli-system-prompt.md`
-- [x] Remove "MCP Tools via mcp-cli" section from `home/ai/prompts/axios-system-prompt.md`
+- [x] Remove "MCP Tools via mcp-cli" section from `home/ai/prompts/cairn-system-prompt.md`
 - [x] Create OpenSpec delta with proposal, tasks, and spec update
 
 ## Finalization
 
 - [x] Format both repos with `nix fmt .`
 - [x] Commit and push mcp-gateway
-- [x] Commit and push axios
+- [x] Commit and push cairn
 - [x] Verify: `~/.mcp.json` not generated, skill installed, mcp-cli works

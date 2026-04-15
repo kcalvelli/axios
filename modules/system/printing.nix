@@ -1,12 +1,12 @@
 { config, lib, ... }:
 {
-  options.axios.system.printing = {
+  options.cairn.system.printing = {
     enable = lib.mkEnableOption "printing services" // {
       default = true;
     };
   };
 
-  config = lib.mkIf config.axios.system.printing.enable {
+  config = lib.mkIf config.cairn.system.printing.enable {
     services.printing = {
       enable = true;
       openFirewall = true;

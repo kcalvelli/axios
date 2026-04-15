@@ -1,4 +1,4 @@
-# axiOS Project Context
+# Cairn Project Context
 
 ## OpenSpec Workflow
 
@@ -19,7 +19,7 @@ This project uses **OpenSpec** for Spec-Driven Development (SDD). Use `/opsx:*` 
 
 ## Overview
 
-axiOS is a **modular NixOS distribution** implemented as a Nix flake library. It provides reusable NixOS and home-manager modules for building customized NixOS systems with opinionated configurations.
+Cairn is a **modular NixOS distribution** implemented as a Nix flake library. It provides reusable NixOS and home-manager modules for building customized NixOS systems with opinionated configurations.
 
 **Key Philosophy**: This is a library/framework, not a personal configuration. Design decisions should avoid hardcoding personal preferences or regional defaults.
 
@@ -28,7 +28,7 @@ axiOS is a **modular NixOS distribution** implemented as a Nix flake library. It
 ## Project Structure
 
 ```
-axios/
+cairn/
 ├── flake.nix              # Main flake with inputs and outputs
 ├── flake.lock             # Locked dependency versions
 ├── modules/               # NixOS modules
@@ -177,8 +177,8 @@ flake.nixosModules.monitoring = ./monitoring;
 ### 1. No Regional Defaults
 
 **Required user configuration:**
-- `axios.system.timeZone` - User MUST set their timezone (no default)
-- `axios.system.locale` - Defaults to en_US.UTF-8 but configurable
+- `cairn.system.timeZone` - User MUST set their timezone (no default)
+- `cairn.system.locale` - Defaults to en_US.UTF-8 but configurable
 
 **Rationale**: Library shouldn't hardcode regional preferences
 
@@ -253,7 +253,7 @@ inputs = {
 
 ### Working with Hosts
 
-Host configurations are external (in downstream repos). axiOS prescribes a canonical directory structure:
+Host configurations are external (in downstream repos). Cairn prescribes a canonical directory structure:
 
 ```
 ~/.config/nixos_config/           # or any directory
@@ -263,20 +263,20 @@ Host configurations are external (in downstream repos). axiOS prescribes a canon
 │   └── <hostname>/
 │       └── hardware.nix          # From nixos-generate-config
 ├── users/
-│   └── <username>.nix            # Per-user config (axios.users.users.<name>)
+│   └── <username>.nix            # Per-user config (cairn.users.users.<name>)
 └── secrets/                      # Optional: agenix encrypted secrets
 ```
 
 **Flake pattern** (convention-over-configuration):
 ```nix
-mkHost = hostname: axios.lib.mkSystem (
+mkHost = hostname: cairn.lib.mkSystem (
   (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
     configDir = self.outPath;
   }
 );
 ```
 
-**Host config** declares users by name; axiOS resolves `users/<name>.nix` automatically:
+**Host config** declares users by name; Cairn resolves `users/<name>.nix` automatically:
 ```nix
 # hosts/myhost.nix
 { lib, ... }:
@@ -294,7 +294,7 @@ mkHost = hostname: axios.lib.mkSystem (
 # users/alice.nix
 { ... }:
 {
-  axios.users.users.alice = {
+  cairn.users.users.alice = {
     fullName = "Alice Smith";
     email = "alice@example.com";
     isAdmin = true;
@@ -303,11 +303,11 @@ mkHost = hostname: axios.lib.mkSystem (
 }
 ```
 
-**BREAKING**: The old `axios.user` (singular) and `userModulePath` patterns are removed. See migration notes below.
+**BREAKING**: The old `cairn.user` (singular) and `userModulePath` patterns are removed. See migration notes below.
 
 ### Migration from Old Format
 
-1. **`axios.user` → `axios.users.users.<name>`**: Replace singular user options with multi-user submodule
+1. **`cairn.user` → `cairn.users.users.<name>`**: Replace singular user options with multi-user submodule
 2. **`userModulePath` → `users` list**: Replace stringly-typed path with `users = [ "username" ]` in host config
 3. **`user.nix` → `users/<name>.nix`**: Move root-level user file to `users/` directory
 4. **Add `configDir`**: Add `configDir = self.outPath` when calling `mkSystem`
@@ -328,7 +328,7 @@ Access via: `nix develop .#rust`
   - Generates canonical directory structure (`hosts/`, `users/`, `flake.nix`)
   - Prompts for hostname, hardware, modules, timezone
   - Multi-user prompting loop: primary user + optional additional users
-  - Per-user files generated at `users/<username>.nix` using `axios.users.users.<name>`
+  - Per-user files generated at `users/<username>.nix` using `cairn.users.users.<name>`
   - Host configs generated at `hosts/<hostname>.nix` with `users = [ ... ]` list
   - Hardware pre-flight checks (NVIDIA GPU + kernel >= 6.19 warning)
   - Detects system timezone automatically
@@ -444,14 +444,14 @@ The `services.ai.enable` module provides:
 MCP configuration is owned by the **mcp-gateway** external repository (`github.com/kcalvelli/mcp-gateway`). This provides a single source of truth for MCP server definitions:
 
 - **mcp-gateway** provides the home-manager module (`services.mcp-gateway`)
-- **axios** imports mcp-gateway's module and provides server definitions with resolved package paths
+- **cairn** imports mcp-gateway's module and provides server definitions with resolved package paths
 - **Config generation**: mcp-gateway generates `~/.mcp.json`, `~/.config/mcp/mcp_servers.json`, and system prompts
 - **Pre-packaged servers**: MCP servers from `mcp-servers-nix` overlay (no runtime downloads)
 - **Security**: Supports `passwordCommand` for secrets (e.g., GitHub token via `gh auth token`)
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                   axios (home/ai/mcp.nix)                       │
+│                   cairn (home/ai/mcp.nix)                       │
 │  - Imports mcp-gateway's home-manager module                    │
 │  - Provides server definitions with resolved nix store paths    │
 └─────────────────────────────────────────────────────────────────┘
@@ -466,7 +466,7 @@ MCP configuration is owned by the **mcp-gateway** external repository (`github.c
                               │
               ┌───────────────┼───────────────┐
               ▼               ▼               ▼
-        ~/.mcp.json    mcp_servers.json   axios.md
+        ~/.mcp.json    mcp_servers.json   cairn.md
         (Claude Code)  (mcp-gateway)      (prompt)
 ```
 
@@ -475,7 +475,7 @@ MCP configuration is owned by the **mcp-gateway** external repository (`github.c
 **Server definitions are in `home/ai/mcp.nix`, module logic is in mcp-gateway**
 
 1. **Core Tools** (no setup required): time, github†, journal
-2. **PIM Integration** (requires PIM module): axios-ai-mail, mcp-dav
+2. **PIM Integration** (requires PIM module): cairn-mail, mcp-dav
 3. **AI Enhancement** (no setup required): context7
 4. **Search** (requires API key): brave-search
 
@@ -498,7 +498,7 @@ echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
 ```nix
 {
   # Enable secrets
-  axios.secrets.enable = true;
+  cairn.secrets.enable = true;
 
   # Register API key secret
   age.secrets.brave-api-key = {
@@ -507,18 +507,18 @@ echo "your-brave-api-key" | agenix -e secrets/brave-api-key.age
 }
 ```
 
-axios will automatically use `passwordCommand` to securely load this secret. If the secret isn't configured, it falls back to the environment variable `$BRAVE_API_KEY`.
+cairn will automatically use `passwordCommand` to securely load this secret. If the secret isn't configured, it falls back to the environment variable `$BRAVE_API_KEY`.
 
 ### Dynamic Tool Discovery
 
-mcp-gateway provides **`mcp-gw`**, a CLI for on-demand MCP tool discovery. The `mcp-gw` binary, `/mcp-cli` skill, and configuration are fully owned by mcp-gateway — axios only provides server definitions.
+mcp-gateway provides **`mcp-gw`**, a CLI for on-demand MCP tool discovery. The `mcp-gw` binary, `/mcp-cli` skill, and configuration are fully owned by mcp-gateway — cairn only provides server definitions.
 
 **Key benefit:** 99% token reduction vs loading all tool schemas upfront.
 
 **Integration:** Automatically enabled when `services.ai.enable = true`. The mcp-gateway module generates:
 - `~/.mcp.json` - Claude Code native MCP configuration
 - `~/.config/mcp/mcp_servers.json` - mcp-gateway configuration
-- `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
+- `~/.config/ai/prompts/cairn.md` - Comprehensive system prompt (auto-injected into Claude Code)
 - `~/.gemini/settings.json` - Gemini CLI configuration
 
 **Zero Configuration Required:**
@@ -531,7 +531,7 @@ For `mcp-gw` usage details, see the mcp-gateway repository documentation.
 
 **What is mcp-gateway?**
 
-mcp-gateway is a REST API gateway that exposes axios MCP servers via OpenAPI endpoints and MCP HTTP transport. It's maintained in its own repository (`github.com/kcalvelli/mcp-gateway`) and provides:
+mcp-gateway is a REST API gateway that exposes cairn MCP servers via OpenAPI endpoints and MCP HTTP transport. It's maintained in its own repository (`github.com/kcalvelli/mcp-gateway`) and provides:
 
 - **REST API** - Tool management and execution via `/api/tools/{server}/{tool}`
 - **MCP HTTP Transport** - Native MCP protocol for Claude.ai Integrations and Claude Desktop
@@ -566,9 +566,9 @@ systemctl --user restart mcp-gateway
 
 **References:**
 - **mcp-gateway repository**: `github.com/kcalvelli/mcp-gateway`
-- **Server definitions**: `home/ai/mcp.nix` (axios provides paths, mcp-gateway provides module)
+- **Server definitions**: `home/ai/mcp.nix` (cairn provides paths, mcp-gateway provides module)
 - **System Prompts** (owned by mcp-gateway):
-  - `~/.config/ai/prompts/axios.md` - Comprehensive system prompt (auto-injected into Claude Code)
+  - `~/.config/ai/prompts/cairn.md` - Comprehensive system prompt (auto-injected into Claude Code)
 - **OpenSpec skills**: `.claude/skills/openspec-*/` (installed per-project via `openspec init`)
 
 ## Common Patterns
@@ -615,9 +615,9 @@ environment.systemPackages = with pkgs; [
 
 ## Notes for AI Assistants
 
-### Git Workflow for axiOS
+### Git Workflow for Cairn
 
-**CRITICAL**: axiOS is a flake library consumed by downstream systems. When making changes:
+**CRITICAL**: Cairn is a flake library consumed by downstream systems. When making changes:
 
 1. **Always push commits before asking the user to rebuild** - The user's system pulls from the remote repository, not your local changes. If you commit but don't push, they cannot rebuild with your changes.
 

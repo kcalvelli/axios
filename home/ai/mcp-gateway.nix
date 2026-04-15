@@ -13,7 +13,7 @@ let
   pwaEnabled = gatewayCfg.pwa.enable or false;
 
   # Get Tailscale service name for URL construction
-  serviceName = gatewayCfg.tailscaleServe.serviceName or "axios-mcp-gateway";
+  serviceName = gatewayCfg.tailscaleServe.serviceName or "cairn-mcp-gateway";
   tailnetDomain = gatewayCfg.pwa.tailnetDomain or "";
   localPort = gatewayCfg.port or 8085;
 
@@ -30,7 +30,7 @@ let
       "https://${serviceName}.${tailnetDomain}/";
 
   # PWA data directory for isolated profile
-  pwaDataDir = "${config.home.homeDirectory}/.local/share/axios-pwa/mcp-gateway";
+  pwaDataDir = "${config.home.homeDirectory}/.local/share/cairn-pwa/mcp-gateway";
 
   # Chromium/Brave on Wayland ignores --class and generates app_id from URL
   # Pattern: brave-{domain}__-Default (port is ignored, path / becomes -)
@@ -41,11 +41,11 @@ in
 {
   config = lib.mkIf (isEnabled && pwaEnabled) {
     # PWA desktop entry (both server and client roles)
-    xdg.desktopEntries.axios-mcp-gateway = {
+    xdg.desktopEntries.cairn-mcp-gateway = {
       name = "MCP Gateway";
       comment = "REST API gateway for MCP servers with orchestrator UI";
       exec = "${lib.getExe pkgs.brave} --user-data-dir=${pwaDataDir} --class=${wmClass} --app=${pwaUrl}";
-      icon = "axios-mcp-gateway";
+      icon = "cairn-mcp-gateway";
       terminal = false;
       categories = [
         "Network"
@@ -58,8 +58,8 @@ in
     };
 
     # Install PWA icon
-    home.file.".local/share/icons/hicolor/128x128/apps/axios-mcp-gateway.png" = {
-      source = ../resources/pwa-icons/axios-mcp-gateway.png;
+    home.file.".local/share/icons/hicolor/128x128/apps/cairn-mcp-gateway.png" = {
+      source = ../resources/pwa-icons/cairn-mcp-gateway.png;
     };
   };
 }

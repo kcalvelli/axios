@@ -1,6 +1,6 @@
 { ... }:
 {
-  axios.users.users.admin = {
+  cairn.users.users.admin = {
     fullName = "Server Admin";
     email = "admin@example.com";
     isAdmin = true;

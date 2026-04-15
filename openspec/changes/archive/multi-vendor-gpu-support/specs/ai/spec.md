@@ -2,7 +2,7 @@
 
 ### Requirement: Multi-Vendor GPU Support for Local Inference
 
-axiOS MUST support both AMD and Nvidia GPUs for local LLM inference in the server role, using the existing `hardware.gpu` host configuration.
+Cairn MUST support both AMD and Nvidia GPUs for local LLM inference in the server role, using the existing `hardware.gpu` host configuration.
 
 #### GPU Vendor Detection
 
@@ -13,7 +13,7 @@ The AI module reads the GPU vendor from the existing host configuration:
 { hardware.gpu = "amd"; }  # or "nvidia"
 
 # AI module reads via:
-gpuType = config.axios.hardware.gpuType or null;
+gpuType = config.cairn.hardware.gpuType or null;
 ```
 
 **No new options required** - follows the same pattern as `modules/graphics/default.nix`.
@@ -118,6 +118,6 @@ fattn-common.cuh:903: GGML_ASSERT(max_blocks_per_sm > 0) failed
 SIGABRT: abort
 ```
 
-**Fix**: axiOS automatically disables Flash Attention when `hardware.gpu = "amd"`. If you see this error, verify your host config has the correct GPU vendor set.
+**Fix**: Cairn automatically disables Flash Attention when `hardware.gpu = "amd"`. If you see this error, verify your host config has the correct GPU vendor set.
 
-**Note**: Flash Attention primarily benefits larger models (30B+) with very long contexts. For 7B-14B models typical in axiOS, the performance difference is negligible.
+**Note**: Flash Attention primarily benefits larger models (30B+) with very long contexts. For 7B-14B models typical in Cairn, the performance difference is negligible.

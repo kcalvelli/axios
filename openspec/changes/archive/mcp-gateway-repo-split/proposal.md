@@ -2,9 +2,9 @@
 
 ## Summary
 
-Migrate `mcp-gateway` from `axios/pkgs/mcp-gateway` to its own repository at `github.com/kcalvelli/mcp-gateway`. This follows the established pattern of axios-ai-mail and mcp-dav as standalone services.
+Migrate `mcp-gateway` from `cairn/pkgs/mcp-gateway` to its own repository at `github.com/kcalvelli/mcp-gateway`. This follows the established pattern of cairn-mail and mcp-dav as standalone services.
 
-**Key architectural change**: mcp-gateway will own the declarative MCP server configuration, becoming the single source of truth for MCP setup. axios will import mcp-gateway's module rather than defining MCP config itself.
+**Key architectural change**: mcp-gateway will own the declarative MCP server configuration, becoming the single source of truth for MCP setup. cairn will import mcp-gateway's module rather than defining MCP config itself.
 
 ## Motivation
 
@@ -21,19 +21,19 @@ This scope warrants independent versioning, releases, and documentation.
 
 ## Benefits
 
-- **Independent evolution** - Version and release separately from axios
-- **Reusability** - Others can use mcp-gateway without axios
+- **Independent evolution** - Version and release separately from cairn
+- **Reusability** - Others can use mcp-gateway without cairn
 - **Self-contained** - Owns its own declarative configuration module
 - **Cleaner architecture** - Clear dependency boundaries
-- **Follows established pattern** - Matches axios-ai-mail, mcp-dav structure
-- **Prepares for OAuth** - Auth design not tied to axios assumptions
+- **Follows established pattern** - Matches cairn-mail, mcp-dav structure
+- **Prepares for OAuth** - Auth design not tied to cairn assumptions
 
 ## Declarative MCP Configuration
 
 mcp-gateway will own the declarative MCP server configuration module. Users configure servers through mcp-gateway's home-manager module:
 
 ```nix
-# User config (via axios or standalone)
+# User config (via cairn or standalone)
 {
   services.mcp-gateway = {
     enable = true;
@@ -63,7 +63,7 @@ mcp-gateway will own the declarative MCP server configuration module. Users conf
       };
 
       # External MCP servers (from other flakes)
-      axios-ai-mail.enable = true;   # From axios-ai-mail flake
+      cairn-mail.enable = true;   # From cairn-mail flake
       mcp-dav.enable = true;         # From mcp-dav flake
       mcp-journal.enable = true;     # From mcp-journal flake
     };
@@ -81,7 +81,7 @@ mcp-gateway will own the declarative MCP server configuration module. Users conf
 **What this generates:**
 - `~/.config/mcp/mcp_servers.json` - Gateway config (runtime)
 - `~/.mcp.json` - Claude Code native MCP config
-- `~/.config/ai/prompts/axios.md` - System prompt with available tools
+- `~/.config/ai/prompts/cairn.md` - System prompt with available tools
 
 **Architecture:**
 
@@ -97,27 +97,27 @@ mcp-gateway will own the declarative MCP server configuration module. Users conf
 │                    mcp-gateway module                           │
 │  - Evaluates server declarations                                │
 │  - Pulls packages from mcp-servers-nix overlay                  │
-│  - Pulls packages from external flakes (axios-ai-mail, etc.)    │
+│  - Pulls packages from external flakes (cairn-mail, etc.)    │
 │  - Generates config files                                       │
 │  - Configures systemd service                                   │
 └─────────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┼───────────────┐
               ▼               ▼               ▼
-        ~/.mcp.json    mcp_servers.json   axios.md
+        ~/.mcp.json    mcp_servers.json   cairn.md
         (Claude Code)  (mcp-gateway)      (prompt)
 ```
 
-**axios's simplified role:**
+**cairn's simplified role:**
 ```nix
-# axios home/ai/default.nix (after migration)
+# cairn home/ai/default.nix (after migration)
 { config, lib, pkgs, ... }:
 {
   imports = [
     inputs.mcp-gateway.homeManagerModules.default
   ];
 
-  # axios just provides opinionated defaults
+  # cairn just provides opinionated defaults
   services.mcp-gateway = {
     enable = lib.mkDefault config.services.ai.enable;
     presets.core = lib.mkDefault true;
@@ -199,11 +199,11 @@ mcp-gateway/
 }
 ```
 
-## Migration from axios
+## Migration from cairn
 
 ### Files to Migrate
 
-| Source (axios) | Destination (mcp-gateway) |
+| Source (cairn) | Destination (mcp-gateway) |
 |----------------|---------------------------|
 | `pkgs/mcp-gateway/src/` | `src/` |
 | `pkgs/mcp-gateway/pyproject.toml` | `pyproject.toml` |
@@ -211,7 +211,7 @@ mcp-gateway/
 | `home/ai/mcp.nix` (MCP config logic) | `modules/home-manager/` |
 | `home/ai/prompts/` | `modules/home-manager/prompts/` |
 
-### axios Changes After Migration
+### cairn Changes After Migration
 
 1. **Add** mcp-gateway flake input:
    ```nix
@@ -234,7 +234,7 @@ mcp-gateway/
        inputs.mcp-gateway.homeManagerModules.default
      ];
 
-     # axios just sets defaults, users can override
+     # cairn just sets defaults, users can override
      services.mcp-gateway = lib.mkIf config.services.ai.enable {
        enable = true;
        presets.core = lib.mkDefault true;
@@ -243,13 +243,13 @@ mcp-gateway/
    }
    ```
 
-4. **Remove** from axios:
+4. **Remove** from cairn:
    - `pkgs/mcp-gateway/` directory
    - `home/ai/mcp.nix` (moved to mcp-gateway)
-   - `home/ai/prompts/axios-system-prompt.md` (moved to mcp-gateway)
+   - `home/ai/prompts/cairn-system-prompt.md` (moved to mcp-gateway)
    - MCP server definitions from home/ai/
 
-5. **Keep** in axios:
+5. **Keep** in cairn:
    - `services.ai.enable` option (controls whether mcp-gateway is enabled)
    - Integration with agenix secrets
    - User-level customizations in downstream configs
@@ -261,7 +261,7 @@ mcp-gateway/
 - `mcp-servers-nix` - MCP server packages and definitions (git, github, filesystem, etc.)
 
 **Optional flake inputs** (for external MCP servers):
-- `axios-ai-mail` - Email MCP server
+- `cairn-mail` - Email MCP server
 - `mcp-dav` - Calendar/contacts MCP server
 - `mcp-journal` - Journal MCP server
 
@@ -273,12 +273,12 @@ mcp-gateway/
 
 1. **Phase 1**: Create new repo with current code
 2. **Phase 2**: Add OAuth2 authentication (separate proposal)
-3. **Phase 3**: Remove from axios, add as flake input
-4. **Phase 4**: Update axios documentation
+3. **Phase 3**: Remove from cairn, add as flake input
+4. **Phase 4**: Update cairn documentation
 
 ## Open Questions
 
-1. Should the NixOS service module stay in axios or move to mcp-gateway?
+1. Should the NixOS service module stay in cairn or move to mcp-gateway?
    - **Recommendation**: Move to mcp-gateway for self-contained deployment
 
 2. Config file location: `~/.config/mcp/mcp_servers.json` or new path?

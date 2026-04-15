@@ -1,4 +1,4 @@
-# PIM Module: axios-ai-mail integration
+# PIM Module: cairn-mail integration
 # Provides AI-powered email management with server/client role support
 {
   config,
@@ -13,12 +13,12 @@ let
   tsCfg = config.networking.tailscale;
 in
 {
-  # Import axios-ai-mail NixOS module (provides services.axios-ai-mail options)
+  # Import cairn-mail NixOS module (provides services.cairn-mail options)
   # This is always imported; the service is only enabled for server role
-  imports = [ inputs.axios-ai-mail.nixosModules.default ];
+  imports = [ inputs.cairn-mail.nixosModules.default ];
 
   options.services.pim = {
-    enable = lib.mkEnableOption "Personal Information Management (axios-ai-mail)";
+    enable = lib.mkEnableOption "Personal Information Management (cairn-mail)";
 
     role = lib.mkOption {
       type = lib.types.enum [
@@ -28,9 +28,9 @@ in
       default = "server";
       description = ''
         PIM deployment role:
-        - "server": Run axios-ai-mail backend service (requires AI module)
-                    Auto-registers as axios-mail.<tailnet>.ts.net via Tailscale Services
-        - "client": PWA desktop entry only (connects to axios-mail.<tailnet>.ts.net)
+        - "server": Run cairn-mail backend service (requires AI module)
+                    Auto-registers as cairn-mail.<tailnet>.ts.net via Tailscale Services
+        - "client": PWA desktop entry only (connects to cairn-mail.<tailnet>.ts.net)
       '';
     };
 
@@ -38,13 +38,13 @@ in
     port = lib.mkOption {
       type = lib.types.port;
       default = 8080;
-      description = "Port for axios-ai-mail web UI (server role only)";
+      description = "Port for cairn-mail web UI (server role only)";
     };
 
     user = lib.mkOption {
       type = lib.types.str;
       default = "";
-      description = "User to run axios-ai-mail service as (server role only)";
+      description = "User to run cairn-mail service as (server role only)";
     };
 
     sync = {
@@ -62,7 +62,7 @@ in
 
     # PWA options (both roles)
     pwa = {
-      enable = lib.mkEnableOption "Generate axios-ai-mail PWA desktop entry";
+      enable = lib.mkEnableOption "Generate cairn-mail PWA desktop entry";
       tailnetDomain = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
@@ -95,14 +95,14 @@ in
       {
         assertion = !isServer || config.services.ai.enable;
         message = ''
-          axiOS configuration error: PIM server role requires AI module.
+          Cairn configuration error: PIM server role requires AI module.
 
           You have:
             modules.pim = true
             services.pim.role = "server"
             modules.ai = false (or services.ai.enable = false)
 
-          axios-ai-mail server requires the AI module for email classification.
+          cairn-mail server requires the AI module for email classification.
 
           Fix by either:
             modules.ai = true;  # Enable AI module (default)
@@ -121,10 +121,10 @@ in
       }
     ];
 
-    # Server role: import axios-ai-mail overlay and configure service
-    nixpkgs.overlays = lib.mkIf isServer [ inputs.axios-ai-mail.overlays.default ];
+    # Server role: import cairn-mail overlay and configure service
+    nixpkgs.overlays = lib.mkIf isServer [ inputs.cairn-mail.overlays.default ];
 
-    services.axios-ai-mail = lib.mkIf isServer {
+    services.cairn-mail = lib.mkIf isServer {
       enable = true;
       port = cfg.port;
       user = cfg.user;
@@ -135,15 +135,15 @@ in
     };
 
     # Tailscale Services registration
-    # Provides unique DNS name: axios-mail.<tailnet>.ts.net
+    # Provides unique DNS name: cairn-mail.<tailnet>.ts.net
     # loopbackProxy: nginx on 127.0.0.1:443 with LE cert for secure context (Web Push)
-    networking.tailscale.services."axios-mail" = lib.mkIf isServer {
+    networking.tailscale.services."cairn-mail" = lib.mkIf isServer {
       enable = true;
       backend = "http://127.0.0.1:${toString cfg.port}";
       loopbackProxy.enable = true;
     };
 
-    # Calendar/contacts sync is handled by axios-dav
-    # See: https://github.com/kcalvelli/axios-dav
+    # Calendar/contacts sync is handled by cairn-dav
+    # See: https://github.com/kcalvelli/cairn-dav
   };
 }

@@ -1,6 +1,6 @@
-# axiOS Example Configuration
+# Cairn Example Configuration
 
-This is the canonical axiOS downstream configuration structure. It demonstrates single-host, multi-host, and shared-user scenarios.
+This is the canonical Cairn downstream configuration structure. It demonstrates single-host, multi-host, and shared-user scenarios.
 
 ## Structure
 
@@ -48,10 +48,10 @@ example-config/
 
 ### Convention-Over-Configuration
 
-axiOS prescribes a canonical directory structure. Hosts live in `hosts/`, users in `users/`, and the flake uses a `mkHost` helper:
+Cairn prescribes a canonical directory structure. Hosts live in `hosts/`, users in `users/`, and the flake uses a `mkHost` helper:
 
 ```nix
-mkHost = hostname: axios.lib.mkSystem (
+mkHost = hostname: cairn.lib.mkSystem (
   (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
     configDir = self.outPath;
   }
@@ -60,7 +60,7 @@ mkHost = hostname: axios.lib.mkSystem (
 
 ### Host-User Association
 
-Each host declares which users belong to it via a `users` list. axiOS automatically resolves `users/<name>.nix` for each name:
+Each host declares which users belong to it via a `users` list. Cairn automatically resolves `users/<name>.nix` for each name:
 
 ```nix
 # hosts/desktop.nix
@@ -146,7 +146,7 @@ nixosConfigurations = {
 ```nix
 { ... }:
 {
-  axios.users.users.newuser = {
+  cairn.users.users.newuser = {
     fullName = "New User";
     email = "new@example.com";
     isAdmin = false;

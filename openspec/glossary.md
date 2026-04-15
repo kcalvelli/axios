@@ -1,16 +1,16 @@
 # Glossary
 
 ## Purpose
-This glossary defines domain-specific terms, acronyms, and technical concepts used throughout the axiOS codebase. Understanding these terms is essential for working with the system.
+This glossary defines domain-specific terms, acronyms, and technical concepts used throughout the Cairn codebase. Understanding these terms is essential for working with the system.
 
 ## Domain Terminology
 
-### axiOS
+### Cairn
 **Definition**: A modular NixOS framework and library that provides reusable modules, packages, and configurations for building NixOS systems
 
 **Usage**: Repository name, flake name, module prefix
-- Code: `inputs.axios.nixosModules.<module>`
-- CLI: `nix run github:kcalvelli/axios#init`
+- Code: `inputs.cairn.nixosModules.<module>`
+- CLI: `nix run github:kcalvelli/cairn#init`
 
 **Related Terms**: NixOS, Flake, Module
 
@@ -19,9 +19,9 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 ### Module
 **Definition**: A self-contained NixOS or home-manager configuration unit that provides specific functionality and can be independently imported
 
-**Usage**: Primary building block of axiOS
+**Usage**: Primary building block of Cairn
 - Pattern: Directory with `default.nix` containing options and config
-- Import: `imports = [ inputs.axios.nixosModules.desktop ];`
+- Import: `imports = [ inputs.cairn.nixosModules.desktop ];`
 
 **Related Terms**: NixOS Module, Home Module, Enable Option
 
@@ -32,7 +32,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Usage**: User environment configuration
 - Location: `home/` directory
-- Access: `inputs.axios.homeModules.<name>`
+- Access: `inputs.cairn.homeModules.<name>`
 
 **Related Terms**: Home Manager, User Environment, Module
 
@@ -87,7 +87,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Usage**: Exposed functionality
 - Types: nixosModules, homeModules, packages, apps, devShells
-- Access: `inputs.axios.nixosModules.desktop`
+- Access: `inputs.cairn.nixosModules.desktop`
 
 **Related Terms**: Flake, Module, Package
 
@@ -120,7 +120,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Usage**: Quick setup for common configurations
 - Types: workstation, laptop
-- Access: `inputs.axios.homeModules.workstation`
+- Access: `inputs.cairn.homeModules.workstation`
 
 **Related Terms**: Home Module, Base Profile
 
@@ -140,7 +140,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 ### Niri
 **Definition**: A scrollable tiling Wayland compositor with overview mode
 
-**Usage**: Primary Wayland compositor for axiOS desktop
+**Usage**: Primary Wayland compositor for Cairn desktop
 - Configuration: home/desktop/niri.nix
 - Upstream: github:sodiboo/niri-flake
 
@@ -241,7 +241,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 ### C64
 **Definition**: Commodore 64 - An 8-bit home computer introduced by Commodore International in 1982, one of the best-selling single computer models of all time
 
-**Usage**: Retro computing integration in axiOS
+**Usage**: Retro computing integration in Cairn
 - Module: modules/c64/
 - Enable: `modules.c64 = true`
 
@@ -275,10 +275,10 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 ### Syncthing
 **Definition**: Peer-to-peer file synchronization tool that syncs files between devices without a central server
 
-**Usage**: XDG directory sync across axiOS hosts
+**Usage**: XDG directory sync across Cairn hosts
 - Transport: Tailscale MagicDNS (no external discovery or relays)
 - Module: modules/syncthing/default.nix
-- Config: `axios.syncthing` namespace
+- Config: `cairn.syncthing` namespace
 
 **Related Terms**: Tailscale, XDG, MagicDNS
 
@@ -519,7 +519,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 ### Module Composition
 **Definition**: Pattern of combining independent modules to build complete systems
 
-**Technical Representation**: User's flake.nix imports multiple axiOS modules
+**Technical Representation**: User's flake.nix imports multiple Cairn modules
 - Independence: Modules don't depend on each other
 - Flexibility: Enable only what's needed
 
@@ -549,7 +549,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Definition**: The Nix packages collection - repository of ~80,000 packages
 
 **Context**: Primary package source
-- Channel: unstable (axiOS uses latest)
+- Channel: unstable (Cairn uses latest)
 - URL: github:NixOS/nixpkgs/nixpkgs-unstable
 
 **Related Terms**: Package, Nix
@@ -561,7 +561,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Context**: Bleeding edge packages (vs. stable channel)
 - Trade-off: Latest features vs. potential breakage
-- axiOS choice: Unstable for modern packages
+- Cairn choice: Unstable for modern packages
 
 **Evidence**: flake.nix:7
 
@@ -591,7 +591,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Definition**: Framework for organizing Nix flakes with modular structure
 
 **Context**: Flake organization tool
-- Usage: axiOS uses for clean flake structure
+- Usage: Cairn uses for clean flake structure
 - Benefit: Compose flake outputs from multiple files
 
 **Evidence**: flake.nix:13-16
@@ -612,7 +612,7 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 
 **Replaced By**: `services.ai.local` with llama.cpp (`llama-server`). Local inference now uses GGUF models directly via `llama-server` systemd service.
 
-**Migration**: Replace `services.ai.local.models` with `services.ai.local.model` (path to GGUF file). Remove `keepAlive` and `rocmOverrideGfx` options. Tailscale service renamed from `axios-ollama` to `axios-llama`.
+**Migration**: Replace `services.ai.local.models` with `services.ai.local.model` (path to GGUF file). Remove `keepAlive` and `rocmOverrideGfx` options. Tailscale service renamed from `cairn-ollama` to `cairn-llama`.
 
 ## Term Relationships
 

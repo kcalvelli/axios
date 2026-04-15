@@ -5,7 +5,7 @@
 
 ## 2. WirePlumber Seat Monitoring Option
 
-- [x] 2.1 Add `axios.system.bluetooth.disableSeatMonitoring` option (type bool, default false) to `modules/system/bluetooth.nix`
+- [x] 2.1 Add `cairn.system.bluetooth.disableSeatMonitoring` option (type bool, default false) to `modules/system/bluetooth.nix`
 - [x] 2.2 Create WirePlumber config fragment that sets `monitor.bluez.seat-monitoring = disabled` via `wireplumber.extraConfig`, gated behind `lib.mkIf cfg.disableSeatMonitoring`
 - [x] 2.3 Used `wireplumber.extraConfig` (cleaner than `configPackages` + `writeTextDir` — same result, NixOS handles the derivation)
 

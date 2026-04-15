@@ -1,20 +1,20 @@
-# axiOS Documentation
+# Cairn Documentation
 
-Welcome to the axiOS documentation. This guide will help you install, configure, and maintain your NixOS system.
+Welcome to the Cairn documentation. This guide will help you install, configure, and maintain your NixOS system.
 
 ## Documentation Overview
 
 | Document | Purpose | When to Read |
 |----------|---------|--------------|
-| [INSTALLATION.md](INSTALLATION.md) | Install axiOS on your machine | **Start here** for new installations |
+| [INSTALLATION.md](INSTALLATION.md) | Install Cairn on your machine | **Start here** for new installations |
 | [MODULE_REFERENCE.md](MODULE_REFERENCE.md) | Complete guide to all modules | **Learn what each module does** |
-| [LIBRARY_USAGE.md](LIBRARY_USAGE.md) | Using axios as a library | Using axios in your own flake |
-| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | See what's included in axiOS |
+| [LIBRARY_USAGE.md](LIBRARY_USAGE.md) | Using cairn as a library | Using cairn in your own flake |
+| [APPLICATIONS.md](APPLICATIONS.md) | Complete application catalog | See what's included in Cairn |
 | [ADDING_HOSTS.md](ADDING_HOSTS.md) | Multi-machine management | Managing multiple systems |
 | [USER_MODULE.md](USER_MODULE.md) | User configuration guide | Understanding user setup |
 | [SECRETS_MODULE.md](SECRETS_MODULE.md) | Managing encrypted secrets | Using age-encrypted secrets |
 | [THEMING.md](THEMING.md) | Desktop theming and customization | Customizing your desktop |
-| [UPGRADE.md](UPGRADE.md) | Update axios to latest version | When updating axios input |
+| [UPGRADE.md](UPGRADE.md) | Update cairn to latest version | When updating cairn input |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and fixes | When experiencing problems |
 | [BINARY_CACHE.md](BINARY_CACHE.md) | Using the binary cache | Speed up builds |
 | [MCP_GUIDE.md](MCP_GUIDE.md) | Complete MCP integration guide | **Understanding AI & MCP** |
@@ -26,12 +26,12 @@ Welcome to the axiOS documentation. This guide will help you install, configure,
 
 **Fresh NixOS install:**
 ```bash
-bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/axios/master/scripts/install.sh)
+bash <(curl -sL https://raw.githubusercontent.com/kcalvelli/cairn/master/scripts/install.sh)
 ```
 
 **Flakes already enabled:**
 ```bash
-nix run --refresh github:kcalvelli/axios#init
+nix run --refresh github:kcalvelli/cairn#init
 ```
 
 See [INSTALLATION.md](INSTALLATION.md) for full details.
@@ -54,7 +54,7 @@ Topics covered:
 - Disk configuration options
 - Building and deploying your system
 
-**Start here if you're installing axiOS for the first time.**
+**Start here if you're installing Cairn for the first time.**
 
 ## AI & MCP Integration
 
@@ -62,15 +62,15 @@ Topics covered:
 **Complete guide to MCP (Model Context Protocol) integration**
 
 Essential topics:
-- What is MCP and how axios configures it
+- What is MCP and how cairn configures it
 - 11 pre-configured MCP servers (no setup required)
 - How on-demand tool discovery saves 99% tokens (vs traditional MCP)
-- Adding new MCP servers to axios
+- Adding new MCP servers to cairn
 - Configuration guide with examples
 - Real-world workflows and debugging
 - Cost savings analysis ($169/year for typical usage)
 
-**Start here to understand axios's AI capabilities.**
+**Start here to understand cairn's AI capabilities.**
 
 ### 📚 [MCP_REFERENCE.md](MCP_REFERENCE.md)
 **Quick reference card for MCP commands**
@@ -108,10 +108,10 @@ Comprehensive list of:
 - Gaming support (when enabled)
 - Virtualization tools (when enabled)
 
-**Browse this to see everything axiOS includes out of the box.**
+**Browse this to see everything Cairn includes out of the box.**
 
 ### 🖥️ [ADDING_HOSTS.md](ADDING_HOSTS.md)
-**Managing multiple machines with axiOS**
+**Managing multiple machines with Cairn**
 
 Covers:
 - Adding new hosts to your configuration
@@ -120,7 +120,7 @@ Covers:
 - Template usage and examples
 - Multi-machine best practices
 
-**For users managing axiOS across multiple machines.**
+**For users managing Cairn across multiple machines.**
 
 ### 🎨 [THEMING.md](THEMING.md)
 **Desktop theming and customization**
@@ -141,8 +141,8 @@ Includes:
 # Navigate to your config repository
 cd ~/my-nixos-config
 
-# Update axios specifically (recommended)
-nix flake lock --update-input axios
+# Update cairn specifically (recommended)
+nix flake lock --update-input cairn
 
 # Or update all inputs
 nix flake update
@@ -181,7 +181,7 @@ Then rebuild: `sudo nixos-rebuild switch --flake .#HOSTNAME`
 ## Repository Structure
 
 ```
-axios/
+cairn/
 ├── lib/                # Library functions (mkSystem API)
 ├── modules/            # NixOS system modules
 │   ├── default.nix     # Module registry
@@ -213,9 +213,9 @@ axios/
 ### Getting Help
 
 1. **Check documentation**: Start with the relevant guide above
-2. **Search issues**: Look through [existing GitHub issues](https://github.com/kcalvelli/axios/issues)
+2. **Search issues**: Look through [existing GitHub issues](https://github.com/kcalvelli/cairn/issues)
 3. **Ask the community**: Post on [NixOS Discourse](https://discourse.nixos.org/)
-4. **Report bugs**: Create a [new issue](https://github.com/kcalvelli/axios/issues/new) with details
+4. **Report bugs**: Create a [new issue](https://github.com/kcalvelli/cairn/issues/new) with details
 
 ### External Resources
 
@@ -237,9 +237,9 @@ When updating documentation:
 ## Quick Links
 
 - 📖 **Main README**: [../README.md](../README.md)
-- 💾 **Repository**: https://github.com/kcalvelli/axios
-- 🚀 **Releases**: https://github.com/kcalvelli/axios/releases
-- 🐛 **Issues**: https://github.com/kcalvelli/axios/issues
+- 💾 **Repository**: https://github.com/kcalvelli/cairn
+- 🚀 **Releases**: https://github.com/kcalvelli/cairn/releases
+- 🐛 **Issues**: https://github.com/kcalvelli/cairn/issues
 
 ---
 

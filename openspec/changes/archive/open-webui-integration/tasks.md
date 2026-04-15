@@ -2,7 +2,7 @@
 
 ## Overview
 
-Add Open WebUI as an axios service with server/client roles, Tailscale serve integration, and PWA desktop entry generation.
+Add Open WebUI as an cairn service with server/client roles, Tailscale serve integration, and PWA desktop entry generation.
 
 **Depends On**: AI Module Server/Client Refactor (proposal #1) ✅
 
@@ -67,11 +67,11 @@ Add Open WebUI as an axios service with server/client roles, Tailscale serve int
 ## Phase 4: Icon Creation ✅
 
 ### Task 4.1: Design Icon
-- [x] Placeholder icon created (copy of axios-ai-mail)
+- [x] Placeholder icon created (copy of cairn-mail)
 - [ ] Create proper icon with chat bubble center element (deferred)
 
 ### Task 4.2: Add Icon to Resources
-- [x] Save to `home/resources/pwa-icons/axios-ai-chat.png`
+- [x] Save to `home/resources/pwa-icons/cairn-ai-chat.png`
 
 ---
 
@@ -125,8 +125,8 @@ Add Open WebUI as an axios service with server/client roles, Tailscale serve int
 ## Phase 8: Finalization
 
 ### Task 8.1: Code Review Checklist
-- [x] Options follow axios patterns
-- [x] Server/client pattern matches axios-ai-mail
+- [x] Options follow cairn patterns
+- [x] Server/client pattern matches cairn-mail
 - [x] PWA generation matches existing pattern
 - [x] Privacy settings configured
 
@@ -141,7 +141,7 @@ Add Open WebUI as an axios service with server/client roles, Tailscale serve int
 |------|---------|
 | `modules/ai/webui.nix` | NixOS module for Open WebUI |
 | `home/ai/webui.nix` | Home-manager module for PWA |
-| `home/resources/pwa-icons/axios-ai-chat.png` | PWA icon (placeholder) |
+| `home/resources/pwa-icons/cairn-ai-chat.png` | PWA icon (placeholder) |
 
 ## Files Modified
 

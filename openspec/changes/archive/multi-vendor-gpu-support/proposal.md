@@ -30,7 +30,7 @@ fattn-common.cuh:903: GGML_ASSERT(max_blocks_per_sm > 0) failed
 
 ## Existing Infrastructure Discovery
 
-**Key finding**: axios already tracks GPU vendor via `hardware.gpu` in host configurations:
+**Key finding**: cairn already tracks GPU vendor via `hardware.gpu` in host configurations:
 
 ```nix
 # Host config (e.g., hosts/edge.nix)
@@ -44,8 +44,8 @@ fattn-common.cuh:903: GGML_ASSERT(max_blocks_per_sm > 0) failed
 
 This flows through the system:
 1. `lib/default.nix` validates and passes `hardware.gpu` to modules
-2. `axios.hardware.gpuType` option is set from host config
-3. Graphics module already uses this: `gpuType = config.axios.hardware.gpuType or null;`
+2. `cairn.hardware.gpuType` option is set from host config
+3. Graphics module already uses this: `gpuType = config.cairn.hardware.gpuType or null;`
 
 **Solution**: Follow the same pattern in the AI module - no new options needed!
 
@@ -59,7 +59,7 @@ Follow the graphics module pattern:
 # modules/ai/default.nix
 let
   cfg = config.services.ai;
-  gpuType = config.axios.hardware.gpuType or null;
+  gpuType = config.cairn.hardware.gpuType or null;
   isAmdGpu = gpuType == "amd";
   isNvidiaGpu = gpuType == "nvidia";
   isServer = cfg.local.role == "server";
@@ -118,7 +118,7 @@ services.ollama = lib.mkMerge [
 ## Scope
 
 **In Scope**:
-- Read existing `axios.hardware.gpuType` in AI module
+- Read existing `cairn.hardware.gpuType` in AI module
 - Conditional package selection (ollama vs ollama-rocm)
 - Vendor-specific environment variables (FA disabled for AMD)
 - Vendor-specific kernel modules and packages

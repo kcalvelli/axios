@@ -1,7 +1,7 @@
 # System Configuration
 
 ## Purpose
-Provides the foundational NixOS configuration for axiOS systems, including user management, bootloading, performance tuning, and localization.
+Provides the foundational NixOS configuration for Cairn systems, including user management, bootloading, performance tuning, and localization.
 
 ## Components
 
@@ -21,13 +21,13 @@ Provides the foundational NixOS configuration for axiOS systems, including user 
 - **Implementation**: `modules/system/boot.nix`, `modules/system/memory.nix`
 
 ### Timezone & Locale
-- **No Regional Defaults**: Users must explicitly set `axios.system.timeZone`.
-- **Locale**: Default `en_US.UTF-8`, configurable via `axios.system.locale`.
+- **No Regional Defaults**: Users must explicitly set `cairn.system.timeZone`.
+- **Locale**: Default `en_US.UTF-8`, configurable via `cairn.system.locale`.
 - **Implementation**: `modules/system/locale.nix`
 
 ### User Management
 - **Implementation**: `modules/users.nix`
-- **Options**: `axios.user.name`, `axios.user.fullName`, `axios.user.email`.
+- **Options**: `cairn.user.name`, `cairn.user.fullName`, `cairn.user.email`.
 - **Features**: Automatic group membership for normal users (networkmanager, wheel, systemd-journal).
 
 ## Requirements

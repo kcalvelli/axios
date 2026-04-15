@@ -19,8 +19,8 @@ Manages network connectivity and self-hosted application infrastructure using a 
 ### Immich (Photo Backup)
 - **Features**: Subdomain support (`selfHosted.immich.subdomain`), custom media location, and GPU acceleration.
 - **Acceleration**: Optional AMD/Nvidia/Intel GPU support for video transcoding.
-- **Networking**: Uses **Tailscale Services** (`axios-immich.<tailnet>.ts.net`) for secure, magic-dns addressed access.
-- **PWA Strategy**: Uses `loopbackProxy` for unified HTTPS access (`https://axios-immich.<tailnet>/`) on both server and client.
+- **Networking**: Uses **Tailscale Services** (`cairn-immich.<tailnet>.ts.net`) for secure, magic-dns addressed access.
+- **PWA Strategy**: Uses `loopbackProxy` for unified HTTPS access (`https://cairn-immich.<tailnet>/`) on both server and client.
 - **PostgreSQL Collation Auto-Refresh**: A `postgresql-collation-refresh` oneshot service runs at boot after PostgreSQL starts. It refreshes collation versions on all databases, preventing journal warnings after glibc updates. The command is idempotent and safe to run on every boot.
 - **Implementation**: `modules/services/immich.nix`
 

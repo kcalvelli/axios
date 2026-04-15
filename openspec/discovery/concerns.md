@@ -189,8 +189,8 @@ environment.sessionVariables = {
 **Supported GPUs**: NVIDIA, AMD, Intel (all fully functional)
 
 **Critical Requirements**:
-- **GPU Type Must Be Set**: Users MUST explicitly configure `axios.hardware.gpuType`
-- **Automatic Driver Loading**: axios automatically sets `services.xserver.videoDrivers` based on GPU type
+- **GPU Type Must Be Set**: Users MUST explicitly configure `cairn.hardware.gpuType`
+- **Automatic Driver Loading**: cairn automatically sets `services.xserver.videoDrivers` based on GPU type
 - **Hardware Acceleration**: VA-API and Vulkan automatically configured for all GPU types
 
 **Evidence**: modules/graphics/default.nix, CHANGELOG.md (Unreleased - Graphics fixes)
@@ -220,7 +220,7 @@ environment.sessionVariables = {
 **Driver**: AMDGPU kernel driver (automatic)
 
 **Features**:
-- **GPU Recovery**: Optional `axios.hardware.enableGPURecovery` for hang recovery
+- **GPU Recovery**: Optional `cairn.hardware.enableGPURecovery` for hang recovery
 - **ROCm**: Available for ML/AI workloads (llama.cpp uses ROCm acceleration)
 - **Vulkan**: RADV driver automatically configured
 - **Mesa**: Latest Mesa with AMDGPU support

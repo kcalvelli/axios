@@ -12,7 +12,7 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 
 ### DankMaterialShell (DMS)
 - **Architecture**: Launched via Niri's `spawn-at-startup` mechanism (managed by the `dank-material-shell` niri module).
-- **Lifecycle**: Systemd integration is explicitly disabled in `axios` to eliminate race conditions with PipeWire/Wayland during boot.
+- **Lifecycle**: Systemd integration is explicitly disabled in `cairn` to eliminate race conditions with PipeWire/Wayland during boot.
 - **Features**: Material Design shell, system monitoring, clipboard, VPN status, and dynamic theming via `matugen`.
 - **Theming**: Automatic color extraction from wallpaper.
 - **Implementation**: `home/desktop/default.nix`, `home/desktop/theming.nix`, `home/desktop/niri.nix`
@@ -66,7 +66,7 @@ Performance benefits:
 
 ### Requirement: GPU Resource Correlation Awareness
 
-Desktop session stability correlates with GPU memory state; axiOS documents this relationship to aid troubleshooting.
+Desktop session stability correlates with GPU memory state; Cairn documents this relationship to aid troubleshooting.
 
 #### Scenario: Login after heavy ollama usage
 

@@ -19,7 +19,7 @@ Currently, a laptop user must either:
 
 ### Solution
 
-Introduce `role = "server" | "client"` pattern (matching axios-ai-mail) to the AI local module:
+Introduce `role = "server" | "client"` pattern (matching cairn-mail) to the AI local module:
 
 - **Server role**: Run Ollama locally, expose via Tailscale
 - **Client role**: Configure `OLLAMA_HOST` to point to remote server, no local Ollama
@@ -216,7 +216,7 @@ assertions = [
 
 - Requires: Tailscale module for serve configuration
 - Enables: Open WebUI integration (separate proposal)
-- Enables: axios Portal (separate proposal)
+- Enables: cairn Portal (separate proposal)
 
 ## Port Allocation
 
@@ -241,7 +241,7 @@ assertions = [
 
 Split into `services.ai.ollama-server` and `services.ai.ollama-client`.
 
-**Rejected**: Inconsistent with axios-ai-mail pattern, more complex configuration.
+**Rejected**: Inconsistent with cairn-mail pattern, more complex configuration.
 
 ### Alternative 2: Auto-detect GPU
 
@@ -251,6 +251,6 @@ Automatically choose role based on GPU presence.
 
 ## References
 
-- axios-ai-mail server/client pattern: `modules/pim/default.nix`
+- cairn-mail server/client pattern: `modules/pim/default.nix`
 - Current AI module: `modules/ai/default.nix`
 - Tailscale serve documentation

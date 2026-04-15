@@ -7,7 +7,7 @@
 }:
 
 let
-  cfg = config.axios.wallpapers;
+  cfg = config.cairn.wallpapers;
 
   # Wallpaper change hook script for DankMaterialShell
   # This is a hook script called by Dank Hooks plugin with:
@@ -34,7 +34,7 @@ let
   );
 in
 {
-  options.axios.wallpapers = {
+  options.cairn.wallpapers = {
     enable = lib.mkEnableOption "curated wallpaper collection";
 
     autoUpdate = lib.mkOption {
@@ -80,7 +80,7 @@ in
       home.activation.setRandomWallpaper = lib.mkIf cfg.autoUpdate (
         config.lib.dag.entryAfter [ "writeBoundary" ] ''
           WALLPAPER_DIR="$HOME/Pictures/Wallpapers"
-          HASH_FILE="$HOME/.cache/axios-wallpaper-collection-hash"
+          HASH_FILE="$HOME/.cache/cairn-wallpaper-collection-hash"
 
           # Create a hash of the wallpaper collection (sorted filenames)
           if [ -d "$WALLPAPER_DIR" ]; then
@@ -112,13 +112,13 @@ in
                   $DRY_RUN_CMD echo "$CURRENT_HASH" > "$HASH_FILE"
 
                   if [ -n "''${VERBOSE:-}" ]; then
-                    echo "axiOS: Wallpaper collection changed, set new random wallpaper: $random_wallpaper"
+                    echo "Cairn: Wallpaper collection changed, set new random wallpaper: $random_wallpaper"
                   fi
                 else
                   # DMS not ready during activation, will try again on next rebuild
                   if [ -n "''${VERBOSE:-}" ]; then
-                    echo "axiOS: Wallpaper collection ready at $WALLPAPER_DIR, but DMS not available during activation"
-                    echo "axiOS: Wallpaper will be set on next login or rebuild"
+                    echo "Cairn: Wallpaper collection ready at $WALLPAPER_DIR, but DMS not available during activation"
+                    echo "Cairn: Wallpaper will be set on next login or rebuild"
                   fi
                 fi
               fi

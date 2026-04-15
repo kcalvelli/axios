@@ -1,6 +1,6 @@
 ## Approach
 
-Replace Ollama with a custom systemd service running `llama-server` from the `llama-cpp` nixpkgs package. The server speaks OpenAI-compatible `/v1/chat/completions` natively — all downstream consumers (axios-ai-mail, OpenCode) work without modification.
+Replace Ollama with a custom systemd service running `llama-server` from the `llama-cpp` nixpkgs package. The server speaks OpenAI-compatible `/v1/chat/completions` natively — all downstream consumers (cairn-mail, OpenCode) work without modification.
 
 ## Module Changes (`modules/ai/default.nix`)
 
@@ -73,7 +73,7 @@ Replace `OLLAMA_HOST` with an env var pointing at the Tailscale Service:
 
 ```nix
 environment.sessionVariables = {
-  LLAMA_API_URL = "https://axios-llama.${cfg.local.tailnetDomain}";
+  LLAMA_API_URL = "https://cairn-llama.${cfg.local.tailnetDomain}";
 };
 ```
 
@@ -82,7 +82,7 @@ Client no longer installs `pkgs.ollama` — there's no CLI needed. Consumers hit
 ### Tailscale Services
 
 ```nix
-networking.tailscale.services."axios-llama" = {
+networking.tailscale.services."cairn-llama" = {
   enable = true;
   backend = "http://127.0.0.1:${toString cfg.local.port}";
 };
@@ -116,4 +116,4 @@ Downstream host configs need:
 2. Remove `services.ai.local.keepAlive` (no equivalent needed)
 3. Remove `services.ai.local.rocmOverrideGfx` (handled automatically or via `extraArgs`)
 4. Run `nix run .#download-llama-models` to get GGUF files if not already present
-5. Update any hardcoded references to `axios-ollama` → `axios-llama`
+5. Update any hardcoded references to `cairn-ollama` → `cairn-llama`

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Add text-to-speech capabilities to axios using piper-tts, with optional MCP tool for AI-initiated speech.
+Add text-to-speech capabilities to cairn using piper-tts, with optional MCP tool for AI-initiated speech.
 
 ---
 
@@ -55,7 +55,7 @@ tts = {
 ### Task 1.2: Implement TTS Config Block
 - [ ] Install piper-tts when enabled
 - [ ] Install espeak-ng as fallback
-- [ ] Create axios-speak wrapper script
+- [ ] Create cairn-speak wrapper script
 
 ```nix
 # In config section
@@ -66,9 +66,9 @@ tts = {
   ]
   ++ lib.optional (cfg.tts.engine == "espeak") espeak-ng;
 
-  # Create axios-speak wrapper
+  # Create cairn-speak wrapper
   environment.systemPackages = [
-    (pkgs.writeShellScriptBin "axios-speak" ''
+    (pkgs.writeShellScriptBin "cairn-speak" ''
       TEXT="$*"
       if [ -z "$TEXT" ]; then
         TEXT=$(cat)
@@ -218,13 +218,13 @@ settings.servers.tts = lib.mkIf (osConfig.services.ai.tts.mcp.enable or false) {
 ```nix
 # In home module
 programs.bash.shellAliases = lib.mkIf ttsCfg.enable {
-  say = "axios-speak";
-  speak = "axios-speak";
+  say = "cairn-speak";
+  speak = "cairn-speak";
 };
 
 programs.zsh.shellAliases = lib.mkIf ttsCfg.enable {
-  say = "axios-speak";
-  speak = "axios-speak";
+  say = "cairn-speak";
+  speak = "cairn-speak";
 };
 ```
 
@@ -235,12 +235,12 @@ programs.zsh.shellAliases = lib.mkIf ttsCfg.enable {
 
 ```bash
 # Examples
-echo "Hello world" | axios-speak
-axios-speak "Build complete"
-fortune | axios-speak
+echo "Hello world" | cairn-speak
+cairn-speak "Build complete"
+fortune | cairn-speak
 
 # Speak last command output
-!! | axios-speak
+!! | cairn-speak
 ```
 
 ---
@@ -261,7 +261,7 @@ fortune | axios-speak
 
 ### Task 6.1: Basic Tests
 - [ ] Test: piper-tts installed
-- [ ] Test: axios-speak command works
+- [ ] Test: cairn-speak command works
 - [ ] Test: Voice model downloads on first use
 - [ ] Test: espeak fallback works
 
@@ -280,7 +280,7 @@ fortune | axios-speak
 ## Phase 7: Finalization
 
 ### Task 7.1: Code Review
-- [ ] Options follow axios patterns
+- [ ] Options follow cairn patterns
 - [ ] Error handling for audio issues
 - [ ] Voice model path correct
 

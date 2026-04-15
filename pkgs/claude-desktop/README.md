@@ -40,10 +40,10 @@ Direct execution without FHS wrapper. Lighter weight but may have issues with:
 ### Try It Out
 ```bash
 # With MCP support (FHS wrapper)
-NIXPKGS_ALLOW_UNFREE=1 nix run github:yourusername/axios#claude-desktop
+NIXPKGS_ALLOW_UNFREE=1 nix run github:yourusername/cairn#claude-desktop
 
 # Without FHS wrapper
-NIXPKGS_ALLOW_UNFREE=1 nix run github:yourusername/axios#claude-desktop.unwrapped
+NIXPKGS_ALLOW_UNFREE=1 nix run github:yourusername/cairn#claude-desktop.unwrapped
 ```
 
 ### Install in Configuration
@@ -59,9 +59,9 @@ NIXPKGS_ALLOW_UNFREE=1 nix run github:yourusername/axios#claude-desktop.unwrappe
 }
 ```
 
-### Integration with axios AI Module
+### Integration with cairn AI Module
 
-The easiest way to use this is through axios's AI module:
+The easiest way to use this is through cairn's AI module:
 
 ```nix
 { config, ... }:
@@ -174,5 +174,5 @@ tree $(nix build .#claude-desktop --print-out-paths)
 ## See Also
 
 - [Claude Desktop Official Docs](https://support.anthropic.com/en/articles/10065433-installing-claude-for-desktop)
-- [axios AI Module Documentation](../../docs/modules/ai.md) (if exists)
+- [cairn AI Module Documentation](../../docs/modules/ai.md) (if exists)
 - [MCP Server Configuration](../../home/ai/mcp.nix)

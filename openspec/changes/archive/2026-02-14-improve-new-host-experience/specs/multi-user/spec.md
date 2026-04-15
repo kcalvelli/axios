@@ -1,35 +1,35 @@
 ## ADDED Requirements
 
-### Requirement: Multi-user definitions via axios.users
-The system SHALL provide an `axios.users` option of type `attrsOf submodule` where each attribute key is a username and the value is a submodule with the following options:
+### Requirement: Multi-user definitions via cairn.users
+The system SHALL provide an `cairn.users` option of type `attrsOf submodule` where each attribute key is a username and the value is a submodule with the following options:
 - `fullName` (string, required) — User's display name
 - `email` (string, default `""`) — Email address for git config and tools
 - `isAdmin` (bool, default `false`) — Controls sudo/wheel access and nix trusted-users
 - `homeProfile` (enum: `"workstation"`, `"laptop"`, `"minimal"`, or `null`, default `null`) — Per-user home-manager profile; null inherits the host's `homeProfile`
 - `extraGroups` (list of strings, default `[]`) — Additional groups beyond auto-assigned ones
 
-For each user defined in `axios.users`, the system SHALL automatically:
+For each user defined in `cairn.users`, the system SHALL automatically:
 1. Create a `users.users.<name>` account with `isNormalUser = true`
 2. Set the user's `description` to `fullName`
-3. Assign groups from `axios.users.defaultExtraGroups`, excluding `wheel` if `isAdmin = false`, plus any user-specific `extraGroups`
+3. Assign groups from `cairn.users.defaultExtraGroups`, excluding `wheel` if `isAdmin = false`, plus any user-specific `extraGroups`
 4. Create XDG directories (Desktop, Documents, Downloads, Music, Pictures, Videos, Public, Templates)
 5. Configure `home-manager.users.<name>` with the user's email and appropriate profile modules
 6. Add admin users to `nix.settings.trusted-users`
 
 #### Scenario: Single admin user
-- **WHEN** `axios.users.keith = { fullName = "Keith"; email = "k@example.com"; isAdmin = true; }` is set
+- **WHEN** `cairn.users.keith = { fullName = "Keith"; email = "k@example.com"; isAdmin = true; }` is set
 - **THEN** the system creates `users.users.keith` with `isNormalUser = true`, `description = "Keith"`, `extraGroups` including `wheel` and all module-based groups, adds `keith` to `nix.settings.trusted-users`, and configures `home-manager.users.keith` with email and host profile modules
 
 #### Scenario: Multiple users with mixed admin status
-- **WHEN** `axios.users` contains `keith = { isAdmin = true; ... }` and `traci = { isAdmin = false; ... }`
+- **WHEN** `cairn.users` contains `keith = { isAdmin = true; ... }` and `traci = { isAdmin = false; ... }`
 - **THEN** keith receives `wheel` in extraGroups and traci does not; both receive all other module-based groups; only keith appears in `nix.settings.trusted-users`
 
 #### Scenario: Per-user home profile override
-- **WHEN** host `homeProfile = "workstation"` and `axios.users.henry = { homeProfile = "minimal"; ... }`
+- **WHEN** host `homeProfile = "workstation"` and `cairn.users.henry = { homeProfile = "minimal"; ... }`
 - **THEN** henry's `home-manager.users.henry` imports the minimal profile modules, not the workstation modules; other users with `homeProfile = null` inherit workstation
 
 #### Scenario: No users defined
-- **WHEN** `axios.users` is empty (`{}`)
+- **WHEN** `cairn.users` is empty (`{}`)
 - **THEN** no user accounts are automatically created by the users module
 
 ### Requirement: Host-user association by name
@@ -48,7 +48,7 @@ Host configurations SHALL declare a `users` attribute containing a list of usern
 - **THEN** Nix evaluation fails with a clear error indicating the missing user file path
 
 ### Requirement: Canonical downstream config structure
-axiOS SHALL prescribe the following directory structure for downstream configurations:
+Cairn SHALL prescribe the following directory structure for downstream configurations:
 ```
 <config-dir>/
 ├── flake.nix
@@ -70,9 +70,9 @@ The init script SHALL generate this structure. Documentation SHALL reference thi
 
 ## REMOVED Requirements
 
-### Requirement: Singular axios.user options
-**Reason**: Replaced by `axios.users.<name>` multi-user interface. The singular model forced multi-user hosts to bypass the framework entirely.
-**Migration**: Replace `axios.user = { name = "keith"; fullName = "Keith"; email = "k@example.com"; }` with a `users/keith.nix` file containing `axios.users.keith = { fullName = "Keith"; email = "k@example.com"; isAdmin = true; }`. Update host config to include `users = [ "keith" ]`.
+### Requirement: Singular cairn.user options
+**Reason**: Replaced by `cairn.users.<name>` multi-user interface. The singular model forced multi-user hosts to bypass the framework entirely.
+**Migration**: Replace `cairn.user = { name = "keith"; fullName = "Keith"; email = "k@example.com"; }` with a `users/keith.nix` file containing `cairn.users.keith = { fullName = "Keith"; email = "k@example.com"; isAdmin = true; }`. Update host config to include `users = [ "keith" ]`.
 
 ### Requirement: userModulePath in host config
 **Reason**: Replaced by `users` list + `configDir` resolution. The stringly-typed path wiring was error-prone and didn't support multiple users.

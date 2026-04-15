@@ -2,7 +2,7 @@
 
 ### Requirement: Curated Application Set
 
-The desktop module ships a focused set of applications aligned with the axiOS profile (productivity, development, system administration). Creative and niche tools are available via user configuration. **The desktop module also integrates the DMS plugin registry for declarative community plugin management.**
+The desktop module ships a focused set of applications aligned with the Cairn profile (productivity, development, system administration). Creative and niche tools are available via user configuration. **The desktop module also integrates the DMS plugin registry for declarative community plugin management.**
 
 #### Scenario: Default desktop installation
 
@@ -19,7 +19,7 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
 - **AND** DMS community plugins are available via `programs.dank-material-shell.plugins`
 - **AND** core Niri plugins (displayManager, niriWindows, niriScreenshot, dankKDEConnect) are auto-enabled
 - **AND** conditional plugins are enabled based on system module flags
-- **AND** nixMonitor plugin is explicitly disabled (axios-monitor provides this)
+- **AND** nixMonitor plugin is explicitly disabled (cairn-monitor provides this)
 - **AND** Elisa (Qt music player) is NOT included by default
 - **AND** Haruna (Qt video player) is NOT included by default
 - **AND** GStreamer packages are NOT included by default
@@ -36,4 +36,4 @@ The desktop module ships a focused set of applications aligned with the axiOS pr
 - **WHEN** user adds `kdePackages.elisa` and GStreamer packages to their `extraConfig.environment.systemPackages`
 - **THEN** Elisa is installed and fully functional
 - **AND** user must also set `QT_MEDIA_BACKEND` and `GST_PLUGIN_SYSTEM_PATH_1_0` environment variables
-- **AND** no axiOS modules need to be modified
+- **AND** no Cairn modules need to be modified

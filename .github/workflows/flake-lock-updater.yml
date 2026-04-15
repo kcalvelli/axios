@@ -73,7 +73,7 @@ jobs:
             You **MUST** run the validation script before merging:
             
             ```bash
-            cd ~/Projects/axios
+            cd ~/Projects/cairn
             gh pr checkout ${{ github.event.pull_request.number }}
             ./scripts/test-build.sh
             ```

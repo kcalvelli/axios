@@ -16,7 +16,7 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 - **proposal** - Fix planned in `openspec/changes/`
 - **resolved** - Fixed and verified
 - **wontfix** - Decided not to fix (with rationale)
-- **upstream** - Issue in external dependency, not axiOS
+- **upstream** - Issue in external dependency, not Cairn
 
 ## Defect Log
 
@@ -68,6 +68,6 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 
 ## Cross-References
 
-- **GitHub Issues**: https://github.com/kcalvelli/axios/issues
+- **GitHub Issues**: https://github.com/kcalvelli/cairn/issues
 - **Unknowns**: `openspec/discovery/unknowns.md`
 - **Concerns**: `openspec/discovery/concerns.md`

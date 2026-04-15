@@ -21,7 +21,7 @@
   ];
 
   # Enable PWA apps by default for desktop users
-  axios.pwa.enable = true;
+  cairn.pwa.enable = true;
 
   # Configure sudo to use GUI password prompt
   home.sessionVariables = {
@@ -65,7 +65,7 @@
       dankBatteryAlerts.enable = osConfig.hardware.laptop.enable or false;
       powerUsagePlugin.enable = osConfig.hardware.laptop.enable or false;
 
-      # Explicitly disabled (axios-monitor provides this)
+      # Explicitly disabled (cairn-monitor provides this)
       nixMonitor.enable = false;
     };
   };
@@ -110,7 +110,7 @@
             "${config.home.homeDirectory}/.cache/niri/overview-blur.jpg"
           ];
         }
-        # No axios-help keybinding guide at startup
+        # No cairn-help keybinding guide at startup
         # No drop-down terminal at startup
       ];
 
@@ -282,7 +282,7 @@
         # Flatpak installer: small floating window
         {
           matches = [
-            { app-id = "^com\\.github\\.kcalvelli\\.axios\\.flatpak-install$"; }
+            { app-id = "^com\\.github\\.kcalvelli\\.cairn\\.flatpak-install$"; }
           ];
           open-maximized = false;
           open-floating = true;
@@ -342,8 +342,8 @@
     enable = true;
     defaultApplications = {
       "x-scheme-handler/kdeconnect" = "org.kde.dolphin.desktop";
-      "application/vnd.flatpak.ref" = "com.github.kcalvelli.axios.flatpak-install.desktop";
-      "application/vnd.flatpak.repo" = "com.github.kcalvelli.axios.flatpak-install.desktop";
+      "application/vnd.flatpak.ref" = "com.github.kcalvelli.cairn.flatpak-install.desktop";
+      "application/vnd.flatpak.repo" = "com.github.kcalvelli.cairn.flatpak-install.desktop";
       "inode/directory" = "org.kde.dolphin.desktop";
       "x-scheme-handler/http" = "brave-browser.desktop";
       "x-scheme-handler/https" = "brave-browser.desktop";
@@ -512,12 +512,12 @@
   };
 
   # Flatpak install handler desktop entry
-  xdg.dataFile."applications/com.github.kcalvelli.axios.flatpak-install.desktop".text = ''
+  xdg.dataFile."applications/com.github.kcalvelli.cairn.flatpak-install.desktop".text = ''
     [Desktop Entry]
     Type=Application
-    Name=axiOS Flatpak Installer
+    Name=Cairn Flatpak Installer
     Comment=Install Flatpak applications from .flatpakref files
-    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.axios.flatpak-install -e axios-flatpak-install %f
+    Exec=${pkgs.ghostty}/bin/ghostty --class=com.github.kcalvelli.cairn.flatpak-install -e cairn-flatpak-install %f
     MimeType=application/vnd.flatpak.ref;application/vnd.flatpak.repo;
     NoDisplay=true
     Terminal=false
@@ -535,7 +535,7 @@
 
   # Mask KDE Activity Manager
   systemd.user.services.plasma-kactivitymanagerd = {
-    Unit.Description = "KDE Activity Manager (masked by axiOS)";
+    Unit.Description = "KDE Activity Manager (masked by Cairn)";
     Install = { };
     Service.ExecStart = "${pkgs.coreutils}/bin/true";
   };

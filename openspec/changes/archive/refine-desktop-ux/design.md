@@ -58,12 +58,12 @@ Rationale:
 - Masking `kactivitymanagerd` prevents the Activities service from starting entirely
 - This removes Activities from all KDE apps, not just Dolphin
 - More thorough than per-app configuration
-- No user-visible side effects since axiOS uses Niri workspaces, not KDE Activities
+- No user-visible side effects since Cairn uses Niri workspaces, not KDE Activities
 
 Implementation:
 ```nix
 systemd.user.services.plasma-kactivitymanagerd = {
-  Unit.Description = "KDE Activity Manager (masked by axiOS)";
+  Unit.Description = "KDE Activity Manager (masked by Cairn)";
   Install = {};
   Service.ExecStart = "${pkgs.coreutils}/bin/true";
 };
@@ -90,14 +90,14 @@ Rationale:
 Implementation:
 ```bash
 #!/usr/bin/env bash
-# axios-flatpak-install: Handle .flatpakref file installation
+# cairn-flatpak-install: Handle .flatpakref file installation
 set -euo pipefail
 
 REF_FILE="$1"
 APP_NAME=$(grep -oP '^Name=\K.*' "$REF_FILE" 2>/dev/null || basename "$REF_FILE" .flatpakref)
 
 echo "═══════════════════════════════════════"
-echo "  axiOS Flatpak Installer"
+echo "  Cairn Flatpak Installer"
 echo "═══════════════════════════════════════"
 echo ""
 echo "  Installing: $APP_NAME"
@@ -121,8 +121,8 @@ The handler is registered as a desktop entry:
 ```ini
 [Desktop Entry]
 Type=Application
-Name=axiOS Flatpak Installer
-Exec=ghostty --class=com.github.kcalvelli.axios.flatpak-install -e axios-flatpak-install %f
+Name=Cairn Flatpak Installer
+Exec=ghostty --class=com.github.kcalvelli.cairn.flatpak-install -e cairn-flatpak-install %f
 MimeType=application/vnd.flatpak.ref;application/vnd.flatpak.repo;
 NoDisplay=true
 Terminal=false
@@ -133,7 +133,7 @@ Plus MIME association in `xdg.mimeApps.defaultApplications`.
 **Niri window rule** for the installer (small floating window, not full screen):
 ```nix
 {
-  matches = [ { app-id = "^com\\.github\\.kcalvelli\\.axios\\.flatpak-install$"; } ];
+  matches = [ { app-id = "^com\\.github\\.kcalvelli\\.cairn\\.flatpak-install$"; } ];
   open-maximized = false;
   open-floating = true;
   default-column-width = { fixed = 800; };
@@ -144,14 +144,14 @@ Plus MIME association in `xdg.mimeApps.defaultApplications`.
 ### DD-4: Drop-down Terminal Naming Convention
 
 **Current:** `com.kc.dropterm`
-**Proposed:** `com.github.kcalvelli.axios.dropterm`
+**Proposed:** `com.github.kcalvelli.cairn.dropterm`
 
-This follows the reverse-DNS convention tied to the project's GitHub identity (`github.com/kcalvelli/axios`). The pattern `com.github.kcalvelli.axios.<component>` is used for all axiOS-owned window classes.
+This follows the reverse-DNS convention tied to the project's GitHub identity (`github.com/kcalvelli/cairn`). The pattern `com.github.kcalvelli.cairn.<component>` is used for all Cairn-owned window classes.
 
-**Existing axiOS app-ids for reference:**
+**Existing Cairn app-ids for reference:**
 - `io.github.kcalvelli.c64term` (C64 Terminal - uses io.github convention)
 
-**Decision:** Use `com.github.kcalvelli.axios.dropterm` for consistency with the broader ecosystem. The `com.github` prefix is more standard for desktop entries than `io.github`.
+**Decision:** Use `com.github.kcalvelli.cairn.dropterm` for consistency with the broader ecosystem. The `com.github` prefix is more standard for desktop entries than `io.github`.
 
 ### DD-5: Kate → Mousepad
 
