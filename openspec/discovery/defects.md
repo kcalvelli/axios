@@ -48,7 +48,7 @@ Defects here don't require immediate action. When a fix is planned, create a pro
 - **Source**: user-report
 - **Component**: graphics / amdgpu
 - **Symptoms**: Complete system freeze requiring hard reset. No kernel panic, OOM, or MCE recorded. Journal ends abruptly with no shutdown sequence.
-- **Context**: Freeze occurs during Ollama LLM inference using ROCm. Last kernel messages before freeze show GPU memory contention: `amdgpu: Freeing queue vital buffer 0x..., queue evicted` (multiple). Kernel 6.18.8, AMD GPU with ROCm. Recurring issue.
+- **Context**: Freeze occurs during LLM inference using ROCm. Last kernel messages before freeze show GPU memory contention: `amdgpu: Freeing queue vital buffer 0x..., queue evicted` (multiple). Kernel 6.18.8, AMD GPU with ROCm. Recurring issue.
 - **Proposal**: N/A - upstream amdgpu/ROCm driver issue
 - **Resolution**: None. Potential upstream trackers: https://github.com/ROCm/ROCm/issues, https://gitlab.freedesktop.org/drm/amd/-/issues
 

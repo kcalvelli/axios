@@ -13,7 +13,7 @@ This document defines port allocations for axios services. All services follow a
 2. **Tailscale ports**: 8443-8459 for HTTPS exposure
 3. **Offset convention**: Tailscale port = Local port + 363 (where practical)
 4. **Reserved ranges**: Leave gaps for related services
-5. **Upstream defaults**: Preserve upstream port conventions (Ollama 11434, Immich 2283)
+5. **Upstream defaults**: Preserve upstream port conventions (Immich 2283)
 
 ## Current Allocations
 
@@ -31,7 +31,7 @@ This document defines port allocations for axios services. All services follow a
 
 | Service | Local Port | Tailscale Port | Module | Status |
 |---------|------------|----------------|--------|--------|
-| Ollama API | 11434 | 8447 | `ai.local` | Active |
+| llama-server API | 11434 | axios-llama (443) | `ai.local` | Active |
 | MCP Gateway | 8085 | 8448 | `ai.mcpGateway` | In Progress |
 | *Reserved* | — | 8449 | — | Future APIs |
 
@@ -50,7 +50,7 @@ This document defines port allocations for axios services. All services follow a
 | 8443-8446 | Tailscale HTTPS (axios web apps) |
 | 8447-8449 | Tailscale HTTPS (APIs) |
 | 8450-8459 | Tailscale HTTPS (media services) |
-| 11434 | Ollama (upstream default) |
+| 11434 | llama-server (default) |
 | 2283 | Immich (upstream default) |
 
 ## Adding New Services
@@ -108,7 +108,7 @@ services.example.serverPort = 84XX;  # Matches server's httpsPort
 ## Cross-References
 
 - **axios-ai-mail**: See `openspec/specs/pim/spec.md`
-- **AI/Ollama**: See `openspec/specs/ai/spec.md`
+- **AI/llama-server**: See `openspec/specs/ai/spec.md`
 - **Open WebUI**: See `openspec/specs/ai/spec.md` (Open WebUI section)
 - **Immich**: See `selfHosted` module documentation
 

@@ -17,6 +17,24 @@ let
   gpuType = config.axios.hardware.gpuType or null;
   isAmdGpu = gpuType == "amd";
   isNvidiaGpu = gpuType == "nvidia";
+
+  # llama.cpp package: ROCm for AMD, standard (CUDA) for Nvidia
+  llamaPkg = if isAmdGpu then pkgs.llama-cpp-rocm else pkgs.llama-cpp;
+
+  # Build llama-server command-line arguments from options
+  serverArgs = [
+    "--model"
+    (toString cfg.local.model)
+    "--ctx-size"
+    (toString cfg.local.contextSize)
+    "--port"
+    (toString cfg.local.port)
+    "--host"
+    "0.0.0.0"
+    "--n-gpu-layers"
+    (toString cfg.local.gpuLayers)
+  ]
+  ++ cfg.local.extraArgs;
 in
 {
   options = {
@@ -105,7 +123,7 @@ in
       };
 
       local = {
-        enable = lib.mkEnableOption "local LLM inference stack (Ollama, OpenCode)";
+        enable = lib.mkEnableOption "local LLM inference stack (llama.cpp, OpenCode)";
 
         role = lib.mkOption {
           type = lib.types.enum [
@@ -115,9 +133,9 @@ in
           default = "server";
           description = ''
             Local LLM deployment role:
-            - "server": Run Ollama locally with GPU acceleration
-                        Auto-registers as axios-ollama.<tailnet>.ts.net via Tailscale Services
-            - "client": Use remote Ollama server via Tailscale Services (no local GPU required)
+            - "server": Run llama-server locally with GPU acceleration
+                        Auto-registers as axios-llama.<tailnet>.ts.net via Tailscale Services
+            - "client": Use remote llama-server via Tailscale Services (no local GPU required)
           '';
         };
 
@@ -129,45 +147,45 @@ in
           description = "Tailscale tailnet domain";
         };
 
-        models = lib.mkOption {
+        model = lib.mkOption {
+          type = lib.types.path;
+          description = ''
+            Absolute path to a GGUF model file.
+            Download models with: nix run .#download-llama-models
+          '';
+          example = "/var/lib/llama-models/mistral-7b-instruct-v0.3.Q4_K_M.gguf";
+        };
+
+        contextSize = lib.mkOption {
+          type = lib.types.int;
+          default = 32768;
+          description = "Context window size in tokens.";
+        };
+
+        port = lib.mkOption {
+          type = lib.types.port;
+          default = 11434;
+          description = "Port for llama-server to listen on.";
+        };
+
+        gpuLayers = lib.mkOption {
+          type = lib.types.int;
+          default = -1;
+          description = ''
+            Number of layers to offload to GPU. -1 offloads all layers.
+            Set to 0 to run on CPU only.
+          '';
+        };
+
+        extraArgs = lib.mkOption {
           type = lib.types.listOf lib.types.str;
-          default = [
-            "mistral:7b" # 4.4 GB - excellent quality/size ratio, general purpose
-            "nomic-embed-text" # 274 MB - for RAG/semantic search
+          default = [ ];
+          description = "Additional command-line arguments passed to llama-server.";
+          example = [
+            "--flash-attn"
+            "--threads"
+            "8"
           ];
-          description = ''
-            List of Ollama models to preload on first run.
-            Models are pulled automatically when the service starts.
-
-            Users needing coding models can add them:
-              services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
-          '';
-        };
-
-        rocmOverrideGfx = lib.mkOption {
-          type = lib.types.str;
-          default = "10.3.0";
-          description = ''
-            ROCm GPU architecture override for older AMD GPUs.
-            Required for gfx1031 (RX 5500/5600/5700 series).
-          '';
-        };
-
-        keepAlive = lib.mkOption {
-          type = lib.types.str;
-          default = "1m";
-          example = "0";
-          description = ''
-            Duration to keep models loaded in GPU memory after last request.
-            Set to "0" to unload immediately after each request.
-
-            Lower values reduce GPU memory usage but increase model load latency.
-            Higher values improve response time but risk VRAM exhaustion during
-            continuous operation (e.g., frequent axios-ai-mail queries).
-
-            Default is 1 minute to balance responsiveness with GPU memory pressure.
-            Format: "5m" (minutes), "1h" (hours), "0" (immediate unload)
-          '';
         };
 
         cli = lib.mkEnableOption "OpenCode agentic CLI" // {
@@ -270,36 +288,26 @@ in
       ];
     })
 
-    # Server role: Local Ollama with GPU acceleration
+    # Server role: Local llama-server with GPU acceleration
     (lib.mkIf (cfg.enable && cfg.local.enable && isServer) {
-      # Ollama service with GPU acceleration (vendor-specific)
-      services.ollama = lib.mkMerge [
-        {
-          enable = true;
-          # Use ollama-rocm for AMD, standard ollama (with CUDA) for Nvidia
-          package = if isAmdGpu then pkgs.ollama-rocm else pkgs.ollama;
-          environmentVariables = {
-            # 32K context window for agentic tool use
-            OLLAMA_NUM_CTX = "32768";
-            # Unload models after inactivity to prevent GPU memory exhaustion
-            # Addresses: AMDGPU memory eviction warnings and system freezes
-            OLLAMA_KEEP_ALIVE = cfg.local.keepAlive;
-            # Prevent concurrent model loads to reduce GPU queue pressure
-            OLLAMA_MAX_LOADED_MODELS = "1";
-          }
-          // lib.optionalAttrs isAmdGpu {
-            # Disable Flash Attention for AMD ROCm - causes assertion failures on RDNA 2 (gfx1030)
-            # Error: GGML_ASSERT(max_blocks_per_sm > 0) failed in fattn-common.cuh
-            # See: https://github.com/ollama/ollama/issues/6953
-            OLLAMA_FLASH_ATTENTION = "0";
-          };
-          loadModels = cfg.local.models;
-        }
-        # AMD-specific: ROCm architecture override
-        (lib.mkIf isAmdGpu {
-          rocmOverrideGfx = cfg.local.rocmOverrideGfx;
-        })
-      ];
+      # llama-server systemd service
+      systemd.services.llama-server = {
+        description = "llama.cpp inference server";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "network.target" ];
+
+        environment = lib.optionalAttrs isAmdGpu {
+          HSA_OVERRIDE_GFX_VERSION = "10.3.0";
+        };
+
+        serviceConfig = {
+          ExecStart = "${llamaPkg}/bin/llama-server ${lib.escapeShellArgs serverArgs}";
+          Restart = "on-failure";
+          RestartSec = 5;
+          DynamicUser = true;
+          StateDirectory = "llama-server";
+        };
+      };
 
       # Kernel modules (AMD-specific)
       boot.kernelModules = lib.optionals isAmdGpu [ "amdgpu" ];
@@ -311,35 +319,26 @@ in
         lib.optionals isAmdGpu [ rocmPackages.rocminfo ] ++ lib.optional cfg.local.cli pkgs.opencode;
 
       # Tailscale Services registration
-      # Provides unique DNS name: axios-ollama.<tailnet>.ts.net
-      networking.tailscale.services."axios-ollama" = {
+      networking.tailscale.services."axios-llama" = {
         enable = true;
-        backend = "http://127.0.0.1:11434";
+        backend = "http://127.0.0.1:${toString cfg.local.port}";
       };
 
       # Local hostname for server access (hairpinning workaround)
       networking.hosts = {
-        "127.0.0.1" = [ "axios-ollama.local" ];
+        "127.0.0.1" = [ "axios-llama.local" ];
       };
     })
 
-    # Client role: Remote Ollama via Tailscale Services
+    # Client role: Remote llama-server via Tailscale Services
     (lib.mkIf (cfg.enable && cfg.local.enable && isClient) {
-      # Set OLLAMA_HOST environment variable for all tools that use Ollama
-      # Uses Tailscale Services DNS name (no port needed)
       environment.sessionVariables = {
-        OLLAMA_HOST = "https://axios-ollama.${cfg.local.tailnetDomain}";
+        LLAMA_API_URL = "https://axios-llama.${cfg.local.tailnetDomain}";
         MCP_GATEWAY_URL = cfg.mcp.gatewayUrl;
       };
 
-      # Client role packages (no GPU stack, lighter footprint)
-      environment.systemPackages =
-        with pkgs;
-        [
-          # Ollama CLI (uses OLLAMA_HOST for remote server)
-          ollama
-        ]
-        ++ lib.optional cfg.local.cli pkgs.opencode;
+      # Client role packages (lighter footprint, no GPU stack)
+      environment.systemPackages = lib.optional cfg.local.cli pkgs.opencode;
     })
   ];
 }

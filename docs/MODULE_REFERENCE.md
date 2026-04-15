@@ -281,7 +281,7 @@ virt = {
      - **whisper-cpp** - Local speech-to-text transcription
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
-   - **Ollama** - Local inference backend with ROCm GPU acceleration
+   - **llama-server** - Local inference backend (llama.cpp) with ROCm/CUDA GPU acceleration
    - **OpenCode** - Agentic CLI for coding tasks with full file editing
 
 **When to use:**
@@ -322,24 +322,21 @@ The local LLM stack supports **server/client roles** for distributed inference a
 
 **Server Role (default):**
 
-Run Ollama locally with GPU acceleration:
+Run llama-server locally with GPU acceleration:
 
 ```nix
 services.ai.local = {
   enable = true;
-  role = "server";  # Default - runs Ollama locally with GPU
+  role = "server";  # Default - runs llama-server locally with GPU
 
-  # Model management (defaults: mistral:7b + nomic-embed-text)
-  models = [
-    "mistral:7b"             # General purpose (~4.4GB)
-    "nomic-embed-text"       # Embeddings for RAG (~274MB)
-  ];
+  # GGUF model file (download with: nix run .#download-llama-models)
+  model = "/var/lib/llama-models/mistral-7b-instruct-v0.2.Q4_K_M.gguf";
 
-  # AMD GPU configuration
-  rocmOverrideGfx = "10.3.0";  # For RX 5500/5600/5700 series
+  # Context window (default: 32768)
+  contextSize = 32768;
 
-  # GPU memory management
-  keepAlive = "1m";  # Unload models after 1 minute of inactivity
+  # GPU layers (-1 = all, 0 = CPU only)
+  gpuLayers = -1;
 
   # Optional components
   cli = true;  # OpenCode (default: true)
@@ -348,34 +345,35 @@ services.ai.local = {
 
 **Client Role:**
 
-Connect to a remote Ollama server (no local GPU required):
+Connect to a remote llama-server (no local GPU required):
 
 ```nix
 services.ai.local = {
   enable = true;
-  role = "client";  # Use remote Ollama server
+  role = "client";  # Use remote llama-server
 
   # Required: Specify your tailnet domain
   tailnetDomain = "taile0fb4.ts.net";
 
   # Optional components
-  cli = true;  # OpenCode still works, connects to remote Ollama
+  cli = true;  # OpenCode still works, connects to remote server
 };
 ```
 
-The server registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via `OLLAMA_HOST` and `MCP_GATEWAY_URL` environment variables.
+The server registers as `axios-llama.<tailnet>.ts.net` via Tailscale Services. Clients automatically use this DNS name via `LLAMA_API_URL` and `MCP_GATEWAY_URL` environment variables.
 
 **Features (Server Role):**
-- **32K context window** for agentic tool use
-- **Automatic model preloading** on service start
-- **ROCm acceleration** with automatic gfx override for older AMD GPUs
+- **OpenAI-compatible API** (`/v1/chat/completions`)
+- **Configurable context window** (default: 32K tokens)
+- **ROCm/CUDA acceleration** with automatic GPU vendor detection
 - **Tailscale Services** registration for secure remote access
 
 **Usage:**
 
 ```bash
-# Ollama CLI (server or client)
-ollama run mistral:7b "Write a function to..."
+# Test the API
+curl http://localhost:11434/v1/chat/completions \
+  -d '{"model":"local","messages":[{"role":"user","content":"hello"}]}'
 
 # OpenCode CLI (works with both roles)
 opencode "implement feature X with tests"
@@ -753,9 +751,11 @@ All options can be set in `extraConfig` within your host configuration.
 | `services.ai.mcp.enable` | bool | `true` | Enable MCP servers (when AI is enabled) |
 | `services.ai.claude.enable` | bool | `true` | Enable Claude Code |
 | `services.ai.gemini.enable` | bool | `true` | Enable Gemini CLI |
-| `services.ai.local.enable` | bool | `false` | Enable local LLM stack (Ollama) |
+| `services.ai.local.enable` | bool | `false` | Enable local LLM stack (llama.cpp) |
 | `services.ai.local.role` | enum | `"server"` | "server" or "client" |
-| `services.ai.local.models` | list | `["mistral:7b" "nomic-embed-text"]` | Models to preload |
+| `services.ai.local.model` | path | _(required)_ | Path to GGUF model file |
+| `services.ai.local.contextSize` | int | `32768` | Context window size |
+| `services.ai.local.gpuLayers` | int | `-1` | GPU offload layers (-1 = all) |
 | `services.ai.local.cli` | bool | `true` | Enable OpenCode agentic CLI |
 | `services.ai.local.keepAlive` | string | `"1m"` | Model unload timeout |
 

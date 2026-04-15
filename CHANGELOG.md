@@ -7,6 +7,9 @@ and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-
 
 ## [Unreleased]
 
+### ⚠️ BREAKING CHANGES
+- **Replace Ollama with llama.cpp**: Local inference now uses `llama-server` from llama.cpp instead of Ollama. GGUF models are loaded directly — no model pull system. Options changed: `models` → `model` (single GGUF path), `keepAlive` and `rocmOverrideGfx` removed, new `contextSize`, `gpuLayers`, `extraArgs` options. Tailscale service renamed `axios-ollama` → `axios-llama`. Client env var `OLLAMA_HOST` → `LLAMA_API_URL`.
+
 ## [v2026.01.13] - 2026-01-13
 
 Major release with 329 commits over 33 days. Includes new PIM and C64 modules, enhanced PWA workflow, and major desktop refinements.

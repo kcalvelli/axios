@@ -41,29 +41,31 @@ Integrates advanced AI agents and local inference capabilities into the develope
 - **Configuration**: Declarative via `services.mcp-gateway` (from external mcp-gateway repo).
 - **Implementation**: Server definitions in `home/ai/mcp.nix`, module logic in `github.com/kcalvelli/mcp-gateway`
 
-### Local Inference Stack (Ollama)
+### Local Inference Stack (llama.cpp)
 
 **Deployment Roles:**
 
-The local LLM stack supports server/client architecture for distributed inference:
+The local LLM stack supports server/client architecture for distributed inference using `llama-server` from llama.cpp:
 
 - **Server Role** (`role = "server"`, default):
-  - Run Ollama locally with GPU acceleration
-  - Supports both AMD (ROCm) and Nvidia (CUDA) GPUs
-  - Auto-registers as `axios-ollama.<tailnet>.ts.net` via Tailscale Services
+  - Runs `llama-server` locally with GPU acceleration
+  - Supports both AMD (`llama-cpp-rocm`) and Nvidia (`llama-cpp` with CUDA) GPUs
+  - Auto-registers as `axios-llama.<tailnet>.ts.net` via Tailscale Services
+  - Loads a single GGUF model file directly (no model management layer)
 
 - **Client Role** (`role = "client"`):
-  - Connect to remote Ollama server via Tailscale Services
+  - Connects to remote llama-server via Tailscale Services
   - No local GPU stack installed (lighter footprint)
-  - Sets `OLLAMA_HOST` to `https://axios-ollama.<tailnet>.ts.net`
+  - Sets `LLAMA_API_URL` to `https://axios-llama.<tailnet>.ts.net`
   - Only requires `tailnetDomain` configuration
   - Ideal for lightweight laptops using a desktop as inference server
 
 > **Note**: Client role requires a server with `networking.tailscale.authMode = "authkey"` running on the tailnet. The server must be deployed first to register the Tailscale Services.
 
-**Default Models**: Minimal set for general use:
-- `mistral:7b` (4.4 GB) - General purpose, excellent quality/size ratio
-- `nomic-embed-text` (274 MB) - For RAG/semantic search
+**Model Management**: Users download GGUF models via `nix run .#download-llama-models` and configure the path:
+```nix
+services.ai.local.model = "/var/lib/llama-models/mistral-7b-instruct-v0.3.Q4_K_M.gguf";
+```
 
 **Multi-Vendor GPU Support:**
 
@@ -71,32 +73,28 @@ The server role automatically detects GPU vendor from the host's `hardware.gpu` 
 
 | Aspect | AMD | Nvidia |
 |--------|-----|--------|
-| Package | `ollama-rocm` | `ollama` (CUDA) |
-| Flash Attention | Disabled | Enabled |
-| Architecture Override | `rocmOverrideGfx` | N/A |
+| Package | `llama-cpp-rocm` | `llama-cpp` (CUDA) |
+| Flash Attention | Off by default (opt-in via `--flash-attn`) | Off by default |
+| Architecture Override | `HSA_OVERRIDE_GFX_VERSION` env var | N/A |
 | Kernel Modules | `amdgpu` | (via nixos-hardware) |
 | Debug Tools | `rocmPackages.rocminfo` | N/A |
 
 ```nix
 # Host config determines GPU vendor (no additional AI module config needed)
-{ hardware.gpu = "amd"; }   # Uses ollama-rocm, disables Flash Attention
-{ hardware.gpu = "nvidia"; } # Uses ollama with CUDA, Flash Attention enabled
+{ hardware.gpu = "amd"; }   # Uses llama-cpp-rocm
+{ hardware.gpu = "nvidia"; } # Uses llama-cpp with CUDA
 ```
 
-**Acceleration**: Vendor-specific GPU acceleration (server role only).
+**API**: OpenAI-compatible `/v1/chat/completions` endpoint, served by `llama-server`.
 
-**Context Window**: Configured for 32K tokens (`OLLAMA_NUM_CTX`) to support agentic workflows.
+**Context Window**: Configurable via `services.ai.local.contextSize` (default: 32768 tokens).
 
-**Memory Management**: Configurable `OLLAMA_KEEP_ALIVE` duration (default: 1 minute) to automatically unload idle models and prevent GPU memory exhaustion.
-
-**Concurrency Limit**: Single model loading (`OLLAMA_MAX_LOADED_MODELS=1`) to prevent queue evictions.
+**GPU Offload**: Configurable via `services.ai.local.gpuLayers` (default: -1, all layers).
 
 **Network Access**:
-- **Tailscale Services** (default for authkey mode): Auto-registers as `axios-ollama.<tailnet>.ts.net` on port 443.
-- **Tailscale Serve** (legacy): `services.ai.local.tailscaleServe.enable = true` exposes on custom port (interactive auth mode only).
-- **Caddy Reverse Proxy** (deprecated): `services.ai.local.ollamaReverseProxy` - legacy path-based routing via Caddy.
+- **Tailscale Services**: Auto-registers as `axios-llama.<tailnet>.ts.net` on port 443.
 
-**Implementation**: `modules/ai/default.nix`
+**Implementation**: `modules/ai/default.nix` (custom `systemd.services.llama-server` unit)
 
 ### MCP Gateway (External Repository)
 
@@ -257,94 +255,41 @@ axios SHALL document the supported OpenAI tools, their authentication expectatio
 - **THEN** axios documents that limitation explicitly
 - **AND** the implementation does not rely on undocumented or brittle wrapper behavior
 
-### Requirement: GPU Discovery Timeout Awareness
-
-Ollama's GPU discovery timeout is **hardcoded upstream** and cannot be configured by axiOS.
-
-#### Known Limitation
-
-- **Memory refresh timeout**: 3 seconds (hardcoded in Ollama)
-- **Bootstrap timeout**: 30 seconds (hardcoded in Ollama)
-- **No env var exists**: `OLLAMA_GPU_DISCOVERY_TIMEOUT` is not supported
-- **Upstream PR**: #13186 (open) would extend to 10s when `HSA_OVERRIDE_GFX_VERSION` is set
-
-#### Scenario: GPU discovery during desktop activity
-
-- **Given**: User is running a Wayland desktop with GPU-accelerated compositor
-- **And**: Ollama attempts to refresh GPU memory availability (3-second timeout)
-- **When**: ROCm runtime queries take longer than 3 seconds due to GPU load
-- **Then**: Ollama logs "failed to finish discovery before timeout"
-- **And**: Ollama falls back to stale memory values (may cause oversubscription)
-
 ## Constraints
 - **Secrets**: API keys (e.g., `BRAVE_API_KEY`) SHOULD be set via `agenix` for security. Fallback to environment variables is provided. `gemini` Pro accounts should use OAuth (`gemini auth login`) instead of API keys.
 - **GPU Recovery**: AMD GPU hang recovery enabled by default via graphics module; prevents hard freezes from GPU hangs.
-- **GPU Memory**: Long-running inference workloads may cause VRAM exhaustion; `keepAlive` option mitigates this by unloading idle models.
-- **Model Size**: Models larger than available VRAM trigger CPU offload, causing ROCm queue evictions and degraded performance.
-- **GPU Discovery**: ROCm GPU discovery has a hardcoded 3-second timeout in Ollama; this cannot be configured and may cause stale memory fallback under load.
-- **Flash Attention (AMD)**: Flash Attention is disabled for AMD ROCm GPUs (`OLLAMA_FLASH_ATTENTION=0`) due to assertion failures on RDNA 2 (gfx1030) architecture. Nvidia GPUs are unaffected. GPU vendor is determined by the host's `hardware.gpu` configuration.
+- **Model Size**: Models larger than available VRAM trigger CPU offload, causing ROCm queue evictions and degraded performance. Control offload with `services.ai.local.gpuLayers`.
 
 ## Model Size Guidance
 
 | VRAM | Recommended Max Model | Examples |
 |------|----------------------|----------|
-| 8 GB | 7B-8B parameters | mistral:7b, phi3 |
-| 12 GB | 14B parameters | qwen3:14b, deepseek-coder-v2:16b |
-| 16 GB | 22B-30B parameters | qwen3-coder:30b |
+| 8 GB | 7B-8B parameters | Mistral 7B, Phi-3 |
+| 12 GB | 14B parameters | Qwen 2.5 14B, DeepSeek Coder 16B |
+| 16 GB | 22B-30B parameters | Qwen 2.5 32B |
 | 24 GB | 70B parameters | Large coding models |
 
-Users needing coding models can extend the defaults:
+Download models with `nix run .#download-llama-models` and configure:
 ```nix
-services.ai.local.models = [ "mistral:7b" "nomic-embed-text" "qwen3:14b" ];
+services.ai.local.model = "/var/lib/llama-models/mistral-7b-instruct-v0.2.Q4_K_M.gguf";
 ```
 
 **Warning**: Running models larger than VRAM causes partial CPU offload, which creates excessive ROCm compute queues and triggers "queue evicted" kernel warnings. This can lead to system instability.
 
 ## GPU Troubleshooting
 
-### Symptoms: "failure during GPU discovery" / "failed to finish discovery before timeout"
-
-**Cause**: ROCm runtime queries exceeding Ollama's hardcoded 3-second timeout.
-
-**Root Cause**: Ollama's GPU memory refresh timeout is hardcoded at 3 seconds and cannot be configured. Under GPU load (compositor, other apps), ROCm queries may take longer.
-
-**Mitigations** (workarounds, not fixes):
-1. Reduce concurrent GPU workloads during ollama inference
-2. Use smaller models that fit comfortably in VRAM with headroom
-3. Avoid `keep_alive: 0` patterns that cause frequent model load/unload cycles
-4. Accept that discovery timeouts will occur under load; Ollama will use stale values
-
-**Note**: With GPU recovery enabled (default for AMD), discovery timeout issues won't cause hard freezes—worst case is suboptimal model scheduling.
-
 ### Symptoms: "queue evicted" kernel warnings
 
 **Cause**: ROCm compute queue oversubscription from multiple GPU processes or oversized models.
 
 **Mitigations**:
-1. Ensure `OLLAMA_MAX_LOADED_MODELS=1` (default in axiOS)
+1. Reduce `gpuLayers` to offload fewer layers to GPU
 2. Avoid models that require CPU offload
 3. Check `amd_smi` or `rocm-smi` for VRAM usage before loading large models
-
-### Symptoms: "GGML_ASSERT(max_blocks_per_sm > 0) failed" / Ollama crash on chat
-
-**Cause**: Flash Attention auto-enabled on AMD GPU that doesn't support it.
-
-**Applies to**: AMD ROCm only (Nvidia unaffected)
-
-**Error Pattern**:
-```
-llama_context: Flash Attention was auto, set to enabled
-fattn-common.cuh:903: GGML_ASSERT(max_blocks_per_sm > 0) failed
-SIGABRT: abort
-```
-
-**Fix**: axiOS automatically disables Flash Attention when `hardware.gpu = "amd"`. If you see this error, verify your host config has the correct GPU vendor set.
-
-**Note**: Flash Attention primarily benefits larger models (30B+) with very long contexts. For 7B-14B models typical in axiOS, the performance difference is negligible.
 
 ## References
 
 - **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
-  - Ollama API: Local 11434, Tailscale 8447
-- **PIM Module**: See `openspec/specs/pim/spec.md` for axios-ai-mail (uses Ollama for AI classification)
+  - llama-server API: Local 11434, Tailscale via `axios-llama`
+- **PIM Module**: See `openspec/specs/pim/spec.md` for axios-ai-mail (uses OpenAI-compatible API)
 - **Crash Diagnostics**: See `openspec/specs/hardware/crash-diagnostics.md` for GPU hang recovery

@@ -24,9 +24,8 @@ Manages network connectivity and self-hosted application infrastructure using a 
 - **PostgreSQL Collation Auto-Refresh**: A `postgresql-collation-refresh` oneshot service runs at boot after PostgreSQL starts. It refreshes collation versions on all databases, preventing journal warnings after glibc updates. The command is idempotent and safe to run on every boot.
 - **Implementation**: `modules/services/immich.nix`
 
-### Local AI (Ollama)
-- **Features**: Path-based reverse proxy (`/ollama/*`) on the primary system domain.
-- **Priority**: High (priority 100) to ensure path matching works alongside catch-all services.
+### Local AI (llama-server)
+- **Features**: OpenAI-compatible API via Tailscale Services (`axios-llama.<tailnet>.ts.net`).
 - **Implementation**: `modules/ai/default.nix`
 
 ### File Synchronization

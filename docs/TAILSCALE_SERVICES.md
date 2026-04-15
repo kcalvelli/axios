@@ -42,7 +42,7 @@ Go to [Tailscale Admin Console](https://login.tailscale.com/admin/acls) and conf
     "autoApprovers": {
         "services": {
             "svc:axios-mail":    ["tag:server"],
-                        "svc:axios-ollama":  ["tag:server"],
+                        "svc:axios-llama":  ["tag:server"],
             "svc:axios-immich":  ["tag:server"]
         }
     }
@@ -211,7 +211,7 @@ sudo nixos-rebuild switch --flake .#pangolin
 
 Check the Tailscale admin console → Services tab. You should see:
 - `axios-mail` (1 online)
-- `axios-ollama` (1 online)
+- `axios-llama` (1 online)
 - `axios-immich` (1 online)
 
 ### Test from Client
@@ -219,7 +219,7 @@ Check the Tailscale admin console → Services tab. You should see:
 ```bash
 # Should return HTTP 200
 curl -I https://axios-mail.your-tailnet.ts.net
-curl -I https://axios-ollama.your-tailnet.ts.net
+curl -I https://axios-llama.your-tailnet.ts.net
 curl -I https://axios-immich.your-tailnet.ts.net
 ```
 
@@ -255,7 +255,7 @@ This is expected - Tailscale Services has a hairpinning restriction. Servers use
 | Service | DNS Name | Config Path |
 |---------|----------|-------------|
 | Mail (PIM) | `axios-mail.<tailnet>.ts.net` | `services.pim` |
-| Ollama | `axios-ollama.<tailnet>.ts.net` | `services.ai.local` |
+| llama-server | `axios-llama.<tailnet>.ts.net` | `services.ai.local` |
 | Immich | `axios-immich.<tailnet>.ts.net` | `axios.immich` |
 
 ## References

@@ -330,15 +330,15 @@ Included when `services.ai.local.enable = true`:
 
 | Component | Description | Purpose |
 |-----------|-------------|---------|
-| **Ollama** | Local LLM inference backend | Run models locally with ROCm GPU acceleration |
+| **llama-server** | Local LLM inference backend (llama.cpp) | Run GGUF models locally with ROCm/CUDA GPU acceleration |
 | **OpenCode** | Agentic CLI for coding tasks | Full file editing with MCP integration |
 
-**Default Models** (Ollama):
-- `mistral:7b` - General purpose, excellent quality/size ratio (~4.4GB)
-- `nomic-embed-text` - Embeddings for RAG/semantic search (~274MB)
+**Model Management:**
+Download GGUF models with `nix run .#download-llama-models` and configure via `services.ai.local.model`.
 
 **Features:**
-- 32K context window for agentic tool use
+- OpenAI-compatible API (`/v1/chat/completions`)
+- Configurable context window (default: 32K tokens)
 - ROCm acceleration for AMD GPUs (automatic override for gfx1031)
 - Automatic model preloading on service start
 - Optional Caddy reverse proxy for remote HTTPS access
@@ -473,7 +473,7 @@ Provided by DankMaterialShell:
 |---------|---------|
 | **DankMaterialShell** | Material Design shell and widgets |
 | **GNOME Keyring** | Credential storage and SSH key management |
-| **Tailscale** | Mesh VPN for cross-device access (PIM, Ollama, MCP Gateway) |
+| **Tailscale** | Mesh VPN for cross-device access (PIM, llama-server, MCP Gateway) |
 | **accounts-daemon** | User account information service |
 | **GVfs** | Virtual filesystem for network shares |
 | **udisks2** | Disk management daemon |

@@ -106,8 +106,8 @@ Gather the following from the user. For detected values, confirm them as default
      - If server: ask which user to run the service as (typically the primary user)
    - Immich (photo/video backup) — `true`/`false`
      - If enabled: role — `"server"` (runs Immich locally) or `"client"` (PWA access only)
-   - Local LLM inference (Ollama + OpenCode) — `true`/`false`
-     - If enabled: role — `"server"` (runs Ollama with GPU accel) or `"client"` (remote Ollama via tailnet)
+   - Local LLM inference (llama.cpp + OpenCode) — `true`/`false`
+     - If enabled: role — `"server"` (runs llama-server with GPU accel) or `"client"` (remote llama-server via tailnet)
    - Secure boot (Lanzaboote) — `true`/`false`
    - Secrets (age-encrypted) — `true`/`false`
    - Virtualization: libvirt — `true`/`false`

@@ -12,8 +12,8 @@ Provides AI-powered email management for axiOS desktop users through axios-ai-ma
 
 #### Features
 - **Multi-Account Support**: Gmail (OAuth2), IMAP/SMTP, Outlook (planned)
-- **AI Classification**: Local LLM-powered tagging via Ollama with 35-tag default taxonomy
-- **Privacy-First**: All data stored locally in SQLite; AI runs locally via Ollama
+- **AI Classification**: LLM-powered tagging via OpenAI-compatible API with 35-tag default taxonomy
+- **Privacy-First**: All data stored locally in SQLite; AI backend configurable (local or remote)
 - **Modern UI**: Responsive web interface with PWA support, dark mode, keyboard shortcuts
 - **Real-Time Sync**: WebSocket updates, systemd timer background sync
 - **Declarative Config**: Email accounts and AI settings configured in Nix
@@ -24,7 +24,7 @@ Web UI (React/Material-UI)
     ↓ HTTP/WebSocket
 FastAPI Backend (Python)
     ↓
-Email Providers (Gmail/IMAP) + Ollama AI + SQLite
+Email Providers (Gmail/IMAP) + OpenAI-compatible AI + SQLite
 ```
 
 #### Implementation
@@ -158,12 +158,12 @@ programs.axios-ai-mail = {
     };
     model = lib.mkOption {
       type = lib.types.str;
-      default = "llama3.2";
-      description = "Ollama model for classification";
+      default = "claude-sonnet-4-20250514";
+      description = "Model name for OpenAI-compatible API";
     };
     endpoint = lib.mkOption {
       type = lib.types.str;
-      default = "http://localhost:11434";
+      default = "http://localhost:18789";
     };
     temperature = lib.mkOption {
       type = lib.types.float;
@@ -253,7 +253,7 @@ axios-ai-mail SHALL provide local AI-powered email classification.
 
 #### Scenario: New email arrives
 
-- **Given**: User has axios-ai-mail configured with Ollama
+- **Given**: User has axios-ai-mail configured with an AI backend
 - **And**: AI classification is enabled (`ai.enable = true`)
 - **When**: A new email is synced
 - **Then**: The email is classified using the configured model
@@ -366,7 +366,7 @@ PIM server role SHALL register an `axios-mail` Tailscale service with loopback p
 
 - **AI Module Required (Server Only)**: PIM server role requires `modules.ai = true` (enforced via assertion)
 - **Client Role Exempt**: PIM client role does NOT require AI module
-- **Ollama Required (Server Only)**: AI classification requires Ollama running on server
+- **AI Backend Required (Server Only)**: AI classification requires an OpenAI-compatible API endpoint
 - **Tailscale Services**: Cross-device access uses Tailscale Services (`axios-mail.<tailnet>.ts.net`)
 - **Loopback Proxy (Server)**: Server role enables `loopbackProxy` for valid HTTPS secure context on localhost (enables Web Push API)
 - **Server First**: Client role requires server with `authMode = "authkey"` to be deployed first
@@ -390,9 +390,9 @@ axios-ai-mail auth gmail --account personal
 **Symptom**: Emails sync but have no AI tags
 
 **Check**:
-1. Ollama running: `systemctl status ollama`
-2. Model available: `ollama list | grep llama3.2`
-3. AI enabled: Check `programs.axios-ai-mail.ai.enable`
+1. AI endpoint reachable: `curl -s http://localhost:18789/v1/models`
+2. AI enabled: Check `programs.axios-ai-mail.ai.enable`
+3. If using local inference: `systemctl status llama-server`
 
 ### Sync Service Not Running
 
@@ -418,6 +418,6 @@ journalctl --user -u axios-ai-mail-sync
 - **Port Allocations**: See `openspec/specs/networking/ports.md` for axios port registry
   - Local port: 8080 (default)
   - Tailscale Services: `axios-mail.<tailnet>.ts.net` (port 443)
-- **AI Module**: See `openspec/specs/ai/spec.md` for Ollama configuration
+- **AI Module**: See `openspec/specs/ai/spec.md` for local inference configuration
 - **Loopback Proxy**: See `openspec/specs/networking/spec.md` for the generic loopback proxy mechanism
 - **Upstream**: [axios-ai-mail repository](https://github.com/kcalvelli/axios-ai-mail)

@@ -129,7 +129,7 @@ download_model() {
     echo -e "${GREEN}✓ Download complete!${NC}"
     echo ""
     echo -e "Add to your NixOS configuration:"
-    echo -e "${YELLOW}  services.ai.local.llamaServer.model = \"${dest_path}\";${NC}"
+    echo -e "${YELLOW}  services.ai.local.model = \"${dest_path}\";${NC}"
     echo ""
     return 0
   else

@@ -102,7 +102,7 @@ in
             services.pim.role = "server"
             modules.ai = false (or services.ai.enable = false)
 
-          axios-ai-mail server requires Ollama for email classification.
+          axios-ai-mail server requires the AI module for email classification.
 
           Fix by either:
             modules.ai = true;  # Enable AI module (default)

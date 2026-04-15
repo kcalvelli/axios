@@ -305,7 +305,7 @@ collect_features() {
     "Gaming (Steam, GameMode, Proton)" \
     "PIM (axios-ai-mail email)" \
     "Immich (photo/video backup)" \
-    "Local LLM (Ollama + OpenCode)" \
+    "Local LLM (llama.cpp + OpenCode)" \
     "Secure Boot (Lanzaboote)" \
     "Secrets (age-encrypted)" \
     "Virtualization - libvirt/KVM" \
@@ -448,7 +448,10 @@ compute_derived() {
   fi
 
   if [ "$ENABLE_LOCAL_LLM" = "true" ]; then
-    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Local LLM inference\\n      services.ai.local.enable = true;\\n      services.ai.local.role = \"${LOCAL_LLM_ROLE}\";"
+    EXTRA_CONFIG="${EXTRA_CONFIG}\\n\\n      # Local LLM inference (llama.cpp)\\n      services.ai.local.enable = true;\\n      services.ai.local.role = \"${LOCAL_LLM_ROLE}\";"
+    if [ "$LOCAL_LLM_ROLE" = "server" ]; then
+      EXTRA_CONFIG="${EXTRA_CONFIG}\\n      # Download a GGUF model: nix run .#download-llama-models\\n      services.ai.local.model = \"/var/lib/llama-models/YOUR_MODEL.gguf\"; # FIXME: set model path"
+    fi
     if [ "$LOCAL_LLM_ROLE" = "client" ] && [ -n "$TAILNET_DOMAIN" ]; then
       EXTRA_CONFIG="${EXTRA_CONFIG}\\n      services.ai.local.tailnetDomain = \"${TAILNET_DOMAIN}\";"
     fi

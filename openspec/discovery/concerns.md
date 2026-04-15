@@ -221,7 +221,7 @@ environment.sessionVariables = {
 
 **Features**:
 - **GPU Recovery**: Optional `axios.hardware.enableGPURecovery` for hang recovery
-- **ROCm**: Available for ML/AI workloads (Ollama uses ROCm acceleration)
+- **ROCm**: Available for ML/AI workloads (llama.cpp uses ROCm acceleration)
 - **Vulkan**: RADV driver automatically configured
 - **Mesa**: Latest Mesa with AMDGPU support
 

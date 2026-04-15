@@ -608,13 +608,11 @@ This glossary defines domain-specific terms, acronyms, and technical concepts us
 **Evidence**: CHANGELOG.md:38-40
 
 ### ollama Module
-**Status**: Deprecated/Removed
+**Status**: Removed
 
-**Replaced By**: None (deemed overly opinionated)
+**Replaced By**: `services.ai.local` with llama.cpp (`llama-server`). Local inference now uses GGUF models directly via `llama-server` systemd service.
 
-**Migration**: Users should configure ollama directly if needed
-
-**Evidence**: CHANGELOG.md mentions removal
+**Migration**: Replace `services.ai.local.models` with `services.ai.local.model` (path to GGUF file). Remove `keepAlive` and `rocmOverrideGfx` options. Tailscale service renamed from `axios-ollama` to `axios-llama`.
 
 ## Term Relationships
 

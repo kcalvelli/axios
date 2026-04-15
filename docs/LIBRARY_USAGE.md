@@ -316,7 +316,7 @@ Enable only the modules you need:
 - MCP servers for enhanced AI context (11 servers)
 - claude-monitor, openspec, spec-kit
 - whisper-cpp for speech-to-text
-- Optional local LLM stack (Ollama + OpenCode)
+- Optional local LLM stack (llama.cpp + OpenCode)
 
 **PIM:**
 - axios-ai-mail (AI-powered email)

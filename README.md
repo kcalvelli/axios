@@ -185,7 +185,7 @@ Check out these example configurations:
 - **Gaming**: Steam, GameMode, Proton (optional)
 - **AI Services** (optional):
   - Cloud AI: 4 CLI coding agents (claude-code family, gemini, antigravity) + workflow tools (openspec, spec-kit)
-  - Local LLM: Ollama + OpenCode with ROCm acceleration
+  - Local LLM: llama.cpp + OpenCode with ROCm/CUDA acceleration
   - 32K context window for agentic coding
   - Full MCP server integration
 - **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)

@@ -21,7 +21,7 @@ Provides a modern, polished Wayland-based desktop experience using the Niri comp
 
 **Email**: axios-ai-mail - AI-powered email management with local LLM classification.
 - Multi-account support (Gmail OAuth, IMAP/SMTP)
-- Privacy-first local processing via Ollama
+- Privacy-first local processing via OpenAI-compatible API
 - Modern web UI with PWA support
 - Tailscale integration for cross-device access
 
@@ -179,7 +179,7 @@ Performance benefits:
 - **Status**: Known issue, upstream dependency (quickshell)
 - **Impact**: Occasional greeter session crash before login
 - **Workaround**: Re-attempt login; usually succeeds on second try
-- **Contributing factors**: May be exacerbated by GPU memory pressure from previous ollama sessions (see GPU Correlation below)
+- **Contributing factors**: May be exacerbated by GPU memory pressure from previous LLM inference sessions (see GPU Correlation below)
 
 #### kded6 SIGABRT at Session Startup
 - **Status**: Known issue, upstream (KDE)
@@ -467,7 +467,7 @@ Mousepad serves as the default text editor, providing syntax highlighting and cl
 
 Desktop session stability correlates with GPU memory state; axiOS documents this relationship to aid troubleshooting.
 
-#### Scenario: Login after heavy ollama usage
+#### Scenario: Login after heavy LLM inference
 
 - **Given**: User ran large model inference before logout
 - **And**: ROCm had queue evictions during the session
@@ -477,7 +477,7 @@ Desktop session stability correlates with GPU memory state; axiOS documents this
 
 #### Scenario: Stable session startup
 
-- **Given**: Ollama models were unloaded before logout (via keepAlive timeout or manual unload)
+- **Given**: llama-server was stopped or no large models were loaded before logout
 - **And**: No queue evictions occurred in previous session
 - **When**: User logs in
 - **Then**: Greeter SHOULD start normally with low crash probability
@@ -494,9 +494,9 @@ Desktop session stability correlates with GPU memory state; axiOS documents this
 
 If DMS/Quickshell crashes frequently at greeter startup:
 
-1. **Check if ollama was running heavy workloads**: `journalctl -u ollama --since "1 hour ago" | grep -E "evict|timeout|discovery"`
-2. **Unload ollama models before logout**: `curl -X DELETE http://localhost:11434/api/generate` or wait for keepAlive timeout
-3. **Reduce ollama context window**: Lower `OLLAMA_NUM_CTX` reduces VRAM footprint
+1. **Check if llama-server was running heavy workloads**: `journalctl -u llama-server --since "1 hour ago" | grep -E "evict|error"`
+2. **Stop llama-server before logout**: `systemctl stop llama-server`
+3. **Reduce GPU layers**: Lower `services.ai.local.gpuLayers` to reduce VRAM footprint
 4. **Use smaller models**: See AI spec model size guidance
 
-If crashes persist without ollama correlation, this is the known upstream quickshell issue.
+If crashes persist without LLM inference correlation, this is the known upstream quickshell issue.
