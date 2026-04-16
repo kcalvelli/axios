@@ -1,5 +1,5 @@
 ---
 type:       "job"
-name:       "axiosdetect"
+name:       "cairndetect"
 interface:  "python"
 script:     "main.py"

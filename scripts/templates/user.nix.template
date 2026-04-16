@@ -1,6 +1,6 @@
 { ... }:
 {
-  axios.users.users.{{USERNAME}} = {
+  cairn.users.users.{{USERNAME}} = {
     fullName = "{{FULLNAME}}";
     email = "{{EMAIL}}";
     isAdmin = {{IS_ADMIN}};
@@ -8,8 +8,8 @@
   };
 
   home-manager.users.{{USERNAME}} = {
-    axios.home.flakePath = "/etc/nixos";
-    axios.wallpapers.enable = true;
-    axios.terminal.neovim.enable = true;
+    cairn.home.flakePath = "/etc/nixos";
+    cairn.wallpapers.enable = true;
+    cairn.terminal.neovim.enable = true;
   };
 }

@@ -2,18 +2,18 @@
   description = "{{DESCRIPTION}}";
 
   inputs = {
-    # Use axios as the base framework
-    axios.url = "github:kcalvelli/axios";
+    # Use cairn as the base framework
+    cairn.url = "github:kcalvelli/cairn";
 
-    # Follow axios's nixpkgs to ensure compatibility
-    nixpkgs.follows = "axios/nixpkgs";
+    # Follow cairn's nixpkgs to ensure compatibility
+    nixpkgs.follows = "cairn/nixpkgs";
   };
 
-  outputs = { self, axios, nixpkgs, ... }:
+  outputs = { self, cairn, nixpkgs, ... }:
     let
       # Helper to build a host configuration
-      # Each host declares its users by name; axiOS resolves users/<name>.nix automatically
-      mkHost = hostname: axios.lib.mkSystem (
+      # Each host declares its users by name; Cairn resolves users/<name>.nix automatically
+      mkHost = hostname: cairn.lib.mkSystem (
         (import ./hosts/${hostname}.nix { lib = nixpkgs.lib; }).hostConfig // {
           configDir = self.outPath;
         }

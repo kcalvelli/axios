@@ -49,7 +49,7 @@
     # Optional: Extra NixOS configuration
     extraConfig = {
       # System timezone (required)
-      axios.system.timeZone = "{{TIMEZONE}}";
+      cairn.system.timeZone = "{{TIMEZONE}}";
 
 {{SECRETS_CONFIG}}{{EXTRA_CONFIG}}
     };
