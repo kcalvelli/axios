@@ -283,6 +283,7 @@ let
         ++ lib.optional (hostCfg.modules.gaming or false) gaming
         ++ lib.optional (hostCfg.modules.ai or true) ai
         ++ lib.optional (hostCfg.modules.secrets or false) secrets
+        ++ lib.optional (hostCfg.modules.companion or false) companion
         ++ lib.optional (hostCfg.modules.syncthing or false) syncthing;
 
       # Hardware modules conditionally imported based on vendor/formFactor
@@ -374,6 +375,10 @@ let
             (lib.optionalAttrs ((hostCfg.modules.secrets or false) && (hostCfg ? secrets)) {
               secrets = hostCfg.secrets;
             })
+            # Enable companion module if specified
+            (lib.optionalAttrs (hostCfg.modules.companion or false) {
+              services.companion.enable = true;
+            })
             # Enable Syncthing module if specified
             (lib.optionalAttrs (hostCfg.modules.syncthing or false) {
               cairn.syncthing.enable = true;
@@ -428,9 +433,14 @@ let
                     lib.optional (hostCfg.modules.ai or true) self.homeModules.ai
                   else
                     [ ];
+                companionModules =
+                  if resolvedProfile == "standard" then
+                    lib.optional (hostCfg.modules.companion or false) self.homeModules.companion
+                  else
+                    [ ];
               in
               {
-                imports = profileModules ++ aiModules;
+                imports = profileModules ++ aiModules ++ companionModules;
               }
             ) config.cairn.users.users;
           }

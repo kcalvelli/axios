@@ -13,6 +13,7 @@
       normie = import ./profiles/normie.nix;
       pim = import ./pim;
       ai = import ./ai;
+      companion = import ./companion;
       immich = import ./immich;
       secrets = import ./secrets;
     };

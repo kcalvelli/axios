@@ -85,6 +85,26 @@
         "type": "github"
       }
     },
+    "cairn-companion": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776456649,
+        "narHash": "sha256-0YnkfNBwytPsaXpr6iy0DC8aa1cqWW/dkUu3HbLGHls=",
+        "owner": "kcalvelli",
+        "repo": "cairn-companion",
+        "rev": "96b8ccae8df4f45152d7514522875b484458c11f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "kcalvelli",
+        "repo": "cairn-companion",
+        "type": "github"
+      }
+    },
     "cairn-dav": {
       "inputs": {
         "flake-utils": "flake-utils_3",
@@ -801,6 +821,7 @@
         "antigravity-nix": "antigravity-nix",
         "brave-browser-previews": "brave-browser-previews",
         "c64term": "c64term",
+        "cairn-companion": "cairn-companion",
         "cairn-dav": "cairn-dav",
         "cairn-mail": "cairn-mail",
         "cairn-monitor": "cairn-monitor",

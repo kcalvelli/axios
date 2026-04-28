@@ -146,6 +146,12 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # cairn-companion — persistent persona wrapper around Claude Code
+    cairn-companion = {
+      url = "github:kcalvelli/cairn-companion";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # OpenSpec - Spec-driven development CLI
     openspec = {
       url = "github:Fission-AI/OpenSpec";

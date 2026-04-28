@@ -18,6 +18,7 @@
     ai = ./ai;
     secrets = ./secrets;
     services = ./services;
+    companion = ./companion;
     syncthing = ./syncthing;
     installer = ./installer;
   };
