@@ -84,9 +84,7 @@ in
       };
 
       openai = {
-        enable = lib.mkEnableOption "OpenAI Codex CLI" // {
-          default = true;
-        };
+        enable = lib.mkEnableOption "OpenAI Codex CLI";
 
         codexAcp = {
           enable = lib.mkEnableOption "Codex ACP companion";
