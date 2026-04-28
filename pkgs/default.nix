@@ -61,16 +61,14 @@ in
       openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
 
       # cli-helpers test suite broken by Pygments color code changes (upstream nixpkgs).
-      # Override consumers directly — python3 overlay doesn't propagate into
-      # buildPythonApplication's resolved scope for by-name packages.
-      litecli = prev.litecli.override {
-        python3Packages = prev.python3Packages.overrideScope (
-          _pyFinal: pyPrev: {
-            cli-helpers = pyPrev.cli-helpers.overrideAttrs { doCheck = false; };
-          }
-        );
+      # python313 override fixes pgcli (lives inside the Python package scope).
+      # litecli override needed separately (by-name package, takes python3Packages arg).
+      python313 = prev.python313.override {
+        packageOverrides = _pyFinal: pyPrev: {
+          cli-helpers = pyPrev.cli-helpers.overrideAttrs { doCheck = false; };
+        };
       };
-      pgcli = prev.pgcli.override {
+      litecli = prev.litecli.override {
         python3Packages = prev.python3Packages.overrideScope (
           _pyFinal: pyPrev: {
             cli-helpers = pyPrev.cli-helpers.overrideAttrs { doCheck = false; };
