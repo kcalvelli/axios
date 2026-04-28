@@ -45,6 +45,8 @@ in
           inputs.mcp-servers-nix.overlays.default
           # mcp-gateway overlay provides the gateway package
           inputs.mcp-gateway.overlays.default
+          # cairn-companion overlay provides the companion wrapper package
+          inputs.cairn-companion.overlays.default
         ];
       };
     };
@@ -57,5 +59,12 @@ in
     )
     // {
       openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
+
+      # cli-helpers test suite broken by Pygments color code changes (upstream nixpkgs)
+      python313Packages = prev.python313Packages.overrideScope (
+        _pyFinal: pyPrev: {
+          cli-helpers = pyPrev.cli-helpers.overrideAttrs { doCheck = false; };
+        }
+      );
     };
 }
