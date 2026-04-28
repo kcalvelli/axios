@@ -1,14 +1,6 @@
 # Cairn
 
 <p align="center">
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.png">
-  <source media="(prefers-color-scheme: light)" srcset="docs/logo-light.png">
-  <img src="docs/logo.png" alt="Cairn Logo" width="400">
-</picture>
-</p>
-
-<p align="center">
 <em>A modular <a href="https://nixos.org">NixOS</a> framework and library for building reproducible systems with <a href="https://github.com/nix-community/home-manager">Home Manager</a>, modern desktop environments, and curated development tools.</em>
 </p>
 
