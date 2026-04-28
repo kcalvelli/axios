@@ -198,7 +198,7 @@
                         pkgs.pciutils
                         pkgs.util-linux
                         pkgs.gawk
-                        pkgs.claude-code-bin
+                        pkgs.claude-code
                         pkgs.gh
                       ]
                     }:$PATH"
