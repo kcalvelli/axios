@@ -60,11 +60,18 @@ in
     // {
       openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
 
-      # cli-helpers test suite broken by Pygments color code changes (upstream nixpkgs)
-      python313Packages = prev.python313Packages.overrideScope (
-        _pyFinal: pyPrev: {
+      # cli-helpers test suite broken by Pygments color code changes (upstream nixpkgs).
+      # Must override python3 so litecli/pgcli resolve the patched dep from
+      # within their buildPythonApplication scope.
+      python3 = prev.python3.override {
+        packageOverrides = _pyFinal: pyPrev: {
           cli-helpers = pyPrev.cli-helpers.overrideAttrs { doCheck = false; };
-        }
-      );
+        };
+      };
+      python3Packages = (prev.python3.override {
+        packageOverrides = _pyFinal: pyPrev: {
+          cli-helpers = pyPrev.cli-helpers.overrideAttrs { doCheck = false; };
+        };
+      }).pkgs;
     };
 }
