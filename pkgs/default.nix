@@ -60,11 +60,13 @@ in
     // {
       openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
 
-      # cli-helpers test suite broken by Pygments color code changes (upstream nixpkgs).
-      # Python packages use doInstallCheck (not doCheck) for pytest.
+      # Broken Python package tests in current nixpkgs:
+      # - cli-helpers: Pygments color code changes break style assertions
+      # - fastmcp: test suite hangs indefinitely (async/network deadlock in sandbox)
       pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
         (_pyFinal: pyPrev: {
           cli-helpers = pyPrev.cli-helpers.overrideAttrs { doInstallCheck = false; };
+          fastmcp = pyPrev.fastmcp.overrideAttrs { doInstallCheck = false; };
         })
       ];
     };
