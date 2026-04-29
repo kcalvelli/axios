@@ -72,15 +72,15 @@ in
 
       # Per-tool enablement (all default to true for backward compatibility)
       claude = {
-        enable = lib.mkEnableOption "Claude Code" // {
-          default = true;
-        };
+        enable = lib.mkEnableOption "Claude Code";
       };
 
       gemini = {
-        enable = lib.mkEnableOption "Gemini CLI" // {
-          default = true;
-        };
+        enable = lib.mkEnableOption "Gemini CLI";
+      };
+
+      workflow = {
+        enable = lib.mkEnableOption "spec-driven development workflow tools (openspec, spec-kit)";
       };
 
       openai = {
@@ -250,15 +250,13 @@ in
         [
           # Core AI tools (always installed when services.ai.enable = true)
           whisper-cpp # Speech-to-text
-          claude-monitor # Real-time Claude Code usage monitoring
-          spec-kit # Spec-driven development framework
-          openspec # OpenSpec CLI tool for SDD workflow
         ]
         # Claude Code (conditional on services.ai.claude.enable)
         ++ lib.optionals cfg.claude.enable [
           claude-code # Anthropic - MCP support, deep integration
           claude-desktop # Nix packaging of claude desktop for debian
           claude-code-router # Claude Code request router
+          claude-monitor # Real-time Claude Code usage monitoring
           # VSCode extension compatibility: claude-code symlink
           (writeShellScriptBin "claude-code" ''
             exec ${claude-code}/bin/claude "$@"
@@ -275,6 +273,11 @@ in
         ]
         ++ lib.optionals (cfg.openai.enable && cfg.openai.codexAcp.enable) [
           codex-acp
+        ]
+        # Workflow tools (conditional on services.ai.workflow.enable)
+        ++ lib.optionals cfg.workflow.enable [
+          spec-kit # Spec-driven development framework
+          openspec # OpenSpec CLI tool for SDD workflow
         ];
     })
 
