@@ -60,6 +60,10 @@ in
     // {
       openspec = inputs.openspec.packages.${prev.stdenv.hostPlatform.system}.default;
 
+      # deno 2.7.13: tty_reset_mode_restores_termios test fails in nix sandbox
+      # (no TTY available — assertion returns -16 instead of 0)
+      deno = prev.deno.overrideAttrs { doCheck = false; };
+
       # Broken Python package tests in current nixpkgs:
       # - cli-helpers: Pygments color code changes break style assertions
       # - fastmcp: test suite hangs indefinitely (async/network deadlock in sandbox)
