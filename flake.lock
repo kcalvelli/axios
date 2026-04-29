@@ -114,11 +114,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776272222,
-        "narHash": "sha256-NYaPHHwLgw9NJ89AwVD1yZ0nHrjUvRkXA6JQW8cRvvw=",
+        "lastModified": 1777483136,
+        "narHash": "sha256-g74lDGWs5n4udfJ0FskcjYtHavQKXcz7/lmn5W1TG3w=",
         "owner": "kcalvelli",
         "repo": "cairn-dav",
-        "rev": "f6a81056509684fa63215845b93705c39a125bc6",
+        "rev": "9c22f9477ed989115d3993e3db866151443bbee7",
         "type": "github"
       },
       "original": {
