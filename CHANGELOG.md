@@ -5,10 +5,194 @@ All notable changes to Cairn will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Calendar Versioning](https://calver.org/) (YYYY-MM-DD format).
 
-## [Unreleased]
+## [v2026.05.01] - 2026-05-01
+
+A consolidation release. The distro got a real name, the local LLM stack got a sensible engine, the AI and browser firehose got shut off by default, and cairn-companion finally landed as a first-class module. After this, the intent is to slow down — fewer drive-by changes, more time to bake.
 
 ### ⚠️ BREAKING CHANGES
-- **Replace Ollama with llama.cpp**: Local inference now uses `llama-server` from llama.cpp instead of Ollama. GGUF models are loaded directly — no model pull system. Options changed: `models` → `model` (single GGUF path), `keepAlive` and `rocmOverrideGfx` removed, new `contextSize`, `gpuLayers`, `extraArgs` options. Tailscale service renamed `cairn-ollama` → `cairn-llama`. Client env var `OLLAMA_HOST` → `LLAMA_API_URL`.
+
+- **Rename: axiOS → Cairn (full distribution rebrand).**
+  Every reference to `axios` / `axiOS` — option namespaces, package names, branding strings, environment variables, desktop app IDs, directory names, resource files, documentation, and URLs — has been renamed to `cairn`. The branded form `axiOS` becomes simply `Cairn`. 261 files touched across the entire base distro.
+
+  Downstream configs need to be updated for:
+  - **Option paths**: `axios.system.*` → `cairn.system.*`, `axios.users.*` → `cairn.users.*`, `axios.hardware.*` → `cairn.hardware.*`, etc.
+  - **Flake input names**: `axios.url = "github:kcalvelli/axios"` → `cairn.url = "github:kcalvelli/cairn"`. Sibling repos (`axios-ai-mail`, `axios-dav`, `axios-companion`) renamed to `cairn-mail`, `cairn-dav`, `cairn-companion`.
+  - **Tailscale service names**: `axios-ollama.<tailnet>.ts.net` → `cairn-llama.<tailnet>.ts.net`, `axios-mcp-gateway` → `cairn-mcp-gateway`, `axios-mail` → `cairn-mail`.
+  - **Environment variables**: any `AXIOS_*` consumed externally is now `CAIRN_*`.
+
+  The old `axios` repository will continue to exist as a forwarding stub.
+
+- **Replace Ollama with llama.cpp** for local LLM inference. `services.ai.local` now drives a `llama-server` systemd unit instead of an Ollama daemon. GGUF models are loaded directly from disk — there is no pull/keep-alive lifecycle.
+
+  Option changes under `services.ai.local`:
+  - `models = [ ... ]` (list of pull names) → `model = "/path/to/model.gguf"` (single GGUF path, required when `local.enable = true`)
+  - **Removed**: `keepAlive`, `rocmOverrideGfx` (GPU detection now flows from `cairn.hardware.gpuType`; ROCm override is set internally)
+  - **Added**: `contextSize` (default `32768`), `gpuLayers` (default `-1` for all layers), `extraArgs` (pass-through list to `llama-server`)
+  - Tailscale service renamed: `axios-ollama` → `cairn-llama`
+  - Client environment variable: `OLLAMA_HOST` → `LLAMA_API_URL`
+
+  Use `nix run .#download-llama-models` to fetch GGUFs into `/var/lib/llama-models/` before pointing `services.ai.local.model` at one.
+
+- **AI tool ecosystems are now opt-in.** Setting `services.ai.enable = true` no longer drags in every coding agent on Earth. The only unconditional package is `whisper-cpp`. Per-vendor flags now default to `false`:
+  ```nix
+  services.ai = {
+    enable = true;
+    claude.enable   = true;   # claude-code, claude-desktop, claude-code-router, claude-monitor
+    gemini.enable   = true;   # gemini-cli, antigravity
+    openai.enable   = true;   # codex (Deno-heavy, slow first build)
+    workflow.enable = true;   # spec-kit, openspec
+  };
+  ```
+  `claude-monitor` moved under `claude.enable`. `spec-kit` and `openspec` moved out of the base AI bundle and behind the new `workflow.enable` flag.
+
+- **Browser selection is now explicit.** `modules.desktop = true` no longer installs three browsers. Only Brave stable defaults on; everything else opts in:
+  ```nix
+  desktop.browsers.brave.enable        = true;   # default
+  desktop.browsers.braveNightly.enable = true;   # opt-in
+  desktop.browsers.braveBeta.enable    = true;   # opt-in
+  desktop.browsers.braveOrigin.enable  = true;   # opt-in (new experimental Brave channel)
+  desktop.browsers.chrome.enable       = true;   # opt-in
+  ```
+  Chromium is no longer installed as a standalone browser — it remains an implicit PWA backend with the GPU-aware command-line args plumbed in.
+
+### Added
+
+- **Companion module** (`modules/companion/`, `home/companion/`).
+  cairn-companion is now a first-class Cairn module instead of a manual flake-input dance. Setting `modules.companion = true` wires the NixOS module (Syncthing-based persona memory sync) and auto-imports the home-manager module (daemon, CLI, TUI, spokes, channels) for standard-profile users. Downstream configs can drop their own `cairn-companion` flake input.
+
+- **Bluetooth refinement** (`cairn.system.bluetooth`).
+  - `powerOnBoot` (default `true`) — automatically power on Bluetooth adapters at boot.
+  - `disableSeatMonitoring` (default `false`) — disable WirePlumber's bluez seat monitor. Use this on headless boxes where there is no active logind seat (otherwise the bluez monitor never starts).
+  - The module also unconditionally disables bluetoothd's HFP/HSP profiles so PipeWire's native Bluetooth backend owns the headset codec, eliminating the long-standing profile fight that made Bluetooth headsets randomly drop into garbage SCO.
+
+- **`linger` option for the user submodule.** `cairn.users.users.<name>.linger` enables systemd lingering so user services keep running after logout and start at boot. Useful for cairn-companion, syncthing-as-user, and anything else that should survive a console logout.
+
+- **Greeter group + fprintd** for laptop hosts. Desktop users get added to the greeter group and laptops pick up `fprintd` so fingerprint readers Just Work.
+
+- **`networking.nameservers` MulticastDNS** is now enabled in the global networking module so `<host>.local` resolution works without per-host fiddling.
+
+- **MCP gateway routing via Tailscale Service.**
+  - New `services.ai.mcp.gatewayUrl` is the single source of truth for the gateway base URL. Server hosts default to `http://127.0.0.1:<port>`; client hosts default to `https://cairn-mcp-gateway.<tailnet>.ts.net`. Both home-manager (`mcp_servers.json`) and the user environment (`MCP_GATEWAY_URL`) read this value.
+  - Client-role hosts no longer try to spawn local stdio MCP children for PIM tools (mail, DAV) that have no local backend; they get a unified HTTP entry pointed at the remote gateway.
+
+- **Brave Origin channel** is supported via the `brave-browser-previews` flake input.
+
+### Changed
+
+- **claude-code packaging**: `claude-code-bin` was merged into `claude-code` upstream in nixpkgs. Cairn now consumes the unified `claude-code` package (no more `-bin` suffix, no more `npm install` at build time).
+
+- **OpenSpec workflow**: cairn now consumes `openspec` from its flake input instead of building from source.
+
+- **MCP server set**: Servers that duplicate Claude's native capabilities were removed from the gateway config. `brave-search` was re-added after the dust settled. New MCP tools shipped via `cairn-dav` and `cairn-mail` updates.
+
+- **Calamares installer branding** updated end-to-end: axiOS strings, URLs, image references, and the QML config page (`notesqml@axiosconfig.qml` → `notesqml@cairnconfig.qml`, which fixes a latent bug where the cairn-config page wasn't appearing). The unused `axios-logo.svg` placeholder is gone.
+
+- **Logo assets**: Logo images removed from `README.md`. Cairn mark in `docs/` had a stray Gemini sparkle watermark scrubbed out.
+
+- **Discord** is now `vesktop` (native Wayland, working screen share, Material You theming, Vencord baked in).
+
+- **Starship prompt** configuration cleaned up.
+
+### Fixed
+
+- **`cli-helpers` package** (`pgcli`, `litecli`): broken Python interpreter override fixed; tests skipped where they hang in the Nix sandbox; correct use of `doInstallCheck` rather than `doCheck`. These together unbroke the `development` module on a clean build.
+- **`fastmcp`** test suite skipped — it hangs indefinitely under sandbox isolation. Unblocks the `cairn-dav` rebuild.
+- **`deno`** test suite skipped — TTY assertion fails inside the Nix sandbox. Unblocks the `codex` build chain.
+- **Neovim** adopts the new `withRuby` / `withPython3` defaults from upstream (no more deprecation warnings on rebuild).
+- **`defaults.nix` rename to `default.nix`** in `home/profiles/` — corrects a broken import that snuck through earlier.
+- **kded6 service**: added `After=graphical-session.target` so it stops racing the session it depends on.
+- **vdirsyncer issue** in `cairn-dav` resolved upstream and pulled in via flake bump.
+
+### Removed
+
+- **Ollama** inference stack (superseded by llama.cpp).
+- **`services.ai.local.keepAlive`**, **`services.ai.local.rocmOverrideGfx`** options.
+- Old axiOS branding assets (Calamares SVG placeholder, etc.).
+
+### Migration
+
+```nix
+# Before
+services.ai.enable = true;
+# (got claude-code, gemini-cli, codex, openspec, spec-kit, claude-monitor, ...)
+services.ai.local.models = [ "mistral:7b" ];
+
+# After
+services.ai = {
+  enable = true;
+  claude.enable   = true;
+  gemini.enable   = true;
+  openai.enable   = true;     # only if you actually use Codex
+  workflow.enable = true;     # if you use openspec / spec-kit
+  local = {
+    enable      = true;
+    model       = "/var/lib/llama-models/mistral-7b-instruct-v0.3.Q4_K_M.gguf";
+    contextSize = 32768;
+    gpuLayers   = -1;
+  };
+};
+
+# Brave Nightly / Chrome no longer installed by default:
+desktop.browsers.braveNightly.enable = true;
+desktop.browsers.chrome.enable       = true;
+
+# All `axios.*` option paths and Tailscale service names rename to `cairn.*` / `cairn-*`.
+# All `kcalvelli/axios*` flake inputs rename to `kcalvelli/cairn*`.
+```
+
+After rebuilding, log out and back in for `LLAMA_API_URL` and `MCP_GATEWAY_URL` to refresh in the user environment.
+
+---
+
+## [v2026.03.30] - 2026-03-30
+
+### Changed
+- Replace Discord with `vesktop` for native Wayland, working screen share, and Material You theming.
+- Greeter group added for desktop users; `fprintd` added on laptop form factor.
+- DMS update with greeter and window-rules settings; flake inputs refreshed.
+
+### Fixed
+- `claude-code-acp` and `claude-code-router` made conditional on nixpkgs availability, then restored as direct deps when upstream caught up.
+- AI module: properly handle hyphenated package names.
+- `electron_39` → `electron_38` pin removed once upstream patch landed.
+- `wivrn` module updated for upstream `defaultRuntime` removal.
+- Neovim activation: clean up `init.lua.hm-backup` files; use `verboseEcho` rather than the removed `verbose`.
+- Git signing format set to `null` to silence deprecation warning.
+
+## [v2026.03.10] - 2026-03-10
+
+### Added
+- **Desktop sub-option toggles**: `desktop.media`, `desktop.office`, `desktop.streaming`, `desktop.social` for finer-grained control over what gets installed alongside the compositor.
+- `MCP_GATEWAY_URL` set on client-role machines.
+- `mcp-gw` CLI shipped via mcp-gateway.
+
+### Changed
+- Removed redundant package installs across modules (the same packages were being added in two or three places).
+- Removed redundant MCP servers from gateway config (servers Claude already provides natively).
+- `nix-devshell-mcp` flake input dropped — wasn't earning its keep.
+
+### Fixed
+- Neovim: removed colorscheme management from cairn preset so DMS's base16 colorscheme actually applies; removed global `lazy = true` default that prevented the colorscheme from loading; user plugin specs imported from `lua/plugins/`.
+- Qt 6.10 PipeWire audio backend crash worked around.
+- `printing.nix`: added `cairn.system.printing.enable` (default `true`) so headless boxes can disable CUPS.
+- `graphics/default.nix`: GPU diagnostic tools wrapped in `lib.mkIf (gpuType != null)` so they're only installed when there's a GPU configured.
+
+## [v2026.03.07] - 2026-03-07
+
+### Added
+- **Calamares installer integration**: full graphical installer flow for live ISO with cairn-config QML page, hardware confirmation, and first-boot wizard.
+- First-boot wizard (`home/first-boot/`) — runs on first login on freshly-installed systems.
+- Default normie apps replace stock NixOS ISO apps in the live environment.
+- Brave-search MCP server re-added.
+
+### Changed
+- Switched from on-the-fly nodejs/npm to `claude-code-bin` (downloading npm dependencies during a Nix build is no one's idea of fun).
+- MulticastDNS enabled globally in networking config.
+- Stale Cachix references removed from project docs.
+
+### Fixed
+- A long string of Calamares fixes: Wayland vs XWayland startup, Qt platform plugin selection, software rendering for VMs, hostname field, broken pre-baked `flake.lock`, missing icon themes in live ISO, generic example tailnet domain in scripts, raw `TextInput` instead of `TextField` for tailnet, etc.
+- `pkexec` removed from `nixos-install` (dialog spam).
 
 ## [v2026.01.13] - 2026-01-13
 

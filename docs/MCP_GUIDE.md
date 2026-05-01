@@ -55,21 +55,29 @@ sudo nixos-rebuild switch
 
 ### Verify Installation
 
+The base URL of the MCP gateway is exposed in the user environment as `MCP_GATEWAY_URL`. Server-role hosts default to `http://127.0.0.1:8085`; client-role hosts default to `https://cairn-mcp-gateway.<tailnet>.ts.net`. Use `$MCP_GATEWAY_URL` and you don't have to think about which host you're on:
+
 ```bash
 # Check mcp-gateway health
-curl -s http://localhost:8085/health
+curl -s "$MCP_GATEWAY_URL/health"
 
 # List all MCP servers via gateway API
-curl -s http://localhost:8085/api/servers | jq
+curl -s "$MCP_GATEWAY_URL/api/servers" | jq
 
 # List available tools
-curl -s http://localhost:8085/api/tools | jq 'length'
+curl -s "$MCP_GATEWAY_URL/api/tools" | jq 'length'
 
 # View cairn system prompt
 cat ~/.config/ai/prompts/cairn.md
 
 # Check Codex MCP config
 cat ~/.codex/config.toml
+```
+
+To override the default URL (non-standard deployment):
+
+```nix
+services.ai.mcp.gatewayUrl = "https://my-gateway.example.com";
 ```
 
 ### First Use
@@ -79,6 +87,15 @@ cat ~/.codex/config.toml
 3. Tools are discovered on-demand via mcp-gateway
 
 ## MCP Architecture
+
+### Server vs. Client Hosts
+
+Cairn supports two roles for MCP gateway routing, mirroring `services.ai.local.role`:
+
+- **Server role** (default): runs the local `mcp-gateway` user service. `MCP_GATEWAY_URL` defaults to `http://127.0.0.1:<port>` (loopback). All MCP tool calls hit the local stdio children.
+- **Client role**: no local gateway. `MCP_GATEWAY_URL` defaults to `https://cairn-mcp-gateway.<tailnet>.ts.net` (the server's Tailscale Service). PIM tools (`cairn-mail`, `mcp-dav`) on client hosts are not spawned locally — instead, the home-manager generator emits a single HTTP MCP entry that proxies through the remote gateway, so client laptops get the full tool catalog without trying to talk to backends that aren't there.
+
+Set `services.ai.mcp.gatewayUrl` explicitly only if your deployment is non-standard.
 
 ### How It Works
 

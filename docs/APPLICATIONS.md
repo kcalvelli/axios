@@ -21,13 +21,18 @@ This document provides a comprehensive list of all applications included in Cair
 
 ### Browsers
 
-| Browser | Description | Role |
-|---------|-------------|------|
-| **Brave** | Chromium-based browser with built-in ad blocking | Default browser, Brave Nightly for development |
-| **Chromium** | Open-source browser engine | PWA backend (default engine for `cairn.pwa` apps) |
-| **Google Chrome** | Google's Chromium variant | Compatibility testing, alternative PWA engine |
+Browser installation is opt-in per channel. Only Brave stable defaults on; everything else is enabled via `desktop.browsers.<name>.enable = true`.
 
-> **Note:** Browser GPU acceleration flags are computed automatically based on `cairn.hardware.gpuType` and exposed via `desktop.browserArgs` for consistent hardware acceleration across all browsers and PWAs.
+| Browser | Option | Default | Notes |
+|---------|--------|---------|-------|
+| **Brave (stable)** | `desktop.browsers.brave.enable` | `true` | The cairn default browser. |
+| **Brave Nightly** | `desktop.browsers.braveNightly.enable` | `false` | From the `brave-browser-previews` flake input. |
+| **Brave Beta** | `desktop.browsers.braveBeta.enable` | `false` | Same. |
+| **Brave Origin** | `desktop.browsers.braveOrigin.enable` | `false` | New experimental Brave channel. |
+| **Google Chrome** | `desktop.browsers.chrome.enable` | `false` | For compatibility testing or Google account integration. |
+| **Chromium** | _(implicit)_ | n/a | Not installed as a standalone browser; remains the PWA backend with the GPU-aware command-line args plumbed in. |
+
+> **Note:** Browser GPU acceleration flags are computed automatically based on `cairn.hardware.gpuType` and exposed via `desktop.browserArgs`. The same flags are applied to whichever browsers you enable plus the implicit Chromium PWA backend.
 
 ### File Management
 
@@ -41,7 +46,7 @@ This document provides a comprehensive list of all applications included in Cair
 
 | Application | Description | Why This App? |
 |-------------|-------------|---------------|
-| **Discord** | Communication platform for voice, video, and text chat | Industry standard for community communication |
+| **Vesktop** | Discord client with native Wayland support | Working screen share on Wayland, Material You theming, Vencord plugins built in |
 | **Materialgram** | Fast, secure messaging client | Native Qt app with encryption and cloud sync and material design - fork of Telegram Desktop |
 | **Spotify** | Music streaming service | Large library, good playlists, native Linux client |
 | **Ghostwriter** (KDE) | Distraction-free markdown editor | FOSS alternative to Typora with clean Qt interface |
@@ -301,28 +306,33 @@ Available in development shells (`nix develop .#<shell>`):
 
 ### Base AI Tools
 
-Included when `services.ai.enable = true`:
+`services.ai.enable = true` no longer drags in every coding agent on Earth. The only unconditional package is `whisper-cpp`. Each vendor's tooling is opt-in via its own enable flag:
 
-**CLI Coding Agents** (Anthropic, Google, and optional OpenAI tooling):
+| Flag | Default | Tools enabled |
+|------|---------|---------------|
+| `services.ai.claude.enable` | `false` | `claude-code`, `claude-desktop`, `claude-code-router`, `claude-monitor` |
+| `services.ai.gemini.enable` | `false` | `gemini-cli`, `antigravity` |
+| `services.ai.openai.enable` | `false` | `codex` (Deno-heavy first build) |
+| `services.ai.openai.codexAcp.enable` | `false` | `codex-acp` (ACP companion; requires `openai.enable`) |
+| `services.ai.workflow.enable` | `false` | `openspec`, `spec-kit` |
 
-| Tool | Provider | Description |
-|------|----------|-------------|
-| **claude-code** | Anthropic | CLI agent with MCP support and deep integration |
-| **claude-desktop** | Anthropic | Claude desktop application |
-| **claude-code-router** | Anthropic | Claude Code request router |
-| **gemini** | Google | Multimodal CLI agent with free tier |
-| **antigravity** | Google | Advanced agentic assistant for Cairn development |
-| **codex** | OpenAI | Terminal coding agent, enabled via `services.ai.openai.enable` |
-| **codex-acp** | OpenAI | Optional ACP companion, enabled via `services.ai.openai.codexAcp.enable` |
-
-**Workflow & Support Tools**:
+Always-on under `services.ai.enable`:
 
 | Tool | Description |
 |------|-------------|
-| **openspec** | OpenSpec SDD workflow CLI for spec-driven development |
-| **spec-kit** | Spec-driven development framework (used by Cairn) |
-| **claude-monitor** | Real-time AI session resource monitoring |
 | **whisper-cpp** | Local speech-to-text transcription |
+
+Typical "I want everything" config:
+
+```nix
+services.ai = {
+  enable = true;
+  claude.enable   = true;
+  gemini.enable   = true;
+  openai.enable   = true;
+  workflow.enable = true;
+};
+```
 
 ### Local LLM Stack (Optional)
 
@@ -337,17 +347,16 @@ Included when `services.ai.local.enable = true`:
 Download GGUF models with `nix run .#download-llama-models` and configure via `services.ai.local.model`.
 
 **Features:**
-- OpenAI-compatible API (`/v1/chat/completions`)
-- Configurable context window (default: 32K tokens)
-- ROCm acceleration for AMD GPUs (automatic override for gfx1031)
-- Automatic model preloading on service start
-- Optional Caddy reverse proxy for remote HTTPS access
+- OpenAI-compatible API (`/v1/chat/completions`) on port `11434` by default
+- Configurable context window via `services.ai.local.contextSize` (default: 32768 tokens)
+- ROCm acceleration for AMD GPUs (driven by `cairn.hardware.gpuType`); CUDA build for NVIDIA
+- Server/client roles: a beefy desktop can serve a thin laptop over Tailscale Services as `cairn-llama.<tailnet>.ts.net` (set `services.ai.local.role = "client"` and `tailnetDomain` on the laptop)
 - MCP server support in OpenCode (user-configured)
 
 **Requirements:**
-- AMD GPU recommended (8GB+ VRAM for larger models)
+- AMD or NVIDIA GPU recommended (8GB+ VRAM for larger models)
 - 16GB+ system RAM recommended
-- Configure via `services.ai.local.*` options
+- A GGUF model file path passed via `services.ai.local.model` — fetch one with `nix run .#download-llama-models`
 
 **OpenAI authentication and config notes:**
 - `codex` uses the upstream interactive login flow (`codex login`).
@@ -361,25 +370,23 @@ Download GGUF models with `nix run .#download-llama-models` and configure via `s
 Model Context Protocol servers for enhanced AI context:
 
 **Core Servers:**
-- `filesystem` - Access local files and directories
-- `git` - Understand repository structure and history
-- `github` - Read issues, PRs, and repository data
 - `time` - Time zone operations and conversions
+- `github` - Read issues, PRs, and repository data (requires `gh auth login`)
 - `journal` - Read systemd journal logs
-- `nix-devshell-mcp` - Nix development shell integration
 
-**PIM Integration:**
+**PIM Integration** (requires `modules.pim = true`):
 - `cairn-mail` - AI-powered email access and management
 - `mcp-dav` - Calendar and contacts via CalDAV/CardDAV
 
 **AI Enhancement:**
-- `sequential-thinking` - Multi-step reasoning for complex problems
 - `context7` - Documentation retrieval for popular libraries
 
-**Search (requires API keys):**
-- `brave-search` - Web search via Brave API
+**Search (requires API key):**
+- `brave-search` - Web search via Brave API (set `BRAVE_API_KEY` via agenix or session env)
 
-**See:** [SECRETS_MODULE.md](SECRETS_MODULE.md) for configuring API keys
+**Routing**: server-role hosts hit the local gateway at `http://127.0.0.1:<port>`; client-role hosts hit `https://cairn-mcp-gateway.<tailnet>.ts.net`. Override `services.ai.mcp.gatewayUrl` if you have a non-standard deployment.
+
+**See:** [SECRETS_MODULE.md](SECRETS_MODULE.md) for configuring API keys, and [MCP_GUIDE.md](MCP_GUIDE.md) for the full server catalog.
 
 ---
 

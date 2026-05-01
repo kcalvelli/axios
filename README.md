@@ -98,7 +98,7 @@ Cairn supports **per-user desktop profiles** on multi-user systems. Each user's 
   - AMD: VA-API video decode/encode with modern Chrome 131+ flags
   - NVIDIA: VA-API via nvidia-vaapi-driver with optimized environment variables
   - Accelerates: Video playback, WebGL, Canvas rendering, GPU rasterization
-  - Works automatically in Brave and Brave Nightly (no manual configuration)
+  - Brave stable is enabled by default; Brave Nightly/Beta/Origin and Chrome are opt-in via `desktop.browsers.<name>.enable` and pick up the same GPU-aware flags when enabled.
 - **Syncthing XDG sync** - Peer-to-peer file sync across hosts via Tailscale (Documents, Music, Pictures, etc.)
 
 ### Development
@@ -175,11 +175,12 @@ Check out these example configurations:
 - **PWAs**: Progressive Web Apps integrated as native applications
 - **Virtualization**: libvirt, QEMU, Podman support (optional)
 - **Gaming**: Steam, GameMode, Proton (optional)
-- **AI Services** (optional):
-  - Cloud AI: 4 CLI coding agents (claude-code family, gemini, antigravity) + workflow tools (openspec, spec-kit)
-  - Local LLM: llama.cpp + OpenCode with ROCm/CUDA acceleration
-  - 32K context window for agentic coding
-  - Full MCP server integration
+- **AI Services** (optional, fully opt-in):
+  - **Cloud agents** behind explicit per-vendor flags — `services.ai.claude.enable`, `services.ai.gemini.enable`, `services.ai.openai.enable`. Setting `services.ai.enable = true` alone only installs `whisper-cpp`; you opt into the agents you actually use.
+  - **Workflow tooling** (openspec, spec-kit) gated behind `services.ai.workflow.enable`.
+  - **Local LLM** (`services.ai.local.enable`): llama.cpp's `llama-server` with ROCm/CUDA acceleration, single GGUF model file, server/client roles wired through Tailscale Services so a beefy desktop can serve a thin laptop.
+  - **MCP server integration** with on-demand discovery via the `mcp-gw` CLI (99% token reduction vs. loading every tool schema upfront).
+- **Companion** (optional): cairn-companion as a first-class module — persistent persona memory synced via Syncthing, daemon + CLI + TUI auto-wired for standard-profile users (`modules.companion = true`).
 - **Self-Hosted Services**: Caddy reverse proxy with Tailscale HTTPS, Immich photo backup (optional)
 
 **See project structure and module details in [docs/README.md](docs/README.md)**

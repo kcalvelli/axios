@@ -266,23 +266,20 @@ virt = {
 
 **Two-Tier Architecture:**
 
-1. **Base AI Tools** (always included when `services.ai.enable = true`):
-   - **CLI Coding Agents** (Anthropic, Google, and optional OpenAI tooling):
-     - **claude-code** - Anthropic's CLI agent with MCP support
-     - **claude-code-router** - Claude Code request router
-     - **gemini** - Google's multimodal CLI agent with free tier
-     - **antigravity** - Advanced agentic assistant for Cairn development
-     - **codex** - OpenAI terminal coding agent when `services.ai.openai.enable = true`
-     - **codex-acp** - Optional ACP companion when `services.ai.openai.codexAcp.enable = true`
-   - **Workflow & Support Tools**:
-     - **openspec** - OpenSpec SDD workflow CLI for spec-driven development
-     - **spec-kit** - Spec-driven development framework
-     - **claude-monitor** - Real-time AI session resource monitoring
-     - **whisper-cpp** - Local speech-to-text transcription
+1. **Cloud AI Tools** — opt-in per vendor.
+   `services.ai.enable = true` only installs `whisper-cpp` (speech-to-text) by default. Each agent ecosystem is gated behind its own enable flag:
+
+   | Flag | Default | Tools |
+   |------|---------|-------|
+   | `services.ai.claude.enable` | `false` | `claude-code`, `claude-desktop`, `claude-code-router`, `claude-monitor` |
+   | `services.ai.gemini.enable` | `false` | `gemini-cli`, `antigravity` |
+   | `services.ai.openai.enable` | `false` | `codex` (Deno-heavy first build) |
+   | `services.ai.openai.codexAcp.enable` | `false` | `codex-acp` (ACP companion; requires `openai.enable`) |
+   | `services.ai.workflow.enable` | `false` | `openspec`, `spec-kit` |
 
 2. **Local LLM Stack** (optional via `services.ai.local.enable = true`):
-   - **llama-server** - Local inference backend (llama.cpp) with ROCm/CUDA GPU acceleration
-   - **OpenCode** - Agentic CLI for coding tasks with full file editing
+   - **llama-server** - Local inference backend (llama.cpp) with ROCm (AMD) / CUDA (NVIDIA) GPU acceleration
+   - **OpenCode** - Agentic CLI for coding tasks with full file editing (default on; disable via `services.ai.local.cli = false`)
 
 **When to use:**
 - **Base tools:** For cloud-based AI assistance (requires API keys/subscriptions)
@@ -386,29 +383,48 @@ opencode "implement feature X with tests"
 Model Context Protocol servers provide enhanced context to AI assistants:
 
 **Core Servers:**
-- `filesystem` - Local file system access
-- `git` - Repository structure and history
-- `github` - Issues, PRs, and repository data (requires token)
 - `time` - Time zone operations
+- `github` - Issues, PRs, and repository data (requires `gh auth login`)
 - `journal` - systemd journal logs
-- `nix-devshell-mcp` - Nix development shell integration
 
-**PIM Integration:**
+**PIM Integration** (requires `modules.pim = true`):
 - `cairn-mail` - AI-powered email access and management
 - `mcp-dav` - Calendar and contacts via CalDAV/CardDAV
 
 **AI Enhancement:**
-- `sequential-thinking` - Multi-step reasoning
 - `context7` - Documentation retrieval
 
-**Search (requires API keys):**
+**Search (requires API key):**
 - `brave-search` - Web search via Brave API
+
+**Routing:** `services.ai.mcp.gatewayUrl` is the single source of truth for the gateway base URL. Server-role hosts (`services.ai.local.role = "server"` or no local LLM) default to `http://127.0.0.1:<port>`; client-role hosts default to `https://cairn-mcp-gateway.<tailnet>.ts.net`. Both home-manager (`mcp_servers.json`) and the user environment (`MCP_GATEWAY_URL`) read this value.
 
 **Configuration:** MCP servers are automatically configured for Claude Code. API keys can be stored securely using the `secrets` module.
 
 **See also:**
 - [SECRETS_MODULE.md](SECRETS_MODULE.md) for API key setup
 - [APPLICATIONS.md](APPLICATIONS.md) for complete tool descriptions
+
+---
+
+### companion
+**What it does:** First-class integration of [cairn-companion](https://github.com/kcalvelli/cairn-companion) — a persistent persona wrapper around Claude Code that survives across sessions.
+
+**Includes:**
+- The cairn-companion NixOS module (Syncthing-based memory sync between hosts)
+- Auto-imported home-manager module for standard-profile users (daemon, CLI, TUI, spokes, channels)
+- The cairn-companion overlay for the package set
+
+**When to use:** When you want a long-running personal AI persona whose memory persists across machines, with a TUI/CLI, MCP spokes, and channel adapters.
+
+**Configuration:**
+```nix
+modules.companion = true;
+```
+
+For per-user `services.cairn-companion.*` options (persona definition, channel/spoke configuration), see the cairn-companion repository's documentation.
+
+**Note:** Standard-profile users have the home-manager module wired in automatically when `modules.companion = true`. Normie-profile users do not. Downstream configs that previously imported `cairn-companion` as a separate flake input can drop it — Cairn now owns the input.
 
 ---
 
@@ -723,9 +739,11 @@ All options can be set in `extraConfig` within your host configuration.
 | `cairn.system.timeZone` | string | *required* | IANA timezone (e.g., "America/New_York") |
 | `cairn.system.locale` | string | `"en_US.UTF-8"` | System locale |
 | `cairn.system.bluetooth.powerOnBoot` | bool | `true` | Auto-power Bluetooth at boot |
+| `cairn.system.bluetooth.disableSeatMonitoring` | bool | `false` | Disable WirePlumber bluez seat monitor (for headless boxes without an active logind seat) |
 | `cairn.system.performance.swappiness` | int | `10` | VM swappiness (0-100) |
 | `cairn.system.performance.zramPercent` | int | `25` | Percentage of RAM for zram swap |
 | `cairn.system.performance.enableNetworkOptimizations` | bool | `true` | BBR congestion control + optimized buffers |
+| `cairn.users.users.<name>.linger` | bool | `false` | Enable systemd lingering for the user (services persist after logout, start at boot) |
 
 ### Hardware Options
 
@@ -747,17 +765,43 @@ All options can be set in `extraConfig` within your host configuration.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `services.ai.enable` | bool | via module flag | Enable AI tools |
+| `services.ai.enable` | bool | `false` | Enable AI tools (just `whisper-cpp` by itself; opt into vendors below) |
 | `services.ai.mcp.enable` | bool | `true` | Enable MCP servers (when AI is enabled) |
-| `services.ai.claude.enable` | bool | `true` | Enable Claude Code |
-| `services.ai.gemini.enable` | bool | `true` | Enable Gemini CLI |
+| `services.ai.mcp.gatewayUrl` | string | computed | MCP gateway base URL. Defaults to local `http://127.0.0.1:<port>` for server-role hosts and `https://cairn-mcp-gateway.<tailnet>.ts.net` for client-role hosts. |
+| `services.ai.claude.enable` | bool | `false` | Install Claude Code, claude-desktop, claude-code-router, claude-monitor |
+| `services.ai.gemini.enable` | bool | `false` | Install gemini-cli, antigravity |
+| `services.ai.openai.enable` | bool | `false` | Install codex (Deno-heavy first build) |
+| `services.ai.openai.codexAcp.enable` | bool | `false` | Install codex-acp ACP companion (requires `openai.enable`) |
+| `services.ai.workflow.enable` | bool | `false` | Install openspec, spec-kit |
+| `services.ai.systemPrompt.enable` | bool | `true` | Inject the unified Cairn system prompt into Claude Code / Gemini |
+| `services.ai.systemPrompt.extraInstructions` | lines | `""` | Custom user instructions appended to the system prompt |
 | `services.ai.local.enable` | bool | `false` | Enable local LLM stack (llama.cpp) |
-| `services.ai.local.role` | enum | `"server"` | "server" or "client" |
-| `services.ai.local.model` | path | _(required)_ | Path to GGUF model file |
+| `services.ai.local.role` | enum | `"server"` | `"server"` or `"client"` |
+| `services.ai.local.tailnetDomain` | string? | `null` | Required for client role (e.g., `"taile0fb4.ts.net"`) |
+| `services.ai.local.model` | path | _(required)_ | Absolute path to a GGUF model file |
 | `services.ai.local.contextSize` | int | `32768` | Context window size |
-| `services.ai.local.gpuLayers` | int | `-1` | GPU offload layers (-1 = all) |
-| `services.ai.local.cli` | bool | `true` | Enable OpenCode agentic CLI |
-| `services.ai.local.keepAlive` | string | `"1m"` | Model unload timeout |
+| `services.ai.local.port` | port | `11434` | Port for `llama-server` to listen on |
+| `services.ai.local.gpuLayers` | int | `-1` | GPU offload layers (-1 = all, 0 = CPU only) |
+| `services.ai.local.extraArgs` | list of string | `[]` | Pass-through args to `llama-server` |
+| `services.ai.local.cli` | bool | `true` | Install OpenCode agentic CLI |
+
+### Companion Module Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `services.companion.enable` | bool | via `modules.companion` | Enable cairn-companion (Syncthing memory sync + home-manager wiring for standard profile) |
+
+For per-user `services.cairn-companion.*` options, see the cairn-companion repository.
+
+### Desktop Browser Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `desktop.browsers.brave.enable` | bool | `true` | Brave stable (the cairn default browser) |
+| `desktop.browsers.braveNightly.enable` | bool | `false` | Brave Nightly channel |
+| `desktop.browsers.braveBeta.enable` | bool | `false` | Brave Beta channel |
+| `desktop.browsers.braveOrigin.enable` | bool | `false` | Brave Origin (experimental channel) |
+| `desktop.browsers.chrome.enable` | bool | `false` | Google Chrome |
 
 ---
 
